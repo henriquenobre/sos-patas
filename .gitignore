@@ -1,0 +1,10 @@
+# Material do projeto acadêmico (dados da entrevista e da ONG) — não publicar
+PROJETO.md
+*.pdf
+fotos/
+
+# Ferramentas locais
+.claude/
+__pycache__/
+.env*
+node_modules/

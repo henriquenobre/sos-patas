@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SOS Patas – Protótipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  // Tokens de design: usar os mesmos no tailwind.config do projeto React
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          azul: { DEFAULT: '#1F3E9C', escuro: '#152B70', claro: '#E8EDFB' },
+          vermelho: { DEFAULT: '#E02A2F', claro: '#FDECEC' },
+          amarelo: { DEFAULT: '#F5A623', claro: '#FEF5E4' },
+          fundo: '#F6F7FB',
+        },
+        fontFamily: {
+          titulo: ['"Baloo 2"', 'system-ui', 'sans-serif'],
+          corpo: ['Nunito', 'system-ui', 'sans-serif'],
+        },
+      },
+    },
+  };
+</script>
+<style>
+  [hidden] { display: none !important; }
+  body { font-family: Nunito, system-ui, sans-serif; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  details > summary { list-style: none; }
+  details > summary::-webkit-details-marker { display: none; }
+  details[open] .chev { transform: rotate(180deg); }
+</style>
+</head>
+<body class="bg-fundo text-slate-800 antialiased">
+
+<div id="app"></div>
+
+<!-- Modal genérico -->
+<div id="modal" hidden class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-4">
+  <div class="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl" id="modal-body"></div>
+</div>
+
+<!-- Navegador de telas do protótipo (não faz parte do site) -->
+<button id="proto-btn" onclick="toggleProto()" class="fixed bottom-4 left-4 z-40 rounded-full bg-slate-900 px-4 py-2 text-sm font-bold text-white shadow-lg">☰ Telas do protótipo</button>
+<div id="proto-menu" hidden class="fixed bottom-16 left-4 z-40 w-64 rounded-2xl bg-slate-900 p-3 text-sm text-white shadow-xl">
+  <p class="px-2 pb-2 text-xs uppercase tracking-wide text-slate-400">Site público</p>
+  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/">T01 · Início</a>
+  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/animais">T02 · Vitrine de animais</a>
+  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/animal/apolo">T03 · Ficha do animal</a>
+  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/como-adotar">T04 · Como adotar</a>
+  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/perguntas">T05 · Perguntas frequentes</a>
+  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/sobre">T06 · Sobre / Ajude</a>
+  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/privacidade">T07 · Privacidade</a>
+  <p class="px-2 pb-2 pt-3 text-xs uppercase tracking-wide text-slate-400">Área da ONG</p>
+  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/admin/login">T08 · Login</a>
+  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/admin">T09 · Painel de animais</a>
+  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/admin/novo">T10 · Cadastrar animal</a>
+  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/admin/editar/apolo">T11 · Editar animal</a>
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// DADOS FICTÍCIOS (exceto Apolo e Pelezinho, que são animais reais da ONG)
+// Campos seguem o modelo de dados do DESENVOLVIMENTO.md (seção 5)
+// ---------------------------------------------------------------------------
+const ONG = {
+  nome: 'SOS Patas',
+  nomeCompleto: 'Sociedade de Proteção aos Animais de Passos/MG',
+  instagram: 'sospatas.ong',
+  whatsapp: '35988439614',
+  whatsappFormatado: '(35) 9 8843-9614',
+  pix: '26.515.895/0001-90',
+};
+
+const hoje = new Date();
+const diasAtras = d => new Date(hoje.getTime() - d * 864e5);
+const mesesAtras = m => { const x = new Date(hoje); x.setMonth(x.getMonth() - m); return x; };
+
+let animais = [
+  { id: 'apolo', nome: 'Apolo', especie: 'cao', sexo: 'macho', nascimento_aprox: mesesAtras(48), porte: 'grande',
+    castrado: true, vacinado: true, vermifugado: true, docil: true, convive_animais: false,
+    descricao: 'Super dócil e carinhoso. Precisa ser filho único, sem outros animais na casa. Procuramos uma família sem preconceito com a raça.',
+    status: 'disponivel', data_entrada: diasAtras(420), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
+    fotos: ['assets/apolo.jpg'], privado: { lar_nome: 'Lar da Fernanda (Centro)', lar_tipo: 'remunerado', observacoes: 'Toma vermífugo a cada 3 meses.' } },
+  { id: 'tobias', nome: 'Tobias', especie: 'cao', sexo: 'macho', nascimento_aprox: mesesAtras(84), porte: 'medio',
+    castrado: true, vacinado: true, vermifugado: true, docil: true, convive_animais: true,
+    descricao: 'Calmo, adora passear e se dá bem com outros cães. Ideal para quem busca um companheiro tranquilo.',
+    status: 'disponivel', data_entrada: diasAtras(760), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
+    fotos: [], cor: '#C58B4E', privado: { lar_nome: 'Lar do Sr. José (Bela Vista)', lar_tipo: 'provisorio', observacoes: '' } },
+  { id: 'mel', nome: 'Mel', especie: 'gato', sexo: 'femea', nascimento_aprox: mesesAtras(36), porte: 'pequeno',
+    castrado: true, vacinado: true, vermifugado: true, docil: true, convive_animais: true,
+    descricao: 'Gata tranquila e independente, gosta de colo no fim do dia.',
+    status: 'disponivel', data_entrada: diasAtras(310), responsavel_tipo: 'protetor', responsavel_nome: 'Protetora Ana Paula',
+    whatsapp: '35900000000', fotos: [], cor: '#E5A65B', privado: { lar_nome: 'Casa da Ana Paula', lar_tipo: 'provisorio', observacoes: '' } },
+  { id: 'nina', nome: 'Nina', especie: 'cao', sexo: 'femea', nascimento_aprox: mesesAtras(30), porte: 'medio',
+    castrado: true, vacinado: true, vermifugado: false, docil: true, convive_animais: null,
+    descricao: 'Brincalhona e cheia de energia. Ótima com crianças.',
+    status: 'disponivel', data_entrada: diasAtras(190), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
+    fotos: [], cor: '#8B6B5C', privado: { lar_nome: 'Lar da Claudia', lar_tipo: 'provisorio', observacoes: '' } },
+  { id: 'thor', nome: 'Thor', especie: 'cao', sexo: 'macho', nascimento_aprox: mesesAtras(60), porte: 'grande',
+    castrado: true, vacinado: true, vermifugado: true, docil: false, convive_animais: false,
+    descricao: 'Desconfiado no início, mas muito leal depois que conhece. Precisa de adotante com experiência e quintal.',
+    status: 'disponivel', data_entrada: diasAtras(540), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
+    fotos: [], cor: '#3F3A3A', privado: { lar_nome: 'Lar remunerado (Dona Lúcia)', lar_tipo: 'remunerado', observacoes: 'Reativo com outros machos.' } },
+  { id: 'pelezinho', nome: 'Pelezinho', especie: 'cao', sexo: 'macho', nascimento_aprox: mesesAtras(5), porte: 'pequeno',
+    castrado: false, vacinado: true, vermifugado: true, docil: true, convive_animais: true,
+    descricao: 'Filhote esperto e carinhoso. Vacina V10 e protocolo de saúde em dia. Castração garantida pela ONG.',
+    status: 'disponivel', data_entrada: diasAtras(25), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
+    fotos: ['assets/pelezinho.jpg'], privado: { lar_nome: 'Lar da Gracia', lar_tipo: 'provisorio', observacoes: '' } },
+  { id: 'pipoca', nome: 'Pipoca', especie: 'gato', sexo: 'femea', nascimento_aprox: mesesAtras(3), porte: 'pequeno',
+    castrado: false, vacinado: false, vermifugado: true, docil: true, convive_animais: true,
+    descricao: 'Filhote de ninhada resgatada. Muito curiosa e brincalhona.',
+    status: 'disponivel', data_entrada: diasAtras(12), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
+    fotos: [], cor: '#D9D2C5', privado: { lar_nome: 'Lar da Claudia', lar_tipo: 'provisorio', observacoes: 'Ninhada de 4.' } },
+  { id: 'bolinha', nome: 'Bolinha', especie: 'cao', sexo: 'femea', nascimento_aprox: mesesAtras(2), porte: 'pequeno',
+    castrado: false, vacinado: false, vermifugado: true, docil: true, convive_animais: true,
+    descricao: 'Filhotinha dengosa, vai ficar de porte pequeno.',
+    status: 'adotado', data_entrada: diasAtras(40), data_adocao: diasAtras(3), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
+    fotos: [], cor: '#F0C987', privado: { lar_nome: 'Lar da Gracia', lar_tipo: 'provisorio', observacoes: '' } },
+];
+
+// ---------------------------------------------------------------------------
+// Regras de negócio (ver DESENVOLVIMENTO.md, seção 6)
+// ---------------------------------------------------------------------------
+const meses = a => { const n = a.nascimento_aprox;                     // meses completos de calendário
+  return Math.max(0, (hoje.getFullYear() - n.getFullYear()) * 12 + hoje.getMonth() - n.getMonth() - (hoje.getDate() < n.getDate() ? 1 : 0)); };
+const ehAdulto = a => meses(a) >= 12;                                   // RN11
+const diasEsperando = a => Math.floor((hoje - a.data_entrada) / 864e5);
+function idadeTexto(a) {                                               // RN13
+  const m = meses(a);
+  if (m < 12) return `cerca de ${Math.max(1, m)} ${m <= 1 ? 'mês' : 'meses'}`;
+  const anos = Math.floor(m / 12);
+  return `cerca de ${anos} ${anos === 1 ? 'ano' : 'anos'}`;
+}
+function esperaTexto(a) {
+  const d = diasEsperando(a);
+  if (d < 60) return `${d} dias`;
+  if (d < 365) return `${Math.floor(d / 30)} meses`;
+  const anos = Math.floor(d / 365), resto = Math.floor((d % 365) / 30);
+  return `${anos} ${anos === 1 ? 'ano' : 'anos'}${resto ? ` e ${resto} ${resto === 1 ? 'mês' : 'meses'}` : ''}`;
+}
+const disponiveis = () => animais.filter(a => a.status === 'disponivel')
+  .sort((x, y) => x.data_entrada - y.data_entrada);                    // RN10
+const esperandoMaisTempo = () => disponiveis()
+  .filter(a => ehAdulto(a) && diasEsperando(a) > 90).slice(0, 6);       // RN12
+const msgWhats = a => `Olá! Vi ${a.sexo === 'femea' ? 'a' : 'o'} ${a.nome} no site da SOS Patas e tenho interesse em adotar. Pode me passar mais informações?`; // RN14
+
+const rotulo = {
+  especie: { cao: 'Cão', gato: 'Gato' },
+  sexo: { macho: 'Macho', femea: 'Fêmea' },
+  porte: { pequeno: 'Pequeno', medio: 'Médio', grande: 'Grande' },
+  lar_tipo: { provisorio: 'Lar provisório', remunerado: 'Lar remunerado' },
+};
+
+// ---------------------------------------------------------------------------
+// Componentes visuais
+// ---------------------------------------------------------------------------
+const icone = {
+  pata: '<svg viewBox="0 0 24 24" fill="currentColor" class="h-full w-full"><circle cx="5.5" cy="9.5" r="2.3"/><circle cx="9.5" cy="5.5" r="2.3"/><circle cx="14.5" cy="5.5" r="2.3"/><circle cx="18.5" cy="9.5" r="2.3"/><path d="M12 11c-3.2 0-6.5 4.3-6.5 7 0 1.7 1.3 2.6 3 2.6 1.4 0 2.3-.8 3.5-.8s2.1.8 3.5.8c1.7 0 3-.9 3-2.6 0-2.7-3.3-7-6.5-7z"/></svg>',
+  whats: '<svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.6 2.1 1.1 1 2 1.3 2.3 1.4.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l2 .9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg>',
+  insta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>',
+  check: '<svg viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.6l7.3-7.3a1 1 0 0 1 1.4 0z" clip-rule="evenodd"/></svg>',
+  x: '<svg viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4"><path d="M6.3 5 5 6.3 8.7 10 5 13.7 6.3 15 10 11.3 13.7 15 15 13.7 11.3 10 15 6.3 13.7 5 10 8.7z"/></svg>',
+  voltar: '<svg viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5"><path fill-rule="evenodd" d="M12.7 4.3a1 1 0 0 1 0 1.4L8.4 10l4.3 4.3a1 1 0 0 1-1.4 1.4l-5-5a1 1 0 0 1 0-1.4l5-5a1 1 0 0 1 1.4 0z" clip-rule="evenodd"/></svg>',
+  menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" class="h-6 w-6"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+};
+
+function foto(a, classe = '', semRotulo = false) {
+  if (a.fotos && a.fotos[0]) return `<img src="${a.fotos[0]}" alt="Foto ${a.sexo === 'femea' ? 'da' : 'do'} ${a.nome}" class="h-full w-full object-cover ${classe}">`;
+  return `<div class="flex h-full w-full flex-col items-center justify-center gap-1 ${classe}" style="background:${a.cor || '#CBD5E1'}">
+    <div class="h-12 w-12 text-white/80">${icone.pata}</div>
+    ${semRotulo ? '' : '<span class="text-[10px] font-bold uppercase tracking-wide text-white/80">foto ilustrativa</span>'}</div>`;
+}
+
+function tag(texto, cor = 'azul') {
+  const c = { azul: 'bg-azul-claro text-azul', vermelho: 'bg-vermelho-claro text-vermelho', amarelo: 'bg-amarelo-claro text-[#9A5B00]', cinza: 'bg-slate-100 text-slate-600', verde: 'bg-emerald-50 text-emerald-700' }[cor];
+  return `<span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${c}">${texto}</span>`;
+}
+
+function cardAnimal(a, destaque = false) {
+  return `<a href="#/animal/${a.id}" class="group block overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 transition hover:shadow-md">
+    <div class="relative aspect-square overflow-hidden">${foto(a, 'transition group-hover:scale-105')}
+      ${destaque ? `<span class="absolute left-2 top-2 rounded-full bg-vermelho px-2.5 py-1 text-[11px] font-extrabold text-white shadow">⏳ ${esperaTexto(a)}</span>` : ''}
+    </div>
+    <div class="p-3">
+      <div class="flex items-center justify-between">
+        <h3 class="font-titulo text-xl font-bold leading-tight text-azul-escuro">${a.nome}</h3>
+        <span class="text-xs font-bold text-slate-500">${rotulo.sexo[a.sexo]}</span>
+      </div>
+      <p class="text-sm text-slate-600">${idadeTexto(a)} · ${rotulo.porte[a.porte]}</p>
+      ${a.responsavel_tipo === 'protetor' ? `<p class="mt-1 text-[11px] font-semibold text-slate-500">Protetor parceiro</p>` : ''}
+    </div>
+  </a>`;
+}
+
+function cabecalho() {
+  const link = (h, t) => `<a href="${h}" class="rounded-lg px-3 py-2 font-bold text-azul-escuro hover:bg-azul-claro">${t}</a>`;
+  return `<header class="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur" style="padding-top:env(safe-area-inset-top,0px)">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-2">
+      <a href="#/" class="flex items-center gap-2">
+        <img src="assets/logo.png" alt="Logo SOS Patas" class="h-11 w-11 rounded-md ring-1 ring-slate-200">
+        <span class="font-titulo text-xl font-extrabold leading-none text-azul">SOS Patas<span class="block font-corpo text-[11px] font-semibold text-slate-500">Passos/MG</span></span>
+      </a>
+      <nav class="hidden items-center gap-1 md:flex">
+        ${link('#/animais', 'Adote')}${link('#/como-adotar', 'Como adotar')}${link('#/perguntas', 'Dúvidas')}${link('#/sobre', 'Sobre e ajude')}
+      </nav>
+      <button onclick="abrirMenu()" class="rounded-lg p-2 text-azul-escuro md:hidden" aria-label="Abrir menu">${icone.menu}</button>
+    </div>
+    <div id="menu-mobile" hidden class="border-t border-slate-200 bg-white px-4 py-2 md:hidden">
+      <div class="flex flex-col">${link('#/animais', 'Adote um animal')}${link('#/como-adotar', 'Como adotar')}${link('#/perguntas', 'Perguntas frequentes')}${link('#/sobre', 'Sobre a ONG e como ajudar')}</div>
+    </div>
+  </header>`;
+}
+
+function rodape() {
+  return `<footer class="mt-12 bg-azul-escuro text-white">
+    <div class="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-3">
+      <div>
+        <div class="flex items-center gap-3"><img src="assets/logo.png" alt="" class="h-12 w-12 rounded-md bg-white"><div><p class="font-titulo text-xl font-bold">SOS Patas</p><p class="text-sm text-white/70">${ONG.nomeCompleto}</p></div></div>
+        <p class="mt-3 text-sm text-white/80">ONG formada 100% por voluntários. Vivemos de doações.</p>
+      </div>
+      <div class="text-sm">
+        <p class="mb-2 font-bold uppercase tracking-wide text-white/60">Navegue</p>
+        <div class="grid grid-cols-2 gap-1.5">
+          <a href="#/animais" class="hover:underline">Adote</a><a href="#/como-adotar" class="hover:underline">Como adotar</a>
+          <a href="#/perguntas" class="hover:underline">Dúvidas</a><a href="#/sobre" class="hover:underline">Sobre e ajude</a>
+          <a href="#/privacidade" class="hover:underline">Privacidade</a><a href="#/admin/login" class="hover:underline">Área da ONG</a>
+        </div>
+      </div>
+      <div class="space-y-2 text-sm">
+        <p class="mb-2 font-bold uppercase tracking-wide text-white/60">Contato</p>
+        <p class="flex items-center gap-2">${icone.insta} @${ONG.instagram}</p>
+        <p class="flex items-center gap-2">${icone.whats} ${ONG.whatsappFormatado}</p>
+        <p class="rounded-xl bg-white/10 p-3"><span class="font-bold text-amarelo">PIX (CNPJ):</span> ${ONG.pix}</p>
+      </div>
+    </div>
+    <p class="border-t border-white/10 py-4 text-center text-xs text-white/50">SOS Patas · Passos/MG · Projeto de extensão universitária</p>
+  </footer>`;
+}
+
+const pagina = (conteudo) => cabecalho() + `<main>${conteudo}</main>` + rodape();
+const titulo = (t, sub = '') => `<div class="bg-azul text-white"><div class="mx-auto max-w-6xl px-4 py-8"><h1 class="font-titulo text-3xl font-extrabold md:text-4xl">${t}</h1>${sub ? `<p class="mt-1 text-white/85">${sub}</p>` : ''}</div></div>`;
+
+// ---------------------------------------------------------------------------
+// T01 · Início
+// ---------------------------------------------------------------------------
+function telaInicio() {
+  const destaque = esperandoMaisTempo();
+  const passos = [
+    ['Escolha', 'Veja os animais e abra a ficha de quem chamou sua atenção.'],
+    ['Converse', 'Toque em "Quero adotar" e fale com a ONG pelo WhatsApp.'],
+    ['Entrevista e termo', 'Uma conversa rápida e a assinatura do termo de adoção.'],
+    ['Acompanhamento', 'A gente acompanha a adaptação pelo WhatsApp.'],
+  ];
+  return pagina(`
+  <section class="relative overflow-hidden bg-azul text-white">
+    <div class="absolute -right-10 -top-10 h-48 w-48 text-white/5">${icone.pata}</div>
+    <div class="absolute -bottom-12 left-1/3 h-40 w-40 text-white/5">${icone.pata}</div>
+    <div class="relative mx-auto grid max-w-6xl items-center gap-8 px-4 py-10 md:grid-cols-2 md:py-16">
+      <div>
+        <span class="inline-block rounded-full bg-vermelho px-3 py-1 text-xs font-extrabold uppercase tracking-wide">Adoção responsável · sem taxa</span>
+        <h1 class="mt-3 font-titulo text-4xl font-extrabold leading-[1.05] md:text-6xl">Toda patinha merece um lar.</h1>
+        <p class="mt-3 max-w-md text-lg text-white/90">Conheça os cães e gatos da SOS Patas que estão esperando uma família em Passos e região.</p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a href="#/animais" class="rounded-xl bg-amarelo px-5 py-3 font-extrabold text-azul-escuro shadow-lg hover:brightness-105">Ver animais para adoção</a>
+          <a href="#/sobre" class="rounded-xl border-2 border-white/70 px-5 py-3 font-bold hover:bg-white/10">Ajude a ONG</a>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="aspect-[3/4] overflow-hidden rounded-2xl ring-4 ring-white/20">${foto(animais.find(a => a.id === 'apolo'))}</div>
+        <div class="mt-8 aspect-[3/4] overflow-hidden rounded-2xl ring-4 ring-white/20">${foto(animais.find(a => a.id === 'pelezinho'))}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative z-10 mx-auto -mt-6 max-w-6xl px-4">
+    <div class="grid grid-cols-3 gap-2 rounded-2xl bg-white p-3 text-center shadow-md ring-1 ring-slate-200 md:p-5">
+      <div><p class="font-titulo text-3xl font-extrabold text-azul">${disponiveis().length}</p><p class="text-xs font-semibold text-slate-600 md:text-sm">animais esperando</p></div>
+      <div class="border-x border-slate-200"><p class="font-titulo text-3xl font-extrabold text-vermelho">${disponiveis().filter(ehAdulto).length}</p><p class="text-xs font-semibold text-slate-600 md:text-sm">adultos</p></div>
+      <div><p class="font-titulo text-3xl font-extrabold text-amarelo">100%</p><p class="text-xs font-semibold text-slate-600 md:text-sm">voluntários</p></div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 pt-10">
+    <div class="flex items-end justify-between gap-4">
+      <div>
+        <p class="text-sm font-extrabold uppercase tracking-wide text-vermelho">Eles precisam de você</p>
+        <h2 class="font-titulo text-3xl font-extrabold text-azul-escuro">Esperando há mais tempo</h2>
+        <p class="text-slate-600">Filhotes são adotados rápido. Os adultos podem esperar anos por uma chance.</p>
+      </div>
+      <a href="#/animais" class="hidden shrink-0 font-bold text-azul hover:underline sm:block">Ver todos →</a>
+    </div>
+    <div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">${destaque.map(a => cardAnimal(a, true)).join('')}</div>
+    <a href="#/animais" class="mt-5 block rounded-xl bg-azul py-3 text-center font-extrabold text-white sm:hidden">Ver todos os animais</a>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 pt-12">
+    <h2 class="font-titulo text-3xl font-extrabold text-azul-escuro">Como adotar</h2>
+    <ol class="mt-4 grid gap-3 md:grid-cols-4">
+      ${passos.map(([t, d], i) => `<li class="rounded-2xl bg-white p-4 ring-1 ring-slate-200"><span class="flex h-9 w-9 items-center justify-center rounded-full bg-vermelho font-titulo text-lg font-extrabold text-white">${i + 1}</span><p class="mt-2 font-extrabold text-azul-escuro">${t}</p><p class="text-sm text-slate-600">${d}</p></li>`).join('')}
+    </ol>
+    <a href="#/como-adotar" class="mt-3 inline-block font-bold text-azul hover:underline">Saiba mais sobre a adoção →</a>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 pt-12">
+    <div class="rounded-2xl border-2 border-amarelo bg-amarelo-claro p-5">
+      <h2 class="font-titulo text-2xl font-extrabold text-azul-escuro">Importante: a SOS Patas não faz resgates</h2>
+      <p class="mt-1 text-slate-700">Não temos abrigo nem transporte próprio. Todo o trabalho é feito por voluntários, com animais acolhidos em lares temporários.</p>
+      <a href="#/perguntas" class="mt-2 inline-block font-bold text-azul hover:underline">Entenda nas perguntas frequentes →</a>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 pt-12">
+    <div class="grid items-center gap-6 rounded-2xl bg-vermelho p-6 text-white md:grid-cols-[1fr_auto]">
+      <div>
+        <h2 class="font-titulo text-3xl font-extrabold">A ONG vive de doações</h2>
+        <p class="mt-1 text-white/90">Consultas, remédios, castrações e lares temporários têm custo. Qualquer valor ajuda.</p>
+      </div>
+      <div class="rounded-xl bg-white p-4 text-center text-azul-escuro">
+        <p class="text-xs font-extrabold uppercase tracking-wide text-slate-500">PIX (CNPJ)</p>
+        <p class="font-titulo text-2xl font-extrabold">${ONG.pix}</p>
+        <button onclick="copiarPix(this)" class="mt-2 w-full rounded-lg bg-azul px-4 py-2 text-sm font-extrabold text-white">Copiar chave PIX</button>
+      </div>
+    </div>
+  </section>`);
+}
+
+// ---------------------------------------------------------------------------
+// T02 · Vitrine
+// ---------------------------------------------------------------------------
+const filtros = { especie: '', porte: '', idade: '', convive: false };
+function chip(grupo, valor, texto) {
+  const ativo = filtros[grupo] === valor;
+  return `<button onclick="setFiltro('${grupo}','${valor}')" class="shrink-0 rounded-full border-2 px-3.5 py-1.5 text-sm font-bold ${ativo ? 'border-azul bg-azul text-white' : 'border-slate-200 bg-white text-slate-700'}">${texto}</button>`;
+}
+function setFiltro(g, v) { filtros[g] = filtros[g] === v ? '' : v; render(); }
+function telaVitrine() {
+  const lista = disponiveis().filter(a =>
+    (!filtros.especie || a.especie === filtros.especie) &&
+    (!filtros.porte || a.porte === filtros.porte) &&
+    (!filtros.idade || (filtros.idade === 'adulto' ? ehAdulto(a) : !ehAdulto(a))) &&
+    (!filtros.convive || a.convive_animais === true));
+  return pagina(titulo('Animais para adoção', `${disponiveis().length} cães e gatos esperando uma família`) + `
+  <div class="sticky top-[60px] z-20 border-b border-slate-200 bg-fundo/95 backdrop-blur">
+    <div class="no-scrollbar mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 py-3">
+      ${chip('especie', 'cao', '🐶 Cães')}${chip('especie', 'gato', '🐱 Gatos')}
+      <span class="mx-1 w-px shrink-0 bg-slate-300"></span>
+      ${chip('idade', 'filhote', 'Filhotes')}${chip('idade', 'adulto', 'Adultos')}
+      <span class="mx-1 w-px shrink-0 bg-slate-300"></span>
+      ${chip('porte', 'pequeno', 'Pequeno')}${chip('porte', 'medio', 'Médio')}${chip('porte', 'grande', 'Grande')}
+      <span class="mx-1 w-px shrink-0 bg-slate-300"></span>
+      <button onclick="filtros.convive=!filtros.convive;render()" class="shrink-0 rounded-full border-2 px-3.5 py-1.5 text-sm font-bold ${filtros.convive ? 'border-azul bg-azul text-white' : 'border-slate-200 bg-white text-slate-700'}">Convive com outros animais</button>
+    </div>
+  </div>
+  <section class="mx-auto max-w-6xl px-4 pt-5">
+    <p class="mb-3 text-sm font-semibold text-slate-500">${lista.length} ${lista.length === 1 ? 'animal encontrado' : 'animais encontrados'} · mais antigos primeiro</p>
+    ${lista.length ? `<div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">${lista.map(a => cardAnimal(a, ehAdulto(a) && diasEsperando(a) > 90)).join('')}</div>`
+    : `<div class="rounded-2xl bg-white p-8 text-center ring-1 ring-slate-200"><p class="font-bold text-slate-700">Nenhum animal com esses filtros.</p><button onclick="Object.assign(filtros,{especie:'',porte:'',idade:'',convive:false});render()" class="mt-2 font-bold text-azul underline">Limpar filtros</button></div>`}
+  </section>`);
+}
+
+// ---------------------------------------------------------------------------
+// T03 · Ficha do animal
+// ---------------------------------------------------------------------------
+function item(ok, texto) {
+  if (ok === null || ok === undefined) return `<li class="flex items-center gap-2 text-slate-500"><span class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold">?</span>${texto}: não informado</li>`;
+  return `<li class="flex items-center gap-2 ${ok ? 'text-slate-800' : 'text-slate-500'}"><span class="flex h-6 w-6 items-center justify-center rounded-full ${ok ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">${ok ? icone.check : icone.x}</span>${texto}</li>`;
+}
+function telaFicha(id) {
+  const a = animais.find(x => x.id === id);
+  if (!a) return pagina(titulo('Animal não encontrado') + `<p class="mx-auto max-w-6xl px-4 pt-6"><a class="font-bold text-azul underline" href="#/animais">Voltar para a vitrine</a></p>`);
+  const ela = a.sexo === 'femea';
+  return pagina(`
+  <div class="mx-auto max-w-6xl px-4 pt-4"><a href="#/animais" class="inline-flex items-center gap-1 font-bold text-azul">${icone.voltar} Voltar</a></div>
+  <section class="mx-auto grid max-w-6xl gap-6 px-4 pt-3 md:grid-cols-2">
+    <div>
+      <div class="aspect-[4/5] overflow-hidden rounded-2xl bg-slate-200 md:aspect-square">${foto(a)}</div>
+      ${a.fotos.length > 1 ? `<div class="mt-2 grid grid-cols-3 gap-2">${a.fotos.map((f, i) => `<img src="${f}" alt="" class="aspect-square w-full rounded-xl object-cover ring-2 ${i === 0 ? 'ring-azul' : 'ring-transparent opacity-70'}">`).join('')}</div>` : ''}
+    </div>
+    <div>
+      ${a.status === 'adotado' ? tag('Adotado 💙', 'verde') : ehAdulto(a) && diasEsperando(a) > 90 ? tag(`Esperando há ${esperaTexto(a)}`, 'vermelho') : ''}
+      <h1 class="mt-2 font-titulo text-5xl font-extrabold text-azul-escuro">${a.nome}</h1>
+      <div class="mt-2 flex flex-wrap gap-2">${tag(rotulo.especie[a.especie])}${tag(rotulo.sexo[a.sexo])}${tag(idadeTexto(a))}${tag('Porte ' + rotulo.porte[a.porte].toLowerCase())}</div>
+      ${a.descricao ? `<p class="mt-4 text-lg leading-relaxed text-slate-700">${a.descricao}</p>` : ''}
+      <div class="mt-5 grid gap-4 sm:grid-cols-2">
+        <div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+          <p class="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-500">Saúde</p>
+          <ul class="space-y-2 font-semibold">
+            ${a.castrado ? item(true, ela ? 'Castrada' : 'Castrado') : `<li class="flex items-center gap-2 text-[#9A5B00]"><span class="flex h-6 w-6 items-center justify-center rounded-full bg-amarelo-claro">${icone.check}</span>Castração garantida pela ONG</li>`}
+            ${item(a.vacinado, ela ? 'Vacinada' : 'Vacinado')}
+            ${item(a.vermifugado, ela ? 'Vermifugada' : 'Vermifugado')}
+          </ul>
+        </div>
+        <div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+          <p class="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-500">Temperamento</p>
+          <ul class="space-y-2 font-semibold">
+            ${item(a.docil, ela ? 'Dócil' : 'Dócil')}
+            ${item(a.convive_animais, 'Convive com outros animais')}
+          </ul>
+        </div>
+      </div>
+      <div class="mt-4 rounded-2xl bg-azul-claro p-4 text-sm">
+        <p><span class="font-extrabold text-azul-escuro">Responsável:</span> ${a.responsavel_nome}${a.responsavel_tipo === 'protetor' ? ' (protetor parceiro)' : ''}</p>
+        <p class="mt-1 text-slate-700">Adoção <b>sem taxa</b>, com entrevista, termo de adoção e acompanhamento.</p>
+      </div>
+      ${a.status === 'disponivel' ? `
+      <div class="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white p-3 md:static md:mt-5 md:border-0 md:bg-transparent md:p-0" style="padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px)">
+        <button onclick="quero('${a.id}')" class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-4 text-lg font-extrabold text-white shadow-lg hover:brightness-95">${icone.whats} Quero adotar ${a.nome}</button>
+      </div><div class="h-20 md:hidden"></div>` : ''}
+    </div>
+  </section>`);
+}
+
+// ---------------------------------------------------------------------------
+// T04 · Como adotar
+// ---------------------------------------------------------------------------
+function telaComoAdotar() {
+  const passos = [
+    ['Escolha o animal', 'Navegue pela vitrine, use os filtros e abra a ficha para ver saúde e temperamento.'],
+    ['Fale com a ONG', 'Toque em "Quero adotar". O WhatsApp abre com uma mensagem pronta citando o animal.'],
+    ['Entrevista', 'Uma conversa para conhecer sua rotina, sua casa e garantir que o animal combina com você.'],
+    ['Termo de adoção', 'Você assina o termo de adoção responsável. Não cobramos taxa.'],
+    ['Acompanhamento', 'Acompanhamos a adaptação pelo WhatsApp e, se necessário, com uma visita.'],
+  ];
+  return pagina(titulo('Como adotar', 'Simples, responsável e sem taxa') + `
+  <section class="mx-auto max-w-3xl px-4 pt-6">
+    <ol class="relative space-y-4 border-l-4 border-azul-claro pl-6">
+      ${passos.map(([t, d], i) => `<li class="relative"><span class="absolute -left-[42px] flex h-9 w-9 items-center justify-center rounded-full bg-azul font-titulo text-lg font-extrabold text-white ring-4 ring-fundo">${i + 1}</span>
+        <div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200"><p class="font-titulo text-xl font-bold text-azul-escuro">${t}</p><p class="text-slate-600">${d}</p></div></li>`).join('')}
+    </ol>
+    <div class="mt-6 rounded-2xl bg-white p-5 ring-1 ring-slate-200">
+      <h2 class="font-titulo text-2xl font-bold text-azul-escuro">Antes de adotar, pense em:</h2>
+      <ul class="mt-2 list-disc space-y-1 pl-5 text-slate-700">
+        <li>Um animal vive de 10 a 15 anos ou mais.</li>
+        <li>Há custos com ração, vacinas e veterinário.</li>
+        <li>Sua casa precisa ser segura (portão, telas para gatos).</li>
+        <li>Todos na casa precisam estar de acordo.</li>
+      </ul>
+    </div>
+    <a href="#/animais" class="mt-6 block rounded-xl bg-azul py-4 text-center text-lg font-extrabold text-white">Ver animais para adoção</a>
+  </section>`);
+}
+
+// ---------------------------------------------------------------------------
+// T05 · Perguntas frequentes
+// ---------------------------------------------------------------------------
+function telaPerguntas() {
+  const faq = [
+    ['Vocês resgatam animais?', 'Não. A SOS Patas não tem abrigo nem transporte próprio, por isso não realizamos resgates diretos. Somos uma equipe 100% voluntária e os animais ficam em lares temporários. Contamos com o apoio da sociedade.'],
+    ['Vocês buscam o animal aqui em casa?', 'Não temos transporte próprio. Os deslocamentos dependem da boa vontade de voluntários.'],
+    ['Não posso mais ficar com meu animal. Vocês recebem?', 'Não temos abrigo para receber animais. Você pode divulgar o animal e procurar um novo lar com responsabilidade. Abandonar animais é crime (Lei 9.605/1998).'],
+    ['A adoção tem taxa?', 'Não. A adoção é gratuita. Fazemos entrevista, termo de adoção e acompanhamento.'],
+    ['Os animais são castrados e vacinados?', 'Cada ficha mostra a situação de castração, vacinas e vermífugo. Para filhotes, a castração é garantida pela ONG na idade certa.'],
+    ['Posso adotar se moro em apartamento?', 'Depende do animal. Na ficha você vê o porte e o temperamento, e na entrevista avaliamos juntos.'],
+    ['Como posso ajudar a ONG?', `Com doações pelo PIX (CNPJ ${ONG.pix}), oferecendo lar temporário ou compartilhando os animais nas redes sociais.`],
+    ['Sou protetor independente. Posso divulgar um animal aqui?', 'Fale com a SOS Patas pelo WhatsApp. Animais de protetores parceiros aparecem no site com o nome do responsável.'],
+  ];
+  return pagina(titulo('Perguntas frequentes', 'Respostas para as dúvidas mais comuns') + `
+  <section class="mx-auto max-w-3xl space-y-3 px-4 pt-6">
+    ${faq.map(([p, r], i) => `<details class="group rounded-2xl bg-white ring-1 ring-slate-200" ${i === 0 ? 'open' : ''}>
+      <summary class="flex cursor-pointer items-center justify-between gap-3 p-4 font-extrabold text-azul-escuro">${p}<span class="chev text-azul transition">▾</span></summary>
+      <p class="px-4 pb-4 text-slate-700">${r}</p></details>`).join('')}
+    <div class="rounded-2xl bg-azul-claro p-5 text-center">
+      <p class="font-bold text-azul-escuro">Não encontrou sua dúvida?</p>
+      <p class="text-sm text-slate-700">Fale com a gente pelo Instagram <b>@${ONG.instagram}</b> ou WhatsApp <b>${ONG.whatsappFormatado}</b>.</p>
+    </div>
+  </section>`);
+}
+
+// ---------------------------------------------------------------------------
+// T06 · Sobre e ajude
+// ---------------------------------------------------------------------------
+function telaSobre() {
+  const fatos = [
+    ['100% voluntários', 'Toda a equipe é formada por voluntários.'],
+    ['Sem abrigo', 'Os animais ficam em lares temporários até a adoção.'],
+    ['Sem transporte próprio', 'Os deslocamentos dependem de voluntários.'],
+    ['Vive de doações', 'Atendimento, remédios, exames e castrações têm custo.'],
+  ];
+  return pagina(titulo('Sobre a SOS Patas', ONG.nomeCompleto) + `
+  <section class="mx-auto max-w-4xl px-4 pt-6">
+    <div class="flex flex-col items-center gap-5 rounded-2xl bg-white p-6 ring-1 ring-slate-200 sm:flex-row">
+      <img src="assets/logo.png" alt="Logo SOS Patas" class="h-28 w-28 rounded-xl ring-1 ring-slate-200">
+      <p class="text-lg leading-relaxed text-slate-700">A SOS Patas tem como objetivo <b>proteger animais abandonados e maltratados</b>, providenciar atendimento veterinário e encontrar <b>lares amorosos</b>.</p>
+    </div>
+    <h2 class="mt-8 font-titulo text-2xl font-bold text-azul-escuro">Como funcionamos</h2>
+    <div class="mt-3 grid gap-3 sm:grid-cols-2">
+      ${fatos.map(([t, d]) => `<div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200"><p class="font-extrabold text-azul-escuro">${t}</p><p class="text-sm text-slate-600">${d}</p></div>`).join('')}
+    </div>
+    <h2 class="mt-8 font-titulo text-2xl font-bold text-azul-escuro">Como ajudar</h2>
+    <div class="mt-3 grid gap-3 md:grid-cols-3">
+      <div class="rounded-2xl bg-vermelho p-5 text-white">
+        <p class="font-titulo text-xl font-bold">Doe pelo PIX</p>
+        <p class="mt-1 text-sm text-white/90">Chave (CNPJ)</p>
+        <p class="font-titulo text-xl font-extrabold">${ONG.pix}</p>
+        <button onclick="copiarPix(this)" class="mt-3 w-full rounded-lg bg-white py-2 text-sm font-extrabold text-vermelho">Copiar chave PIX</button>
+      </div>
+      <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200"><p class="font-titulo text-xl font-bold text-azul-escuro">Seja lar temporário</p><p class="mt-1 text-sm text-slate-600">Acolha um animal em casa até ele ser adotado. Fale com a ONG pelo WhatsApp.</p></div>
+      <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200"><p class="font-titulo text-xl font-bold text-azul-escuro">Compartilhe</p><p class="mt-1 text-sm text-slate-600">Divulgar os animais nas redes ajuda muito. Siga <b>@${ONG.instagram}</b>.</p></div>
+    </div>
+  </section>`);
+}
+
+// ---------------------------------------------------------------------------
+// T07 · Privacidade
+// ---------------------------------------------------------------------------
+function telaPrivacidade() {
+  return pagina(titulo('Política de privacidade', 'Como tratamos dados, conforme a LGPD (Lei 13.709/2018)') + `
+  <section class="mx-auto max-w-3xl space-y-4 px-4 pt-6 text-slate-700">
+    <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200"><h2 class="font-titulo text-xl font-bold text-azul-escuro">Quais dados coletamos</h2><p>O site não pede cadastro de visitantes. O contato para adoção acontece pelo WhatsApp, por iniciativa sua.</p></div>
+    <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200"><h2 class="font-titulo text-xl font-bold text-azul-escuro">Estatísticas de acesso</h2><p>Usamos estatísticas anônimas e sem cookies para saber quantas pessoas visitam o site.</p></div>
+    <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200"><h2 class="font-titulo text-xl font-bold text-azul-escuro">Voluntários e lares temporários</h2><p>Os endereços e nomes dos lares temporários nunca são exibidos no site. Ficam visíveis apenas para a equipe da ONG, com login.</p></div>
+    <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200"><h2 class="font-titulo text-xl font-bold text-azul-escuro">Seus direitos</h2><p>Você pode pedir informações ou a exclusão de qualquer dado pelo WhatsApp ${ONG.whatsappFormatado}.</p></div>
+  </section>`);
+}
+
+// ---------------------------------------------------------------------------
+// ÁREA DA ONG
+// ---------------------------------------------------------------------------
+function cabecalhoAdmin(voltar) {
+  return `<header class="sticky top-0 z-30 bg-azul-escuro text-white" style="padding-top:env(safe-area-inset-top,0px)">
+    <div class="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
+      ${voltar ? `<a href="${voltar}" class="flex items-center gap-1 font-bold">${icone.voltar} Voltar</a>` : `<div class="flex items-center gap-2"><img src="assets/logo.png" class="h-9 w-9 rounded bg-white" alt=""><span class="font-titulo text-lg font-bold">Área da ONG</span></div>`}
+      <div class="flex items-center gap-3 text-sm"><span class="hidden text-white/70 sm:inline">Olá, Gracia</span><a href="#/admin/login" class="rounded-lg bg-white/10 px-3 py-1.5 font-bold">Sair</a></div>
+    </div>
+  </header>`;
+}
+
+// T08 · Login
+function telaLogin() {
+  return `<main class="flex min-h-screen items-center justify-center bg-azul px-4 py-10">
+    <div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+      <div class="flex flex-col items-center"><img src="assets/logo.png" class="h-20 w-20 rounded-xl ring-1 ring-slate-200" alt="Logo SOS Patas"><h1 class="mt-3 font-titulo text-2xl font-extrabold text-azul-escuro">Área da ONG</h1><p class="text-sm text-slate-500">Acesso restrito à equipe</p></div>
+      <form class="mt-6 space-y-4" onsubmit="event.preventDefault(); location.hash='#/admin'">
+        <label class="block"><span class="text-sm font-bold text-slate-700">E-mail</span><input type="email" value="gracia@exemplo.com" class="mt-1 w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-base focus:border-azul focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-bold text-slate-700">Senha</span><input type="password" value="12345678" class="mt-1 w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-base focus:border-azul focus:outline-none"></label>
+        <button class="w-full rounded-xl bg-azul py-3.5 text-lg font-extrabold text-white">Entrar</button>
+      </form>
+      <p class="mt-4 text-center text-xs text-slate-500">Esqueceu a senha? Fale com o administrador do site.</p>
+      <a href="#/" class="mt-4 block text-center text-sm font-bold text-azul">← Voltar para o site</a>
+    </div>
+  </main>`;
+}
+
+// T09 · Painel
+let abaAdmin = 'disponivel', buscaAdmin = '';
+function telaPainel() {
+  const lista = animais.filter(a => a.status === abaAdmin && a.nome.toLowerCase().includes(buscaAdmin.toLowerCase()))
+    .sort((x, y) => x.data_entrada - y.data_entrada);
+  const qtd = s => animais.filter(a => a.status === s).length;
+  const adotadosMes = animais.filter(a => a.status === 'adotado' && a.data_adocao && (hoje - a.data_adocao) < 30 * 864e5).length;
+  return cabecalhoAdmin() + `<main class="mx-auto max-w-3xl px-4 pb-28 pt-4">
+    <div class="grid grid-cols-3 gap-2 text-center">
+      <div class="rounded-2xl bg-white p-3 ring-1 ring-slate-200"><p class="font-titulo text-2xl font-extrabold text-azul">${qtd('disponivel')}</p><p class="text-xs font-semibold text-slate-500">disponíveis</p></div>
+      <div class="rounded-2xl bg-white p-3 ring-1 ring-slate-200"><p class="font-titulo text-2xl font-extrabold text-vermelho">${disponiveis().filter(a => ehAdulto(a) && diasEsperando(a) > 90).length}</p><p class="text-xs font-semibold text-slate-500">esperando +90 dias</p></div>
+      <div class="rounded-2xl bg-white p-3 ring-1 ring-slate-200"><p class="font-titulo text-2xl font-extrabold text-emerald-600">${adotadosMes}</p><p class="text-xs font-semibold text-slate-500">adotados no mês</p></div>
+    </div>
+    <div class="mt-4 flex rounded-xl bg-slate-200 p-1 font-bold">
+      <button onclick="abaAdmin='disponivel';render()" class="flex-1 rounded-lg py-2 ${abaAdmin === 'disponivel' ? 'bg-white text-azul-escuro shadow' : 'text-slate-600'}">Disponíveis (${qtd('disponivel')})</button>
+      <button onclick="abaAdmin='adotado';render()" class="flex-1 rounded-lg py-2 ${abaAdmin === 'adotado' ? 'bg-white text-azul-escuro shadow' : 'text-slate-600'}">Adotados (${qtd('adotado')})</button>
+    </div>
+    <input oninput="buscaAdmin=this.value;render();const b=document.getElementById('busca');b.focus();b.setSelectionRange(b.value.length,b.value.length)" value="${buscaAdmin}" placeholder="Buscar pelo nome…" class="mt-3 w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-base focus:border-azul focus:outline-none" id="busca">
+    <ul class="mt-3 space-y-2">
+      ${lista.map(a => `<li class="flex items-center gap-3 rounded-2xl bg-white p-2.5 ring-1 ring-slate-200">
+        <div class="h-16 w-16 shrink-0 overflow-hidden rounded-xl">${foto(a, '', true)}</div>
+        <div class="min-w-0 flex-1">
+          <p class="truncate font-titulo text-lg font-bold leading-tight text-azul-escuro">${a.nome}</p>
+          <p class="truncate text-xs text-slate-500">${rotulo.especie[a.especie]} · ${idadeTexto(a)} · ${a.privado.lar_nome}</p>
+          <p class="text-xs font-bold ${a.status === 'adotado' ? 'text-emerald-600' : diasEsperando(a) > 90 && ehAdulto(a) ? 'text-vermelho' : 'text-slate-500'}">${a.status === 'adotado' ? 'Adotado há ' + Math.floor((hoje - a.data_adocao) / 864e5) + ' dias' : 'Esperando há ' + esperaTexto(a)}</p>
+        </div>
+        <div class="flex shrink-0 flex-col gap-1.5">
+          <a href="#/admin/editar/${a.id}" class="rounded-lg bg-azul-claro px-3 py-1.5 text-center text-xs font-extrabold text-azul">Editar</a>
+          ${a.status === 'disponivel' ? `<button onclick="confirmarAdocao('${a.id}')" class="rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-extrabold text-emerald-700">Adotado ✓</button>` : ''}
+        </div>
+      </li>`).join('') || '<li class="rounded-2xl bg-white p-6 text-center text-slate-500 ring-1 ring-slate-200">Nenhum animal aqui.</li>'}
+    </ul>
+    <a href="#/admin/novo" class="fixed bottom-5 right-5 z-30 flex items-center gap-2 rounded-full bg-vermelho px-5 py-4 text-lg font-extrabold text-white shadow-xl" style="margin-bottom:env(safe-area-inset-bottom,0px)">＋ Cadastrar animal</a>
+  </main>`;
+}
+
+// T10 / T11 · Formulário
+function opcoes(nome, valores, atual) {
+  return `<div class="flex gap-2">${Object.entries(valores).map(([v, t]) => `<label class="flex-1"><input type="radio" name="${nome}" value="${v}" class="peer sr-only" ${atual === v ? 'checked' : ''}><span class="block cursor-pointer rounded-xl border-2 border-slate-200 bg-white py-3 text-center font-bold text-slate-700 peer-checked:border-azul peer-checked:bg-azul peer-checked:text-white">${t}</span></label>`).join('')}</div>`;
+}
+function simNao(nome, atual, comNaoSei = false) {
+  const v = { sim: 'Sim', nao: 'Não' }; if (comNaoSei) v.nsei = 'Não sei';
+  const at = atual === true ? 'sim' : atual === false ? 'nao' : comNaoSei ? 'nsei' : '';
+  return opcoes(nome, v, at);
+}
+const campo = (rotuloTxt, html, dica = '') => `<div><p class="mb-1.5 text-sm font-extrabold text-slate-700">${rotuloTxt}</p>${html}${dica ? `<p class="mt-1 text-xs text-slate-500">${dica}</p>` : ''}</div>`;
+const input = (nome, valor = '', ph = '', tipo = 'text') => `<input name="${nome}" type="${tipo}" value="${valor}" placeholder="${ph}" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-base focus:border-azul focus:outline-none">`;
+
+let fotosForm = [];
+function telaForm(id) {
+  const a = id ? animais.find(x => x.id === id) : null;
+  if (id && !a) return telaPainel();
+  if (!telaForm._ultimo || telaForm._ultimo !== (id || 'novo')) { fotosForm = a ? [...a.fotos] : []; telaForm._ultimo = id || 'novo'; }
+  const idadeMeses = a ? meses(a) : '';
+  return cabecalhoAdmin('#/admin') + `<main class="mx-auto max-w-xl px-4 pb-32 pt-4">
+    <h1 class="font-titulo text-3xl font-extrabold text-azul-escuro">${a ? 'Editar ' + a.nome : 'Cadastrar animal'}</h1>
+    <form class="mt-4 space-y-6" onsubmit="event.preventDefault(); salvar('${id || ''}', this)">
+      <section class="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        <h2 class="font-extrabold text-azul">📷 Fotos</h2>
+        <div class="grid grid-cols-3 gap-2">
+          ${[0, 1, 2].map(i => fotosForm[i]
+            ? `<div class="relative aspect-square overflow-hidden rounded-xl"><img src="${fotosForm[i]}" class="h-full w-full object-cover" alt="">${i === 0 ? '<span class="absolute bottom-1 left-1 rounded bg-azul px-1.5 text-[10px] font-bold text-white">Principal</span>' : ''}<button type="button" onclick="fotosForm.splice(${i},1);render()" class="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white" aria-label="Remover foto">${icone.x}</button></div>`
+            : `<label class="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-slate-500"><span class="text-2xl">＋</span><span class="text-xs font-bold">Adicionar</span><input type="file" accept="image/*" class="hidden" onchange="addFoto(this)"></label>`).join('')}
+        </div>
+        <p class="text-xs text-slate-500">Até 3 fotos. A primeira é a principal. As fotos são reduzidas automaticamente antes do envio.</p>
+      </section>
+
+      <section class="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        <h2 class="font-extrabold text-azul">🐾 Sobre o animal</h2>
+        ${campo('Nome *', input('nome', a ? a.nome : '', 'Ex.: Apolo'))}
+        ${campo('Espécie *', opcoes('especie', { cao: '🐶 Cão', gato: '🐱 Gato' }, a ? a.especie : ''))}
+        ${campo('Sexo *', opcoes('sexo', { macho: 'Macho', femea: 'Fêmea' }, a ? a.sexo : ''))}
+        ${campo('Idade aproximada *', `<div class="flex gap-2">${input('idade', idadeMeses >= 12 ? Math.floor(idadeMeses / 12) : idadeMeses || '', 'Ex.: 4', 'number')}<select class="rounded-xl border-2 border-slate-200 bg-white px-3 font-bold"><option ${idadeMeses >= 12 ? 'selected' : ''}>anos</option><option ${idadeMeses !== '' && idadeMeses < 12 ? 'selected' : ''}>meses</option></select></div>`, 'O site calcula a idade sozinho com o passar do tempo.')}
+        ${campo('Porte *', opcoes('porte', { pequeno: 'Pequeno', medio: 'Médio', grande: 'Grande' }, a ? a.porte : ''))}
+        ${campo('Descrição', `<textarea maxlength="500" rows="3" placeholder="Jeito, manias, cuidados especiais…" class="w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-base focus:border-azul focus:outline-none">${a ? a.descricao : ''}</textarea>`, 'Até 500 caracteres.')}
+      </section>
+
+      <section class="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        <h2 class="font-extrabold text-azul">💉 Saúde</h2>
+        ${campo('Castrado? *', simNao('castrado', a ? a.castrado : null), 'Se "Não", o site mostra "Castração garantida pela ONG".')}
+        ${campo('Vacinado? *', simNao('vacinado', a ? a.vacinado : null))}
+        ${campo('Vermifugado? *', simNao('vermifugado', a ? a.vermifugado : null))}
+      </section>
+
+      <section class="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        <h2 class="font-extrabold text-azul">💛 Temperamento</h2>
+        ${campo('É dócil?', simNao('docil', a ? a.docil : null, true))}
+        ${campo('Convive com outros animais?', simNao('convive', a ? a.convive_animais : null, true))}
+      </section>
+
+      <section class="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        <h2 class="font-extrabold text-azul">📞 Responsável (aparece no site)</h2>
+        ${campo('Quem é o responsável?', opcoes('resp', { ong: 'SOS Patas', protetor: 'Protetor parceiro' }, a ? a.responsavel_tipo : 'ong'))}
+        ${campo('Nome do protetor', input('resp_nome', a && a.responsavel_tipo === 'protetor' ? a.responsavel_nome : '', 'Só se for protetor parceiro'))}
+        ${campo('WhatsApp para contato', input('whats', a && a.whatsapp ? a.whatsapp : ONG.whatsappFormatado, '(35) 9 0000-0000', 'tel'), 'É para este número que vai o botão "Quero adotar".')}
+      </section>
+
+      <section class="space-y-4 rounded-2xl border-2 border-dashed border-amarelo bg-amarelo-claro p-4">
+        <h2 class="font-extrabold text-[#9A5B00]">🔒 Só a equipe vê (não aparece no site)</h2>
+        ${campo('Onde o animal está (lar temporário)', input('lar', a ? a.privado.lar_nome : '', 'Ex.: Lar da Claudia'))}
+        ${campo('Tipo de lar', opcoes('lar_tipo', { provisorio: 'Provisório', remunerado: 'Remunerado' }, a ? a.privado.lar_tipo : ''))}
+        ${campo('Data de entrada na ONG', input('entrada', (a ? a.data_entrada : hoje).toISOString().slice(0, 10), '', 'date'), 'Usada no destaque "Esperando há mais tempo".')}
+        ${campo('Observações internas', `<textarea rows="2" class="w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-base focus:border-azul focus:outline-none">${a ? a.privado.observacoes : ''}</textarea>`)}
+      </section>
+
+      ${a ? `<section class="space-y-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        <h2 class="font-extrabold text-slate-700">Outras ações</h2>
+        ${a.status === 'disponivel' ? `<button type="button" onclick="confirmarAdocao('${a.id}')" class="w-full rounded-xl bg-emerald-50 py-3 font-extrabold text-emerald-700">Marcar como adotado ✓</button>` : `<button type="button" onclick="voltarDisponivel('${a.id}')" class="w-full rounded-xl bg-slate-100 py-3 font-extrabold text-slate-700">Voltar para disponível</button>`}
+        <button type="button" onclick="confirmarExclusao('${a.id}')" class="w-full rounded-xl py-3 font-extrabold text-vermelho ring-2 ring-vermelho-claro">Excluir animal</button>
+        <p class="text-xs text-slate-500">Use "Excluir" só para cadastro errado ou falecimento. Adoção deve ser marcada como "Adotado".</p>
+      </section>` : ''}
+
+      <div class="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white p-3" style="padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px)">
+        <div class="mx-auto flex max-w-xl gap-2">
+          <a href="#/admin" class="rounded-xl px-5 py-3.5 font-bold text-slate-600 ring-2 ring-slate-200">Cancelar</a>
+          <button class="flex-1 rounded-xl bg-azul py-3.5 text-lg font-extrabold text-white">${a ? 'Salvar alterações' : 'Publicar no site'}</button>
+        </div>
+      </div>
+    </form>
+  </main>`;
+}
+
+// ---------------------------------------------------------------------------
+// Ações (simuladas)
+// ---------------------------------------------------------------------------
+function abrirModal(html) { document.getElementById('modal-body').innerHTML = html; document.getElementById('modal').hidden = false; }
+function fecharModal() { document.getElementById('modal').hidden = true; }
+document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') fecharModal(); });
+
+function quero(id) {
+  const a = animais.find(x => x.id === id);
+  const numero = a.whatsapp || ONG.whatsapp;
+  abrirModal(`<p class="text-xs font-extrabold uppercase tracking-wide text-slate-500">Protótipo</p>
+    <h3 class="mt-1 font-titulo text-2xl font-bold text-azul-escuro">Aqui o WhatsApp abriria</h3>
+    <p class="mt-2 text-sm text-slate-600">No site real, o botão abre a conversa com <b>${a.responsavel_nome}</b> (${numero}) já com esta mensagem:</p>
+    <div class="mt-3 rounded-xl rounded-tl-none bg-[#DCF8C6] p-3 text-slate-800">${msgWhats(a)}</div>
+    <button onclick="fecharModal()" class="mt-4 w-full rounded-xl bg-azul py-3 font-extrabold text-white">Entendi</button>`);
+}
+function copiarPix(btn) {
+  try { navigator.clipboard.writeText(ONG.pix.replace(/\D/g, '')); } catch (e) {}
+  const t = btn.textContent; btn.textContent = 'Chave copiada ✓'; setTimeout(() => btn.textContent = t, 1800);
+}
+function confirmarAdocao(id) {
+  const a = animais.find(x => x.id === id);
+  abrirModal(`<h3 class="font-titulo text-2xl font-bold text-azul-escuro">${a.nome} foi adotado? 🎉</h3>
+    <p class="mt-2 text-slate-600">${a.nome} sai da vitrine e vai para a aba "Adotados". Ficamos só com a foto principal para economizar espaço.</p>
+    <div class="mt-4 flex gap-2"><button onclick="fecharModal()" class="flex-1 rounded-xl py-3 font-bold ring-2 ring-slate-200">Cancelar</button>
+    <button onclick="marcarAdotado('${id}')" class="flex-1 rounded-xl bg-emerald-600 py-3 font-extrabold text-white">Sim, foi adotado</button></div>`);
+}
+function marcarAdotado(id) {
+  const a = animais.find(x => x.id === id);
+  a.status = 'adotado'; a.data_adocao = new Date(); a.fotos = a.fotos.slice(0, 1); // RN07, RN08
+  fecharModal(); location.hash = '#/admin'; abaAdmin = 'disponivel'; render();
+  toast(`${a.nome} marcado como adotado 💙`);
+}
+function voltarDisponivel(id) { const a = animais.find(x => x.id === id); a.status = 'disponivel'; a.data_adocao = null; location.hash = '#/admin'; toast(`${a.nome} voltou para disponíveis`); }
+function confirmarExclusao(id) {
+  const a = animais.find(x => x.id === id);
+  abrirModal(`<h3 class="font-titulo text-2xl font-bold text-vermelho">Excluir ${a.nome}?</h3>
+    <p class="mt-2 text-slate-600">Esta ação não pode ser desfeita. O cadastro e <b>todas as fotos</b> serão apagados.</p>
+    <p class="mt-2 rounded-xl bg-amarelo-claro p-3 text-sm text-[#7A4A00]">Se ${a.nome} foi adotado, use <b>"Marcar como adotado"</b>. Assim a adoção entra nas estatísticas da ONG.</p>
+    <div class="mt-4 flex gap-2"><button onclick="fecharModal()" class="flex-1 rounded-xl py-3 font-bold ring-2 ring-slate-200">Cancelar</button>
+    <button onclick="excluir('${id}')" class="flex-1 rounded-xl bg-vermelho py-3 font-extrabold text-white">Excluir</button></div>`);
+}
+function excluir(id) { // RN05: no site real, remove primeiro as fotos do Storage, depois o registro
+  const a = animais.find(x => x.id === id);
+  animais = animais.filter(x => x.id !== id); fecharModal(); location.hash = '#/admin'; toast(`${a.nome} foi excluído`);
+}
+function addFoto(inp) { const f = inp.files[0]; if (f && fotosForm.length < 3) { fotosForm.push(URL.createObjectURL(f)); render(); } }
+function salvar(id, form) {
+  const nome = form.querySelector('[name=nome]').value.trim() || 'Sem nome';
+  if (!id) {
+    const novo = { id: 'novo' + Date.now(), nome, especie: (form.querySelector('[name=especie]:checked') || {}).value || 'cao',
+      sexo: (form.querySelector('[name=sexo]:checked') || {}).value || 'macho', nascimento_aprox: mesesAtras(12),
+      porte: (form.querySelector('[name=porte]:checked') || {}).value || 'medio', castrado: false, vacinado: false, vermifugado: false,
+      docil: null, convive_animais: null, descricao: '', status: 'disponivel', data_entrada: new Date(), responsavel_tipo: 'ong',
+      responsavel_nome: 'SOS Patas', fotos: [...fotosForm], cor: '#94A3B8', privado: { lar_nome: form.querySelector('[name=lar]').value || '—', lar_tipo: 'provisorio', observacoes: '' } };
+    animais.push(novo);
+  } else { const a = animais.find(x => x.id === id); a.nome = nome; a.fotos = [...fotosForm]; }
+  telaForm._ultimo = null; location.hash = '#/admin'; toast(id ? 'Alterações salvas ✓' : `${nome} publicado no site ✓`);
+}
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'fixed left-1/2 top-4 z-[60] -translate-x-1/2 rounded-full bg-slate-900 px-5 py-3 text-sm font-bold text-white shadow-xl';
+  t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+}
+function abrirMenu() { const m = document.getElementById('menu-mobile'); m.hidden = !m.hidden; }
+function toggleProto() { const m = document.getElementById('proto-menu'); m.hidden = !m.hidden; }
+
+// ---------------------------------------------------------------------------
+// Rotas
+// ---------------------------------------------------------------------------
+function render() {
+  const h = location.hash.replace(/^#/, '') || '/';
+  const p = h.split('/').filter(Boolean);
+  let html;
+  if (h === '/') html = telaInicio();
+  else if (p[0] === 'animais') html = telaVitrine();
+  else if (p[0] === 'animal') html = telaFicha(p[1]);
+  else if (p[0] === 'como-adotar') html = telaComoAdotar();
+  else if (p[0] === 'perguntas') html = telaPerguntas();
+  else if (p[0] === 'sobre') html = telaSobre();
+  else if (p[0] === 'privacidade') html = telaPrivacidade();
+  else if (p[0] === 'admin' && p[1] === 'login') html = telaLogin();
+  else if (p[0] === 'admin' && p[1] === 'novo') html = telaForm(null);
+  else if (p[0] === 'admin' && p[1] === 'editar') html = telaForm(p[2]);
+  else if (p[0] === 'admin') html = telaPainel();
+  else html = telaInicio();
+  document.getElementById('app').innerHTML = html;
+  document.getElementById('proto-menu').hidden = true;
+}
+let ultimaRota = '';
+window.addEventListener('hashchange', () => { if (location.hash !== ultimaRota) { ultimaRota = location.hash; window.scrollTo(0, 0); } render(); });
+if (new URLSearchParams(location.search).has('print')) document.getElementById('proto-btn').hidden = true;
+render();
+</script>
+</body>
+</html>
