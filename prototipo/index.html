@@ -56,11 +56,14 @@
   <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/perguntas">T05 · Perguntas frequentes</a>
   <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/sobre">T06 · Sobre / Ajude</a>
   <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/privacidade">T07 · Privacidade</a>
+  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/perdidos">T12 · Perdidos e encontrados</a>
+  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/perdidos/novo">T13 · Anunciar perdido</a>
   <p class="px-2 pb-2 pt-3 text-xs uppercase tracking-wide text-slate-400">Área da ONG</p>
   <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/admin/login">T08 · Login</a>
   <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/admin">T09 · Painel de animais</a>
   <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/admin/novo">T10 · Cadastrar animal</a>
   <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/admin/editar/apolo">T11 · Editar animal</a>
+  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/admin/perdidos">T14 · Moderar perdidos</a>
 </div>
 
 <script>
@@ -77,6 +80,10 @@ const ONG = {
   pix: '26.515.895/0001-90',
 };
 
+// Números de exemplo baseados nas respostas da Gracia (cerca de 30 animais esperando; 10 a 15 adoções por mês).
+// No site real, os dois vêm do banco: count de status = 'disponivel' e de data_adocao nos últimos 30 dias.
+const EXEMPLO = { esperando: 30, adotadosUltimoMes: 12 };
+
 const hoje = new Date();
 const diasAtras = d => new Date(hoje.getTime() - d * 864e5);
 const mesesAtras = m => { const x = new Date(hoje); x.setMonth(x.getMonth() - m); return x; };
@@ -89,24 +96,24 @@ let animais = [
     fotos: ['assets/apolo.jpg'], privado: { lar_nome: 'Lar da Fernanda (Centro)', lar_tipo: 'remunerado', observacoes: 'Toma vermífugo a cada 3 meses.' } },
   { id: 'tobias', nome: 'Tobias', especie: 'cao', sexo: 'macho', nascimento_aprox: mesesAtras(84), porte: 'medio',
     castrado: true, vacinado: true, vermifugado: true, docil: true, convive_animais: true,
-    descricao: 'Calmo, adora passear e se dá bem com outros cães. Ideal para quem busca um companheiro tranquilo.',
+    descricao: 'Caramelo sorridente, calmo, adora passear e se dá bem com outros cães. Ideal para quem busca um companheiro tranquilo.',
     status: 'disponivel', data_entrada: diasAtras(760), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
-    fotos: [], cor: '#C58B4E', privado: { lar_nome: 'Lar do Sr. José (Bela Vista)', lar_tipo: 'provisorio', observacoes: '' } },
+    fotos: ['assets/tobias.jpg'], cor: '#C58B4E', privado: { lar_nome: 'Lar do Sr. José (Bela Vista)', lar_tipo: 'provisorio', observacoes: '' } },
   { id: 'mel', nome: 'Mel', especie: 'gato', sexo: 'femea', nascimento_aprox: mesesAtras(36), porte: 'pequeno',
     castrado: true, vacinado: true, vermifugado: true, docil: true, convive_animais: true,
-    descricao: 'Gata tranquila e independente, gosta de colo no fim do dia.',
+    descricao: 'Gata branca e peluda, tranquila e independente. Gosta de colo no fim do dia.',
     status: 'disponivel', data_entrada: diasAtras(310), responsavel_tipo: 'protetor', responsavel_nome: 'Protetora Ana Paula',
-    whatsapp: '35900000000', fotos: [], cor: '#E5A65B', privado: { lar_nome: 'Casa da Ana Paula', lar_tipo: 'provisorio', observacoes: '' } },
+    whatsapp: '35900000000', fotos: ['assets/mel.jpg'], cor: '#E5A65B', privado: { lar_nome: 'Casa da Ana Paula', lar_tipo: 'provisorio', observacoes: '' } },
   { id: 'nina', nome: 'Nina', especie: 'cao', sexo: 'femea', nascimento_aprox: mesesAtras(30), porte: 'medio',
     castrado: true, vacinado: true, vermifugado: false, docil: true, convive_animais: null,
-    descricao: 'Brincalhona e cheia de energia. Ótima com crianças.',
+    descricao: 'Brincalhona, cheia de energia e muito fotogênica. Ótima com crianças.',
     status: 'disponivel', data_entrada: diasAtras(190), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
-    fotos: [], cor: '#8B6B5C', privado: { lar_nome: 'Lar da Claudia', lar_tipo: 'provisorio', observacoes: '' } },
+    fotos: ['assets/nina.jpg'], cor: '#8B6B5C', privado: { lar_nome: 'Lar da Claudia', lar_tipo: 'provisorio', observacoes: '' } },
   { id: 'thor', nome: 'Thor', especie: 'cao', sexo: 'macho', nascimento_aprox: mesesAtras(60), porte: 'grande',
     castrado: true, vacinado: true, vermifugado: true, docil: false, convive_animais: false,
-    descricao: 'Desconfiado no início, mas muito leal depois que conhece. Precisa de adotante com experiência e quintal.',
+    descricao: 'Mistura de pastor, desconfiado no início, mas muito leal depois que conhece. Precisa de adotante com experiência e quintal.',
     status: 'disponivel', data_entrada: diasAtras(540), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
-    fotos: [], cor: '#3F3A3A', privado: { lar_nome: 'Lar remunerado (Dona Lúcia)', lar_tipo: 'remunerado', observacoes: 'Reativo com outros machos.' } },
+    fotos: ['assets/thor.jpg'], cor: '#3F3A3A', privado: { lar_nome: 'Lar remunerado (Dona Lúcia)', lar_tipo: 'remunerado', observacoes: 'Reativo com outros machos.' } },
   { id: 'pelezinho', nome: 'Pelezinho', especie: 'cao', sexo: 'macho', nascimento_aprox: mesesAtras(5), porte: 'pequeno',
     castrado: false, vacinado: true, vermifugado: true, docil: true, convive_animais: true,
     descricao: 'Filhote esperto e carinhoso. Vacina V10 e protocolo de saúde em dia. Castração garantida pela ONG.',
@@ -114,14 +121,19 @@ let animais = [
     fotos: ['assets/pelezinho.jpg'], privado: { lar_nome: 'Lar da Gracia', lar_tipo: 'provisorio', observacoes: '' } },
   { id: 'pipoca', nome: 'Pipoca', especie: 'gato', sexo: 'femea', nascimento_aprox: mesesAtras(3), porte: 'pequeno',
     castrado: false, vacinado: false, vermifugado: true, docil: true, convive_animais: true,
-    descricao: 'Filhote de ninhada resgatada. Muito curiosa e brincalhona.',
+    descricao: 'Filhote cinza e branca, de uma ninhada resgatada. Muito curiosa e brincalhona.',
     status: 'disponivel', data_entrada: diasAtras(12), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
-    fotos: [], cor: '#D9D2C5', privado: { lar_nome: 'Lar da Claudia', lar_tipo: 'provisorio', observacoes: 'Ninhada de 4.' } },
+    fotos: ['assets/pipoca.jpg'], cor: '#D9D2C5', privado: { lar_nome: 'Lar da Claudia', lar_tipo: 'provisorio', observacoes: 'Ninhada de 4.' } },
+  { id: 'ruivo', nome: 'Ruivo', especie: 'gato', sexo: 'macho', nascimento_aprox: mesesAtras(4), porte: 'pequeno',
+    castrado: false, vacinado: true, vermifugado: true, docil: true, convive_animais: true,
+    descricao: 'Filhote laranja de olhos azuis, carinhoso e muito esperto. Se dá bem com outros gatos.',
+    status: 'disponivel', data_entrada: diasAtras(35), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
+    fotos: ['assets/ruivo.jpg'], cor: '#E8A86A', privado: { lar_nome: 'Lar da Claudia', lar_tipo: 'provisorio', observacoes: '' } },
   { id: 'bolinha', nome: 'Bolinha', especie: 'cao', sexo: 'femea', nascimento_aprox: mesesAtras(2), porte: 'pequeno',
     castrado: false, vacinado: false, vermifugado: true, docil: true, convive_animais: true,
-    descricao: 'Filhotinha dengosa, vai ficar de porte pequeno.',
+    descricao: 'Filhotinha peluda e dengosa, vai ficar de porte pequeno.',
     status: 'adotado', data_entrada: diasAtras(40), data_adocao: diasAtras(3), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
-    fotos: [], cor: '#F0C987', privado: { lar_nome: 'Lar da Gracia', lar_tipo: 'provisorio', observacoes: '' } },
+    fotos: ['assets/bolinha.jpg'], cor: '#F0C987', privado: { lar_nome: 'Lar da Gracia', lar_tipo: 'provisorio', observacoes: '' } },
 ];
 
 // ---------------------------------------------------------------------------
@@ -207,12 +219,12 @@ function cabecalho() {
         <span class="font-titulo text-xl font-extrabold leading-none text-azul">SOS Patas<span class="block font-corpo text-[11px] font-semibold text-slate-500">Passos/MG</span></span>
       </a>
       <nav class="hidden items-center gap-1 md:flex">
-        ${link('#/animais', 'Adote')}${link('#/como-adotar', 'Como adotar')}${link('#/perguntas', 'Dúvidas')}${link('#/sobre', 'Sobre e ajude')}
+        ${link('#/animais', 'Adote')}${link('#/como-adotar', 'Como adotar')}${link('#/perdidos', 'Perdidos')}${link('#/perguntas', 'Dúvidas')}${link('#/sobre', 'Sobre e ajude')}
       </nav>
       <button onclick="abrirMenu()" class="rounded-lg p-2 text-azul-escuro md:hidden" aria-label="Abrir menu">${icone.menu}</button>
     </div>
     <div id="menu-mobile" hidden class="border-t border-slate-200 bg-white px-4 py-2 md:hidden">
-      <div class="flex flex-col">${link('#/animais', 'Adote um animal')}${link('#/como-adotar', 'Como adotar')}${link('#/perguntas', 'Perguntas frequentes')}${link('#/sobre', 'Sobre a ONG e como ajudar')}</div>
+      <div class="flex flex-col">${link('#/animais', 'Adote um animal')}${link('#/como-adotar', 'Como adotar')}${link('#/perdidos', 'Perdidos e encontrados')}${link('#/perguntas', 'Perguntas frequentes')}${link('#/sobre', 'Sobre a ONG e como ajudar')}</div>
     </div>
   </header>`;
 }
@@ -229,7 +241,8 @@ function rodape() {
         <div class="grid grid-cols-2 gap-1.5">
           <a href="#/animais" class="hover:underline">Adote</a><a href="#/como-adotar" class="hover:underline">Como adotar</a>
           <a href="#/perguntas" class="hover:underline">Dúvidas</a><a href="#/sobre" class="hover:underline">Sobre e ajude</a>
-          <a href="#/privacidade" class="hover:underline">Privacidade</a><a href="#/admin/login" class="hover:underline">Área da ONG</a>
+          <a href="#/perdidos" class="hover:underline">Perdidos e encontrados</a><a href="#/privacidade" class="hover:underline">Privacidade</a>
+          <a href="#/admin/login" class="hover:underline">Área da ONG</a>
         </div>
       </div>
       <div class="space-y-2 text-sm">
@@ -273,16 +286,16 @@ function telaInicio() {
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div class="aspect-[3/4] overflow-hidden rounded-2xl ring-4 ring-white/20">${foto(animais.find(a => a.id === 'apolo'))}</div>
-        <div class="mt-8 aspect-[3/4] overflow-hidden rounded-2xl ring-4 ring-white/20">${foto(animais.find(a => a.id === 'pelezinho'))}</div>
+        <div class="mt-8 aspect-[3/4] overflow-hidden rounded-2xl ring-4 ring-white/20">${foto(animais.find(a => a.id === 'ruivo'))}</div>
       </div>
     </div>
   </section>
 
   <section class="relative z-10 mx-auto -mt-6 max-w-6xl px-4">
     <div class="grid grid-cols-3 gap-2 rounded-2xl bg-white p-3 text-center shadow-md ring-1 ring-slate-200 md:p-5">
-      <div><p class="font-titulo text-3xl font-extrabold text-azul">${disponiveis().length}</p><p class="text-xs font-semibold text-slate-600 md:text-sm">animais esperando</p></div>
-      <div class="border-x border-slate-200"><p class="font-titulo text-3xl font-extrabold text-vermelho">${disponiveis().filter(ehAdulto).length}</p><p class="text-xs font-semibold text-slate-600 md:text-sm">adultos</p></div>
-      <div><p class="font-titulo text-3xl font-extrabold text-amarelo">100%</p><p class="text-xs font-semibold text-slate-600 md:text-sm">voluntários</p></div>
+      <div><p class="font-titulo text-3xl font-extrabold text-azul">${EXEMPLO.esperando}</p><p class="text-xs font-semibold text-slate-600 md:text-sm">animais esperando um lar</p></div>
+      <div class="border-x border-slate-200"><p class="font-titulo text-3xl font-extrabold text-emerald-600">${EXEMPLO.adotadosUltimoMes}</p><p class="text-xs font-semibold text-slate-600 md:text-sm">adotados no último mês</p></div>
+      <div><p class="font-titulo text-3xl font-extrabold text-vermelho">R$ 0</p><p class="text-xs font-semibold text-slate-600 md:text-sm">taxa de adoção</p></div>
     </div>
   </section>
 
@@ -315,6 +328,14 @@ function telaInicio() {
     </div>
   </section>
 
+  <section class="mx-auto max-w-6xl px-4 pt-6">
+    <a href="#/perdidos" class="flex items-center gap-4 rounded-2xl bg-white p-5 ring-1 ring-slate-200 hover:shadow-md">
+      <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-azul-claro text-3xl">🔎</span>
+      <span class="flex-1"><span class="block font-titulo text-xl font-bold text-azul-escuro">Perdeu ou encontrou um animal?</span><span class="text-sm text-slate-600">Anuncie grátis e a gente ajuda a divulgar até ele voltar para casa.</span></span>
+      <span class="font-extrabold text-azul">→</span>
+    </a>
+  </section>
+
   <section class="mx-auto max-w-6xl px-4 pt-12">
     <div class="grid items-center gap-6 rounded-2xl bg-vermelho p-6 text-white md:grid-cols-[1fr_auto]">
       <div>
@@ -345,7 +366,7 @@ function telaVitrine() {
     (!filtros.porte || a.porte === filtros.porte) &&
     (!filtros.idade || (filtros.idade === 'adulto' ? ehAdulto(a) : !ehAdulto(a))) &&
     (!filtros.convive || a.convive_animais === true));
-  return pagina(titulo('Animais para adoção', `${disponiveis().length} cães e gatos esperando uma família`) + `
+  return pagina(titulo('Animais para adoção', `${EXEMPLO.esperando} cães e gatos esperando uma família`) + `
   <div class="sticky top-[60px] z-20 border-b border-slate-200 bg-fundo/95 backdrop-blur">
     <div class="no-scrollbar mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 py-3">
       ${chip('especie', 'cao', '🐶 Cães')}${chip('especie', 'gato', '🐱 Gatos')}
@@ -358,7 +379,7 @@ function telaVitrine() {
     </div>
   </div>
   <section class="mx-auto max-w-6xl px-4 pt-5">
-    <p class="mb-3 text-sm font-semibold text-slate-500">${lista.length} ${lista.length === 1 ? 'animal encontrado' : 'animais encontrados'} · mais antigos primeiro</p>
+    <p class="mb-3 text-sm font-semibold text-slate-500">${lista.length} ${lista.length === 1 ? 'animal encontrado' : 'animais encontrados'} · mais antigos primeiro <span class="text-slate-400">(no protótipo aparecem só alguns exemplos)</span></p>
     ${lista.length ? `<div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">${lista.map(a => cardAnimal(a, ehAdulto(a) && diasEsperando(a) > 90)).join('')}</div>`
     : `<div class="rounded-2xl bg-white p-8 text-center ring-1 ring-slate-200"><p class="font-bold text-slate-700">Nenhum animal com esses filtros.</p><button onclick="Object.assign(filtros,{especie:'',porte:'',idade:'',convive:false});render()" class="mt-2 font-bold text-azul underline">Limpar filtros</button></div>`}
   </section>`);
@@ -513,6 +534,7 @@ function telaPrivacidade() {
   return pagina(titulo('Política de privacidade', 'Como tratamos dados, conforme a LGPD (Lei 13.709/2018)') + `
   <section class="mx-auto max-w-3xl space-y-4 px-4 pt-6 text-slate-700">
     <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200"><h2 class="font-titulo text-xl font-bold text-azul-escuro">Quais dados coletamos</h2><p>O site não pede cadastro de visitantes. O contato para adoção acontece pelo WhatsApp, por iniciativa sua.</p></div>
+    <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200"><h2 class="font-titulo text-xl font-bold text-azul-escuro">Anúncios de perdidos e encontrados</h2><p>Quem anuncia informa primeiro nome, WhatsApp, bairro e fotos, com autorização expressa. O anúncio só é publicado após análise da equipe, fica no ar por até 30 dias e depois é apagado com as fotos. Recusados são apagados na hora. A localização gravada nas fotos é removida antes do envio.</p></div>
     <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200"><h2 class="font-titulo text-xl font-bold text-azul-escuro">Estatísticas de acesso</h2><p>Usamos estatísticas anônimas e sem cookies para saber quantas pessoas visitam o site.</p></div>
     <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200"><h2 class="font-titulo text-xl font-bold text-azul-escuro">Voluntários e lares temporários</h2><p>Os endereços e nomes dos lares temporários nunca são exibidos no site. Ficam visíveis apenas para a equipe da ONG, com login.</p></div>
     <div class="rounded-2xl bg-white p-5 ring-1 ring-slate-200"><h2 class="font-titulo text-xl font-bold text-azul-escuro">Seus direitos</h2><p>Você pode pedir informações ou a exclusão de qualquer dado pelo WhatsApp ${ONG.whatsappFormatado}.</p></div>
@@ -560,6 +582,10 @@ function telaPainel() {
       <div class="rounded-2xl bg-white p-3 ring-1 ring-slate-200"><p class="font-titulo text-2xl font-extrabold text-vermelho">${disponiveis().filter(a => ehAdulto(a) && diasEsperando(a) > 90).length}</p><p class="text-xs font-semibold text-slate-500">esperando +90 dias</p></div>
       <div class="rounded-2xl bg-white p-3 ring-1 ring-slate-200"><p class="font-titulo text-2xl font-extrabold text-emerald-600">${adotadosMes}</p><p class="text-xs font-semibold text-slate-500">adotados no mês</p></div>
     </div>
+    <a href="#/admin/perdidos" class="mt-3 flex items-center justify-between rounded-2xl bg-amarelo-claro p-3 ring-2 ring-amarelo">
+      <span class="font-bold text-[#7A4A00]">🔎 Perdidos e encontrados</span>
+      <span class="rounded-full bg-vermelho px-2.5 py-1 text-xs font-extrabold text-white">${perdidos.filter(p => p.status === 'pendente').length} aguardando aprovação</span>
+    </a>
     <div class="mt-4 flex rounded-xl bg-slate-200 p-1 font-bold">
       <button onclick="abaAdmin='disponivel';render()" class="flex-1 rounded-lg py-2 ${abaAdmin === 'disponivel' ? 'bg-white text-azul-escuro shadow' : 'text-slate-600'}">Disponíveis (${qtd('disponivel')})</button>
       <button onclick="abaAdmin='adotado';render()" class="flex-1 rounded-lg py-2 ${abaAdmin === 'adotado' ? 'bg-white text-azul-escuro shadow' : 'text-slate-600'}">Adotados (${qtd('adotado')})</button>
@@ -670,6 +696,207 @@ function telaForm(id) {
 }
 
 // ---------------------------------------------------------------------------
+// PERDIDOS E ENCONTRADOS (dados fictícios) · ver DESENVOLVIMENTO.md, RN18–RN28
+// ---------------------------------------------------------------------------
+const DIAS_PUBLICACAO = 30;                                             // RN25
+let perdidos = [
+  { id: 'p1', tipo: 'perdido', especie: 'cao', nome: 'Bob', bairro: 'Bela Vista', data_ocorrido: diasAtras(4),
+    descricao: 'Filhote preto com peito branco e patas marrons, coleira vermelha. Muito manso, atende pelo nome.',
+    contato_nome: 'Marcos', contato_whatsapp: '35900000001', status: 'publicado', publicado_em: diasAtras(3), cor: '#C8913F', foto: 'assets/perdido-bob.jpg' },
+  { id: 'p2', tipo: 'encontrado', especie: 'gato', nome: null, bairro: 'Centro', data_ocorrido: diasAtras(2),
+    descricao: 'Gato preto adulto, olhos amarelos, muito dócil. Estava perto da praça. Está seguro comigo.',
+    contato_nome: 'Juliana', contato_whatsapp: '35900000002', status: 'publicado', publicado_em: diasAtras(1), cor: '#2E2B2B' },
+  { id: 'p3', tipo: 'perdido', especie: 'cao', nome: 'Luna', bairro: 'Novo Horizonte', data_ocorrido: diasAtras(1),
+    descricao: 'Filhote branca com orelhas marrons e compridas, porte pequeno. Fugiu pelo portão.',
+    contato_nome: 'Rita', contato_whatsapp: '35900000003', status: 'pendente', cor: '#E6E0D4', foto: 'assets/perdido-luna.jpg' },
+  { id: 'p4', tipo: 'encontrado', especie: 'cao', nome: null, bairro: 'Jardim Planalto', data_ocorrido: diasAtras(0),
+    descricao: 'Cachorro grande, pelo preto e marrom, sem coleira. Parece ser de alguém, muito bem cuidado.',
+    contato_nome: 'Paulo', contato_whatsapp: '35900000004', status: 'pendente', cor: '#4A3426' },
+];
+const filtroPerdidos = { tipo: '' };
+const diasRestantes = p => DIAS_PUBLICACAO - Math.floor((hoje - p.publicado_em) / 864e5);
+const quando = d => { const n = Math.floor((hoje - d) / 864e5); return n === 0 ? 'hoje' : n === 1 ? 'ontem' : `há ${n} dias`; };
+const tituloPerdido = p => p.nome ? p.nome : `${p.especie === 'gato' ? 'Gato' : 'Cachorro'} ${p.tipo === 'encontrado' ? 'encontrado' : 'perdido'}`;
+const seloTipo = p => p.tipo === 'perdido'
+  ? '<span class="rounded-full bg-vermelho px-2.5 py-1 text-[11px] font-extrabold uppercase text-white shadow">Perdido</span>'
+  : '<span class="rounded-full bg-emerald-600 px-2.5 py-1 text-[11px] font-extrabold uppercase text-white shadow">Encontrado</span>';
+const fotoPerdido = (p, classe = '') => p.foto
+  ? `<img src="${p.foto}" alt="Foto de ${tituloPerdido(p)}" class="h-full w-full object-cover ${classe}">`
+  : foto({ cor: p.cor, fotos: [] }, classe, true);
+
+function avisoGolpe() {
+  return `<div class="rounded-2xl border-2 border-vermelho/30 bg-vermelho-claro p-4 text-sm text-slate-800">
+    <p class="font-extrabold text-vermelho">⚠️ Cuidado com golpes</p>
+    <p class="mt-1">Nunca pague nada antes de ver o animal pessoalmente. Desconfie de quem pede dinheiro, "taxa" ou código recebido por SMS. Combine encontros em locais públicos.</p>
+  </div>`;
+}
+
+// T12 · Perdidos e encontrados (lista pública)
+function telaPerdidos() {
+  const lista = perdidos.filter(p => p.status === 'publicado' && (!filtroPerdidos.tipo || p.tipo === filtroPerdidos.tipo))
+    .sort((a, b) => b.publicado_em - a.publicado_em);
+  const chipP = (v, t) => `<button onclick="filtroPerdidos.tipo=filtroPerdidos.tipo==='${v}'?'':'${v}';render()" class="shrink-0 rounded-full border-2 px-3.5 py-1.5 text-sm font-bold ${filtroPerdidos.tipo === v ? 'border-azul bg-azul text-white' : 'border-slate-200 bg-white text-slate-700'}">${t}</button>`;
+  return pagina(titulo('Perdidos e encontrados', 'Ajude animais a voltarem para casa em Passos e região') + `
+  <section class="mx-auto max-w-6xl px-4 pt-5">
+    <div class="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
+      <div class="rounded-2xl bg-azul-claro p-4 text-sm text-slate-700">
+        <p><b class="text-azul-escuro">Como funciona:</b> você envia o anúncio, a equipe da SOS Patas confere e publica aqui por ${DIAS_PUBLICACAO} dias. O contato é direto com quem anunciou.</p>
+      </div>
+      <a href="#/perdidos/novo" class="rounded-xl bg-vermelho px-5 py-4 text-center font-extrabold text-white shadow">＋ Anunciar animal perdido ou encontrado</a>
+    </div>
+    <div class="no-scrollbar mt-4 flex gap-2 overflow-x-auto">${chipP('perdido', '🔎 Perdidos')}${chipP('encontrado', '🏠 Encontrados')}</div>
+    <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      ${lista.map(p => `<article class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+        <div class="relative aspect-[4/3]">${fotoPerdido(p)}<div class="absolute left-2 top-2">${seloTipo(p)}</div></div>
+        <div class="p-4">
+          <h3 class="font-titulo text-xl font-bold text-azul-escuro">${tituloPerdido(p)}</h3>
+          <p class="text-sm font-semibold text-slate-500">📍 ${p.bairro} · ${p.tipo === 'perdido' ? 'Sumiu' : 'Encontrado'} ${quando(p.data_ocorrido)}</p>
+          <p class="mt-2 text-slate-700">${p.descricao}</p>
+          <button onclick="contatoPerdido('${p.id}')" class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 font-extrabold text-white">${icone.whats} ${p.tipo === 'perdido' ? 'Vi este animal' : 'É meu animal'}</button>
+          <p class="mt-2 text-center text-xs text-slate-500">Anúncio de ${p.contato_nome} · sai do ar em ${diasRestantes(p)} dias</p>
+        </div>
+      </article>`).join('') || '<p class="rounded-2xl bg-white p-6 text-center text-slate-500 ring-1 ring-slate-200 sm:col-span-2 lg:col-span-3">Nenhum anúncio no momento.</p>'}
+    </div>
+    <div class="mt-5">${avisoGolpe()}</div>
+  </section>`);
+}
+
+// T13 · Anunciar animal perdido/encontrado (formulário público)
+let fotosPerdido = [];
+function telaPerdidoNovo() {
+  return pagina(titulo('Anunciar animal', 'Perdeu ou encontrou um animal? A gente ajuda a divulgar.') + `
+  <section class="mx-auto max-w-xl px-4 pt-5">
+    <form class="space-y-5" onsubmit="event.preventDefault(); enviarPerdido(this)">
+      <section class="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        ${campo('O que aconteceu? *', opcoes('tipo', { perdido: '🔎 Perdi meu animal', encontrado: '🏠 Encontrei um animal' }, 'perdido'))}
+        ${campo('Espécie *', opcoes('especie', { cao: '🐶 Cão', gato: '🐱 Gato' }, ''))}
+        ${campo('Nome do animal', input('nome', '', 'Se souber'))}
+        ${campo('Bairro ou região *', input('bairro', '', 'Ex.: Centro, perto da praça'), 'Não coloque seu endereço completo.')}
+        ${campo('Quando aconteceu? *', input('data', hoje.toISOString().slice(0, 10), '', 'date'))}
+        ${campo('Características *', `<textarea name="descricao" maxlength="300" rows="3" placeholder="Cor, porte, coleira, sinais…" class="w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-base focus:border-azul focus:outline-none"></textarea>`, 'Até 300 caracteres. Não coloque links.')}
+      </section>
+
+      <section class="space-y-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        <h2 class="font-extrabold text-azul">📷 Fotos (até 2)</h2>
+        <div class="grid grid-cols-2 gap-2">
+          ${[0, 1].map(i => fotosPerdido[i]
+            ? `<div class="relative aspect-square overflow-hidden rounded-xl"><img src="${fotosPerdido[i]}" class="h-full w-full object-cover" alt=""><button type="button" onclick="fotosPerdido.splice(${i},1);render()" class="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white" aria-label="Remover foto">${icone.x}</button></div>`
+            : `<label class="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-slate-500"><span class="text-2xl">＋</span><span class="text-xs font-bold">Adicionar foto</span><input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="addFotoPerdido(this)"></label>`).join('')}
+        </div>
+        <p class="text-xs text-slate-500">Apenas JPG, PNG ou WebP, até 10 MB. A foto é reduzida no seu celular e os dados de localização do arquivo são removidos.</p>
+      </section>
+
+      <section class="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        <h2 class="font-extrabold text-azul">📞 Seu contato</h2>
+        ${campo('Seu primeiro nome *', input('contato_nome', '', 'Ex.: Maria'))}
+        ${campo('Seu WhatsApp *', input('contato_whatsapp', '', '(35) 9 0000-0000', 'tel'), 'Quem vir o anúncio fala direto com você.')}
+        <label class="flex items-start gap-3 rounded-xl bg-fundo p-3 text-sm text-slate-700">
+          <input type="checkbox" required class="mt-1 h-5 w-5 shrink-0 accent-azul">
+          <span>Autorizo a SOS Patas a publicar este anúncio, <b>com meu primeiro nome e WhatsApp</b>, por até ${DIAS_PUBLICACAO} dias. Depois disso, ele e as fotos são apagados. <a href="#/privacidade" class="font-bold text-azul underline">Privacidade</a></span>
+        </label>
+      </section>
+
+      <div class="flex items-center gap-3 rounded-xl border-2 border-slate-200 bg-white p-3">
+        <input type="checkbox" required class="h-6 w-6 accent-emerald-600">
+        <span class="flex-1 text-sm font-semibold text-slate-700">Verificação de segurança</span>
+        <span class="text-[10px] font-bold uppercase text-slate-400">Cloudflare Turnstile</span>
+      </div>
+
+      <button class="w-full rounded-xl bg-azul py-4 text-lg font-extrabold text-white">Enviar para análise</button>
+      <p class="text-center text-xs text-slate-500">O anúncio só aparece no site depois de aprovado pela equipe da ONG.</p>
+    </form>
+  </section>`);
+}
+
+// T13b · Confirmação de envio
+function telaPerdidoEnviado() {
+  return pagina(`<section class="mx-auto max-w-md px-4 py-12 text-center">
+    <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-4xl">✓</div>
+    <h1 class="mt-4 font-titulo text-3xl font-extrabold text-azul-escuro">Recebemos seu anúncio!</h1>
+    <p class="mt-2 text-slate-600">A equipe da SOS Patas vai conferir e publicar em breve. Como somos voluntários, pode levar até 1 dia.</p>
+    <p class="mt-2 text-slate-600">Enquanto isso, compartilhe nas redes sociais e avise vizinhos e clínicas veterinárias do bairro.</p>
+    <div class="mt-6">${avisoGolpe()}</div>
+    <a href="#/perdidos" class="mt-6 block rounded-xl bg-azul py-3.5 font-extrabold text-white">Ver perdidos e encontrados</a>
+  </section>`);
+}
+
+// T14 · Moderação (área da ONG)
+let abaPerdidos = 'pendente';
+function telaAdminPerdidos() {
+  const qtd = s => perdidos.filter(p => p.status === s).length;
+  const lista = perdidos.filter(p => p.status === abaPerdidos);
+  return cabecalhoAdmin('#/admin') + `<main class="mx-auto max-w-3xl px-4 pb-16 pt-4">
+    <h1 class="font-titulo text-3xl font-extrabold text-azul-escuro">Perdidos e encontrados</h1>
+    <p class="text-sm text-slate-600">Confira cada anúncio antes de publicar. Recusados são apagados na hora, com as fotos.</p>
+    <div class="mt-4 flex rounded-xl bg-slate-200 p-1 font-bold">
+      <button onclick="abaPerdidos='pendente';render()" class="flex-1 rounded-lg py-2 ${abaPerdidos === 'pendente' ? 'bg-white text-azul-escuro shadow' : 'text-slate-600'}">Aguardando (${qtd('pendente')})</button>
+      <button onclick="abaPerdidos='publicado';render()" class="flex-1 rounded-lg py-2 ${abaPerdidos === 'publicado' ? 'bg-white text-azul-escuro shadow' : 'text-slate-600'}">No ar (${qtd('publicado')})</button>
+    </div>
+    <ul class="mt-4 space-y-3">
+      ${lista.map(p => `<li class="overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
+        <div class="flex gap-3 p-3">
+          <div class="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl">${fotoPerdido(p)}</div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">${seloTipo(p)}<span class="text-xs font-semibold text-slate-500">${p.status === 'pendente' ? 'enviado ' + quando(p.data_ocorrido) : 'sai do ar em ' + diasRestantes(p) + ' dias'}</span></div>
+            <p class="mt-1 font-titulo text-lg font-bold leading-tight text-azul-escuro">${tituloPerdido(p)} · ${rotulo.especie[p.especie]}</p>
+            <p class="text-xs font-semibold text-slate-500">📍 ${p.bairro} · ${p.contato_nome} · ${p.contato_whatsapp}</p>
+            <p class="mt-1 line-clamp-2 text-sm text-slate-700">${p.descricao}</p>
+          </div>
+        </div>
+        <div class="flex gap-2 border-t border-slate-100 p-2">
+          ${p.status === 'pendente'
+            ? `<button onclick="recusarPerdido('${p.id}')" class="flex-1 rounded-xl py-2.5 font-extrabold text-vermelho ring-2 ring-vermelho-claro">Recusar</button>
+               <button onclick="aprovarPerdido('${p.id}')" class="flex-1 rounded-xl bg-emerald-600 py-2.5 font-extrabold text-white">Aprovar e publicar</button>`
+            : `<button onclick="resolverPerdido('${p.id}')" class="flex-1 rounded-xl bg-emerald-50 py-2.5 font-extrabold text-emerald-700">Voltou para casa 🎉</button>
+               <button onclick="recusarPerdido('${p.id}')" class="flex-1 rounded-xl py-2.5 font-extrabold text-slate-600 ring-2 ring-slate-200">Tirar do ar</button>`}
+        </div>
+      </li>`).join('') || '<li class="rounded-2xl bg-white p-6 text-center text-slate-500 ring-1 ring-slate-200">Nada por aqui. 🐾</li>'}
+    </ul>
+    <div class="mt-5 rounded-2xl bg-amarelo-claro p-4 text-sm text-slate-700">
+      <p class="font-extrabold text-[#9A5B00]">Antes de aprovar, confira:</p>
+      <ul class="mt-1 list-disc pl-5"><li>A foto é de um animal e não tem conteúdo impróprio</li><li>O texto não tem links, propaganda ou pedido de dinheiro</li><li>Não aparece endereço completo nem documento</li></ul>
+    </div>
+  </main>`;
+}
+
+function contatoPerdido(id) {
+  const p = perdidos.find(x => x.id === id);
+  const msg = p.tipo === 'perdido'
+    ? `Olá, ${p.contato_nome}! Vi no site da SOS Patas o anúncio de ${tituloPerdido(p)} perdido no bairro ${p.bairro}. Tenho uma informação:`
+    : `Olá, ${p.contato_nome}! Vi no site da SOS Patas o ${p.especie === 'gato' ? 'gato' : 'cachorro'} que você encontrou no bairro ${p.bairro}. Acho que é meu!`;
+  abrirModal(`<p class="text-xs font-extrabold uppercase tracking-wide text-slate-500">Protótipo</p>
+    <h3 class="mt-1 font-titulo text-2xl font-bold text-azul-escuro">Aqui o WhatsApp abriria</h3>
+    <p class="mt-2 text-sm text-slate-600">No site real, abre a conversa com <b>${p.contato_nome}</b> com esta mensagem:</p>
+    <div class="mt-3 rounded-xl rounded-tl-none bg-[#DCF8C6] p-3 text-slate-800">${msg}</div>
+    <div class="mt-3">${avisoGolpe()}</div>
+    <button onclick="fecharModal()" class="mt-4 w-full rounded-xl bg-azul py-3 font-extrabold text-white">Entendi</button>`);
+}
+function addFotoPerdido(inp) {
+  const f = inp.files[0]; if (!f) return;
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(f.type)) { toast('Envie apenas fotos JPG, PNG ou WebP'); return; }
+  if (f.size > 10 * 1024 * 1024) { toast('Foto muito grande (máximo 10 MB)'); return; }
+  if (fotosPerdido.length < 2) { fotosPerdido.push(URL.createObjectURL(f)); render(); }
+}
+function enviarPerdido(form) {
+  const v = n => (form.querySelector(`[name=${n}]`) || {}).value || '';
+  const sel = n => (form.querySelector(`[name=${n}]:checked`) || {}).value;
+  perdidos.push({ id: 'p' + Date.now(), tipo: sel('tipo') || 'perdido', especie: sel('especie') || 'cao', nome: v('nome') || null,
+    bairro: v('bairro') || 'Não informado', data_ocorrido: new Date(), descricao: v('descricao') || '—',
+    contato_nome: v('contato_nome') || 'Anônimo', contato_whatsapp: v('contato_whatsapp') || '—', status: 'pendente',
+    foto: fotosPerdido[0], cor: '#94A3B8' });
+  fotosPerdido = []; location.hash = '#/perdidos/enviado';
+}
+function aprovarPerdido(id) { const p = perdidos.find(x => x.id === id); p.status = 'publicado'; p.publicado_em = new Date(); render(); toast('Anúncio publicado ✓'); }
+function recusarPerdido(id) {
+  const p = perdidos.find(x => x.id === id);
+  abrirModal(`<h3 class="font-titulo text-2xl font-bold text-vermelho">${p.status === 'pendente' ? 'Recusar' : 'Tirar do ar'} este anúncio?</h3>
+    <p class="mt-2 text-slate-600">O anúncio e as fotos serão <b>apagados</b> e não podem ser recuperados.</p>
+    <div class="mt-4 flex gap-2"><button onclick="fecharModal()" class="flex-1 rounded-xl py-3 font-bold ring-2 ring-slate-200">Cancelar</button>
+    <button onclick="perdidos=perdidos.filter(x=>x.id!=='${id}');fecharModal();render();toast('Anúncio apagado')" class="flex-1 rounded-xl bg-vermelho py-3 font-extrabold text-white">Apagar</button></div>`);
+}
+function resolverPerdido(id) { perdidos = perdidos.filter(x => x.id !== id); render(); toast('Que bom! Anúncio encerrado e fotos apagadas 🎉'); }
+
+// ---------------------------------------------------------------------------
 // Ações (simuladas)
 // ---------------------------------------------------------------------------
 function abrirModal(html) { document.getElementById('modal-body').innerHTML = html; document.getElementById('modal').hidden = false; }
@@ -750,6 +977,10 @@ function render() {
   else if (p[0] === 'perguntas') html = telaPerguntas();
   else if (p[0] === 'sobre') html = telaSobre();
   else if (p[0] === 'privacidade') html = telaPrivacidade();
+  else if (p[0] === 'perdidos' && p[1] === 'novo') html = telaPerdidoNovo();
+  else if (p[0] === 'perdidos' && p[1] === 'enviado') html = telaPerdidoEnviado();
+  else if (p[0] === 'perdidos') html = telaPerdidos();
+  else if (p[0] === 'admin' && p[1] === 'perdidos') html = telaAdminPerdidos();
   else if (p[0] === 'admin' && p[1] === 'login') html = telaLogin();
   else if (p[0] === 'admin' && p[1] === 'novo') html = telaForm(null);
   else if (p[0] === 'admin' && p[1] === 'editar') html = telaForm(p[2]);

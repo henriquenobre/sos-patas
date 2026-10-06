@@ -53,8 +53,8 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 **Objetivo:** apresentar a ONG e levar a pessoa à vitrine, com destaque para os adultos.
 
 **Seções, na ordem:**
-1. **Hero:** selo "Adoção responsável · sem taxa", título "Toda patinha merece um lar.", botões "Ver animais para adoção" e "Ajude a ONG", fotos de dois animais.
-2. **Números:** animais esperando, adultos, "100% voluntários".
+1. **Hero:** selo "Adoção responsável · sem taxa", título "Toda patinha merece um lar.", botões "Ver animais para adoção" e "Ajude a ONG", fotos de **um cão e um gato**.
+2. **Números:** animais esperando um lar (count de `disponivel`), adotados no último mês (`data_adocao` nos últimos 30 dias) e "R$ 0 taxa de adoção". No protótipo: 30 e 12, valores de exemplo baseados nas respostas da Gracia.
 3. **Esperando há mais tempo:** até 6 adultos há mais de 90 dias (RN12).
 4. **Como adotar:** 4 passos resumidos.
 5. **Aviso amarelo:** "A SOS Patas não faz resgates" (reduz as mensagens de resgate).
@@ -119,6 +119,29 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 
 Texto curto sobre LGPD: o site não cadastra visitantes, as estatísticas são anônimas, os lares temporários nunca aparecem e há canal para pedir a exclusão de dados.
 
+### T12 · Perdidos e encontrados · `/perdidos` · ⏳
+![T12](telas/T12-perdidos-celular.png)
+
+**Objetivo:** ajudar a comunidade a reencontrar animais. Só aparecem anúncios **aprovados** pela equipe (RN18).
+
+- **"Como funciona"** + botão vermelho "＋ Anunciar animal perdido ou encontrado".
+- **Filtro:** Perdidos / Encontrados.
+- **Card:** foto, selo PERDIDO (vermelho) ou ENCONTRADO (verde), nome ou "Cachorro/Gato encontrado", bairro, há quanto tempo, descrição, botão WhatsApp ("Vi este animal" / "É meu animal") com mensagem pronta, dias até sair do ar (RN25).
+- **Aviso fixo contra golpes** (RN28).
+- **Atalho na página inicial:** card "Perdeu ou encontrou um animal?".
+
+### T13 · Anunciar animal · `/perdidos/novo` · ⏳
+![T13](telas/T13-anunciar-perdido-celular.png)
+
+**Formulário público, com segurança em camadas (RN19–RN23):**
+1. **O que aconteceu:** perdi / encontrei; espécie; nome (opcional); **bairro ou região** (com aviso "não coloque o endereço completo"); data; características (até 300, sem links).
+2. **Fotos:** até 2; JPG, PNG ou WebP de até 10 MB na escolha; redesenhadas no celular como WebP sem localização (RN20).
+3. **Contato:** primeiro nome + WhatsApp; **checkbox obrigatório de consentimento** para publicar por 30 dias.
+4. **Verificação de segurança** (Cloudflare Turnstile).
+5. **Botão "Enviar para análise":** deixa claro que o anúncio não é publicado na hora.
+
+**T13b · Confirmação** ([print](telas/T13b-anuncio-enviado-celular.png)): "Recebemos seu anúncio!", prazo de até 1 dia, dicas para divulgar e aviso contra golpes.
+
 ---
 
 ## Área da ONG (login obrigatório)
@@ -159,6 +182,15 @@ Igual a T10, preenchido, com **"Outras ações"**:
 - **Voltar para disponível** (aparece se o animal estiver adotado).
 - **Excluir animal:** modal vermelho avisando que apaga o cadastro e **todas as fotos** (RN05, RN09), sugerindo "Marcar como adotado" quando for o caso.
 
+### T14 · Moderar perdidos e encontrados · `/admin/perdidos` · ⏳
+![T14](telas/T14-moderar-perdidos-celular.png)
+
+- **Acesso:** pelo card amarelo no painel (T09), que mostra quantos anúncios estão aguardando aprovação.
+- **Abas:** Aguardando / No ar.
+- **Aguardando:** foto (do bucket privado, por URL temporária), tipo, nome, bairro, contato e descrição; botões **Recusar** (apaga tudo, RN26) e **Aprovar e publicar** (move as fotos para o bucket público).
+- **No ar:** **"Voltou para casa 🎉"** e **"Tirar do ar"**, que apagam o anúncio e as fotos.
+- **Checklist de moderação:** é um animal, sem conteúdo impróprio, sem link, sem pedido de dinheiro e sem endereço completo.
+
 ---
 
 ## Perguntas para a validação com a ONG
@@ -173,6 +205,8 @@ Enviar os prints de [telas/](telas/) à Gracia e perguntar:
 6. Podemos mostrar a **chave PIX** no site?
 7. O formulário de cadastro está fácil de entender no celular?
 8. O botão do WhatsApp na ficha deve ir para o número da ONG ou do responsável pelo animal?
+9. **Perdidos e encontrados:** vocês topam aprovar os anúncios? Quem faria isso, e conseguem olhar pelo menos uma vez por dia?
+10. 30 dias no ar é um bom prazo para os anúncios de perdidos?
 
 ### Registro da validação
 | Data | Quem validou | Telas | Retorno | Ajustes |

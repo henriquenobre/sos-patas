@@ -17,4 +17,4 @@ Site de adoção de animais para a **ONG SOS Patas**, de Passos/MG, desenvolvido
 
 React + Vite + TypeScript + Tailwind CSS · Supabase (banco, login e fotos) · Cloudflare Pages
 
-> No protótipo, os animais Apolo e Pelezinho são reais; os demais são fictícios.
+> No protótipo, os animais Apolo e Pelezinho são reais da ONG; os demais são fictícios, com fotos apenas ilustrativas.

@@ -22,6 +22,10 @@ TELAS = [
     ("T09-painel", "#/admin"),
     ("T10-cadastrar-animal", "#/admin/novo"),
     ("T11-editar-animal", "#/admin/editar/apolo"),
+    ("T12-perdidos", "#/perdidos"),
+    ("T13-anunciar-perdido", "#/perdidos/novo"),
+    ("T13b-anuncio-enviado", "#/perdidos/enviado"),
+    ("T14-moderar-perdidos", "#/admin/perdidos"),
 ]
 
 TAMANHOS = {"celular": (390, 844), "computador": (1280, 800)}

@@ -46,6 +46,8 @@ Problemas que o site precisa resolver:
 | Estatísticas | Cloudflare Web Analytics | Grátis, sem cookies |
 | Código | GitHub + GitHub Actions | Grátis |
 | Contato | Link `https://wa.me/55DDDNUMERO?text=...` | Grátis |
+| Antirrobô (formulário público) | Cloudflare Turnstile | Grátis, sem limite |
+| Validação de envios públicos | Supabase Edge Functions | 500 mil execuções/mês |
 
 **Capacidade estimada:** mais de 200 mil animais em texto; cerca de 5 mil fotos completas (cerca de 7 anos no ritmo da ONG); cerca de 8 mil acessos à vitrine por mês usando miniaturas.
 
@@ -61,6 +63,8 @@ Problemas que o site precisa resolver:
 | `/perguntas-frequentes` | Perguntas frequentes | Inclui "Vocês resgatam?" e "Vocês buscam o animal?" (a ONG não faz resgate nem recolhe) |
 | `/sobre` | Sobre e ajude | Missão, como a ONG funciona (100% voluntários, sem abrigo, sem transporte, vive de doações), **PIX** e como ajudar |
 | `/privacidade` | Política de privacidade | Texto simples sobre LGPD |
+| `/perdidos` | Perdidos e encontrados | Anúncios **aprovados** de animais perdidos/encontrados, filtro por tipo, botão WhatsApp para quem anunciou, aviso contra golpes |
+| `/perdidos/novo` | Anunciar | Formulário público com até 2 fotos, consentimento LGPD e Turnstile. Vai para análise, **não publica direto** |
 
 ### Área restrita (`/admin`, exige login)
 | Rota | Função |
@@ -69,6 +73,7 @@ Problemas que o site precisa resolver:
 | `/admin` | Lista de animais com busca e filtro por status; ações rápidas: editar, marcar adotado, excluir |
 | `/admin/animais/novo` | Cadastro (formulário em uma tela, pensado para celular) |
 | `/admin/animais/:id` | Edição, incluindo lar temporário e observações internas |
+| `/admin/perdidos` | Moderação: aprovar/recusar anúncios pendentes; marcar "voltou para casa" ou tirar do ar |
 
 ### Fora do MVP (depois, se der tempo)
 - Página "Finais felizes" com animais adotados
@@ -119,10 +124,39 @@ Problemas que o site precisa resolver:
 | `lar_tipo` | enum `provisorio` \| `remunerado` | |
 | `observacoes` | text | anotações internas |
 
+### `perdidos` (anúncios enviados pelo público)
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `id` | uuid PK | |
+| `tipo` | enum `perdido` \| `encontrado` | obrigatório |
+| `especie` | enum `cao` \| `gato` | obrigatório |
+| `nome` | text null | opcional (máx. 40) |
+| `bairro` | text | obrigatório (máx. 60); **sem endereço completo** |
+| `data_ocorrido` | date | obrigatório, não pode ser futura |
+| `descricao` | text | obrigatório, máx. 300, **links são rejeitados** |
+| `contato_nome` | text | primeiro nome (máx. 30) |
+| `contato_whatsapp` | text | só dígitos, 10–11 com DDD |
+| `consentimento_em` | timestamptz | momento em que aceitou publicar os dados |
+| `status` | enum `pendente` \| `publicado` | recusado, resolvido e expirado são **apagados** (não ficam no banco) |
+| `publicado_em` | timestamptz null | preenchido na aprovação |
+| `ip_hash` | text | hash (SHA-256 + segredo) do IP, só para limitar envios; nunca o IP puro |
+| `created_at` | timestamptz | automático |
+
+### `perdidos_fotos`
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `id` | uuid PK | |
+| `perdido_id` | uuid FK → `perdidos.id` | `on delete cascade` |
+| `path` | text | `pendentes/{perdido_id}/{id}.webp` → `publicados/{perdido_id}/{id}.webp` após aprovação |
+
 ### Segurança (Row Level Security)
 - `animais` e `fotos`: **SELECT público**; INSERT/UPDATE/DELETE só `authenticated`.
 - `animais_privado`: **todas as operações só `authenticated`**. Nunca consultar essa tabela nas páginas públicas.
 - Bucket `fotos`: leitura pública; upload e remoção só `authenticated`.
+- `perdidos`: **SELECT público só onde `status = 'publicado'`**; **INSERT anônimo bloqueado** (só a Edge Function insere, com a chave `service_role`); UPDATE/DELETE só `authenticated`.
+- `perdidos_fotos`: SELECT público só de anúncios publicados; escrita só pela Edge Function e por `authenticated`.
+- Bucket **`perdidos-quarentena`: PRIVADO** (sem leitura pública). A equipe vê as fotos por URL assinada de 5 minutos.
+- Bucket **`perdidos`: leitura pública**, escrita só `authenticated`. Só recebe fotos já aprovadas.
 - **Cadastro de novos usuários desativado** no Supabase Auth. As contas de Gracia e Claudia são criadas manualmente pelo painel.
 
 ## 6. Regras de negócio
@@ -158,6 +192,41 @@ Problemas que o site precisa resolver:
 - **RN14:** o botão **"Quero adotar"** abre o WhatsApp do **responsável pelo animal**, com a mensagem pronta:
   `Olá! Vi o(a) {nome} no site da SOS Patas e tenho interesse em adotar. Pode me passar mais informações?`
 - **RN15:** o site não coleta dados de quem quer adotar no MVP. Todo o contato é pelo WhatsApp, o que reduz o tratamento de dados pessoais (LGPD).
+
+### Perdidos e encontrados: segurança dos envios públicos
+
+**Princípio:** nada enviado por visitantes fica público sem aprovação humana, e nenhum arquivo do visitante é salvo como chegou.
+
+```
+Celular do visitante                Supabase Edge Function              Equipe da ONG
+────────────────────                ──────────────────────              ─────────────
+1. Escolhe a foto                   4. Confere o token Turnstile        7. Vê o anúncio em /admin/perdidos
+2. Foto redesenhada em canvas       5. Valida campos, limites e         8. Aprova → fotos vão para o
+   → WebP 1200px, sem EXIF/GPS         assinatura WebP do arquivo          bucket público e o anúncio vai ao ar
+3. Envia dados + fotos + token      6. Salva como "pendente" e as       9. Recusa → anúncio e fotos
+                                       fotos no bucket PRIVADO             são apagados na hora
+```
+
+- **RN18 – Aprovação obrigatória:** todo anúncio entra como `pendente` e só aparece no site depois que alguém da equipe aprova.
+- **RN19 – Fotos permitidas, mas em quarentena:** o visitante pode enviar fotos (sem foto o anúncio perde o sentido), mas elas ficam no bucket **privado** `perdidos-quarentena` até a aprovação. Na aprovação, são movidas para o bucket público `perdidos`.
+- **RN20 – Foto redesenhada no navegador:** antes do envio, a imagem é desenhada em um `<canvas>` e exportada como **WebP de no máximo 1200 px**. Isso descarta qualquer conteúdo escondido no arquivo e **remove os metadados (EXIF), incluindo a localização GPS** da casa do visitante. Na escolha, aceita só JPG, PNG ou WebP de até 10 MB.
+- **RN21 – Validação no servidor (não confiar no navegador):** a Edge Function rejeita o envio se:
+  - o token do Turnstile for inválido;
+  - houver mais de 2 fotos ou alguma tiver mais de **500 KB**;
+  - o arquivo **não começar com a assinatura de WebP** (bytes `RIFF....WEBP`), mesmo que a extensão diga `.webp`;
+  - algum campo estiver fora dos limites, ou a descrição tiver link (`http`, `www.`, `.com`).
+
+  O bucket também é configurado com `allowed_mime_types = ['image/webp']` e `file_size_limit = 500KB`, como segunda barreira.
+- **RN22 – Antirrobô:** Cloudflare Turnstile no formulário (grátis, sem "clique nos semáforos").
+- **RN23 – Limite de envios:** no máximo **3 anúncios por dia por IP** (pelo `ip_hash`) e no máximo **30 anúncios pendentes** no total. Acima disso, o formulário avisa "tente mais tarde". Isso protege o armazenamento gratuito.
+- **RN24 – Exibição segura:** fotos enviadas pelo público são exibidas **somente em `<img>`**, nunca como link para download. Textos são sempre exibidos como texto (o React já escapa HTML; nunca usar `dangerouslySetInnerHTML`).
+- **RN25 – Prazo de publicação:** cada anúncio fica no ar **30 dias** após a aprovação. Depois disso, ele e as fotos são **apagados automaticamente** (mesma tarefa agendada do RN16).
+- **RN26 – Recusar, tirar do ar ou "voltou para casa" apagam tudo:** registro e arquivos, nos dois buckets. Mesma lógica do RN05: primeiro os arquivos, depois o registro.
+- **RN27 – Pendentes esquecidos:** anúncios `pendente` há mais de 7 dias são apagados automaticamente.
+- **RN28 – Contra golpes e LGPD:**
+  - o formulário pede só primeiro nome, WhatsApp e bairro, com **consentimento explícito** (checkbox obrigatório);
+  - a página mostra um aviso fixo: "nunca pague nada antes de ver o animal; desconfie de quem pede dinheiro ou código por SMS";
+  - na moderação, a equipe confere uma lista rápida: foto de animal, sem conteúdo impróprio, sem link, sem pedido de dinheiro e sem endereço completo.
 
 ### Saúde
 - **RN17 – Castração garantida:** se `castrado = false`, a ficha mostra "Castração garantida pela ONG" em vez de "Não castrado". _(A validar com a ONG: se vale para todos ou só para filhotes.)_
@@ -237,3 +306,8 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 06/10/2026 | Campo `vermifugado` adicionado | Informação presente em todos os cartazes de adoção da ONG |
 | 06/10/2026 | Chave PIX exibida no site (início, sobre e rodapé) | A ONG vive de doações; reforça a sustentabilidade econômica (ODS 8). Sem pagamento integrado |
 | 06/10/2026 | Aviso "A SOS Patas não faz resgates" na página inicial e nas perguntas frequentes | Reduz as mensagens de resgate/recolhimento relatadas pela Gracia |
+| 06/10/2026 | Nova seção **Perdidos e encontrados**, com envio público + aprovação da equipe | Ajuda a comunidade a reencontrar animais e reduz o abandono; amplia o alcance social do projeto |
+| 06/10/2026 | Visitante pode enviar fotos, mas em **bucket privado de quarentena** até a aprovação | Sem foto o anúncio não funciona; a quarentena garante que nada sem moderação fique público |
+| 06/10/2026 | Envio público passa por **Edge Function** (Turnstile + validação + limite por IP), sem INSERT anônimo direto | Validação no navegador pode ser burlada; o servidor é a barreira real |
+| 06/10/2026 | Fotos redesenhadas em canvas → WebP sem EXIF | Neutraliza arquivos maliciosos e remove a localização GPS do visitante (LGPD) |
+| 06/10/2026 | Anúncios apagados após 30 dias; recusados apagados na hora | Minimiza dados pessoais guardados (LGPD) e economiza armazenamento |
