@@ -83,6 +83,7 @@ const ONG = {
 // Números de exemplo baseados nas respostas da Gracia (cerca de 30 animais esperando; 10 a 15 adoções por mês).
 // No site real, os dois vêm do banco: count de status = 'disponivel' e de data_adocao nos últimos 30 dias.
 const EXEMPLO = { esperando: 30, adotadosUltimoMes: 12 };
+const DIAS_ADAPTACAO = 15;                                              // RN30
 
 const hoje = new Date();
 const diasAtras = d => new Date(hoje.getTime() - d * 864e5);
@@ -90,50 +91,59 @@ const mesesAtras = m => { const x = new Date(hoje); x.setMonth(x.getMonth() - m)
 
 let animais = [
   { id: 'apolo', nome: 'Apolo', especie: 'cao', sexo: 'macho', nascimento_aprox: mesesAtras(48), porte: 'grande',
-    castrado: true, vacinado: true, vermifugado: true, docil: true, convive_animais: false,
+    castrado: true, vacinado: 'sim', vermifugado: 'sim',
+    raca: 'Pit Bull', raca_tipo: 'mestico', cor_pelagem: 'Preto e caramelo', vacinas: 'V10 e antirrábica', problema_saude: null, docil: true, convive_animais: false,
     descricao: 'Super dócil e carinhoso. Precisa ser filho único, sem outros animais na casa. Procuramos uma família sem preconceito com a raça.',
     status: 'disponivel', data_entrada: diasAtras(420), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
     fotos: ['assets/apolo.jpg'], privado: { lar_nome: 'Lar da Fernanda (Centro)', lar_tipo: 'remunerado', observacoes: 'Toma vermífugo a cada 3 meses.' } },
   { id: 'tobias', nome: 'Tobias', especie: 'cao', sexo: 'macho', nascimento_aprox: mesesAtras(84), porte: 'medio',
-    castrado: true, vacinado: true, vermifugado: true, docil: true, convive_animais: true,
+    castrado: true, vacinado: 'sim', vermifugado: 'sim',
+    raca: 'SRD (vira-lata)', raca_tipo: 'mestico', cor_pelagem: 'Caramelo', vacinas: 'V10 e antirrábica', problema_saude: null, docil: true, convive_animais: true,
     descricao: 'Caramelo sorridente, calmo, adora passear e se dá bem com outros cães. Ideal para quem busca um companheiro tranquilo.',
     status: 'disponivel', data_entrada: diasAtras(760), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
     fotos: ['assets/tobias.jpg'], cor: '#C58B4E', privado: { lar_nome: 'Lar do Sr. José (Bela Vista)', lar_tipo: 'provisorio', observacoes: '' } },
   { id: 'mel', nome: 'Mel', especie: 'gato', sexo: 'femea', nascimento_aprox: mesesAtras(36), porte: 'pequeno',
-    castrado: true, vacinado: true, vermifugado: true, docil: true, convive_animais: true,
+    castrado: true, vacinado: 'sim', vermifugado: 'sim',
+    raca: 'SRD', raca_tipo: 'mestico', cor_pelagem: 'Branca', vacinas: 'V4 e antirrábica', problema_saude: null, docil: true, convive_animais: true,
     descricao: 'Gata branca e peluda, tranquila e independente. Gosta de colo no fim do dia.',
     status: 'disponivel', data_entrada: diasAtras(310), responsavel_tipo: 'protetor', responsavel_nome: 'Protetora Ana Paula',
     whatsapp: '35900000000', fotos: ['assets/mel.jpg'], cor: '#E5A65B', privado: { lar_nome: 'Casa da Ana Paula', lar_tipo: 'provisorio', observacoes: '' } },
   { id: 'nina', nome: 'Nina', especie: 'cao', sexo: 'femea', nascimento_aprox: mesesAtras(30), porte: 'medio',
-    castrado: true, vacinado: true, vermifugado: false, docil: true, convive_animais: null,
+    castrado: true, vacinado: 'sim', vermifugado: 'sem_informacao',
+    raca: 'SRD (vira-lata)', raca_tipo: 'mestico', cor_pelagem: 'Caramelo', vacinas: 'V10', problema_saude: null, docil: true, convive_animais: null,
     descricao: 'Brincalhona, cheia de energia e muito fotogênica. Ótima com crianças.',
     status: 'disponivel', data_entrada: diasAtras(190), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
     fotos: ['assets/nina.jpg'], cor: '#8B6B5C', privado: { lar_nome: 'Lar da Claudia', lar_tipo: 'provisorio', observacoes: '' } },
-  { id: 'thor', nome: 'Thor', especie: 'cao', sexo: 'macho', nascimento_aprox: mesesAtras(60), porte: 'grande',
-    castrado: true, vacinado: true, vermifugado: true, docil: false, convive_animais: false,
+  { id: 'thor', nome: 'Thor', especie: 'cao', sexo: 'macho', nascimento_aprox: mesesAtras(60), porte: 'gigante',
+    castrado: true, vacinado: 'sim', vermifugado: 'sim',
+    raca: 'Pastor Alemão', raca_tipo: 'mestico', cor_pelagem: 'Preto e castanho', vacinas: 'V10 e antirrábica', problema_saude: 'Displasia leve no quadril, sem dor. Precisa de acompanhamento.', docil: false, convive_animais: false,
     descricao: 'Mistura de pastor, desconfiado no início, mas muito leal depois que conhece. Precisa de adotante com experiência e quintal.',
     status: 'disponivel', data_entrada: diasAtras(540), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
     fotos: ['assets/thor.jpg'], cor: '#3F3A3A', privado: { lar_nome: 'Lar remunerado (Dona Lúcia)', lar_tipo: 'remunerado', observacoes: 'Reativo com outros machos.' } },
   { id: 'pelezinho', nome: 'Pelezinho', especie: 'cao', sexo: 'macho', nascimento_aprox: mesesAtras(5), porte: 'pequeno',
-    castrado: false, vacinado: true, vermifugado: true, docil: true, convive_animais: true,
-    descricao: 'Filhote esperto e carinhoso. Vacina V10 e protocolo de saúde em dia. Castração garantida pela ONG.',
+    castrado: false, vacinado: 'sim', vermifugado: 'sim',
+    raca: 'SRD (vira-lata)', raca_tipo: 'mestico', cor_pelagem: 'Preto com patas brancas', vacinas: 'V10', problema_saude: null, docil: true, convive_animais: true,
+    descricao: 'Filhote esperto e carinhoso. Vacina V10 e protocolo de saúde em dia.',
     status: 'disponivel', data_entrada: diasAtras(25), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
     fotos: ['assets/pelezinho.jpg'], privado: { lar_nome: 'Lar da Gracia', lar_tipo: 'provisorio', observacoes: '' } },
-  { id: 'pipoca', nome: 'Pipoca', especie: 'gato', sexo: 'femea', nascimento_aprox: mesesAtras(3), porte: 'pequeno',
-    castrado: false, vacinado: false, vermifugado: true, docil: true, convive_animais: true,
+  { id: 'pipoca', nome: 'Pipoca', especie: 'gato', sexo: 'femea', nascimento_aprox: mesesAtras(3), porte: 'mini',
+    castrado: false, vacinado: 'nao', vermifugado: 'sim',
+    raca: 'SRD', raca_tipo: 'mestico', cor_pelagem: 'Cinza e branca', vacinas: '', problema_saude: null, docil: true, convive_animais: true,
     descricao: 'Filhote cinza e branca, de uma ninhada resgatada. Muito curiosa e brincalhona.',
     status: 'disponivel', data_entrada: diasAtras(12), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
     fotos: ['assets/pipoca.jpg'], cor: '#D9D2C5', privado: { lar_nome: 'Lar da Claudia', lar_tipo: 'provisorio', observacoes: 'Ninhada de 4.' } },
   { id: 'ruivo', nome: 'Ruivo', especie: 'gato', sexo: 'macho', nascimento_aprox: mesesAtras(4), porte: 'pequeno',
-    castrado: false, vacinado: true, vermifugado: true, docil: true, convive_animais: true,
+    castrado: false, vacinado: 'sim', vermifugado: 'sim',
+    raca: 'SRD', raca_tipo: 'mestico', cor_pelagem: 'Laranja', vacinas: 'V4 (1ª dose)', problema_saude: null, docil: true, convive_animais: true,
     descricao: 'Filhote laranja de olhos azuis, carinhoso e muito esperto. Se dá bem com outros gatos.',
     status: 'disponivel', data_entrada: diasAtras(35), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
     fotos: ['assets/ruivo.jpg'], cor: '#E8A86A', privado: { lar_nome: 'Lar da Claudia', lar_tipo: 'provisorio', observacoes: '' } },
-  { id: 'bolinha', nome: 'Bolinha', especie: 'cao', sexo: 'femea', nascimento_aprox: mesesAtras(2), porte: 'pequeno',
-    castrado: false, vacinado: false, vermifugado: true, docil: true, convive_animais: true,
+  { id: 'bolinha', nome: 'Bolinha', especie: 'cao', sexo: 'femea', nascimento_aprox: mesesAtras(2), porte: 'mini',
+    castrado: false, vacinado: 'nao', vermifugado: 'sim',
+    raca: 'SRD (vira-lata)', raca_tipo: 'mestico', cor_pelagem: 'Caramelo claro', vacinas: '', problema_saude: null, docil: true, convive_animais: true,
     descricao: 'Filhotinha peluda e dengosa, vai ficar de porte pequeno.',
     status: 'adotado', data_entrada: diasAtras(40), data_adocao: diasAtras(3), responsavel_tipo: 'ong', responsavel_nome: 'SOS Patas',
-    fotos: ['assets/bolinha.jpg'], cor: '#F0C987', privado: { lar_nome: 'Lar da Gracia', lar_tipo: 'provisorio', observacoes: '' } },
+    fotos: ['assets/bolinha.jpg'], cor: '#F0C987', privado: { lar_nome: 'Lar da Gracia', lar_tipo: 'provisorio', observacoes: '', adotante_nome: 'Fernanda', adotante_whatsapp: '35900000010' } },
 ];
 
 // ---------------------------------------------------------------------------
@@ -156,6 +166,10 @@ function esperaTexto(a) {
   const anos = Math.floor(d / 365), resto = Math.floor((d % 365) / 30);
   return `${anos} ${anos === 1 ? 'ano' : 'anos'}${resto ? ` e ${resto} ${resto === 1 ? 'mês' : 'meses'}` : ''}`;
 }
+function adaptacaoTexto(a) {                                            // RN30
+  const d = Math.max(0, Math.floor((hoje - a.data_adocao) / 864e5));
+  return d < DIAS_ADAPTACAO ? `Em adaptação: faltam ${DIAS_ADAPTACAO - d} dias` : 'Adoção concluída';
+}
 const disponiveis = () => animais.filter(a => a.status === 'disponivel')
   .sort((x, y) => x.data_entrada - y.data_entrada);                    // RN10
 const esperandoMaisTempo = () => disponiveis()
@@ -165,7 +179,8 @@ const msgWhats = a => `Olá! Vi ${a.sexo === 'femea' ? 'a' : 'o'} ${a.nome} no s
 const rotulo = {
   especie: { cao: 'Cão', gato: 'Gato' },
   sexo: { macho: 'Macho', femea: 'Fêmea' },
-  porte: { pequeno: 'Pequeno', medio: 'Médio', grande: 'Grande' },
+  porte: { mini: 'Mini', pequeno: 'Pequeno', medio: 'Médio', grande: 'Grande', gigante: 'Gigante' },
+  raca_tipo: { puro: 'Raça pura', mestico: 'Mestiço' },
   lar_tipo: { provisorio: 'Lar provisório', remunerado: 'Lar remunerado' },
 };
 
@@ -266,9 +281,9 @@ function telaInicio() {
   const destaque = esperandoMaisTempo();
   const passos = [
     ['Escolha', 'Veja os animais e abra a ficha de quem chamou sua atenção.'],
-    ['Converse', 'Toque em "Quero adotar" e fale com a ONG pelo WhatsApp.'],
-    ['Entrevista e termo', 'Uma conversa rápida e a assinatura do termo de adoção.'],
-    ['Acompanhamento', 'A gente acompanha a adaptação pelo WhatsApp.'],
+    ['Formulário', 'Toque em "Quero adotar" e preencha o formulário de interesse.'],
+    ['Análise e termo', 'A equipe analisa, entra em contato e você assina o termo de adoção.'],
+    ['Adaptação de 15 dias', 'Acompanhamos a adaptação. Se não der certo, o animal volta para quem doou.'],
   ];
   return pagina(`
   <section class="relative overflow-hidden bg-azul text-white">
@@ -373,7 +388,7 @@ function telaVitrine() {
       <span class="mx-1 w-px shrink-0 bg-slate-300"></span>
       ${chip('idade', 'filhote', 'Filhotes')}${chip('idade', 'adulto', 'Adultos')}
       <span class="mx-1 w-px shrink-0 bg-slate-300"></span>
-      ${chip('porte', 'pequeno', 'Pequeno')}${chip('porte', 'medio', 'Médio')}${chip('porte', 'grande', 'Grande')}
+      ${chip('porte', 'mini', 'Mini')}${chip('porte', 'pequeno', 'Pequeno')}${chip('porte', 'medio', 'Médio')}${chip('porte', 'grande', 'Grande')}${chip('porte', 'gigante', 'Gigante')}
       <span class="mx-1 w-px shrink-0 bg-slate-300"></span>
       <button onclick="filtros.convive=!filtros.convive;render()" class="shrink-0 rounded-full border-2 px-3.5 py-1.5 text-sm font-bold ${filtros.convive ? 'border-azul bg-azul text-white' : 'border-slate-200 bg-white text-slate-700'}">Convive com outros animais</button>
     </div>
@@ -392,6 +407,10 @@ function item(ok, texto) {
   if (ok === null || ok === undefined) return `<li class="flex items-center gap-2 text-slate-500"><span class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold">?</span>${texto}: não informado</li>`;
   return `<li class="flex items-center gap-2 ${ok ? 'text-slate-800' : 'text-slate-500'}"><span class="flex h-6 w-6 items-center justify-center rounded-full ${ok ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">${ok ? icone.check : icone.x}</span>${texto}</li>`;
 }
+function itemTri(v, texto, nome) {                                      // sim | nao | sem_informacao
+  if (v === 'sem_informacao' || v == null) return `<li class="flex items-center gap-2 text-slate-500"><span class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold">?</span>${nome}: sem informação</li>`;
+  return item(v === 'sim', v === 'sim' ? texto : 'Não ' + texto.charAt(0).toLowerCase() + texto.slice(1).replace(/ \(.*\)$/, ''));
+}
 function telaFicha(id) {
   const a = animais.find(x => x.id === id);
   if (!a) return pagina(titulo('Animal não encontrado') + `<p class="mx-auto max-w-6xl px-4 pt-6"><a class="font-bold text-azul underline" href="#/animais">Voltar para a vitrine</a></p>`);
@@ -407,14 +426,16 @@ function telaFicha(id) {
       ${a.status === 'adotado' ? tag('Adotado 💙', 'verde') : ehAdulto(a) && diasEsperando(a) > 90 ? tag(`Esperando há ${esperaTexto(a)}`, 'vermelho') : ''}
       <h1 class="mt-2 font-titulo text-5xl font-extrabold text-azul-escuro">${a.nome}</h1>
       <div class="mt-2 flex flex-wrap gap-2">${tag(rotulo.especie[a.especie])}${tag(rotulo.sexo[a.sexo])}${tag(idadeTexto(a))}${tag('Porte ' + rotulo.porte[a.porte].toLowerCase())}</div>
+      <p class="mt-2 text-sm text-slate-600"><b>Raça:</b> ${a.raca || 'não informada'}${a.raca_tipo && !/^SRD/.test(a.raca || '') ? ' (' + rotulo.raca_tipo[a.raca_tipo].toLowerCase() + ')' : ''} · <b>Pelagem:</b> ${a.cor_pelagem || 'não informada'}</p>
       ${a.descricao ? `<p class="mt-4 text-lg leading-relaxed text-slate-700">${a.descricao}</p>` : ''}
       <div class="mt-5 grid gap-4 sm:grid-cols-2">
         <div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
           <p class="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-500">Saúde</p>
           <ul class="space-y-2 font-semibold">
-            ${a.castrado ? item(true, ela ? 'Castrada' : 'Castrado') : `<li class="flex items-center gap-2 text-[#9A5B00]"><span class="flex h-6 w-6 items-center justify-center rounded-full bg-amarelo-claro">${icone.check}</span>Castração garantida pela ONG</li>`}
-            ${item(a.vacinado, ela ? 'Vacinada' : 'Vacinado')}
-            ${item(a.vermifugado, ela ? 'Vermifugada' : 'Vermifugado')}
+            ${item(a.castrado, ela ? (a.castrado ? 'Castrada' : 'Ainda não castrada') : (a.castrado ? 'Castrado' : 'Ainda não castrado'))}
+            ${itemTri(a.vacinado, (ela ? 'Vacinada' : 'Vacinado') + (a.vacinas ? ` (${a.vacinas})` : ''), 'Vacinação')}
+            ${itemTri(a.vermifugado, ela ? 'Vermifugada nos últimos 3 meses' : 'Vermifugado nos últimos 3 meses', 'Vermífugo')}
+            ${a.problema_saude ? `<li class="flex items-start gap-2 text-[#7A4A00]"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amarelo-claro text-xs font-bold">!</span><span>${a.problema_saude}</span></li>` : item(true, 'Sem problema de saúde conhecido')}
           </ul>
         </div>
         <div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
@@ -427,8 +448,10 @@ function telaFicha(id) {
       </div>
       <div class="mt-4 rounded-2xl bg-azul-claro p-4 text-sm">
         <p><span class="font-extrabold text-azul-escuro">Responsável:</span> ${a.responsavel_nome}${a.responsavel_tipo === 'protetor' ? ' (protetor parceiro)' : ''}</p>
-        <p class="mt-1 text-slate-700">Adoção <b>sem taxa</b>, com entrevista, termo de adoção e acompanhamento.</p>
+        <p class="mt-1 text-slate-700">Adoção <b>sem taxa</b>, com formulário de interesse, termo de adoção e <b>15 dias de adaptação</b>.</p>
+        ${a.responsavel_tipo === 'protetor' ? `<p class="mt-2 rounded-xl bg-amarelo-claro p-2.5 text-[13px] text-[#7A4A00]">Este animal é de um protetor parceiro. A adoção é combinada diretamente com ${a.responsavel_nome}; a SOS Patas apenas divulga e não é responsável por esta adoção.</p>` : ''}
       </div>
+      <div class="mt-3 rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-900 ring-1 ring-emerald-200">🎁 <b>Adotando pelo site:</b> prioridade na castração gratuita (castramóvel) e desconto em clínicas parceiras.</div>
       ${a.status === 'disponivel' ? `
       <div class="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white p-3 md:static md:mt-5 md:border-0 md:bg-transparent md:p-0" style="padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px)">
         <button onclick="quero('${a.id}')" class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-4 text-lg font-extrabold text-white shadow-lg hover:brightness-95">${icone.whats} Quero adotar ${a.nome}</button>
@@ -443,10 +466,10 @@ function telaFicha(id) {
 function telaComoAdotar() {
   const passos = [
     ['Escolha o animal', 'Navegue pela vitrine, use os filtros e abra a ficha para ver saúde e temperamento.'],
-    ['Fale com a ONG', 'Toque em "Quero adotar". O WhatsApp abre com uma mensagem pronta citando o animal.'],
-    ['Entrevista', 'Uma conversa para conhecer sua rotina, sua casa e garantir que o animal combina com você.'],
-    ['Termo de adoção', 'Você assina o termo de adoção responsável. Não cobramos taxa.'],
-    ['Acompanhamento', 'Acompanhamos a adaptação pelo WhatsApp e, se necessário, com uma visita.'],
+    ['Preencha o formulário de interesse', 'Toque em "Quero adotar" e responda algumas perguntas sobre você, sua casa e sua rotina. Leva poucos minutos.'],
+    ['Análise', 'A equipe da SOS Patas (ou o protetor parceiro responsável pelo animal) analisa o formulário e entra em contato pelo WhatsApp.'],
+    ['Termo de responsabilidade', 'Você assina o termo de responsabilidade de adoção e fica com uma via. Não cobramos taxa.'],
+    ['Período de adaptação: 15 dias', 'Nos primeiros 15 dias, acompanhamos a adaptação pelo WhatsApp e, se necessário, com uma visita. Se o animal não se adaptar, avise e devolva a quem doou dentro desse prazo. Depois dos 15 dias, se desistir, avise quem doou e mantenha o animal como lar provisório até um novo lar. Nunca repasse para outra pessoa nem abandone.'],
   ];
   return pagina(titulo('Como adotar', 'Simples, responsável e sem taxa') + `
   <section class="mx-auto max-w-3xl px-4 pt-6">
@@ -461,7 +484,21 @@ function telaComoAdotar() {
         <li>Há custos com ração, vacinas e veterinário.</li>
         <li>Sua casa precisa ser segura (portão, telas para gatos).</li>
         <li>Todos na casa precisam estar de acordo.</li>
+        <li>O animal não pode ficar em corrente e precisa de abrigo, coleira com placa de identificação, ração e água fresca.</li>
+        <li>A castração é um compromisso do termo de adoção.</li>
       </ul>
+    </div>
+    <div class="mt-4 rounded-2xl bg-emerald-50 p-5 ring-1 ring-emerald-200">
+      <h2 class="font-titulo text-2xl font-bold text-emerald-800">🎁 Vantagem de adotar pelo site</h2>
+      <ul class="mt-2 list-disc space-y-1 pl-5 text-slate-700">
+        <li><b>Prioridade na castração gratuita</b> quando houver castramóvel em Passos.</li>
+        <li><b>Desconto em clínicas veterinárias parceiras</b> para castração.</li>
+      </ul>
+      <p class="mt-2 text-sm text-slate-600">A ONG confere na lista de adoções feitas pelo site.</p>
+    </div>
+    <div class="mt-4 rounded-2xl border-2 border-amarelo bg-amarelo-claro p-5">
+      <h2 class="font-titulo text-xl font-bold text-azul-escuro">Animais de protetores parceiros</h2>
+      <p class="mt-1 text-slate-700">Alguns animais do site são de protetores independentes. Nesses casos, a adoção, o termo e a devolução (se o animal não se adaptar) são combinados <b>diretamente com o protetor</b>. A SOS Patas ajuda na divulgação, mas <b>não é responsável</b> por essas adoções.</p>
     </div>
     <a href="#/animais" class="mt-6 block rounded-xl bg-azul py-4 text-center text-lg font-extrabold text-white">Ver animais para adoção</a>
   </section>`);
@@ -475,9 +512,12 @@ function telaPerguntas() {
     ['Vocês resgatam animais?', 'Não. A SOS Patas não tem abrigo nem transporte próprio, por isso não realizamos resgates diretos. Somos uma equipe 100% voluntária e os animais ficam em lares temporários. Contamos com o apoio da sociedade.'],
     ['Vocês buscam o animal aqui em casa?', 'Não temos transporte próprio. Os deslocamentos dependem da boa vontade de voluntários.'],
     ['Não posso mais ficar com meu animal. Vocês recebem?', 'Não temos abrigo para receber animais. Você pode divulgar o animal e procurar um novo lar com responsabilidade. Abandonar animais é crime (Lei 9.605/1998).'],
-    ['A adoção tem taxa?', 'Não. A adoção é gratuita. Fazemos entrevista, termo de adoção e acompanhamento.'],
-    ['Os animais são castrados e vacinados?', 'Cada ficha mostra a situação de castração, vacinas e vermífugo. Para filhotes, a castração é garantida pela ONG na idade certa.'],
-    ['Posso adotar se moro em apartamento?', 'Depende do animal. Na ficha você vê o porte e o temperamento, e na entrevista avaliamos juntos.'],
+    ['A adoção tem taxa?', 'Não. A adoção é gratuita. O processo tem formulário de interesse, termo de adoção e acompanhamento.'],
+    ['E se o animal não se adaptar?', 'Existe um período de adaptação de 15 dias. Se não der certo, avise e devolva o animal a quem doou (a SOS Patas ou o protetor parceiro) dentro desse prazo. Depois dos 15 dias, se desistir, avise quem doou e mantenha o animal como lar provisório até ele encontrar um novo lar, porque a ONG não tem abrigo. Nunca repasse nem abandone.'],
+    ['Tem alguma vantagem adotar pelo site?', 'Sim! Quem adota pelo site tem prioridade na castração gratuita quando houver castramóvel e desconto em clínicas parceiras. A ONG confere na lista de adoções feitas pelo site.'],
+    ['O animal é de um protetor parceiro. Quem é o responsável?', 'O próprio protetor. A adoção, o termo e uma eventual devolução são combinados diretamente com ele. A SOS Patas só ajuda a divulgar.'],
+    ['Os animais são castrados e vacinados?', 'Cada ficha mostra a situação de castração, vacinas e vermífugo de cada animal. Filhotes podem ainda não ter idade para castrar.'],
+    ['Posso adotar se moro em apartamento?', 'Depende do animal. Na ficha você vê o porte e o temperamento, e a equipe avalia pelo formulário de interesse.'],
     ['Como posso ajudar a ONG?', `Com doações pelo PIX (CNPJ ${ONG.pix}), oferecendo lar temporário ou compartilhando os animais nas redes sociais.`],
     ['Sou protetor independente. Posso divulgar um animal aqui?', 'Fale com a SOS Patas pelo WhatsApp. Animais de protetores parceiros aparecem no site com o nome do responsável.'],
   ];
@@ -597,7 +637,7 @@ function telaPainel() {
         <div class="min-w-0 flex-1">
           <p class="truncate font-titulo text-lg font-bold leading-tight text-azul-escuro">${a.nome}</p>
           <p class="truncate text-xs text-slate-500">${rotulo.especie[a.especie]} · ${idadeTexto(a)} · ${a.privado.lar_nome}</p>
-          <p class="text-xs font-bold ${a.status === 'adotado' ? 'text-emerald-600' : diasEsperando(a) > 90 && ehAdulto(a) ? 'text-vermelho' : 'text-slate-500'}">${a.status === 'adotado' ? 'Adotado há ' + Math.floor((hoje - a.data_adocao) / 864e5) + ' dias' : 'Esperando há ' + esperaTexto(a)}</p>
+          <p class="text-xs font-bold ${a.status === 'adotado' ? 'text-emerald-600' : diasEsperando(a) > 90 && ehAdulto(a) ? 'text-vermelho' : 'text-slate-500'}">${a.status === 'adotado' ? adaptacaoTexto(a) : 'Esperando há ' + esperaTexto(a)}</p>
         </div>
         <div class="flex shrink-0 flex-col gap-1.5">
           <a href="#/admin/editar/${a.id}" class="rounded-lg bg-azul-claro px-3 py-1.5 text-center text-xs font-extrabold text-azul">Editar</a>
@@ -611,8 +651,9 @@ function telaPainel() {
 
 // T10 / T11 · Formulário
 function opcoes(nome, valores, atual) {
-  return `<div class="flex gap-2">${Object.entries(valores).map(([v, t]) => `<label class="flex-1"><input type="radio" name="${nome}" value="${v}" class="peer sr-only" ${atual === v ? 'checked' : ''}><span class="block cursor-pointer rounded-xl border-2 border-slate-200 bg-white py-3 text-center font-bold text-slate-700 peer-checked:border-azul peer-checked:bg-azul peer-checked:text-white">${t}</span></label>`).join('')}</div>`;
+  return `<div class="flex flex-wrap gap-2">${Object.entries(valores).map(([v, t]) => `<label class="min-w-[28%] flex-1"><input type="radio" name="${nome}" value="${v}" class="peer sr-only" ${atual === v ? 'checked' : ''}><span class="block cursor-pointer rounded-xl border-2 border-slate-200 bg-white py-3 text-center font-bold text-slate-700 peer-checked:border-azul peer-checked:bg-azul peer-checked:text-white">${t}</span></label>`).join('')}</div>`;
 }
+const triOpcoes = { sim: 'Sim', nao: 'Não', sem_informacao: 'Sem informação' };
 function simNao(nome, atual, comNaoSei = false) {
   const v = { sim: 'Sim', nao: 'Não' }; if (comNaoSei) v.nsei = 'Não sei';
   const at = atual === true ? 'sim' : atual === false ? 'nao' : comNaoSei ? 'nsei' : '';
@@ -646,15 +687,19 @@ function telaForm(id) {
         ${campo('Espécie *', opcoes('especie', { cao: '🐶 Cão', gato: '🐱 Gato' }, a ? a.especie : ''))}
         ${campo('Sexo *', opcoes('sexo', { macho: 'Macho', femea: 'Fêmea' }, a ? a.sexo : ''))}
         ${campo('Idade aproximada *', `<div class="flex gap-2">${input('idade', idadeMeses >= 12 ? Math.floor(idadeMeses / 12) : idadeMeses || '', 'Ex.: 4', 'number')}<select class="rounded-xl border-2 border-slate-200 bg-white px-3 font-bold"><option ${idadeMeses >= 12 ? 'selected' : ''}>anos</option><option ${idadeMeses !== '' && idadeMeses < 12 ? 'selected' : ''}>meses</option></select></div>`, 'O site calcula a idade sozinho com o passar do tempo.')}
-        ${campo('Porte *', opcoes('porte', { pequeno: 'Pequeno', medio: 'Médio', grande: 'Grande' }, a ? a.porte : ''))}
+        ${campo('Porte *', opcoes('porte', rotulo.porte, a ? a.porte : ''))}
+        ${campo('Raça', `<div class="space-y-2">${input('raca', a ? a.raca : '', 'Ex.: SRD (vira-lata), Pit Bull…')}${opcoes('raca_tipo', { puro: 'Pura', mestico: 'Mestiço' }, a ? a.raca_tipo : '')}</div>`)}
+        ${campo('Cor da pelagem', input('cor_pelagem', a ? a.cor_pelagem : '', 'Ex.: Caramelo, preto e branco…'))}
         ${campo('Descrição', `<textarea maxlength="500" rows="3" placeholder="Jeito, manias, cuidados especiais…" class="w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-base focus:border-azul focus:outline-none">${a ? a.descricao : ''}</textarea>`, 'Até 500 caracteres.')}
       </section>
 
       <section class="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
         <h2 class="font-extrabold text-azul">💉 Saúde</h2>
-        ${campo('Castrado? *', simNao('castrado', a ? a.castrado : null), 'Se "Não", o site mostra "Castração garantida pela ONG".')}
-        ${campo('Vacinado? *', simNao('vacinado', a ? a.vacinado : null))}
-        ${campo('Vermifugado? *', simNao('vermifugado', a ? a.vermifugado : null))}
+        ${campo('Castrado? *', simNao('castrado', a ? a.castrado : null))}
+        ${campo('Vacinado? *', opcoes('vacinado', triOpcoes, a ? a.vacinado : ''))}
+        ${campo('Quais vacinas?', input('vacinas', a ? a.vacinas : '', 'Ex.: V10 e antirrábica'))}
+        ${campo('Vermifugado nos últimos 3 meses? *', opcoes('vermifugado', triOpcoes, a ? a.vermifugado : ''))}
+        ${campo('Tem algum problema de saúde?', `<div class="space-y-2">${opcoes('tem_problema', { nao: 'Não', sim: 'Sim' }, a ? (a.problema_saude ? 'sim' : 'nao') : '')}${input('problema_saude', a && a.problema_saude ? a.problema_saude : '', 'Se sim, qual?')}</div>`)}
       </section>
 
       <section class="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
@@ -905,11 +950,10 @@ document.getElementById('modal').addEventListener('click', e => { if (e.target.i
 
 function quero(id) {
   const a = animais.find(x => x.id === id);
-  const numero = a.whatsapp || ONG.whatsapp;
-  abrirModal(`<p class="text-xs font-extrabold uppercase tracking-wide text-slate-500">Protótipo</p>
-    <h3 class="mt-1 font-titulo text-2xl font-bold text-azul-escuro">Aqui o WhatsApp abriria</h3>
-    <p class="mt-2 text-sm text-slate-600">No site real, o botão abre a conversa com <b>${a.responsavel_nome}</b> (${numero}) já com esta mensagem:</p>
-    <div class="mt-3 rounded-xl rounded-tl-none bg-[#DCF8C6] p-3 text-slate-800">${msgWhats(a)}</div>
+  abrirModal(`<p class="text-xs font-extrabold uppercase tracking-wide text-slate-500">Protótipo · em definição com a ONG</p>
+    <h3 class="mt-1 font-titulo text-2xl font-bold text-azul-escuro">Aqui abriria o formulário de interesse</h3>
+    <p class="mt-2 text-sm text-slate-600">A pessoa responde perguntas sobre ela, a casa e a rotina para adotar <b>${a.nome}</b>. Depois, ${a.responsavel_tipo === 'protetor' ? `<b>${a.responsavel_nome}</b>` : 'a equipe da <b>SOS Patas</b>'} analisa e entra em contato pelo WhatsApp.</p>
+    <p class="mt-3 rounded-xl bg-amarelo-claro p-3 text-sm text-[#7A4A00]">As perguntas do formulário estão sendo definidas com o grupo da ONG.</p>
     <button onclick="fecharModal()" class="mt-4 w-full rounded-xl bg-azul py-3 font-extrabold text-white">Entendi</button>`);
 }
 function copiarPix(btn) {
@@ -918,16 +962,27 @@ function copiarPix(btn) {
 }
 function confirmarAdocao(id) {
   const a = animais.find(x => x.id === id);
+  const protetor = a.responsavel_tipo === 'protetor';
   abrirModal(`<h3 class="font-titulo text-2xl font-bold text-azul-escuro">${a.nome} foi adotado? 🎉</h3>
-    <p class="mt-2 text-slate-600">${a.nome} sai da vitrine e vai para a aba "Adotados". Ficamos só com a foto principal para economizar espaço.</p>
+    <p class="mt-1 text-sm text-slate-600">${a.nome} sai da vitrine e entra em adaptação por ${DIAS_ADAPTACAO} dias.</p>
+    <div class="mt-4 space-y-3">
+      ${campo('Nome de quem adotou', input('adotante_nome', '', 'Ex.: Fernanda'))}
+      ${campo('WhatsApp de quem adotou', input('adotante_whatsapp', '', '(35) 9 0000-0000', 'tel'), 'Só a equipe vê. Usado no acompanhamento da adaptação.')}
+    </div>
+    ${protetor ? `<p class="mt-2 rounded-xl bg-amarelo-claro p-3 text-sm text-[#7A4A00]">Animal de protetor parceiro: a adoção é responsabilidade de ${a.responsavel_nome}.</p>` : ''}
     <div class="mt-4 flex gap-2"><button onclick="fecharModal()" class="flex-1 rounded-xl py-3 font-bold ring-2 ring-slate-200">Cancelar</button>
-    <button onclick="marcarAdotado('${id}')" class="flex-1 rounded-xl bg-emerald-600 py-3 font-extrabold text-white">Sim, foi adotado</button></div>`);
+    <button onclick="marcarAdotado('${id}')" class="flex-1 rounded-xl bg-emerald-600 py-3 font-extrabold text-white">Confirmar adoção</button></div>`);
 }
 function marcarAdotado(id) {
   const a = animais.find(x => x.id === id);
-  a.status = 'adotado'; a.data_adocao = new Date(); a.fotos = a.fotos.slice(0, 1); // RN07, RN08
-  fecharModal(); location.hash = '#/admin'; abaAdmin = 'disponivel'; render();
-  toast(`${a.nome} marcado como adotado 💙`);
+  const v = n => (document.querySelector(`#modal [name=${n}]`) || {}).value || '';
+  a.status = 'adotado'; a.data_adocao = new Date(); a.fotos = a.fotos.slice(0, 1);     // RN07, RN08
+  a.privado.adotante_nome = v('adotante_nome'); a.privado.adotante_whatsapp = v('adotante_whatsapp');
+  abrirModal(`<div class="text-center"><div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl">🎉</div>
+    <h3 class="mt-3 font-titulo text-2xl font-bold text-azul-escuro">Adoção registrada!</h3>
+    <p class="mt-1 text-slate-600">${a.nome} saiu da vitrine e está em adaptação.</p>
+    <p class="mt-3 text-sm text-slate-500">Fim da adaptação: ${new Date(Date.now() + DIAS_ADAPTACAO * 864e5).toLocaleDateString('pt-BR')}</p>
+    <button onclick="fecharModal();abaAdmin='adotado';location.hash='#/admin';render()" class="mt-4 w-full rounded-xl bg-azul py-3 font-extrabold text-white">Pronto</button></div>`);
 }
 function voltarDisponivel(id) { const a = animais.find(x => x.id === id); a.status = 'disponivel'; a.data_adocao = null; location.hash = '#/admin'; toast(`${a.nome} voltou para disponíveis`); }
 function confirmarExclusao(id) {
@@ -948,7 +1003,7 @@ function salvar(id, form) {
   if (!id) {
     const novo = { id: 'novo' + Date.now(), nome, especie: (form.querySelector('[name=especie]:checked') || {}).value || 'cao',
       sexo: (form.querySelector('[name=sexo]:checked') || {}).value || 'macho', nascimento_aprox: mesesAtras(12),
-      porte: (form.querySelector('[name=porte]:checked') || {}).value || 'medio', castrado: false, vacinado: false, vermifugado: false,
+      porte: (form.querySelector('[name=porte]:checked') || {}).value || 'medio', castrado: false, vacinado: 'sem_informacao', vermifugado: 'sem_informacao',
       docil: null, convive_animais: null, descricao: '', status: 'disponivel', data_entrada: new Date(), responsavel_tipo: 'ong',
       responsavel_nome: 'SOS Patas', fotos: [...fotosForm], cor: '#94A3B8', privado: { lar_nome: form.querySelector('[name=lar]').value || '—', lar_tipo: 'provisorio', observacoes: '' } };
     animais.push(novo);

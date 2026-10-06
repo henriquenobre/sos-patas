@@ -79,16 +79,21 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 **Objetivo:** dar todas as informações para a decisão e levar ao WhatsApp.
 
 - **Galeria:** foto completa grande + miniaturas, se houver mais de uma (até 3, RN01).
-- **Tags:** espécie, sexo, idade aproximada (RN13), porte.
-- **Bloco Saúde:** castrado (se não: **"Castração garantida pela ONG"**, RN17), vacinado, vermifugado.
+- **Tags:** espécie, sexo, idade aproximada (RN13), porte (mini a gigante).
+- **Linha de detalhes:** raça (pura/mestiço) e cor da pelagem.
+- **Bloco Saúde:** castrado ("Castrado" ou "Ainda não castrado", sem promessa de castração, RN17); vacinado, com as vacinas entre parênteses; vermifugado nos últimos 3 meses ("sem informação" aparece em cinza); problema de saúde em amarelo, ou "Sem problema de saúde conhecido".
 - **Bloco Temperamento:** dócil, convive com outros animais ("não informado" quando nulo).
-- **Responsável:** nome e indicação de protetor parceiro + "Adoção sem taxa".
-- **Botão "Quero adotar {nome}":** verde, **fixo no rodapé no celular**, e abre o WhatsApp do responsável com a mensagem pronta (RN14). No protótipo, abre um modal explicando.
+- **Responsável:** nome e indicação de protetor parceiro + "Adoção sem taxa, com 15 dias de adaptação". Se for protetor, mostra um aviso amarelo de que a ONG não é responsável pela adoção (RN31).
+- **Benefício (verde):** "Adotando pelo site: prioridade na castração gratuita (castramóvel) e desconto em clínicas parceiras" (RN32).
+- **Botão "Quero adotar {nome}":** verde, **fixo no rodapé no celular**, e abre o **formulário de interesse** (RN14). No protótipo, abre um modal explicando, porque as perguntas ainda estão em definição com a ONG.
 
-### T04 · Como adotar · `/como-adotar` · ⏳
+### T04 · Como adotar · `/como-adotar` · ✅
 ![T04](telas/T04-como-adotar-celular.png)
 
-- **Linha do tempo com 5 passos:** escolher → falar com a ONG → entrevista → termo de adoção (sem taxa) → acompanhamento.
+- **Linha do tempo com 5 passos:** escolher → **preencher o formulário de interesse** → análise pela equipe ou protetor, com contato pelo WhatsApp → termo de responsabilidade (sem taxa) → **período de adaptação de 15 dias** (se não se adaptar, devolver a quem doou; nunca repassar nem abandonar).
+- **Card verde "Vantagem de adotar pelo site":** prioridade no castramóvel e desconto em clínicas parceiras (a ONG confere na lista de adoções).
+- **Card amarelo "Animais de protetores parceiros":** a adoção é combinada com o protetor e a ONG não é responsável.
+- **Validado pela ONG em 06/10/2026** (prazo de adaptação, devolução, responsabilidade do protetor e benefício da castração).
 - **"Antes de adotar, pense em":** tempo de vida, custos, casa segura, família de acordo.
 - **Botão:** "Ver animais para adoção".
 
@@ -100,10 +105,13 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 2. Vocês buscam o animal em casa? Não têm transporte próprio.
 3. Não posso ficar com meu animal, vocês recebem? Não têm abrigo; abandono é crime.
 4. A adoção tem taxa? **Não.**
-5. Os animais são castrados e vacinados? Ver a ficha; castração garantida para filhotes.
+5. Os animais são castrados e vacinados? Ver a ficha; filhotes podem ainda não ter idade para castrar.
 6. Posso adotar morando em apartamento? Depende do animal.
 7. Como posso ajudar? PIX, lar temporário, compartilhar.
 8. Sou protetor, posso divulgar aqui? Falar com a ONG.
+9. E se o animal não se adaptar? 15 dias de adaptação; devolver a quem doou.
+10. Tem vantagem adotar pelo site? Prioridade no castramóvel e desconto em clínicas parceiras.
+11. Animal de protetor parceiro: quem é o responsável? O próprio protetor.
 
 **Textos a validar com a Gracia** (principalmente as respostas 3, 6 e 8).
 
@@ -160,6 +168,7 @@ E-mail + senha (Supabase Auth). Sem "criar conta" (cadastro desativado). "Esquec
 - **Abas:** Disponíveis / Adotados.
 - **Busca** pelo nome.
 - **Item da lista:** miniatura, nome, espécie, idade, **lar temporário** (privado), tempo de espera (vermelho se adulto há mais de 90 dias); botões **Editar** e **Adotado ✓**.
+- **Aba Adotados:** "Em adaptação: faltam N dias" ou "Adoção concluída" (RN30).
 - **Botão flutuante:** "＋ Cadastrar animal".
 
 ### T10 · Cadastrar animal · `/admin/animais/novo` · ⏳
@@ -167,8 +176,8 @@ E-mail + senha (Supabase Auth). Sem "criar conta" (cadastro desativado). "Esquec
 
 Formulário em uma tela, dividido em blocos, com escolhas em **botões grandes**:
 1. **Fotos:** 3 espaços; a primeira é a principal; compressão automática (RN02).
-2. **Sobre o animal:** nome*, espécie*, sexo*, idade aproximada* (número + anos/meses, convertido em `nascimento_aprox`), porte*, descrição (até 500).
-3. **Saúde:** castrado*, vacinado*, vermifugado* (Sim/Não).
+2. **Sobre o animal:** nome*, espécie*, sexo*, idade aproximada* (número + anos/meses, convertido em `nascimento_aprox`), porte* (mini, pequeno, médio, grande, gigante), raça + pura/mestiço, cor da pelagem, descrição (até 500).
+3. **Saúde:** castrado* (Sim/Não); vacinado* (Sim/Não/Sem informação) + quais vacinas; vermifugado nos últimos 3 meses* (Sim/Não/Sem informação); problema de saúde (Não/Sim + qual). **Mesmos campos do termo de adoção.**
 4. **Temperamento:** dócil, convive com outros animais (Sim/Não/Não sei).
 5. **Responsável:** SOS Patas ou protetor parceiro, nome do protetor e WhatsApp (padrão: o da ONG).
 6. **Bloco amarelo "Só a equipe vê":** lar temporário, tipo de lar (provisório/remunerado), data de entrada (padrão hoje), observações internas → tabela `animais_privado`.
@@ -178,7 +187,7 @@ Formulário em uma tela, dividido em blocos, com escolhas em **botões grandes**
 ![T11](telas/T11-editar-animal-celular.png)
 
 Igual a T10, preenchido, com **"Outras ações"**:
-- **Marcar como adotado:** modal → status `adotado`, `data_adocao` = hoje, mantém só a foto principal (RN07, RN08).
+- **Marcar como adotado:** modal pede o **nome e o WhatsApp de quem adotou** (privados) → status `adotado`, `data_adocao` = hoje, mantém só a foto principal (RN07, RN08) → mostra a confirmação com a data de fim da adaptação (RN30).
 - **Voltar para disponível** (aparece se o animal estiver adotado).
 - **Excluir animal:** modal vermelho avisando que apaga o cadastro e **todas as fotos** (RN05, RN09), sugerindo "Marcar como adotado" quando for o caso.
 
@@ -199,7 +208,8 @@ Enviar os prints de [telas/](telas/) à Gracia e perguntar:
 
 1. As cores e o visual combinam com a SOS Patas? Vocês têm o **logo em boa qualidade**?
 2. A ficha do animal tem tudo o que vocês querem mostrar? Falta algum campo?
-3. **"Castração garantida pela ONG"** vale para todos os animais não castrados, ou só para filhotes?
+3. ~~"Castração garantida pela ONG"~~: **respondido**, não usar (RN17).
+3.1. **Formulário de interesse em adoção:** quais perguntas? (em definição no grupo)
 4. Os textos das **perguntas frequentes** estão corretos? Querem mudar ou acrescentar alguma?
 5. O WhatsApp de contato padrão é o **(35) 9 8843-9614**?
 6. Podemos mostrar a **chave PIX** no site?

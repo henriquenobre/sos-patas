@@ -58,8 +58,8 @@ Problemas que o site precisa resolver:
 |---|---|---|
 | `/` | Início | Chamada principal, seção **"Esperando há mais tempo"** (adultos), atalho para a vitrine, como adotar |
 | `/animais` | Vitrine | Grade de cards (miniatura, nome, idade, porte) com filtros: espécie, porte, idade (filhote/adulto), convive com outros animais |
-| `/animais/:id` | Ficha do animal | Fotos completas, todos os campos, responsável e botão **"Quero adotar"** (WhatsApp) |
-| `/como-adotar` | Como adotar | Passo a passo: contato, entrevista, termo de adoção, acompanhamento. **Sem taxa.** |
+| `/animais/:id` | Ficha do animal | Fotos completas, todos os campos, responsável e botão **"Quero adotar"** (abre o formulário de interesse) |
+| `/como-adotar` | Como adotar | Passo a passo: formulário de interesse, análise, termo de adoção, adaptação de 15 dias. **Sem taxa.** |
 | `/perguntas-frequentes` | Perguntas frequentes | Inclui "Vocês resgatam?" e "Vocês buscam o animal?" (a ONG não faz resgate nem recolhe) |
 | `/sobre` | Sobre e ajude | Missão, como a ONG funciona (100% voluntários, sem abrigo, sem transporte, vive de doações), **PIX** e como ajudar |
 | `/privacidade` | Política de privacidade | Texto simples sobre LGPD |
@@ -92,10 +92,15 @@ Problemas que o site precisa resolver:
 | `especie` | enum `cao` \| `gato` | obrigatório |
 | `sexo` | enum `macho` \| `femea` | obrigatório |
 | `nascimento_aprox` | date | obrigatório; a idade é calculada a partir dele |
-| `porte` | enum `pequeno` \| `medio` \| `grande` | obrigatório |
+| `porte` | enum `mini` \| `pequeno` \| `medio` \| `grande` \| `gigante` | obrigatório (mesmas opções do termo) |
+| `raca` | text null | opcional, ex.: "SRD (vira-lata)", "Pit Bull" |
+| `raca_tipo` | enum `puro` \| `mestico` null | opcional |
+| `cor_pelagem` | text null | opcional |
 | `castrado` | boolean | obrigatório |
-| `vacinado` | boolean | obrigatório |
-| `vermifugado` | boolean | obrigatório (aparece nos cartazes da ONG) |
+| `vacinado` | enum `sim` \| `nao` \| `sem_informacao` | obrigatório |
+| `vacinas` | text null | quais vacinas, ex.: "V10 e antirrábica" |
+| `vermifugado` | enum `sim` \| `nao` \| `sem_informacao` | obrigatório; refere-se aos **últimos 3 meses** (como no termo) |
+| `problema_saude` | text null | null = sem problema conhecido; se preenchido, aparece em destaque na ficha |
 | `docil` | boolean null | null = não informado |
 | `convive_animais` | boolean null | null = não informado |
 | `descricao` | text | opcional, máx. 500 caracteres |
@@ -123,6 +128,8 @@ Problemas que o site precisa resolver:
 | `lar_nome` | text | nome do voluntário/lar onde o animal está |
 | `lar_tipo` | enum `provisorio` \| `remunerado` | |
 | `observacoes` | text | anotações internas |
+| `adotante_nome` | text null | preenchido na adoção; usado no acompanhamento (RN30) |
+| `adotante_whatsapp` | text null | idem; dado pessoal tratado com base no termo de adoção (LGPD) |
 
 ### `perdidos` (anúncios enviados pelo público)
 | Coluna | Tipo | Regra |
@@ -189,9 +196,10 @@ Problemas que o site precisa resolver:
 - **RN13:** a idade é exibida de forma aproximada: "cerca de 3 meses", "cerca de 2 anos".
 
 ### Contato
-- **RN14:** o botão **"Quero adotar"** abre o WhatsApp do **responsável pelo animal**, com a mensagem pronta:
-  `Olá! Vi o(a) {nome} no site da SOS Patas e tenho interesse em adotar. Pode me passar mais informações?`
-- **RN15:** o site não coleta dados de quem quer adotar no MVP. Todo o contato é pelo WhatsApp, o que reduz o tratamento de dados pessoais (LGPD).
+- **RN14 (alterada em 06/10/2026):** o botão **"Quero adotar"** abre o **formulário de interesse em adoção**, em vez de levar direto ao WhatsApp. A ONG não quer concentrar as entrevistas em uma pessoa: quem tem interesse preenche o formulário e a equipe (ou o protetor parceiro responsável) valida depois e entra em contato pelo WhatsApp.
+  - **Perguntas do formulário:** [formulario/FORMULARIO_ADOCAO.md](formulario/FORMULARIO_ADOCAO.md) (v1 em validação no grupo; inclui os alertas automáticos para quem analisa). O PDF para o grupo é gerado com `python formulario/gerar_pdf.py`.
+  - **Tela pública e tela de análise na área da ONG:** _a criar depois da definição das perguntas._
+- **RN15 (alterada em 06/10/2026):** o site **passa a coletar dados de quem quer adotar**. Por isso, o formulário segue as mesmas proteções dos envios públicos (RN21–RN23: Edge Function, Turnstile e limite por IP), com **consentimento explícito** (LGPD), acesso só para a equipe logada e **prazo de guarda**: pedidos recusados ou não concluídos são apagados em até 90 dias. _(Prazo a confirmar com a ONG.)_
 
 ### Perdidos e encontrados: segurança dos envios públicos
 
@@ -228,8 +236,14 @@ Celular do visitante                Supabase Edge Function              Equipe d
   - a página mostra um aviso fixo: "nunca pague nada antes de ver o animal; desconfie de quem pede dinheiro ou código por SMS";
   - na moderação, a equipe confere uma lista rápida: foto de animal, sem conteúdo impróprio, sem link, sem pedido de dinheiro e sem endereço completo.
 
+### Adoção (informações da ONG, 06/10/2026)
+- **RN29 – ~~Código de adoção~~ (removida em 06/10/2026):** a ONG não precisa de código. A comprovação da adoção pelo site é a própria aba "Adotados" do painel, com o nome de quem adotou.
+- **RN30 – Período de adaptação de 15 dias:** começa em `data_adocao`. Segundo o termo, **depois dos 15 dias**, quem desiste deve avisar o doador e **manter o animal como lar provisório** até um novo lar. No painel, a aba "Adotados" mostra "Em adaptação: faltam N dias" e depois "Adoção concluída". Se o animal não se adaptar, ele **volta para quem doou** (ONG ou protetor) e nunca deve ser repassado nem abandonado. No sistema, isso é o botão "Voltar para disponível".
+- **RN31 – Responsabilidade do protetor parceiro:** quando `responsavel_tipo = protetor`, a ficha, a página "Como adotar" e as perguntas frequentes deixam claro que a adoção, o termo e a devolução são combinados com o protetor, e que a SOS Patas **apenas divulga e não é responsável**.
+- **RN32 – Benefício de adotar pelo site:** quem adota pelo site tem **prioridade na castração gratuita** quando houver castramóvel e **desconto em clínicas parceiras**. O benefício é divulgado na ficha, em "Como adotar" e nas perguntas frequentes, e é conferido pela equipe na aba "Adotados" do painel. _(A confirmar: quais clínicas são parceiras e o valor do desconto.)_
+
 ### Saúde
-- **RN17 – Castração garantida:** se `castrado = false`, a ficha mostra "Castração garantida pela ONG" em vez de "Não castrado". _(A validar com a ONG: se vale para todos ou só para filhotes.)_
+- **RN17 (alterada em 06/10/2026):** a ficha mostra só a situação real ("Castrado" ou "Ainda não castrado"). **O site não promete castração garantida pela ONG**, porque nem sempre há recurso e há animais de outros grupos e protetores. O único benefício divulgado é a prioridade no castramóvel (RN32).
 
 ### Manutenção
 - **RN16 – Evitar a pausa do Supabase:** um workflow do GitHub Actions, agendado a cada 3 dias, faz uma consulta simples na tabela `animais`.
@@ -301,7 +315,7 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 06/10/2026 | Excluir animal remove antes os arquivos do Storage (RN05) | O cascade do banco não apaga arquivos; evita ocupar espaço com fotos órfãs |
 | 06/10/2026 | Adotado mantém só a foto principal (RN07) | Economiza armazenamento sem perder o histórico |
 | 06/10/2026 | Adoção registrada em `animais.data_adocao` (sem tabela `adocoes`) | Mais simples; atende ao indicador de adoções |
-| 06/10/2026 | Contato só por WhatsApp, sem formulário | Menos dados pessoais (LGPD) e é o canal que a ONG já usa |
+| 06/10/2026 | ~~Contato só por WhatsApp, sem formulário~~ (substituída abaixo) | Menos dados pessoais (LGPD) e é o canal que a ONG já usa |
 | 06/10/2026 | Protótipo em HTML navegável + Tailwind (tarefa 3) | Rápido de validar com a ONG pelo celular; classes reaproveitadas no React |
 | 06/10/2026 | Campo `vermifugado` adicionado | Informação presente em todos os cartazes de adoção da ONG |
 | 06/10/2026 | Chave PIX exibida no site (início, sobre e rodapé) | A ONG vive de doações; reforça a sustentabilidade econômica (ODS 8). Sem pagamento integrado |
@@ -311,3 +325,11 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 06/10/2026 | Envio público passa por **Edge Function** (Turnstile + validação + limite por IP), sem INSERT anônimo direto | Validação no navegador pode ser burlada; o servidor é a barreira real |
 | 06/10/2026 | Fotos redesenhadas em canvas → WebP sem EXIF | Neutraliza arquivos maliciosos e remove a localização GPS do visitante (LGPD) |
 | 06/10/2026 | Anúncios apagados após 30 dias; recusados apagados na hora | Minimiza dados pessoais guardados (LGPD) e economiza armazenamento |
+| 06/10/2026 | Período de adaptação de 15 dias e devolução a quem doou | Regra informada pela ONG no grupo |
+| 06/10/2026 | Aviso de que a ONG não é responsável por adoções de protetores parceiros | Pedido da ONG; deixa clara a responsabilidade de cada parte |
+| 06/10/2026 | Removida a promessa "Castração garantida pela ONG" (RN17) | Pedido da ONG: nem sempre conseguem, e há filhotes de outros grupos/protetores |
+| 06/10/2026 | "Quero adotar" passa a abrir um **formulário de interesse** em vez do WhatsApp (RN14, RN15) | Pedido da ONG: não concentrar as entrevistas em uma pessoa; pedidos validados depois pela equipe |
+| 06/10/2026 | Termo continua em papel; o site não coleta RG, CPF nem endereço completo | Minimiza dados sensíveis (LGPD); o formulário é só a triagem |
+| 06/10/2026 | **Sem código de adoção** (RN29 removida) | A ONG não precisa; a aba "Adotados" já comprova |
+| 06/10/2026 | Campos do animal alinhados ao termo: porte em 5 opções, raça e tipo, cor da pelagem, vacinas (quais), vacinado/vermifugado com "sem informação", problema de saúde | Pedido da ONG; a ficha do site passa a servir de base para preencher o termo |
+| 06/10/2026 | Dados do adotante (privados) ao marcar como adotado | Comprova a adoção pelo site para a prioridade na castração e permite o acompanhamento dos 15 dias |
