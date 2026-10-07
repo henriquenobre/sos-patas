@@ -29,6 +29,11 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
   - **Usar sempre este arquivo** em todas as telas (cabeçalho, rodapé, login, missão), sem redesenhar, distorcer nem trocar as cores. A logo é quadrada com fundo branco; em fundo escuro, colocar sobre um quadrado branco com cantos arredondados (como no rodapé).
   - **Cores da logo:** azul `#0F009B` e vermelho `#E71B24`. Os tokens `azul` e `vermelho` do site são próximos, mas não iguais. _(A decidir: alinhar os tokens às cores da logo.)_
 - **Cantos arredondados** (`rounded-2xl` nos cards, `rounded-xl` nos botões); botões com pelo menos 44 px de altura.
+- **Tom acolhedor, não empresarial** (pedido de 07/10/2026). Aplicado primeiro na página inicial (T01), para estender às outras páginas públicas:
+  - **Patinhas** (`icone.pata`) como elemento de marca: duas patinhas amarelas logo depois do título da chamada; trilha de patinhas brancas e transparentes "caminhando" pelo fundo azul; patinha antes dos chapéus das seções ("Quem somos", "Nossa missão", "Eles precisam de você", "Passo a passo"); patinhas no lugar das bolinhas da linha do tempo; patinhas grandes e transparentes no card de doação; patinha colorida acima de cada número em destaque.
+  - **Fotos como polaroides:** moldura branca, levemente inclinadas (±3°), com selo de patinha (amarelo) e de coração (vermelho).
+  - **Formas suaves:** botões principais em pílula (`rounded-full`), cards maiores com `rounded-3xl` e borda ondulada (SVG) no fim da faixa azul, em vez de corte reto.
+  - Decoração sempre com `aria-hidden="true"` e `pointer-events-none`, sem atrapalhar leitura nem cliques. No componente React: `<Pata />` e `<Chapeu />`.
 
 ## Componentes reutilizáveis
 
@@ -60,8 +65,8 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 **Objetivo:** apresentar a ONG e sua história e levar a pessoa à vitrine, com destaque para os adultos.
 
 **Seções, na ordem** (✎ = editável em T19):
-1. **Chamada:** selo "Adoção responsável", título ✎ (`inicio.chamada_titulo`), texto ✎ (`inicio.chamada_texto`), botões "Ver animais para adoção" e "Ajude a ONG" (→ `/ajude`), fotos de **um cão e um gato** (automático: o cão e o gato disponíveis há mais tempo).
-2. **Números em destaque** ✎ (`inicio_numeros`, até 4, RN46): faixa branca logo abaixo da chamada. Conteúdo: **Desde 2015** (cuidando dos animais de Passos) · **+100** (feiras de adoção) · **Quase 1.000** (animais adotados nas feiras) · **32** (adoções em uma só feira, nosso recorde). 2×2 no celular e 4 lado a lado no computador.
+1. **Chamada** (visual acolhedor, ver Identidade visual): selo "Adoção responsável", título ✎ seguido de duas patinhas amarelas, (`inicio.chamada_titulo`), texto ✎ (`inicio.chamada_texto`), botões "Ver animais para adoção" e "Ajude a ONG" (→ `/ajude`), fotos de **um cão e um gato** (automático: o cão e o gato disponíveis há mais tempo).
+2. **Números em destaque** ✎ (`inicio_numeros`, até 4, RN46): faixa branca logo abaixo da chamada, sobre a borda ondulada. Conteúdo: **Desde 2015** (cuidando dos animais de Passos) · **+100** (feiras de adoção) · **+1.000** (animais adotados, somando feiras e redes sociais). Com 3 números, ficam lado a lado também no celular; com 4, 2×2 no celular. O recorde de 32 adoções numa feira saiu da faixa em 07/10.
    - Substituiu em 07/10 os números automáticos "animais esperando" e "adotados no último mês", que mudavam todo mês, e o card "R$ 0 taxa de adoção" (RN45). "Adotados no mês" continua no painel da ONG (T09).
 3. **Nossa história** (conteúdo enviado pela ONG em 07/10/2026):
    - **card com a 1ª foto** de `inicio_fotos` (voluntários em feira de adoção, com legenda sobre a foto; **a primeira deve ser a foto mais nítida**, porque aparece grande) + **texto** ✎ (`inicio.historia`: origem em 2015 no grupo de WhatsApp, socorro imediato, primeira feira em 2016, mais de 100 feiras, quase mil adotados, voluntários que construíram a ONG);
@@ -73,7 +78,7 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
    Blocos vazios somem.
 4. **Missão** ✎ (`inicio.missao`), com o logo.
 5. **Como funcionamos** ✎ (`inicio_como_funcionamos`): cards "100% voluntários", "Sem abrigo", "Sem transporte próprio", "Vive de doações".
-6. **Esperando há mais tempo:** até 6 adultos há mais de 90 dias (RN12).
+6. **Esperando há mais tempo:** até 6 adultos há mais de 90 dias (RN12). Texto ✎ (`inicio.esperando_texto`): "Adultos já sabem conviver, são mais calmos e chegam prontos para dar carinho. Adotar um deles é mudar uma vida para sempre." Tom positivo, **sem comparar com filhotes** (07/10).
 7. **Como adotar:** títulos dos passos de `como_adotar_passos`, numerados, + link "Saiba mais". **Layout:** 1 coluna no celular (número ao lado do título), 2 a partir de 640 px e todos os passos lado a lado a partir de 1024 px. Títulos longos quebram com hífen em vez de vazar do card (ajuste de 07/10: "Termo de responsabilidade" vazava no celular).
 8. **Card "Perdeu ou encontrou um animal?"** → `/perdidos`.
 9. **Doação:** "A ONG vive de doações" + PIX (da tabela `ong`).
@@ -339,6 +344,7 @@ Cada campo de texto tem o próprio botão "Salvar"; listas salvam item a item (T
 5. **Fotos da história** (`ListaEditavel` de `inicio_fotos`, até 8, com miniatura em cada item): a primeira abre a história; as demais formam a galeria (RN38).
 6. **Missão** (400).
 7. **Como funcionamos** (`ListaEditavel`).
+8. **Esperando há mais tempo:** só o texto (200); os animais entram automaticamente.
 - Nota fixa no topo: "Automáticos: animais em destaque, resumo de 'Como adotar' e PIX."
 
 ### T20 · Editar Como ajudar · `/admin/textos/ajude` · ⏳

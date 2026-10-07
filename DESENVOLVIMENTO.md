@@ -225,6 +225,7 @@ Substitui a constante `ONG` do código (seção 7.1). Cabeçalho, rodapé, Iníc
 | `inicio.chamada_texto` | Início, texto da chamada | 200 | sim |
 | `inicio.historia` | Início, "Nossa história" | 2000 | sim |
 | `inicio.missao` | Início, missão | 400 | sim |
+| `inicio.esperando_texto` | Início, texto abaixo de "Esperando há mais tempo" (vantagem de adotar um adulto, sem comparar com filhotes) | 200 | sim |
 | `como_adotar.subtitulo` | Como adotar, subtítulo do topo | 100 | sim |
 | `como_adotar.aviso_protetor` | Como adotar, card amarelo de protetores (RN31) | 500 | sim |
 | `como_adotar.vantagens_rodape` | Como adotar, nota abaixo das vantagens | 200 | não |
@@ -370,7 +371,7 @@ O resumo "Como adotar" no Início usa os **títulos** de `como_adotar_passos`, p
 ### Comunicação
 - **RN44 – O site não fala sobre resgates (07/10/2026):** nenhuma página, aviso ou pergunta frequente diz se a ONG faz ou não resgates, nem se busca animais. Na prática, há resgates feitos com transporte dos próprios voluntários, com atendimento em clínicas parceiras e acolhimento na casa de voluntários, mas **a ONG prefere não tratar do assunto no site**. A história da ONG (página inicial) pode contar casos do passado, como já faz.
 - **RN45 – O site não fala de taxa de adoção (07/10/2026):** nenhuma página menciona "sem taxa", "R$ 0" ou "adoção gratuita" (selo e números da página inicial, ficha do animal, Como adotar e perguntas frequentes). A adoção continua sem taxa na prática, mas a ONG considerou a informação desnecessária. O aviso contra golpes em Perdidos ("desconfie de quem pede taxa") não tem relação com isso e continua.
-- **RN46 – Números públicos que mudam pouco (07/10/2026):** a página inicial não mostra contagens que variam todo mês (animais esperando, adotados no último mês). A faixa de números em destaque usa a lista editável `inicio_numeros` com dados estáveis e arredondados ("Desde 2015", "+100 feiras", "Quase 1.000 adotados", "Recorde de 32"), e o texto da história segue o mesmo critério ("mais de 100 feiras"). Contagens automáticas ficam só no painel da ONG (T09, indicador de adoções do mês) e no subtítulo da vitrine.
+- **RN46 – Números públicos que mudam pouco (07/10/2026):** a página inicial não mostra contagens que variam todo mês (animais esperando, adotados no último mês). A faixa de números em destaque usa a lista editável `inicio_numeros` com dados estáveis e arredondados ("Desde 2015", "+100 feiras", "+1.000 adotados"), e o texto da história segue o mesmo critério ("mais de 100 feiras"). Contagens automáticas ficam só no painel da ONG (T09, indicador de adoções do mês) e no subtítulo da vitrine.
 
 ### Manutenção
 - **RN16 – Evitar a pausa do Supabase:** um workflow do GitHub Actions, agendado a cada 3 dias, faz uma consulta simples na tabela `animais`.
@@ -484,5 +485,8 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 07/10/2026 | Foto da assembleia de fundação **tratada** (lâmpadas, flash, ruído e contraste) e movida para a galeria; a história passa a abrir com a foto mais nítida (voluntários em feira de adoção) | O original é de baixa resolução; exibida grande, parecia antiga. Pedido à ONG o arquivo original (TELAS.md, pergunta 19) |
 | 07/10/2026 | **Removidas as menções a "sem taxa"** (selo e card "R$ 0" da página inicial, ficha, Como adotar e a pergunta "A adoção tem taxa?") (RN45) | Pedido da ONG: informação desnecessária no site |
 | 07/10/2026 | Faixa de números da página inicial troca "animais esperando" e "adotados no último mês" por números estáveis da ONG (lista `inicio_numeros`, movida da história para a faixa); "116 feiras" vira "+100"/"mais de 100" (RN46) | Pedido: números que não precisem ser alterados todo mês |
+| 07/10/2026 | Números em destaque: "Quase 1.000 adotados nas feiras" vira **"+1.000 animais adotados"** (feiras + redes sociais) e o recorde de 32 sai da faixa | Pedido do estudante; a ONG informou quase mil nas feiras, fora as adoções pelas redes sociais |
+| 07/10/2026 | **Visual acolhedor na página inicial**: patinhas decorativas, fotos estilo polaroide, botões em pílula e borda ondulada (TELAS.md, Identidade visual) | O visual estava com "cara empresarial"; a ONG quer algo mais acolhedor |
+| 07/10/2026 | Texto de "Esperando há mais tempo" troca "Filhotes são adotados rápido. Os adultos podem esperar anos…" por uma vantagem de adotar um adulto e a boa ação; passa a ser editável (`inicio.esperando_texto`) | Pedido do estudante: tom positivo, sem comparar filhotes e adultos |
 | 07/10/2026 | Criado o [CLAUDE.md](CLAUDE.md) com as regras de manutenção do projeto (RP01: toda alteração vai para protótipo, projeto e documentação) | Evitar documentação desatualizada, já que o site é desenvolvido com IA a partir dela |
 | 07/10/2026 | **Logo oficial em boa resolução** (`prototipo/assets/logo.png`, 790 px) em todas as telas | Arquivo recebido da ONG; substitui o recorte do Instagram |
