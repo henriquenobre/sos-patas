@@ -36,7 +36,7 @@ TELAS = [
     ("T22-mais", "#/admin/mais"),
     ("T23-dados-da-ong", "#/admin/ong"),
     ("T24-protetores", "#/admin/protetores"),
-    ("T25-clinicas", "#/admin/clinicas"),
+    ("T17b-editar-foto-historia", "#/admin/textos/inicio_fotos/inicio_fotos-0"),
 ]
 
 TAMANHOS = {"celular": (390, 844), "computador": (1280, 800)}

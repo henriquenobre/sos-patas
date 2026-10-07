@@ -4,6 +4,7 @@
 > **Toda nova definição entra na seção 9 (Registro de decisões)** e, se mudar alguma regra, atualiza a seção correspondente.
 >
 > Contexto do projeto acadêmico, entrevistas e formulários: [PROJETO.md](PROJETO.md).
+> **Regras de manutenção do projeto** (o que atualizar a cada alteração): [CLAUDE.md](CLAUDE.md).
 > **Telas (protótipo validado com a ONG):** [prototipo/TELAS.md](prototipo/TELAS.md) · protótipo navegável em [prototipo/index.html](prototipo/index.html).
 
 ---
@@ -16,7 +17,7 @@ Problemas que o site precisa resolver:
 1. A ONG não sabe de forma centralizada quais animais estão disponíveis e em qual lar estão.
 2. Quem quer adotar depende de resposta por mensagem, e muitas ficam sem resposta.
 3. Os adultos esperam mais de 2 anos e precisam de mais visibilidade que os filhotes.
-4. Boa parte das mensagens pede resgate ou recolhimento, que a ONG não faz.
+4. Boa parte das mensagens repete as mesmas dúvidas, que as perguntas frequentes podem responder. _(O site não fala se a ONG faz ou não resgates; ver RN44.)_
 
 ## 2. Premissas
 
@@ -56,11 +57,11 @@ Problemas que o site precisa resolver:
 ### Páginas públicas
 | Rota | Página | Conteúdo |
 |---|---|---|
-| `/` | Início (institucional) | Chamada principal, **história da ONG** (texto, foto e marcos), missão e como funcionamos, números, seção **"Esperando há mais tempo"** (adultos), resumo de como adotar, aviso de resgate, perdidos e PIX. Textos editáveis pela equipe (RN33) |
+| `/` | Início (institucional) | Chamada principal, **história da ONG** (texto, foto e marcos), missão e como funcionamos, números, seção **"Esperando há mais tempo"** (adultos), resumo de como adotar, perdidos e PIX. Textos editáveis pela equipe (RN33) |
 | `/animais` | Vitrine | Grade de cards (miniatura, nome, idade, porte) com filtros: espécie, porte, idade (filhote/adulto), convive com outros animais |
 | `/animais/:id` | Ficha do animal | Fotos completas, todos os campos, responsável e botão **"Quero adotar"** (abre o formulário de interesse) |
-| `/como-adotar` | Como adotar | Passo a passo: formulário de interesse, análise, termo de adoção, adaptação de 15 dias. **Sem taxa.** |
-| `/perguntas-frequentes` | Perguntas frequentes | Inclui "Vocês resgatam?" e "Vocês buscam o animal?" (a ONG não faz resgate nem recolhe) |
+| `/como-adotar` | Como adotar | Passo a passo: formulário de interesse, análise, termo de adoção, adaptação de 15 dias |
+| `/perguntas-frequentes` | Perguntas frequentes | Adoção, adaptação, protetores parceiros, como ajudar. **Sem perguntas sobre resgate ou busca de animais** (RN44) |
 | `/ajude` | Como ajudar | **PIX** (da tabela `ong`) e formas de ajudar (lar temporário, compartilhar…), editáveis. Substitui a antiga `/sobre`: missão e "como funcionamos" foram para o Início. `/sobre` redireciona para `/ajude` |
 | `/privacidade` | Política de privacidade | Texto simples sobre LGPD |
 | `/perdidos` | Perdidos e encontrados | Anúncios **aprovados** de animais perdidos/encontrados, filtro por tipo, botão WhatsApp para quem anunciou, aviso contra golpes |
@@ -83,18 +84,17 @@ Problemas que o site precisa resolver:
 | `/admin/textos` | T15 | **Textos:** lista das páginas editáveis |
 | `/admin/textos/perguntas` | T16 | Perguntas frequentes: adicionar, editar, reordenar, excluir |
 | `/admin/textos/como-adotar` | T18 | Como adotar: subtítulo, passos, "antes de adotar", vantagens, aviso de protetores |
-| `/admin/textos/inicio` | T19 | Página inicial: chamada, história, foto, marcos, missão, como funcionamos, aviso de resgate |
+| `/admin/textos/inicio` | T19 | Página inicial: chamada, história, marcos, números da história, fotos da história, missão, como funcionamos |
 | `/admin/textos/ajude` | T20 | Como ajudar: introdução e formas de ajudar |
-| `/admin/textos/:lista/novo` · `/admin/textos/:lista/:id` | T17 | Formulário de um item de lista (pergunta, passo, marco…) |
-| `/admin/mais` | T22 | **Mais:** Dados da ONG, Protetores parceiros, Clínicas parceiras, Ver o site, Sair |
+| `/admin/textos/:lista/novo` · `/admin/textos/:lista/:id` | T17 | Formulário de um item de lista (pergunta, passo, marco, número, foto com legenda…) |
+| `/admin/mais` | T22 | **Mais:** Dados da ONG, Protetores parceiros, Ver o site, Sair |
 | `/admin/ong` | T23 | Dados da ONG: WhatsApp, Instagram, Facebook, chave PIX |
 | `/admin/protetores` | T24 | Protetores parceiros: lista e cadastro (RN42) |
-| `/admin/clinicas` | T25 | Clínicas parceiras e desconto (RN32) |
 
 ### Prioridade, se o prazo apertar (desenvolvimento de 13/10 a 23/10)
 1. **Obrigatório:** login, animais (T08–T11), editor de textos genérico (T15–T20, um só componente atende todas as páginas, RN33), perdidos com moderação (T14).
 2. **Em seguida:** anúncio pela equipe e renovar (T21, RN39–RN41), Dados da ONG (T23).
-3. **Se der tempo:** tela de gestão de protetores (T24), clínicas (T25), "Alterado por" (RN43), filtro por responsável e "Ver no site". A **tabela** `protetores` entra desde o início (o cadastro do animal já escolhe ou cria o protetor, RN42); só a tela de lista/edição fica para depois. Sem T25, as clínicas ficam como item da lista de vantagens.
+3. **Se der tempo:** tela de gestão de protetores (T24), "Alterado por" (RN43), filtro por responsável e "Ver no site". A **tabela** `protetores` entra desde o início (o cadastro do animal já escolhe ou cria o protetor, RN42); só a tela de lista/edição fica para depois.
 
 ### Fora do MVP (depois, se der tempo)
 - Página "Finais felizes" com animais adotados
@@ -224,9 +224,7 @@ Substitui a constante `ONG` do código (seção 7.1). Cabeçalho, rodapé, Iníc
 | `inicio.chamada_titulo` | Início, título grande | 60 | sim |
 | `inicio.chamada_texto` | Início, texto da chamada | 200 | sim |
 | `inicio.historia` | Início, "Nossa história" | 2000 | sim |
-| `inicio.historia_foto` | Início, foto da história (path no bucket `fotos`, `site/historia-{id}.webp`) | – | não |
 | `inicio.missao` | Início, missão | 400 | sim |
-| `inicio.aviso_resgate` | Início, aviso amarelo "não fazemos resgates" | 300 | sim |
 | `como_adotar.subtitulo` | Como adotar, subtítulo do topo | 100 | sim |
 | `como_adotar.aviso_protetor` | Como adotar, card amarelo de protetores (RN31) | 500 | sim |
 | `como_adotar.vantagens_rodape` | Como adotar, nota abaixo das vantagens | 200 | não |
@@ -239,6 +237,7 @@ Substitui a constante `ONG` do código (seção 7.1). Cabeçalho, rodapé, Iníc
 | `lista` | enum (tabela abaixo) | obrigatório |
 | `titulo` | text null | obrigatório ou não, conforme a lista |
 | `texto` | text | obrigatório |
+| `foto_path` | text null | só na lista `inicio_fotos` (obrigatório nela): `site/historia/{id}.webp` no bucket `fotos` (RN38) |
 | `ordem` | int | posição na lista, começa em 0 (RN35) |
 | `created_at` / `updated_at` / `updated_by` | | RN43 |
 
@@ -249,11 +248,12 @@ Substitui a constante `ONG` do código (seção 7.1). Cabeçalho, rodapé, Iníc
 | `como_adotar_antes` | Como adotar, "Antes de adotar, pense em" | – | Item (200) | 0 (bloco some) |
 | `como_adotar_vantagens` | Como adotar, "Vantagem de adotar pelo site" | Destaque em negrito (60), opcional | Item (200) | 0 (card some) |
 | `inicio_marcos` | Início, linha do tempo da história | Ano ou data (20), obrigatório | O que aconteceu (300) | 0 (bloco some) |
+| `inicio_numeros` | Início, faixa de números em destaque logo abaixo da chamada (**máx. 4**, RN46) | Número (20), obrigatório, ex.: "+100" | O que significa (80) | 0 (faixa some) |
+| `inicio_fotos` | Início: a 1ª foto abre a história, as demais formam a galeria "Nossa história em fotos" (**máx. 8**) | – | Legenda (120) + `foto_path` | 0 (bloco some) |
 | `inicio_como_funcionamos` | Início, "Como funcionamos" | Título (40), obrigatório | Texto (150) | 0 |
 | `ajude_formas` | Como ajudar (além do card fixo do PIX) | Título (40), obrigatório | Texto (300) | 0 |
-| `clinicas` | Como adotar (vantagens) e T25 | Nome da clínica (80), obrigatório | Desconto e condições (200) | 0 |
 
-**Conteúdo inicial (seed):** a migration `seed_conteudo.sql` cria `ong`, os textos e os itens com os textos atuais do protótipo (`prototipo/index.html`), para o site já estrear preenchido. A história e os marcos dependem das informações da ONG (TELAS.md, perguntas de validação).
+**Conteúdo inicial (seed):** a migration `seed_conteudo.sql` cria `ong`, os textos e os itens com os textos atuais do protótipo (`prototipo/index.html`), para o site já estrear preenchido. História, marcos, números e fotos vêm das respostas da ONG de 07/10/2026 (PROJETO.md, Entrevista 3); as fotos estão em `prototipo/assets/historia-1.jpg` a `historia-5.jpg` (a ordem de exibição está em `FOTOS_HISTORIA`, no protótipo; a `historia-1`, da assembleia, é uma versão tratada).
 
 ### Segurança (Row Level Security)
 - `animais` e `fotos`: **SELECT público**; INSERT/UPDATE/DELETE só `authenticated`.
@@ -343,7 +343,7 @@ Celular do visitante                Supabase Edge Function              Equipe d
 - **RN29 – ~~Código de adoção~~ (removida em 06/10/2026):** a ONG não precisa de código. A comprovação da adoção pelo site é a própria aba "Adotados" do painel, com o nome de quem adotou.
 - **RN30 – Período de adaptação de 15 dias:** começa em `data_adocao`. Segundo o termo, **depois dos 15 dias**, quem desiste deve avisar o doador e **manter o animal como lar provisório** até um novo lar. No painel, a aba "Adotados" mostra "Em adaptação: faltam N dias" e depois "Adoção concluída". Se o animal não se adaptar, ele **volta para quem doou** (ONG ou protetor) e nunca deve ser repassado nem abandonado. No sistema, isso é o botão "Voltar para disponível".
 - **RN31 – Responsabilidade do protetor parceiro:** quando `responsavel_tipo = protetor`, a ficha, a página "Como adotar" e as perguntas frequentes deixam claro que a adoção, o termo e a devolução são combinados com o protetor, e que a SOS Patas **apenas divulga e não é responsável**.
-- **RN32 – Benefício de adotar pelo site:** quem adota pelo site tem **prioridade na castração gratuita** quando houver castramóvel e **desconto em clínicas parceiras**. O benefício é divulgado na ficha, em "Como adotar" e nas perguntas frequentes, e é conferido pela equipe na aba "Adotados" do painel. _(A confirmar: quais clínicas são parceiras e o valor do desconto.)_
+- **RN32 – Benefício de adotar pelo site:** quem adota pelo site tem **prioridade na castração gratuita** quando houver castramóvel e **desconto em clínicas parceiras**. O benefício é divulgado na ficha, em "Como adotar" e nas perguntas frequentes, e é conferido pela equipe na aba "Adotados" do painel. **O site não cita clínicas nem valores de desconto**, só que existem parcerias com clínicas veterinárias (pedido da ONG, 07/10/2026).
 
 ### Saúde
 - **RN17 (alterada em 06/10/2026):** a ficha mostra só a situação real ("Castrado" ou "Ainda não castrado"). **O site não promete castração garantida pela ONG**, porque nem sempre há recurso e há animais de outros grupos e protetores. O único benefício divulgado é a prioridade no castramóvel (RN32).
@@ -354,7 +354,7 @@ Celular do visitante                Supabase Edge Function              Equipe d
 - **RN35 – Reordenar com setas:** cada item tem os botões ↑ e ↓, que trocam a `ordem` com o vizinho em uma única chamada (função `trocar_ordem(id_a, id_b)` no banco, para não deixar posições repetidas). Item novo entra no fim da lista.
 - **RN36 – Excluir com confirmação; não existe "ocultar":** um item só sai do site ao ser excluído, com o modal "Excluir esta pergunta? Ela some do site e não pode ser recuperada." Não é possível excluir o último item de uma lista com mínimo 1 (o botão fica desativado, com a explicação).
 - **RN37 – Salvar publica na hora:** não existe rascunho. Depois de salvar, a tela mostra "Salvo e publicado ✓" e o botão **"Ver no site"**, que abre a página pública em nova aba.
-- **RN38 – Foto da história:** uma única foto opcional, com o mesmo processamento das fotos de animais (RN02, só a versão completa de 1200 px), em `site/historia-{id}.webp`. Trocar ou remover apaga o arquivo antigo (mesma lógica da RN06).
+- **RN38 – Fotos da história:** até **8 fotos com legenda** (lista `inicio_fotos`), com o mesmo processamento das fotos de animais (RN02: miniatura para a galeria e completa para a primeira foto), em `site/historia/{id}.webp`. A ordem é definida com ↑ ↓; a primeira abre a seção "Nossa história". Trocar a foto ou excluir o item apaga os arquivos antigos (mesma lógica da RN05/RN06). **Fotos com pessoas identificáveis só com autorização; crianças e adolescentes, só com autorização dos responsáveis** (LGPD art. 14 e ECA); o formulário mostra esse lembrete.
 
 O resumo "Como adotar" no Início usa os **títulos** de `como_adotar_passos`, para os dois lugares nunca ficarem diferentes. Se duas pessoas editarem o mesmo item ao mesmo tempo, vale o último a salvar (aceitável para uma equipe de duas pessoas).
 
@@ -366,6 +366,11 @@ O resumo "Como adotar" no Início usa os **títulos** de `como_adotar_passos`, p
 ### Protetores parceiros e auditoria
 - **RN42 – Protetor cadastrado uma vez:** no cadastro do animal, ao escolher "Protetor parceiro", aparece a lista de `protetores` e a opção "＋ Novo protetor" (nome e WhatsApp, criado ali mesmo). Editar o WhatsApp de um protetor atualiza todos os animais dele. **Não é possível excluir um protetor com animais vinculados** (FK `restrict`); a tela avisa "Ana Paula tem 2 animais. Troque o responsável deles antes de excluir."
 - **RN43 – "Alterado por… em…":** animais, anúncios, textos, itens, dados da ONG e protetores mostram na edição "Alterado por Claudia em 07/10/2026". Um trigger preenche `updated_at` e `updated_by = auth.uid()`; o nome vem de `equipe`. Não há histórico completo.
+
+### Comunicação
+- **RN44 – O site não fala sobre resgates (07/10/2026):** nenhuma página, aviso ou pergunta frequente diz se a ONG faz ou não resgates, nem se busca animais. Na prática, há resgates feitos com transporte dos próprios voluntários, com atendimento em clínicas parceiras e acolhimento na casa de voluntários, mas **a ONG prefere não tratar do assunto no site**. A história da ONG (página inicial) pode contar casos do passado, como já faz.
+- **RN45 – O site não fala de taxa de adoção (07/10/2026):** nenhuma página menciona "sem taxa", "R$ 0" ou "adoção gratuita" (selo e números da página inicial, ficha do animal, Como adotar e perguntas frequentes). A adoção continua sem taxa na prática, mas a ONG considerou a informação desnecessária. O aviso contra golpes em Perdidos ("desconfie de quem pede taxa") não tem relação com isso e continua.
+- **RN46 – Números públicos que mudam pouco (07/10/2026):** a página inicial não mostra contagens que variam todo mês (animais esperando, adotados no último mês). A faixa de números em destaque usa a lista editável `inicio_numeros` com dados estáveis e arredondados ("Desde 2015", "+100 feiras", "Quase 1.000 adotados", "Recorde de 32"), e o texto da história segue o mesmo critério ("mais de 100 feiras"). Contagens automáticas ficam só no painel da ONG (T09, indicador de adoções do mês) e no subtítulo da vitrine.
 
 ### Manutenção
 - **RN16 – Evitar a pausa do Supabase:** um workflow do GitHub Actions, agendado a cada 3 dias, faz uma consulta simples na tabela `animais`.
@@ -415,7 +420,8 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 
 **Dados da ONG:** ficam na tabela `ong` e são editáveis em T23. Os valores abaixo são o conteúdo inicial (seed):
 - Nome: SOS Patas, Sociedade de Proteção aos Animais de Passos/MG
-- Instagram: @sospatas.ong
+- Instagram: @sospatas.ong (https://www.instagram.com/sospatas.ong/)
+- Facebook: https://www.facebook.com/sospatasmg
 - WhatsApp: (35) 9 8843-9614 _(confirmar)_
 - PIX (CNPJ): 26.515.895/0001-90
 
@@ -447,7 +453,7 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 06/10/2026 | Protótipo em HTML navegável + Tailwind (tarefa 3) | Rápido de validar com a ONG pelo celular; classes reaproveitadas no React |
 | 06/10/2026 | Campo `vermifugado` adicionado | Informação presente em todos os cartazes de adoção da ONG |
 | 06/10/2026 | Chave PIX exibida no site (início, sobre e rodapé) | A ONG vive de doações; reforça a sustentabilidade econômica (ODS 8). Sem pagamento integrado |
-| 06/10/2026 | Aviso "A SOS Patas não faz resgates" na página inicial e nas perguntas frequentes | Reduz as mensagens de resgate/recolhimento relatadas pela Gracia |
+| 06/10/2026 | ~~Aviso "A SOS Patas não faz resgates" na página inicial e nas perguntas frequentes~~ (removido em 07/10, RN44) | Reduz as mensagens de resgate/recolhimento relatadas pela Gracia |
 | 06/10/2026 | Nova seção **Perdidos e encontrados**, com envio público + aprovação da equipe | Ajuda a comunidade a reencontrar animais e reduz o abandono; amplia o alcance social do projeto |
 | 06/10/2026 | Visitante pode enviar fotos, mas em **bucket privado de quarentena** até a aprovação | Sem foto o anúncio não funciona; a quarentena garante que nada sem moderação fique público |
 | 06/10/2026 | Envio público passa por **Edge Function** (Turnstile + validação + limite por IP), sem INSERT anônimo direto | Validação no navegador pode ser burlada; o servidor é a barreira real |
@@ -471,4 +477,12 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 07/10/2026 | Todas as usuárias com as mesmas permissões; contas criadas à mão no Supabase; só "Alterado por… em…" (RN43) | Equipe pequena; gestão de contas e histórico completo ficam fora do MVP |
 | 07/10/2026 | Navegação da área da ONG por barra fixa no rodapé (Animais · Perdidos · Textos · Mais) | Padrão que as usuárias já conhecem do WhatsApp e do Instagram |
 | 07/10/2026 | Telas de análise dos pedidos de adoção ficam para uma rodada própria | Dependem da versão final do formulário (RN14) |
+| 07/10/2026 | **História da ONG** na página inicial com as respostas da ONG: texto, 4 marcos, 3 números (116 feiras, quase 1.000 adotados, recorde de 32) e 5 fotos institucionais | Pedido de página institucional; informações enviadas pela ONG no grupo (PROJETO.md, Entrevista 3) |
+| 07/10/2026 | Foto única da história (`inicio.historia_foto`) substituída pela lista `inicio_fotos` (até 8 fotos com legenda) e nova lista `inicio_numeros` (RN38) | A ONG enviou várias fotos (fundação, equipe, feiras); usa o mesmo editor genérico de listas |
+| 07/10/2026 | **Sem clínicas nem valores de desconto no site**: lista `clinicas` e tela T25 removidas; fica só a menção genérica a "clínicas veterinárias parceiras" (RN32) | Pedido da ONG |
+| 07/10/2026 | **Removidos o aviso "não fazemos resgates" e as perguntas "Vocês resgatam animais?" e "Vocês buscam o animal aqui em casa?"**; chave `inicio.aviso_resgate` excluída (RN44) | Pedido da ONG: a informação não era precisa (há resgates, com transporte de voluntários) e a ONG prefere não tratar do assunto no site |
+| 07/10/2026 | Foto da assembleia de fundação **tratada** (lâmpadas, flash, ruído e contraste) e movida para a galeria; a história passa a abrir com a foto mais nítida (voluntários em feira de adoção) | O original é de baixa resolução; exibida grande, parecia antiga. Pedido à ONG o arquivo original (TELAS.md, pergunta 19) |
+| 07/10/2026 | **Removidas as menções a "sem taxa"** (selo e card "R$ 0" da página inicial, ficha, Como adotar e a pergunta "A adoção tem taxa?") (RN45) | Pedido da ONG: informação desnecessária no site |
+| 07/10/2026 | Faixa de números da página inicial troca "animais esperando" e "adotados no último mês" por números estáveis da ONG (lista `inicio_numeros`, movida da história para a faixa); "116 feiras" vira "+100"/"mais de 100" (RN46) | Pedido: números que não precisem ser alterados todo mês |
+| 07/10/2026 | Criado o [CLAUDE.md](CLAUDE.md) com as regras de manutenção do projeto (RP01: toda alteração vai para protótipo, projeto e documentação) | Evitar documentação desatualizada, já que o site é desenvolvido com IA a partir dela |
 | 07/10/2026 | **Logo oficial em boa resolução** (`prototipo/assets/logo.png`, 790 px) em todas as telas | Arquivo recebido da ONG; substitui o recorte do Instagram |

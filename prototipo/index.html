@@ -74,7 +74,6 @@
   <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/admin/mais">T22 · Mais</a>
   <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/admin/ong">T23 · Dados da ONG</a>
   <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/admin/protetores">T24 · Protetores parceiros</a>
-  <a class="block rounded-lg px-2 py-1.5 hover:bg-slate-700" href="#/admin/clinicas">T25 · Clínicas parceiras</a>
 </div>
 
 <script>
@@ -87,7 +86,7 @@ const ONG = {
   nome: 'SOS Patas',
   nomeCompleto: 'Sociedade de Proteção aos Animais de Passos/MG',
   instagram: 'sospatas.ong',
-  facebook: '',
+  facebook: 'https://www.facebook.com/sospatasmg',
   whatsapp: '35988439614',
   pix_tipo: 'cnpj',
   pix: '26.515.895/0001-90',
@@ -96,9 +95,9 @@ const PIX_TIPOS = { cnpj: 'CNPJ', cpf: 'CPF', email: 'E-mail', telefone: 'Telefo
 const fmtWhats = n => { const d = String(n || '').replace(/\D/g, '');
   return d.length === 11 ? `(${d.slice(0, 2)}) ${d[2]} ${d.slice(3, 7)}-${d.slice(7)}` : d.length === 10 ? `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}` : d; };
 
-// Números de exemplo baseados nas respostas da Gracia (cerca de 30 animais esperando; 10 a 15 adoções por mês).
-// No site real, os dois vêm do banco: count de status = 'disponivel' e de data_adocao nos últimos 30 dias.
-const EXEMPLO = { esperando: 30, adotadosUltimoMes: 12 };
+// Número de exemplo baseado nas respostas da Gracia (cerca de 30 animais esperando), usado no subtítulo da vitrine.
+// No site real vem do banco: count de status = 'disponivel'. (Adotados no mês aparece só no painel da ONG, T09.)
+const EXEMPLO = { esperando: 30 };
 const DIAS_ADAPTACAO = 15;                                              // RN30
 
 const hoje = new Date();
@@ -177,14 +176,13 @@ const alteradoPor = alt => alt ? `<p class="text-xs font-semibold text-slate-400
 
 // ---------------------------------------------------------------------------
 // CONTEÚDO EDITÁVEL DAS PÁGINAS · tabelas conteudo_textos e conteudo_itens (RN33–RN38)
-// Valores iniciais = textos do protótipo (seed). História e marcos são EXEMPLOS até a ONG enviar os reais.
+// Valores iniciais = textos do protótipo (seed). História, marcos, números e fotos: respostas da ONG em 07/10/2026 (PROJETO.md).
 // ---------------------------------------------------------------------------
 const TEXTOS = { // chave: [rótulo, limite, obrigatório, onde aparece no site]
   'inicio.chamada_titulo': ['Título da chamada', 60, true, 'Texto grande no topo da página inicial'],
   'inicio.chamada_texto': ['Texto da chamada', 200, true, 'Logo abaixo do título'],
   'inicio.historia': ['Texto da história', 2000, true, 'Seção "Nossa história"'],
   'inicio.missao': ['Missão', 400, true, 'Card com o logo, depois da história'],
-  'inicio.aviso_resgate': ['Aviso de resgate', 300, true, 'Card amarelo "A SOS Patas não faz resgates"'],
   'como_adotar.subtitulo': ['Subtítulo', 100, true, 'Abaixo do título "Como adotar"'],
   'como_adotar.vantagens_rodape': ['Nota abaixo das vantagens', 200, false, 'Fim do card verde "Vantagem de adotar pelo site"'],
   'como_adotar.aviso_protetor': ['Aviso de protetores parceiros', 500, true, 'Card amarelo no fim da página'],
@@ -194,15 +192,13 @@ const ex = d => ({ por: 'Claudia', em: diasAtras(d) });
 let textos = {
   'inicio.chamada_titulo': { valor: 'Toda patinha merece um lar.', alt: ex(5) },
   'inicio.chamada_texto': { valor: 'Conheça os cães e gatos da SOS Patas que estão esperando uma família em Passos e região.', alt: ex(5) },
-  'inicio.historia': { valor: '[Texto de exemplo] Aqui entra a história da SOS Patas: quando e como a ONG começou, quem fundou e o que já conquistou.\n\nO texto real vai ser enviado pela ONG e pode ser alterado a qualquer momento pela área da ONG.', alt: ex(1) },
+  'inicio.historia': { valor: 'A SOS Patas nasceu em 2015, em um grupo de WhatsApp. A ideia foi da protetora Stephanie Christiene, e logo um grupo de pessoas abraçou a causa de ajudar os animais em situação de rua de Passos.\n\nComo o próprio nome diz, pensamos em um socorro imediato: casos urgentes, animais nas ruas precisando de ajuda. Foram muitos casos tristes. Um deles foi o de um cão amarrado com arame em uma cerca, que se debateu tanto que quase cortou o pescoço. Chegamos a tempo: ele sobreviveu e foi adotado.\n\nEm 2016 fizemos a primeira feira de adoção. De lá para cá já foram mais de 100 feiras, com cerca de 8 animais adotados em cada uma, e quase mil animais ganharam um lar, sem contar as adoções pelas redes sociais.\n\nEssa história foi construída por muita gente: a pastora Dalva (que nos deixou em 2020), Gracia, Tarlei, Deide, Adriana e tantos outros voluntários, alguns ainda conosco e outros que já não estão mais.', alt: ex(0) },
   'inicio.missao': { valor: 'Proteger animais abandonados e maltratados, providenciar atendimento veterinário e encontrar lares amorosos.', alt: ex(5) },
-  'inicio.aviso_resgate': { valor: 'Não temos abrigo nem transporte próprio. Todo o trabalho é feito por voluntários, com animais acolhidos em lares temporários.', alt: ex(5) },
-  'como_adotar.subtitulo': { valor: 'Simples, responsável e sem taxa', alt: ex(3) },
+  'como_adotar.subtitulo': { valor: 'Simples e responsável', alt: ex(3) },
   'como_adotar.vantagens_rodape': { valor: 'A ONG confere na lista de adoções feitas pelo site.', alt: ex(3) },
   'como_adotar.aviso_protetor': { valor: 'Alguns animais do site são de protetores independentes. Nesses casos, a adoção, o termo e a devolução (se o animal não se adaptar) são combinados diretamente com o protetor. A SOS Patas ajuda na divulgação, mas não é responsável por essas adoções.', alt: ex(3) },
   'ajude.introducao': { valor: 'A SOS Patas é formada só por voluntários e vive de doações. Toda ajuda faz diferença.', alt: ex(4) },
 };
-let historiaFoto = null;                                                // RN38: uma foto opcional
 
 const LISTAS = { // lista: configuração do formulário T17 e da ListaEditavel
   perguntas: { este: 'esta pergunta', novo: 'Nova pergunta', editar: 'Editar pergunta', t: ['Pergunta', 150, true], x: ['Resposta', 1000], min: 1, volta: '#/admin/textos/perguntas', site: '#/perguntas' },
@@ -210,18 +206,16 @@ const LISTAS = { // lista: configuração do formulário T17 e da ListaEditavel
   como_adotar_antes: { este: 'este cuidado', novo: 'Novo cuidado', editar: 'Editar cuidado', t: null, x: ['Texto', 200], min: 0, volta: '#/admin/textos/como-adotar', site: '#/como-adotar' },
   como_adotar_vantagens: { este: 'esta vantagem', novo: 'Nova vantagem', editar: 'Editar vantagem', t: ['Destaque em negrito', 60, false], x: ['Texto', 200], min: 0, volta: '#/admin/textos/como-adotar', site: '#/como-adotar' },
   inicio_marcos: { este: 'este marco', novo: 'Novo marco da história', editar: 'Editar marco', t: ['Ano ou data', 20, true], x: ['O que aconteceu', 300], min: 0, volta: '#/admin/textos/inicio', site: '#/' },
+  inicio_numeros: { este: 'este número', novo: 'Novo número', editar: 'Editar número', t: ['Número', 20, true], x: ['O que significa', 80], min: 0, max: 4, volta: '#/admin/textos/inicio', site: '#/' },
+  inicio_fotos: { este: 'esta foto', novo: 'Nova foto', editar: 'Editar foto', t: null, x: ['Legenda', 120], foto: true, min: 0, max: 8, volta: '#/admin/textos/inicio', site: '#/' },
   inicio_como_funcionamos: { este: 'este item', novo: 'Novo item', editar: 'Editar item', t: ['Título', 40, true], x: ['Texto', 150], min: 0, volta: '#/admin/textos/inicio', site: '#/' },
   ajude_formas: { este: 'esta forma de ajudar', novo: 'Nova forma de ajudar', editar: 'Editar forma de ajudar', t: ['Título', 40, true], x: ['Texto', 300], min: 0, volta: '#/admin/textos/ajude', site: '#/ajude' },
-  clinicas: { este: 'esta clínica', novo: 'Nova clínica parceira', editar: 'Editar clínica', t: ['Nome da clínica', 80, true], x: ['Desconto e condições', 200], min: 0, volta: '#/admin/clinicas', site: '#/como-adotar' },
 };
 let itens = [];
 const seed = (lista, pares, dias = 5) => pares.forEach(([titulo, texto], ordem) =>
   itens.push({ id: `${lista}-${ordem}`, lista, titulo, texto, ordem, alt: ex(dias) }));
 seed('perguntas', [
-  ['Vocês resgatam animais?', 'Não. A SOS Patas não tem abrigo nem transporte próprio, por isso não realizamos resgates diretos. Somos uma equipe 100% voluntária e os animais ficam em lares temporários. Contamos com o apoio da sociedade.'],
-  ['Vocês buscam o animal aqui em casa?', 'Não temos transporte próprio. Os deslocamentos dependem da boa vontade de voluntários.'],
   ['Não posso mais ficar com meu animal. Vocês recebem?', 'Não temos abrigo para receber animais. Você pode divulgar o animal e procurar um novo lar com responsabilidade. Abandonar animais é crime (Lei 9.605/1998).'],
-  ['A adoção tem taxa?', 'Não. A adoção é gratuita. O processo tem formulário de interesse, termo de adoção e acompanhamento.'],
   ['E se o animal não se adaptar?', 'Existe um período de adaptação de 15 dias. Se não der certo, avise e devolva o animal a quem doou (a SOS Patas ou o protetor parceiro) dentro desse prazo. Depois dos 15 dias, se desistir, avise quem doou e mantenha o animal como lar provisório até ele encontrar um novo lar, porque a ONG não tem abrigo. Nunca repasse nem abandone.'],
   ['Tem alguma vantagem adotar pelo site?', 'Sim! Quem adota pelo site tem prioridade na castração gratuita quando houver castramóvel e desconto em clínicas parceiras. A ONG confere na lista de adoções feitas pelo site.'],
   ['O animal é de um protetor parceiro. Quem é o responsável?', 'O próprio protetor. A adoção, o termo e uma eventual devolução são combinados diretamente com ele. A SOS Patas só ajuda a divulgar.'],
@@ -234,7 +228,7 @@ seed('como_adotar_passos', [
   ['Escolha o animal', 'Navegue pela vitrine, use os filtros e abra a ficha para ver saúde e temperamento.'],
   ['Preencha o formulário de interesse', 'Toque em "Quero adotar" e responda algumas perguntas sobre você, sua casa e sua rotina. Leva poucos minutos.'],
   ['Análise', 'A equipe da SOS Patas (ou o protetor parceiro responsável pelo animal) analisa o formulário e entra em contato pelo WhatsApp.'],
-  ['Termo de responsabilidade', 'Você assina o termo de responsabilidade de adoção e fica com uma via. Não cobramos taxa.'],
+  ['Termo de responsabilidade', 'Você assina o termo de responsabilidade de adoção e fica com uma via.'],
   ['Período de adaptação: 15 dias', 'Nos primeiros 15 dias, acompanhamos a adaptação pelo WhatsApp e, se necessário, com uma visita. Se o animal não se adaptar, avise e devolva a quem doou dentro desse prazo. Depois dos 15 dias, se desistir, avise quem doou e mantenha o animal como lar provisório até um novo lar. Nunca repasse para outra pessoa nem abandone.'],
 ], 3);
 seed('como_adotar_antes', [
@@ -250,10 +244,27 @@ seed('como_adotar_vantagens', [
   ['Desconto em clínicas veterinárias parceiras', 'para castração.'],
 ], 3);
 seed('inicio_marcos', [
-  ['Ano', '[Exemplo] Como e quando a SOS Patas começou.'],
-  ['Ano', '[Exemplo] Um momento marcante: primeira feira de adoção, 100ª adoção…'],
-  ['Hoje', 'Cerca de 10 voluntários frequentes cuidam dos animais em lares temporários, sem sede própria.'],
-], 1);
+  ['2015', 'Nasce o grupo de WhatsApp que deu origem à SOS Patas, por iniciativa da protetora Stephanie Christiene.'],
+  ['5 de julho de 2016', 'Assembleia de fundação da ONG.'],
+  ['2016', 'Primeira feira de adoção.'],
+  ['Hoje', 'Mais de 100 feiras de adoção e quase mil animais com um novo lar.'],
+], 0);
+seed('inicio_numeros', [                                                // faixa abaixo da chamada: números que mudam pouco (não mensais)
+  ['Desde 2015', 'cuidando dos animais de Passos'],
+  ['+100', 'feiras de adoção'],
+  ['Quase 1.000', 'animais adotados nas feiras'],
+  ['32', 'adoções em uma só feira, nosso recorde'],
+], 0);
+// A 1ª foto abre a história em tamanho grande: usar a mais nítida. A da assembleia (baixa resolução, tratada) fica na galeria.
+const FOTOS_HISTORIA = [                                                 // [arquivo, legenda] · legendas exceto a da assembleia: a confirmar com a ONG
+  ['historia-4.jpg', 'Voluntários em feira de adoção'],
+  ['historia-1.jpg', 'Assembleia de fundação da ONG, 5 de julho de 2016'],
+  ['historia-2.jpg', 'Equipe da SOS Patas em 2016'],
+  ['historia-3.jpg', 'Feira de adoção'],
+  ['historia-5.jpg', 'Feira de adoção na praça'],
+];
+seed('inicio_fotos', FOTOS_HISTORIA.map(([, legenda]) => [null, legenda]), 0);
+itens.filter(i => i.lista === 'inicio_fotos').forEach((i, k) => i.foto = 'assets/' + FOTOS_HISTORIA[k][0]);   // foto_path
 seed('inicio_como_funcionamos', [
   ['100% voluntários', 'Toda a equipe é formada por voluntários.'],
   ['Sem abrigo', 'Os animais ficam em lares temporários até a adoção.'],
@@ -262,9 +273,8 @@ seed('inicio_como_funcionamos', [
 ]);
 seed('ajude_formas', [
   ['Seja lar temporário', 'Acolha um animal em casa até ele ser adotado. Fale com a ONG pelo WhatsApp.'],
-  ['Compartilhe', 'Divulgar os animais nas redes ajuda muito. Siga @sospatas.ong.'],
+  ['Compartilhe', 'Divulgar os animais nas redes ajuda muito. Siga @sospatas.ong no Instagram e a página https://www.facebook.com/sospatasmg no Facebook.'],
 ], 4);
-seed('clinicas', [['Clínica exemplo (a confirmar com a ONG)', 'Desconto na castração: valor a confirmar.']], 6);
 
 const itensDe = lista => itens.filter(i => i.lista === lista).sort((a, b) => a.ordem - b.ordem);
 const txt = chave => textos[chave].valor;
@@ -317,6 +327,7 @@ const icone = {
   pata: '<svg viewBox="0 0 24 24" fill="currentColor" class="h-full w-full"><circle cx="5.5" cy="9.5" r="2.3"/><circle cx="9.5" cy="5.5" r="2.3"/><circle cx="14.5" cy="5.5" r="2.3"/><circle cx="18.5" cy="9.5" r="2.3"/><path d="M12 11c-3.2 0-6.5 4.3-6.5 7 0 1.7 1.3 2.6 3 2.6 1.4 0 2.3-.8 3.5-.8s2.1.8 3.5.8c1.7 0 3-.9 3-2.6 0-2.7-3.3-7-6.5-7z"/></svg>',
   whats: '<svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.6 2.1 1.1 1 2 1.3 2.3 1.4.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l2 .9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg>',
   insta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>',
+  face: '<svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path d="M14 8h3V4h-3c-2.8 0-4 1.8-4 4.2V10H7v4h3v8h4v-8h3l.5-4H14V8.6c0-.4.2-.6.6-.6z"/></svg>',
   check: '<svg viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.6l7.3-7.3a1 1 0 0 1 1.4 0z" clip-rule="evenodd"/></svg>',
   x: '<svg viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4"><path d="M6.3 5 5 6.3 8.7 10 5 13.7 6.3 15 10 11.3 13.7 15 15 13.7 11.3 10 15 6.3 13.7 5 10 8.7z"/></svg>',
   voltar: '<svg viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5"><path fill-rule="evenodd" d="M12.7 4.3a1 1 0 0 1 0 1.4L8.4 10l4.3 4.3a1 1 0 0 1-1.4 1.4l-5-5a1 1 0 0 1 0-1.4l5-5a1 1 0 0 1 1.4 0z" clip-rule="evenodd"/></svg>',
@@ -388,8 +399,8 @@ function rodape() {
       </div>
       <div class="space-y-2 text-sm">
         <p class="mb-2 font-bold uppercase tracking-wide text-white/60">Contato</p>
-        <p class="flex items-center gap-2">${icone.insta} @${ONG.instagram}</p>
-        ${ONG.facebook ? `<p class="flex items-center gap-2">ⓕ ${esc(ONG.facebook.replace(/^https?:\/\/(www\.)?/, ''))}</p>` : ''}
+        <a href="https://www.instagram.com/${esc(ONG.instagram)}/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:underline">${icone.insta} @${esc(ONG.instagram)}</a>
+        ${ONG.facebook ? `<a href="${esc(ONG.facebook)}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:underline">${icone.face} ${esc(ONG.facebook.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : ''}
         <p class="flex items-center gap-2">${icone.whats} ${fmtWhats(ONG.whatsapp)}</p>
         <p class="rounded-xl bg-white/10 p-3"><span class="font-bold text-amarelo">PIX (${PIX_TIPOS[ONG.pix_tipo]}):</span> ${esc(ONG.pix)}</p>
       </div>
@@ -408,6 +419,8 @@ function telaInicio() {
   const destaque = esperandoMaisTempo();
   const passos = itensDe('como_adotar_passos');                         // mesmo conteúdo da página Como adotar
   const marcos = itensDe('inicio_marcos'), fatos = itensDe('inicio_como_funcionamos');
+  const numeros = itensDe('inicio_numeros');                            // faixa abaixo da chamada
+  const fotosHist = itensDe('inicio_fotos');                            // a 1ª foto abre a história; as demais vão para a galeria
   const cao = disponiveis().find(a => a.especie === 'cao'), gato = disponiveis().find(a => a.especie === 'gato');
   return pagina(`
   <section class="relative overflow-hidden bg-azul text-white">
@@ -415,7 +428,7 @@ function telaInicio() {
     <div class="absolute -bottom-12 left-1/3 h-40 w-40 text-white/5">${icone.pata}</div>
     <div class="relative mx-auto grid max-w-6xl items-center gap-8 px-4 py-10 md:grid-cols-2 md:py-16">
       <div>
-        <span class="inline-block rounded-full bg-vermelho px-3 py-1 text-xs font-extrabold uppercase tracking-wide">Adoção responsável · sem taxa</span>
+        <span class="inline-block rounded-full bg-vermelho px-3 py-1 text-xs font-extrabold uppercase tracking-wide">Adoção responsável</span>
         <h1 class="mt-3 font-titulo text-4xl font-extrabold leading-[1.05] md:text-6xl">${esc(txt('inicio.chamada_titulo'))}</h1>
         <p class="mt-3 max-w-md text-lg text-white/90">${textoSimples(txt('inicio.chamada_texto'))}</p>
         <div class="mt-6 flex flex-wrap gap-3">
@@ -431,11 +444,9 @@ function telaInicio() {
   </section>
 
   <section class="relative z-10 mx-auto -mt-6 max-w-6xl px-4">
-    <div class="grid grid-cols-3 gap-2 rounded-2xl bg-white p-3 text-center shadow-md ring-1 ring-slate-200 md:p-5">
-      <div><p class="font-titulo text-3xl font-extrabold text-azul">${EXEMPLO.esperando}</p><p class="text-xs font-semibold text-slate-600 md:text-sm">animais esperando um lar</p></div>
-      <div class="border-x border-slate-200"><p class="font-titulo text-3xl font-extrabold text-emerald-600">${EXEMPLO.adotadosUltimoMes}</p><p class="text-xs font-semibold text-slate-600 md:text-sm">adotados no último mês</p></div>
-      <div><p class="font-titulo text-3xl font-extrabold text-vermelho">R$ 0</p><p class="text-xs font-semibold text-slate-600 md:text-sm">taxa de adoção</p></div>
-    </div>
+    ${numeros.length ? `<div class="grid grid-cols-2 gap-y-3 rounded-2xl bg-white p-3 text-center shadow-md ring-1 ring-slate-200 md:p-5 md:grid-cols-${numeros.length}">
+      ${numeros.map((n, i) => `<div class="px-2 ${i % 2 ? 'border-l border-slate-200' : ''} ${i > 0 ? 'md:border-l md:border-slate-200' : ''}"><p class="font-titulo text-2xl font-extrabold leading-tight md:text-3xl ${['text-azul', 'text-emerald-600', 'text-vermelho', 'text-[#C27C0E]'][i % 4]}">${esc(n.titulo)}</p><p class="text-xs font-semibold text-slate-600 md:text-sm">${esc(n.texto)}</p></div>`).join('')}
+    </div>` : ''}
   </section>
 
   <section id="historia" class="mx-auto max-w-6xl px-4 pt-12">
@@ -443,7 +454,8 @@ function telaInicio() {
     <h2 class="font-titulo text-3xl font-extrabold text-azul-escuro">Nossa história</h2>
     <div class="mt-4 grid gap-6 ${marcos.length ? 'md:grid-cols-[1.3fr_1fr]' : ''}">
       <div class="overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
-        ${historiaFoto ? `<img src="${historiaFoto}" alt="Foto da história da SOS Patas" class="aspect-[16/9] w-full object-cover">` : ''}
+        ${fotosHist[0] ? `<figure class="relative"><img src="${fotosHist[0].foto}" alt="${esc(fotosHist[0].texto)}" class="aspect-[16/9] w-full object-cover">
+          <figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pb-2 pt-6 text-sm font-semibold text-white">${esc(fotosHist[0].texto)}</figcaption></figure>` : ''}
         <p class="whitespace-pre-line p-5 text-lg leading-relaxed text-slate-700">${textoSimples(txt('inicio.historia'))}</p>
       </div>
       ${marcos.length ? `<ol class="relative space-y-4 border-l-4 border-azul-claro pl-6">
@@ -451,6 +463,10 @@ function telaInicio() {
           <p class="font-titulo text-xl font-extrabold text-azul">${esc(m.titulo)}</p><p class="whitespace-pre-line text-slate-700">${textoSimples(m.texto)}</p></li>`).join('')}
       </ol>` : ''}
     </div>
+    ${fotosHist.length > 1 ? `<h3 class="mt-8 font-titulo text-2xl font-bold text-azul-escuro">Nossa história em fotos</h3>
+    <div class="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+      ${fotosHist.slice(1).map(f => `<figure class="overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200"><img src="${f.foto}" alt="${esc(f.texto)}" class="aspect-[4/3] w-full object-cover"><figcaption class="p-2.5 text-xs font-semibold text-slate-600">${esc(f.texto)}</figcaption></figure>`).join('')}
+    </div>` : ''}
   </section>
 
   <section class="mx-auto max-w-6xl px-4 pt-10">
@@ -480,21 +496,13 @@ function telaInicio() {
 
   <section class="mx-auto max-w-6xl px-4 pt-12">
     <h2 class="font-titulo text-3xl font-extrabold text-azul-escuro">Como adotar</h2>
-    <ol class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-${Math.min(passos.length, 5)}">
-      ${passos.map((p, i) => `<li class="flex items-center gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200 md:flex-col md:items-start"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-vermelho font-titulo text-lg font-extrabold text-white">${i + 1}</span><p class="font-extrabold leading-tight text-azul-escuro">${esc(p.titulo)}</p></li>`).join('')}
+    <ol class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-${Math.min(passos.length, 5)}">
+      ${passos.map((p, i) => `<li class="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200 lg:flex-col lg:items-start lg:py-4"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-vermelho font-titulo text-lg font-extrabold text-white">${i + 1}</span><p class="min-w-0 hyphens-auto break-words font-extrabold leading-tight text-azul-escuro">${esc(p.titulo)}</p></li>`).join('')}
     </ol>
     <a href="#/como-adotar" class="mt-3 inline-block font-bold text-azul hover:underline">Saiba mais sobre a adoção →</a>
   </section>
 
   <section class="mx-auto max-w-6xl px-4 pt-12">
-    <div class="rounded-2xl border-2 border-amarelo bg-amarelo-claro p-5">
-      <h2 class="font-titulo text-2xl font-extrabold text-azul-escuro">Importante: a SOS Patas não faz resgates</h2>
-      <p class="mt-1 whitespace-pre-line text-slate-700">${textoSimples(txt('inicio.aviso_resgate'))}</p>
-      <a href="#/perguntas" class="mt-2 inline-block font-bold text-azul hover:underline">Entenda nas perguntas frequentes →</a>
-    </div>
-  </section>
-
-  <section class="mx-auto max-w-6xl px-4 pt-6">
     <a href="#/perdidos" class="flex items-center gap-4 rounded-2xl bg-white p-5 ring-1 ring-slate-200 hover:shadow-md">
       <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-azul-claro text-3xl">🔎</span>
       <span class="flex-1"><span class="block font-titulo text-xl font-bold text-azul-escuro">Perdeu ou encontrou um animal?</span><span class="text-sm text-slate-600">Anuncie grátis e a gente ajuda a divulgar até ele voltar para casa.</span></span>
@@ -599,7 +607,7 @@ function telaFicha(id) {
       </div>
       <div class="mt-4 rounded-2xl bg-azul-claro p-4 text-sm">
         <p><span class="font-extrabold text-azul-escuro">Responsável:</span> ${esc(responsavelNome(a))}${a.responsavel_tipo === 'protetor' ? ' (protetor parceiro)' : ''}</p>
-        <p class="mt-1 text-slate-700">Adoção <b>sem taxa</b>, com formulário de interesse, termo de adoção e <b>15 dias de adaptação</b>.</p>
+        <p class="mt-1 text-slate-700">Adoção com formulário de interesse, termo de adoção e <b>15 dias de adaptação</b>.</p>
         ${a.responsavel_tipo === 'protetor' ? `<p class="mt-2 rounded-xl bg-amarelo-claro p-2.5 text-[13px] text-[#7A4A00]">Este animal é de um protetor parceiro. A adoção é combinada diretamente com ${esc(responsavelNome(a))}; a SOS Patas apenas divulga e não é responsável por esta adoção.</p>` : ''}
       </div>
       <div class="mt-3 rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-900 ring-1 ring-emerald-200">🎁 <b>Adotando pelo site:</b> prioridade na castração gratuita (castramóvel) e desconto em clínicas parceiras.</div>
@@ -616,7 +624,7 @@ function telaFicha(id) {
 // ---------------------------------------------------------------------------
 function telaComoAdotar() {
   const passos = itensDe('como_adotar_passos'), antes = itensDe('como_adotar_antes');
-  const vantagens = itensDe('como_adotar_vantagens'), clinicas = itensDe('clinicas');
+  const vantagens = itensDe('como_adotar_vantagens');
   return pagina(titulo('Como adotar', esc(txt('como_adotar.subtitulo'))) + `
   <section class="mx-auto max-w-3xl px-4 pt-6">
     <ol class="relative space-y-4 border-l-4 border-azul-claro pl-6">
@@ -627,11 +635,9 @@ function telaComoAdotar() {
       <h2 class="font-titulo text-2xl font-bold text-azul-escuro">Antes de adotar, pense em:</h2>
       <ul class="mt-2 list-disc space-y-1 pl-5 text-slate-700">${antes.map(i => `<li class="whitespace-pre-line">${textoSimples(i.texto)}</li>`).join('')}</ul>
     </div>` : ''}
-    ${vantagens.length || clinicas.length ? `<div class="mt-4 rounded-2xl bg-emerald-50 p-5 ring-1 ring-emerald-200">
+    ${vantagens.length ? `<div class="mt-4 rounded-2xl bg-emerald-50 p-5 ring-1 ring-emerald-200">
       <h2 class="font-titulo text-2xl font-bold text-emerald-800">🎁 Vantagem de adotar pelo site</h2>
       <ul class="mt-2 list-disc space-y-1 pl-5 text-slate-700">${vantagens.map(v => `<li>${v.titulo ? `<b>${esc(v.titulo)}</b> ` : ''}${textoSimples(v.texto)}</li>`).join('')}</ul>
-      ${clinicas.length ? `<p class="mt-3 text-sm font-extrabold text-emerald-800">Clínicas parceiras</p>
-      <ul class="mt-1 space-y-1 text-sm text-slate-700">${clinicas.map(c => `<li>🩺 <b>${esc(c.titulo)}</b>: ${textoSimples(c.texto)}</li>`).join('')}</ul>` : ''}
       ${txt('como_adotar.vantagens_rodape') ? `<p class="mt-2 text-sm text-slate-600">${textoSimples(txt('como_adotar.vantagens_rodape'))}</p>` : ''}
     </div>` : ''}
     <div class="mt-4 rounded-2xl border-2 border-amarelo bg-amarelo-claro p-5">
@@ -894,7 +900,7 @@ function telaForm(id) {
 // TEXTOS DO SITE (T15–T20, T25) · ListaEditavel e CampoTextoEditavel (RN33–RN38)
 // ---------------------------------------------------------------------------
 const PAGINAS_TEXTO = [ // [rota, ícone, nome, resumo, chaves de texto, listas]
-  ['inicio', '🏠', 'Página inicial', 'Chamada, história, marcos, missão, como funcionamos e aviso de resgate', ['inicio.chamada_titulo', 'inicio.chamada_texto', 'inicio.historia', 'inicio.missao', 'inicio.aviso_resgate'], ['inicio_marcos', 'inicio_como_funcionamos']],
+  ['inicio', '🏠', 'Página inicial', 'Chamada, história, marcos, números, fotos, missão e como funcionamos', ['inicio.chamada_titulo', 'inicio.chamada_texto', 'inicio.historia', 'inicio.missao'], ['inicio_marcos', 'inicio_numeros', 'inicio_fotos', 'inicio_como_funcionamos']],
   ['como-adotar', '📋', 'Como adotar', 'Passos, cuidados, vantagens e aviso de protetores', ['como_adotar.subtitulo', 'como_adotar.vantagens_rodape', 'como_adotar.aviso_protetor'], ['como_adotar_passos', 'como_adotar_antes', 'como_adotar_vantagens']],
   ['perguntas', '❓', 'Perguntas frequentes', null, [], ['perguntas']],
   ['ajude', '💛', 'Como ajudar', 'Introdução e formas de ajudar', ['ajude.introducao'], ['ajude_formas']],
@@ -921,11 +927,12 @@ function telaTextos() {
 
 // ListaEditavel: ↑ ↓ (RN35), Editar e Excluir com confirmação (RN36)
 function listaEditavel(lista, opts = {}) {
-  const cfg = LISTAS[lista], lst = itensDe(lista), podeExcluir = lst.length > cfg.min;
+  const cfg = LISTAS[lista], lst = itensDe(lista), podeExcluir = lst.length > cfg.min, cheia = cfg.max && lst.length >= cfg.max;
   return `<ul class="space-y-2">
     ${lst.map((it, i) => `<li class="rounded-2xl bg-white p-3 ring-1 ring-slate-200">
       <div class="flex gap-3">
         ${opts.numerar ? `<span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-azul font-titulo font-extrabold text-white">${i + 1}</span>` : ''}
+        ${it.foto ? `<img src="${it.foto}" alt="" class="h-[74px] w-24 shrink-0 rounded-lg object-cover">` : ''}
         <div class="min-w-0 flex-1">
           ${it.titulo ? `<p class="font-extrabold leading-tight text-azul-escuro">${esc(it.titulo)}</p>` : ''}
           <p class="line-clamp-2 text-sm text-slate-600">${esc(it.texto)}</p>
@@ -942,7 +949,8 @@ function listaEditavel(lista, opts = {}) {
     </li>`).join('') || '<li class="rounded-2xl border-2 border-dashed border-slate-300 p-4 text-center text-sm text-slate-500">Nenhum item. Este bloco não aparece no site.</li>'}
   </ul>
   ${!podeExcluir && lst.length ? `<p class="mt-1 text-xs text-slate-500">É preciso ter pelo menos ${cfg.min}. Para trocar, adicione outro antes de excluir.</p>` : ''}
-  ${opts.semBotao ? '' : `<a href="#/admin/textos/${lista}/novo" class="mt-2 block rounded-xl border-2 border-dashed border-azul/40 py-3 text-center font-extrabold text-azul">＋ ${cfg.novo}</a>`}`;
+  ${opts.semBotao ? '' : cheia ? `<p class="mt-2 rounded-xl bg-fundo p-3 text-center text-sm text-slate-500">Limite de ${cfg.max} atingido. Exclua um item para adicionar outro.</p>`
+    : `<a href="#/admin/textos/${lista}/novo" class="mt-2 block rounded-xl border-2 border-dashed border-azul/40 py-3 text-center font-extrabold text-azul">＋ ${cfg.novo}</a>`}`;
 }
 function moverItem(id, dir) {
   const it = itens.find(i => i.id === id), lst = itensDe(it.lista), j = lst.indexOf(it) + dir;
@@ -994,13 +1002,21 @@ function telaAdminPerguntas() {
 }
 
 // T17 · Item de lista (novo / editar): um formulário para todas as listas
+let fotoItem = null, _itemForm = null;                                  // foto escolhida no T17 (lista inicio_fotos)
+function escolherFotoItem(inp, lista) {
+  const f = inp.files[0]; if (!f) return;
+  fotoItem = URL.createObjectURL(f);
+  document.getElementById('foto-item').innerHTML = `<img src="${fotoItem}" class="aspect-[4/3] w-full rounded-xl object-cover" alt="">`;
+  inp.closest('label').firstChild.textContent = 'Trocar foto'; atualizarItem(inp.form, lista);
+}
 function previaItem(lista, t, x) {
+  if (lista === 'inicio_fotos') return `<figure class="max-w-xs overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">${fotoItem ? `<img src="${fotoItem}" class="aspect-[4/3] w-full object-cover" alt="">` : '<div class="aspect-[4/3] bg-slate-100"></div>'}<figcaption class="p-2.5 text-xs font-semibold text-slate-600">${esc(x) || 'Legenda'}</figcaption></figure>`;
+  if (lista === 'inicio_numeros') return `<div class="max-w-[12rem] rounded-2xl bg-white p-4 text-center shadow-md ring-1 ring-slate-200"><p class="font-titulo text-3xl font-extrabold leading-tight text-azul">${esc(t) || '0'}</p><p class="text-sm font-semibold text-slate-600">${esc(x)}</p></div>`;
   t = esc(t); x = textoSimples(x);
   if (lista === 'perguntas') return `<div class="rounded-2xl bg-white ring-1 ring-slate-200"><p class="flex justify-between gap-3 p-4 font-extrabold text-azul-escuro">${t || 'Pergunta'}<span class="text-azul">▴</span></p><p class="whitespace-pre-line px-4 pb-4 text-slate-700">${x || 'Resposta'}</p></div>`;
   if (lista === 'como_adotar_passos') return `<div class="flex gap-3"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-azul font-titulo text-lg font-extrabold text-white">#</span><div class="flex-1 rounded-2xl bg-white p-4 ring-1 ring-slate-200"><p class="font-titulo text-xl font-bold text-azul-escuro">${t}</p><p class="whitespace-pre-line text-slate-600">${x}</p></div></div>`;
   if (lista === 'inicio_marcos') return `<div class="border-l-4 border-azul-claro pl-4"><p class="font-titulo text-xl font-extrabold text-azul">${t}</p><p class="whitespace-pre-line text-slate-700">${x}</p></div>`;
   if (lista === 'como_adotar_antes' || lista === 'como_adotar_vantagens') return `<ul class="list-disc rounded-2xl ${lista === 'como_adotar_vantagens' ? 'bg-emerald-50' : 'bg-white'} p-4 pl-9 text-slate-700 ring-1 ring-slate-200"><li class="whitespace-pre-line">${t ? `<b>${t}</b> ` : ''}${x}</li></ul>`;
-  if (lista === 'clinicas') return `<p class="rounded-2xl bg-emerald-50 p-4 text-sm text-slate-700 ring-1 ring-emerald-200">🩺 <b>${t}</b>: ${x}</p>`;
   return `<div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200"><p class="font-extrabold text-azul-escuro">${t}</p><p class="whitespace-pre-line text-sm text-slate-600">${x}</p></div>`;
 }
 function atualizarItem(form, lista) {
@@ -1011,6 +1027,7 @@ function telaItem(lista, id) {
   const cfg = LISTAS[lista]; if (!cfg) return telaTextos();
   const it = id === 'novo' ? null : itens.find(i => i.id === id);
   if (id !== 'novo' && !it) return telaTextos();
+  if (_itemForm !== lista + '/' + id) { fotoItem = it ? it.foto || null : null; _itemForm = lista + '/' + id; }
   const podeExcluir = it && itensDe(lista).length > cfg.min;
   const contador = (nome, max, valor) => `<p class="mt-1 text-right text-xs font-bold text-slate-400"><span data-n="${nome}">${valor.length}</span>/${max}</p>`;
   const vT = it ? it.titulo || '' : '', vX = it ? it.texto : '';
@@ -1019,6 +1036,9 @@ function telaItem(lista, id) {
     ${it ? alteradoPor(it.alt) : ''}
     <form class="mt-4 space-y-4" oninput="atualizarItem(this,'${lista}')" onsubmit="event.preventDefault(); salvarItem('${lista}','${id}',this)">
       <div class="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        ${cfg.foto ? campo('Foto *', `<div id="foto-item">${fotoItem ? `<img src="${fotoItem}" class="aspect-[4/3] w-full rounded-xl object-cover" alt="">` : '<div class="flex aspect-[4/3] items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-sm font-bold text-slate-400">Sem foto</div>'}</div>
+          <label class="mt-2 block cursor-pointer rounded-xl bg-azul-claro py-2.5 text-center font-extrabold text-azul">${fotoItem ? 'Trocar foto' : '＋ Escolher foto'}<input type="file" accept="image/*" class="hidden" onchange="escolherFotoItem(this,'${lista}')"></label>`,
+          'A foto é reduzida automaticamente. Fotos com pessoas: só com autorização delas; crianças e adolescentes, só com autorização dos responsáveis.') : ''}
         ${cfg.t ? campo(cfg.t[0] + (cfg.t[2] ? ' *' : ' <span class="font-semibold text-slate-400">(opcional)</span>'), `<input name="titulo" maxlength="${cfg.t[1]}" value="${esc(vT)}" class="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-base focus:border-azul focus:outline-none">${contador('titulo', cfg.t[1], vT)}`) : ''}
         ${campo(cfg.x[0] + ' *', `<textarea name="texto" maxlength="${cfg.x[1]}" rows="${cfg.x[1] > 300 ? 7 : 3}" class="w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-base focus:border-azul focus:outline-none">${esc(vX)}</textarea>${contador('texto', cfg.x[1], vX)}`,
           'Para pular linha, use Enter. Links começando com https:// viram clicáveis.')}
@@ -1029,10 +1049,11 @@ function telaItem(lista, id) {
 }
 function salvarItem(lista, id, form) {
   const cfg = LISTAS[lista], titulo = ((form.querySelector('[name=titulo]') || {}).value || '').trim() || null, texto = form.querySelector('[name=texto]').value.trim();
-  if ((cfg.t && cfg.t[2] && !titulo) || !texto) { toast('Preencha os campos com *'); return; }
-  if (id === 'novo') itens.push(marcar({ id: lista + '-' + Date.now(), lista, titulo, texto, ordem: itensDe(lista).length }));   // entra no fim (RN35)
-  else Object.assign(marcar(itens.find(i => i.id === id)), { titulo, texto });
-  location.hash = cfg.volta; toast('Salvo e publicado ✓', cfg.site);
+  if ((cfg.t && cfg.t[2] && !titulo) || !texto || (cfg.foto && !fotoItem)) { toast(cfg.foto && !fotoItem ? 'Escolha uma foto' : 'Preencha os campos com *'); return; }
+  const dados = cfg.foto ? { titulo, texto, foto: fotoItem } : { titulo, texto };   // RN38: trocar a foto apaga o arquivo antigo
+  if (id === 'novo') itens.push(marcar({ id: lista + '-' + Date.now(), lista, ...dados, ordem: itensDe(lista).length }));   // entra no fim (RN35)
+  else Object.assign(marcar(itens.find(i => i.id === id)), dados);
+  _itemForm = null; location.hash = cfg.volta; toast('Salvo e publicado ✓', cfg.site);
 }
 
 // T18 · Editar Como adotar
@@ -1042,28 +1063,22 @@ function telaEditarComoAdotar() {
     ${bloco('Subtítulo', '', campoTextoEditavel('como_adotar.subtitulo'))}
     ${bloco('Passos da adoção', 'Os títulos também aparecem resumidos na página inicial. Pelo menos 1 passo.', listaEditavel('como_adotar_passos', { numerar: true }))}
     ${bloco('Antes de adotar, pense em', 'Se ficar vazio, o bloco some do site.', listaEditavel('como_adotar_antes'))}
-    ${bloco('Vantagem de adotar pelo site', 'As clínicas parceiras entram automaticamente neste card (☰ Mais → Clínicas parceiras).', listaEditavel('como_adotar_vantagens') + '<div class="mt-3">' + campoTextoEditavel('como_adotar.vantagens_rodape') + '</div>')}
+    ${bloco('Vantagem de adotar pelo site', 'Sem citar clínicas nem valores: só que existem parcerias (pedido da ONG).', listaEditavel('como_adotar_vantagens') + '<div class="mt-3">' + campoTextoEditavel('como_adotar.vantagens_rodape') + '</div>')}
     ${bloco('Aviso de protetores parceiros', '', campoTextoEditavel('como_adotar.aviso_protetor'))}`, 'max-w-2xl');
 }
 
 // T19 · Editar Página inicial
-function fotoHistoriaEditor() {                                          // RN38
-  return `<div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200"><p class="font-extrabold text-slate-800">Foto da história <span class="font-semibold text-slate-400">(opcional)</span></p>
-    ${historiaFoto ? `<img src="${historiaFoto}" class="mt-2 aspect-[16/9] w-full rounded-xl object-cover" alt="">` : '<div class="mt-2 flex aspect-[16/9] items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-sm font-bold text-slate-400">Sem foto</div>'}
-    <div class="mt-2 flex gap-2"><label class="flex-1 cursor-pointer rounded-xl bg-azul-claro py-2.5 text-center font-extrabold text-azul">${historiaFoto ? 'Trocar foto' : '＋ Adicionar foto'}<input type="file" accept="image/*" class="hidden" onchange="const f=this.files[0];if(f){historiaFoto=URL.createObjectURL(f);render();toast('Foto salva e publicada ✓','#/')}"></label>
-    ${historiaFoto ? `<button onclick="historiaFoto=null;render();toast('Foto removida do site')" class="rounded-xl px-4 py-2.5 font-extrabold text-vermelho ring-2 ring-vermelho-claro">Remover</button>` : ''}</div>
-    <p class="mt-1 text-xs text-slate-500">Ex.: a equipe ou uma feira de adoção. A foto é reduzida automaticamente.</p></div>`;
-}
 function telaEditarInicio() {
   return adminInterna('#/admin/textos', `
     ${tituloAdmin('Página inicial', '', verNoSite('#/'))}
-    <p class="mt-3 rounded-xl bg-azul-claro p-3 text-sm text-azul-escuro">Os números, os animais em destaque, o resumo de "Como adotar" e o PIX são automáticos.</p>
+    <p class="mt-3 rounded-xl bg-azul-claro p-3 text-sm text-azul-escuro">Automáticos: animais em destaque, resumo de "Como adotar" e PIX.</p>
     ${bloco('Chamada', 'O primeiro texto que a pessoa vê.', campoTextoEditavel('inicio.chamada_titulo') + '<div class="mt-3">' + campoTextoEditavel('inicio.chamada_texto') + '</div>')}
-    ${bloco('Nossa história', '', fotoHistoriaEditor() + '<div class="mt-3">' + campoTextoEditavel('inicio.historia') + '</div>')}
+    ${bloco('Números em destaque', 'Faixa logo abaixo da chamada, até 4. Use números que mudam pouco (ex.: "+100" em vez de "116"), para não precisar atualizar todo mês.', listaEditavel('inicio_numeros'))}
+    ${bloco('Nossa história', '', campoTextoEditavel('inicio.historia'))}
     ${bloco('Marcos da história', 'Linha do tempo ao lado do texto. Se ficar vazia, ela some.', listaEditavel('inicio_marcos'))}
+    ${bloco('Fotos da história', 'Até 8. A primeira abre a história; as outras formam a galeria "Nossa história em fotos". Use ↑ ↓ para escolher a ordem.', listaEditavel('inicio_fotos'))}
     ${bloco('Missão', '', campoTextoEditavel('inicio.missao'))}
-    ${bloco('Como funcionamos', '', listaEditavel('inicio_como_funcionamos'))}
-    ${bloco('Aviso de resgate', '', campoTextoEditavel('inicio.aviso_resgate'))}`, 'max-w-2xl');
+    ${bloco('Como funcionamos', '', listaEditavel('inicio_como_funcionamos'))}`, 'max-w-2xl');
 }
 
 // T20 · Editar Como ajudar
@@ -1087,7 +1102,6 @@ function telaMais() {
     <div class="mt-4 space-y-2">
       ${item('#/admin/ong', '🏢', 'Dados da ONG', 'WhatsApp, Instagram, Facebook e PIX')}
       ${item('#/admin/protetores', '🤝', 'Protetores parceiros', `${protetores.length} cadastrados`)}
-      ${item('#/admin/clinicas', '🩺', 'Clínicas parceiras', `${itensDe('clinicas').length} cadastradas`)}
       ${item('#/', '🌐', 'Ver o site', 'Abre em outra aba', 'target="_blank"')}
     </div>
     <a href="#/admin/login" class="mt-4 block rounded-2xl bg-white py-3.5 text-center font-extrabold text-vermelho ring-2 ring-vermelho-claro">🚪 Sair</a>
@@ -1169,13 +1183,6 @@ function excluirProtetor(id) {
         <button onclick="fecharModal();filtroResp='${id}';location.hash='#/admin'" class="mt-1 block font-extrabold text-azul underline">Ver animais deste protetor</button></div>`
     : `<div class="mt-3 rounded-xl bg-vermelho-claro p-3 text-sm"><p>Excluir <b>${esc(p.nome)}</b>? Não pode ser desfeito.</p>
         <button onclick="protetores=protetores.filter(x=>x.id!=='${id}');fecharModal();render();toast('Protetor excluído')" class="mt-2 w-full rounded-lg bg-vermelho py-2 font-extrabold text-white">Sim, excluir</button></div>`;
-}
-
-// T25 · Clínicas parceiras
-function telaClinicas() {
-  return adminInterna('#/admin/mais', `
-    ${tituloAdmin('Clínicas parceiras', 'Aparecem em Como adotar, no card "Vantagem de adotar pelo site".', verNoSite('#/como-adotar'))}
-    <div class="mt-4">${listaEditavel('clinicas')}</div>`);
 }
 
 // ---------------------------------------------------------------------------
@@ -1555,13 +1562,13 @@ function render() {
   else if (p[0] === 'admin' && p[1] === 'mais') html = telaMais();
   else if (p[0] === 'admin' && p[1] === 'ong') html = telaOng();
   else if (p[0] === 'admin' && p[1] === 'protetores') html = telaProtetores();
-  else if (p[0] === 'admin' && p[1] === 'clinicas') html = telaClinicas();
   else if (p[0] === 'admin' && p[1] === 'login') html = telaLogin();
   else if (p[0] === 'admin' && p[1] === 'novo') html = telaForm(null);
   else if (p[0] === 'admin' && p[1] === 'editar') html = telaForm(p[2]);
   else if (p[0] === 'admin') html = telaPainel();
   else html = telaInicio();
   if (!(p[0] === 'admin' && p[1] === 'perdidos' && p[2])) _perdidoForm = null;     // fotos do T21 recomeçam ao sair
+  if (!(p[0] === 'admin' && p[1] === 'textos' && p[3])) _itemForm = null;           // idem para a foto do T17
   document.getElementById('app').innerHTML = html;
   document.getElementById('proto-menu').hidden = true;
 }

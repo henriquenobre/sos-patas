@@ -43,9 +43,9 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 | `BlocoPix` | T01, T06, rodapé | Chave CNPJ + botão "Copiar chave PIX" |
 | `Modal` | Quero adotar, adotado, excluir | Confirmações sempre com "Cancelar" |
 | `OpcoesBotao` | Formulário | Escolha em botões grandes (melhor que select no celular) |
-| `CabecalhoAdmin` | T09–T25 | Fundo azul-escuro, para diferenciar do site público; "Olá, {nome}" vem de `equipe` |
+| `CabecalhoAdmin` | T08–T24 | Fundo azul-escuro, para diferenciar do site público; "Olá, {nome}" vem de `equipe` |
 | `BarraAdmin` | T09, T14, T15, T22 | Barra fixa no rodapé: 🐾 Animais · 🔎 Perdidos (com número de pendentes) · 📝 Textos · ☰ Mais. No computador, vira abas no cabeçalho. Some nas telas de formulário |
-| `ListaEditavel` | T16, T18–T20, T25 | Cards com título e começo do texto; botões ↑ ↓ (RN35), **Editar** e **Excluir** (RN36); "＋ Adicionar" no fim. Configurada por `lista` (DESENVOLVIMENTO.md, `conteudo_itens`) |
+| `ListaEditavel` | T16, T18–T20 | Cards com título, começo do texto e miniatura (se tiver foto); botões ↑ ↓ (RN35), **Editar** e **Excluir** (RN36); "＋ Adicionar" no fim. Configurada por `lista` (DESENVOLVIMENTO.md, `conteudo_itens`) |
 | `CampoTextoEditavel` | T18–T20 | Rótulo, onde aparece no site, caixa de texto com contador "120/400" e botão **Salvar** próprio |
 | `TextoSimples` | páginas públicas | Mostra texto do banco com quebras de linha e links automáticos, sem HTML (RN34) |
 | `AlteradoPor` | todas as edições | Linha cinza "Alterado por Claudia em 07/10/2026" (RN43) |
@@ -60,16 +60,25 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 **Objetivo:** apresentar a ONG e sua história e levar a pessoa à vitrine, com destaque para os adultos.
 
 **Seções, na ordem** (✎ = editável em T19):
-1. **Chamada:** selo "Adoção responsável · sem taxa", título ✎ (`inicio.chamada_titulo`), texto ✎ (`inicio.chamada_texto`), botões "Ver animais para adoção" e "Ajude a ONG" (→ `/ajude`), fotos de **um cão e um gato** (automático: o cão e o gato disponíveis há mais tempo).
-2. **Números:** animais esperando um lar (count de `disponivel`), adotados no último mês (`data_adocao` nos últimos 30 dias) e "R$ 0 taxa de adoção". No protótipo: 30 e 12, valores de exemplo baseados nas respostas da Gracia.
-3. **Nossa história:** texto ✎ (`inicio.historia`) + foto opcional ✎ (`inicio.historia_foto`) + linha do tempo de marcos ✎ (`inicio_marcos`: ano + o que aconteceu). Sem marcos, a linha do tempo some.
+1. **Chamada:** selo "Adoção responsável", título ✎ (`inicio.chamada_titulo`), texto ✎ (`inicio.chamada_texto`), botões "Ver animais para adoção" e "Ajude a ONG" (→ `/ajude`), fotos de **um cão e um gato** (automático: o cão e o gato disponíveis há mais tempo).
+2. **Números em destaque** ✎ (`inicio_numeros`, até 4, RN46): faixa branca logo abaixo da chamada. Conteúdo: **Desde 2015** (cuidando dos animais de Passos) · **+100** (feiras de adoção) · **Quase 1.000** (animais adotados nas feiras) · **32** (adoções em uma só feira, nosso recorde). 2×2 no celular e 4 lado a lado no computador.
+   - Substituiu em 07/10 os números automáticos "animais esperando" e "adotados no último mês", que mudavam todo mês, e o card "R$ 0 taxa de adoção" (RN45). "Adotados no mês" continua no painel da ONG (T09).
+3. **Nossa história** (conteúdo enviado pela ONG em 07/10/2026):
+   - **card com a 1ª foto** de `inicio_fotos` (voluntários em feira de adoção, com legenda sobre a foto; **a primeira deve ser a foto mais nítida**, porque aparece grande) + **texto** ✎ (`inicio.historia`: origem em 2015 no grupo de WhatsApp, socorro imediato, primeira feira em 2016, mais de 100 feiras, quase mil adotados, voluntários que construíram a ONG);
+   - **linha do tempo** ✎ (`inicio_marcos`): 2015 · 5 de julho de 2016 · 2016 · Hoje. No computador fica ao lado do texto;
+   - **galeria "Nossa história em fotos"** ✎ (demais itens de `inicio_fotos`, com legenda): 2 colunas no celular, 4 no computador. A foto da **assembleia de fundação** fica aqui: o original é de baixa resolução, com lâmpadas estouradas e flash.
+     - **Tratamento aplicado em 07/10/2026** (`assets/historia-1.jpg`): recorte da faixa das lâmpadas, sem cortar ninguém; brilho reduzido em volta das luzes e do ponto de flash; realces estourados comprimidos; redução leve de ruído; contraste, cor e nitidez ajustados.
+     - **Melhor solução:** pedir à ONG o arquivo original ou outra foto da assembleia (pergunta 19).
+
+   Blocos vazios somem.
 4. **Missão** ✎ (`inicio.missao`), com o logo.
 5. **Como funcionamos** ✎ (`inicio_como_funcionamos`): cards "100% voluntários", "Sem abrigo", "Sem transporte próprio", "Vive de doações".
 6. **Esperando há mais tempo:** até 6 adultos há mais de 90 dias (RN12).
-7. **Como adotar:** títulos dos passos de `como_adotar_passos`, numerados, + link "Saiba mais".
-8. **Aviso amarelo** ✎ (`inicio.aviso_resgate`): "A SOS Patas não faz resgates".
-9. **Card "Perdeu ou encontrou um animal?"** → `/perdidos`.
-10. **Doação:** "A ONG vive de doações" + PIX (da tabela `ong`).
+7. **Como adotar:** títulos dos passos de `como_adotar_passos`, numerados, + link "Saiba mais". **Layout:** 1 coluna no celular (número ao lado do título), 2 a partir de 640 px e todos os passos lado a lado a partir de 1024 px. Títulos longos quebram com hífen em vez de vazar do card (ajuste de 07/10: "Termo de responsabilidade" vazava no celular).
+8. **Card "Perdeu ou encontrou um animal?"** → `/perdidos`.
+9. **Doação:** "A ONG vive de doações" + PIX (da tabela `ong`).
+
+O aviso amarelo "A SOS Patas não faz resgates" foi **removido em 07/10/2026** (RN44).
 
 **Dados:** `animais` (`disponivel`), `conteudo_textos`, `conteudo_itens`, `ong`.
 
@@ -94,36 +103,38 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 - **Linha de detalhes:** raça (pura/mestiço) e cor da pelagem.
 - **Bloco Saúde:** castrado ("Castrado" ou "Ainda não castrado", sem promessa de castração, RN17); vacinado, com as vacinas entre parênteses; vermifugado nos últimos 3 meses ("sem informação" aparece em cinza); problema de saúde em amarelo, ou "Sem problema de saúde conhecido".
 - **Bloco Temperamento:** dócil, convive com outros animais ("não informado" quando nulo).
-- **Responsável:** nome e indicação de protetor parceiro + "Adoção sem taxa, com 15 dias de adaptação". Se for protetor, mostra um aviso amarelo de que a ONG não é responsável pela adoção (RN31).
+- **Responsável:** nome e indicação de protetor parceiro + "Adoção com formulário de interesse, termo de adoção e 15 dias de adaptação". Se for protetor, mostra um aviso amarelo de que a ONG não é responsável pela adoção (RN31).
 - **Benefício (verde):** "Adotando pelo site: prioridade na castração gratuita (castramóvel) e desconto em clínicas parceiras" (RN32).
 - **Botão "Quero adotar {nome}":** verde, **fixo no rodapé no celular**, e abre o **formulário de interesse** (RN14). No protótipo, abre um modal explicando, porque as perguntas ainda estão em definição com a ONG.
 
 ### T04 · Como adotar · `/como-adotar` · ✅
 ![T04](telas/T04-como-adotar-celular.png)
 
-- **Linha do tempo com 5 passos:** escolher → **preencher o formulário de interesse** → análise pela equipe ou protetor, com contato pelo WhatsApp → termo de responsabilidade (sem taxa) → **período de adaptação de 15 dias** (se não se adaptar, devolver a quem doou; nunca repassar nem abandonar).
+- **Linha do tempo com 5 passos:** escolher → **preencher o formulário de interesse** → análise pela equipe ou protetor, com contato pelo WhatsApp → termo de responsabilidade → **período de adaptação de 15 dias** (se não se adaptar, devolver a quem doou; nunca repassar nem abandonar).
 - **Card verde "Vantagem de adotar pelo site":** prioridade no castramóvel e desconto em clínicas parceiras (a ONG confere na lista de adoções).
 - **Card amarelo "Animais de protetores parceiros":** a adoção é combinada com o protetor e a ONG não é responsável.
 - **Validado pela ONG em 06/10/2026** (prazo de adaptação, devolução, responsabilidade do protetor e benefício da castração).
 - **"Antes de adotar, pense em":** tempo de vida, custos, casa segura, família de acordo.
 - **Botão:** "Ver animais para adoção".
-- **Editável em T18:** subtítulo, passos, "antes de adotar", vantagens (+ clínicas de `clinicas`, com o desconto) e o aviso de protetores. Títulos de seção e botão ficam fixos.
+- **Editável em T18:** subtítulo, passos, "antes de adotar", vantagens e o aviso de protetores. Títulos de seção e botão ficam fixos.
+- **Clínicas parceiras:** o site **não cita nomes nem valores de desconto**, só que existem parcerias com clínicas veterinárias (pedido da ONG, RN32).
 
 ### T05 · Perguntas frequentes · `/perguntas-frequentes` · ⏳
 ![T05](telas/T05-perguntas-frequentes-celular.png)
 
 **Formato:** acordeão (toque para abrir). Perguntas baseadas no que a Gracia contou e no post "Como funciona a ONG SOS Patas":
-1. Vocês resgatam animais? **Não.** Não têm abrigo nem transporte; equipe 100% voluntária.
-2. Vocês buscam o animal em casa? Não têm transporte próprio.
-3. Não posso ficar com meu animal, vocês recebem? Não têm abrigo; abandono é crime.
-4. A adoção tem taxa? **Não.**
+1. Não posso ficar com meu animal, vocês recebem? Não têm abrigo; abandono é crime.
+2. E se o animal não se adaptar? 15 dias de adaptação; devolver a quem doou.
+3. Tem vantagem adotar pelo site? Prioridade no castramóvel e desconto em clínicas parceiras.
+4. Animal de protetor parceiro: quem é o responsável? O próprio protetor.
 5. Os animais são castrados e vacinados? Ver a ficha; filhotes podem ainda não ter idade para castrar.
 6. Posso adotar morando em apartamento? Depende do animal.
 7. Como posso ajudar? PIX, lar temporário, compartilhar.
 8. Sou protetor, posso divulgar aqui? Falar com a ONG.
-9. E se o animal não se adaptar? 15 dias de adaptação; devolver a quem doou.
-10. Tem vantagem adotar pelo site? Prioridade no castramóvel e desconto em clínicas parceiras.
-11. Animal de protetor parceiro: quem é o responsável? O próprio protetor.
+
+**Removidas em 07/10/2026:**
+- ~~"Vocês resgatam animais?"~~ e ~~"Vocês buscam o animal em casa?"~~: o site não fala sobre resgates (RN44).
+- ~~"A adoção tem taxa?"~~: o site não fala de taxa (RN45).
 
 **Textos a validar com a Gracia** (principalmente as respostas 3, 6 e 8).
 
@@ -190,7 +201,7 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 | 🐾 Animais | T09 | T10, T11 |
 | 🔎 Perdidos | T14 (número vermelho = anúncios aguardando) | T21 |
 | 📝 Textos | T15 | T16–T20, T17 |
-| ☰ Mais | T22 | T23, T24, T25, "Ver o site", "Sair" |
+| ☰ Mais | T22 | T23, T24, "Ver o site", "Sair" |
 
 **Padrões de todas as telas de edição:** barra fixa "Cancelar / Salvar"; depois de salvar, toast **"Salvo e publicado ✓"** com link "Ver no site" (RN37); linha `AlteradoPor` (RN43); toda exclusão abre modal de confirmação (RN36).
 
@@ -263,7 +274,7 @@ Igual a T10, preenchido, com a linha "Alterado por… em…" (RN43) no topo e **
 Lista de cards grandes, um por página, com ícone, nome, o que dá para mudar e "Alterado em…":
 | Card | Vai para | Resumo |
 |---|---|---|
-| 🏠 Página inicial | T19 | Chamada, história, marcos, missão, como funcionamos, aviso de resgate |
+| 🏠 Página inicial | T19 | Chamada, história, marcos, números, fotos, missão e como funcionamos |
 | 📋 Como adotar | T18 | Passos, cuidados, vantagens, aviso de protetores |
 | ❓ Perguntas frequentes | T16 | N perguntas |
 | 💛 Como ajudar | T20 | Introdução e formas de ajudar |
@@ -275,7 +286,7 @@ Abaixo, uma nota: "Contatos e PIX ficam em ☰ Mais → Dados da ONG."
 
 **Objetivo:** adicionar, alterar, reordenar e excluir perguntas.
 
-- **Cabeçalho:** "Perguntas frequentes · 11 perguntas" + "Ver no site ↗".
+- **Cabeçalho:** "Perguntas frequentes · 8 perguntas" + "Ver no site ↗".
 - **`ListaEditavel`:** cada card mostra o número, a pergunta em negrito e as 2 primeiras linhas da resposta; à direita, ↑ ↓; embaixo, **Editar** e **Excluir** (RN35, RN36). O ↑ do primeiro e o ↓ do último ficam desativados.
 - **Excluir:** modal "Excluir a pergunta '…'? Ela some do site e não pode ser recuperada." [Cancelar] [Excluir]. Com só 1 pergunta, o Excluir fica desativado.
 - **Botão "＋ Nova pergunta"** (fixo embaixo) → T17.
@@ -293,9 +304,13 @@ Abaixo, uma nota: "Contatos e PIX ficam em ☰ Mais → Dados da ONG."
 | `como_adotar_antes` | Novo cuidado | – | Texto (200) |
 | `como_adotar_vantagens` | Nova vantagem | Destaque (60, opcional) | Texto (200) |
 | `inicio_marcos` | Novo marco da história | Ano ou data (20) | O que aconteceu (300) |
+| `inicio_numeros` | Novo número | Número (20) | O que significa (80) |
+| `inicio_fotos` | Nova foto | **Foto*** (escolher/trocar) | Legenda (120) |
 | `inicio_como_funcionamos` | Novo item | Título (40) | Texto (150) |
 | `ajude_formas` | Nova forma de ajudar | Título (40) | Texto (300) |
-| `clinicas` | Nova clínica parceira | Nome da clínica (80) | Desconto e condições (200) |
+
+- **Lista `inicio_fotos`** ([print](telas/T17b-editar-foto-historia-celular.png)): foto grande com botão "Trocar foto", legenda e o lembrete "Fotos com pessoas: só com autorização delas; crianças e adolescentes, só com autorização dos responsáveis" (RN38).
+- **Listas com máximo** (`inicio_numeros`: 4, `inicio_fotos`: 8): ao atingir o limite, o "＋ Adicionar" vira o aviso "Limite atingido. Exclua um item para adicionar outro."
 
 - Contador de caracteres em cada campo; o campo longo cresce conforme o texto.
 - **Dica abaixo do texto:** "Para pular linha, use Enter. Links começando com https:// viram clicáveis." (RN34)
@@ -309,7 +324,7 @@ Uma tela com blocos na ordem em que aparecem no site:
 1. **Subtítulo** (`CampoTextoEditavel`, 100).
 2. **Passos da adoção** (`ListaEditavel`, mínimo 1): número, título e começo da explicação.
 3. **Antes de adotar, pense em** (`ListaEditavel`).
-4. **Vantagem de adotar pelo site** (`ListaEditavel`) + nota de rodapé (`CampoTextoEditavel`, 200) + aviso "As clínicas parceiras aparecem automaticamente aqui. Gerencie em ☰ Mais → Clínicas."
+4. **Vantagem de adotar pelo site** (`ListaEditavel`) + nota de rodapé (`CampoTextoEditavel`, 200) + aviso "Sem citar clínicas nem valores: só que existem parcerias."
 5. **Aviso de protetores parceiros** (`CampoTextoEditavel`, 500).
 
 Cada campo de texto tem o próprio botão "Salvar"; listas salvam item a item (T17).
@@ -318,12 +333,13 @@ Cada campo de texto tem o próprio botão "Salvar"; listas salvam item a item (T
 ![T19](telas/T19-editar-pagina-inicial-celular.png)
 
 1. **Chamada:** título (60) e texto (200).
-2. **Nossa história:** texto (2000) + **foto** (uma, opcional: "Trocar foto" / "Remover foto", RN38).
-3. **Marcos da história** (`ListaEditavel` de `inicio_marcos`, ordenados pela equipe).
-4. **Missão** (400).
-5. **Como funcionamos** (`ListaEditavel`).
-6. **Aviso de resgate** (300).
-- Nota fixa no topo: "Os números, os animais em destaque e o PIX são automáticos."
+2. **Números em destaque** (`ListaEditavel` de `inicio_numeros`, até 4), com a dica "Use números que mudam pouco (ex.: '+100' em vez de '116'), para não precisar atualizar todo mês" (RN46).
+3. **Nossa história:** texto (2000).
+4. **Marcos da história** (`ListaEditavel` de `inicio_marcos`, ordenados pela equipe).
+5. **Fotos da história** (`ListaEditavel` de `inicio_fotos`, até 8, com miniatura em cada item): a primeira abre a história; as demais formam a galeria (RN38).
+6. **Missão** (400).
+7. **Como funcionamos** (`ListaEditavel`).
+- Nota fixa no topo: "Automáticos: animais em destaque, resumo de 'Como adotar' e PIX."
 
 ### T20 · Editar Como ajudar · `/admin/textos/ajude` · ⏳
 ![T20](telas/T20-editar-como-ajudar-celular.png)
@@ -338,7 +354,6 @@ Cada campo de texto tem o próprio botão "Salvar"; listas salvam item a item (T
 Lista simples, com botões grandes:
 - 🏢 **Dados da ONG** → T23
 - 🤝 **Protetores parceiros** (N) → T24
-- 🩺 **Clínicas parceiras** (N) → T25
 - 🌐 **Ver o site** ↗
 - 🚪 **Sair**
 - Rodapé: "Esqueceu a senha ou precisa de uma nova conta? Fale com o administrador do site."
@@ -361,11 +376,7 @@ Formulário com os dados da tabela `ong`:
 - Tocar em um protetor abre um modal com nome e WhatsApp: **Salvar** e **Excluir**. Se o protetor tiver animais, o excluir mostra o aviso da RN42 com o link "Ver animais dele" (T09 filtrado).
 - Botão "＋ Novo protetor".
 
-### T25 · Clínicas parceiras · `/admin/clinicas` · ⏳
-![T25](telas/T25-clinicas-celular.png)
-
-- `ListaEditavel` de `clinicas` (nome + desconto e condições), editada em T17.
-- Nota: "As clínicas aparecem em Como adotar, no card 'Vantagem de adotar pelo site'."
+~~T25 · Clínicas parceiras~~: **removida em 07/10/2026**. A ONG não quer citar clínicas nem valores (RN32).
 
 ---
 
@@ -384,8 +395,13 @@ Enviar os prints de [telas/](telas/) à Gracia e perguntar:
 8. O botão do WhatsApp na ficha deve ir para o número da ONG ou do responsável pelo animal?
 9. **Perdidos e encontrados:** vocês topam aprovar os anúncios? Quem faria isso, e conseguem olhar pelo menos uma vez por dia?
 10. 30 dias no ar é um bom prazo para os anúncios de perdidos?
-11. **História da ONG (para a página inicial):** quando e como a SOS Patas começou? Quem fundou? Quais foram os momentos marcantes (ano + o que aconteceu)? Têm uma foto que represente essa história (equipe, feira de adoção, primeiro resgate)?
-12. **Clínicas parceiras:** quais são, e qual é o desconto de cada uma? (RN32)
+11. ~~História da ONG~~: **respondido em 07/10** (texto, marcos, números e 5 fotos; PROJETO.md, Entrevista 3).
+12. ~~Clínicas parceiras~~: **respondido em 07/10**, não citar clínicas nem valores (RN32).
+15. ~~Resgates~~: **respondido em 07/10**. O site não fala se a ONG faz ou não resgates; aviso e perguntas sobre isso removidos (RN44).
+16. **Legendas das fotos:** confirmar as legendas das fotos, exceto a da assembleia (equipe em 2016 e feiras de adoção). Onde e quando foram as feiras?
+17. **Autorização de imagem:** as pessoas que aparecem nas fotos autorizam a publicação no site? Em algumas aparecem crianças e adolescentes: os responsáveis autorizam? (RN38)
+18. **Nomes na história:** tudo bem citar Stephanie Christiene, pastora Dalva, Gracia, Tarlei, Deide e Adriana? E o caso do cão preso no arame: está bem contado assim?
+19. **Foto da assembleia de fundação:** alguém tem essa foto em melhor qualidade (o arquivo original da câmera ou celular, sem passar pelo WhatsApp, que reduz a imagem) ou outra foto do mesmo dia?
 13. **Área da ONG:** além de Gracia e Claudia, alguém mais vai ter acesso? A navegação com a barra de baixo (Animais · Perdidos · Textos · Mais) ficou fácil?
 14. Vocês recebem pedidos de "perdido/encontrado" pelo WhatsApp que gostariam de publicar por conta própria? (T21)
 
