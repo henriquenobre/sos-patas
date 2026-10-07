@@ -16,7 +16,7 @@ TELAS = [
     ("T03-ficha-animal", "#/animal/apolo"),
     ("T04-como-adotar", "#/como-adotar"),
     ("T05-perguntas-frequentes", "#/perguntas"),
-    ("T06-sobre-ajude", "#/sobre"),
+    ("T06-como-ajudar", "#/ajude"),
     ("T07-privacidade", "#/privacidade"),
     ("T08-login", "#/admin/login"),
     ("T09-painel", "#/admin"),
@@ -26,6 +26,17 @@ TELAS = [
     ("T13-anunciar-perdido", "#/perdidos/novo"),
     ("T13b-anuncio-enviado", "#/perdidos/enviado"),
     ("T14-moderar-perdidos", "#/admin/perdidos"),
+    ("T15-textos-do-site", "#/admin/textos"),
+    ("T16-perguntas-frequentes-admin", "#/admin/textos/perguntas"),
+    ("T17-editar-item", "#/admin/textos/perguntas/perguntas-0"),
+    ("T18-editar-como-adotar", "#/admin/textos/como-adotar"),
+    ("T19-editar-pagina-inicial", "#/admin/textos/inicio"),
+    ("T20-editar-como-ajudar", "#/admin/textos/ajude"),
+    ("T21-anuncio-equipe", "#/admin/perdidos/novo"),
+    ("T22-mais", "#/admin/mais"),
+    ("T23-dados-da-ong", "#/admin/ong"),
+    ("T24-protetores", "#/admin/protetores"),
+    ("T25-clinicas", "#/admin/clinicas"),
 ]
 
 TAMANHOS = {"celular": (390, 844), "computador": (1280, 800)}

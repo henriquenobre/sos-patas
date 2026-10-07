@@ -56,29 +56,52 @@ Problemas que o site precisa resolver:
 ### Páginas públicas
 | Rota | Página | Conteúdo |
 |---|---|---|
-| `/` | Início | Chamada principal, seção **"Esperando há mais tempo"** (adultos), atalho para a vitrine, como adotar |
+| `/` | Início (institucional) | Chamada principal, **história da ONG** (texto, foto e marcos), missão e como funcionamos, números, seção **"Esperando há mais tempo"** (adultos), resumo de como adotar, aviso de resgate, perdidos e PIX. Textos editáveis pela equipe (RN33) |
 | `/animais` | Vitrine | Grade de cards (miniatura, nome, idade, porte) com filtros: espécie, porte, idade (filhote/adulto), convive com outros animais |
 | `/animais/:id` | Ficha do animal | Fotos completas, todos os campos, responsável e botão **"Quero adotar"** (abre o formulário de interesse) |
 | `/como-adotar` | Como adotar | Passo a passo: formulário de interesse, análise, termo de adoção, adaptação de 15 dias. **Sem taxa.** |
 | `/perguntas-frequentes` | Perguntas frequentes | Inclui "Vocês resgatam?" e "Vocês buscam o animal?" (a ONG não faz resgate nem recolhe) |
-| `/sobre` | Sobre e ajude | Missão, como a ONG funciona (100% voluntários, sem abrigo, sem transporte, vive de doações), **PIX** e como ajudar |
+| `/ajude` | Como ajudar | **PIX** (da tabela `ong`) e formas de ajudar (lar temporário, compartilhar…), editáveis. Substitui a antiga `/sobre`: missão e "como funcionamos" foram para o Início. `/sobre` redireciona para `/ajude` |
 | `/privacidade` | Política de privacidade | Texto simples sobre LGPD |
 | `/perdidos` | Perdidos e encontrados | Anúncios **aprovados** de animais perdidos/encontrados, filtro por tipo, botão WhatsApp para quem anunciou, aviso contra golpes |
 | `/perdidos/novo` | Anunciar | Formulário público com até 2 fotos, consentimento LGPD e Turnstile. Vai para análise, **não publica direto** |
 
 ### Área restrita (`/admin`, exige login)
-| Rota | Função |
-|---|---|
-| `/admin/login` | Login com e-mail e senha |
-| `/admin` | Lista de animais com busca e filtro por status; ações rápidas: editar, marcar adotado, excluir |
-| `/admin/animais/novo` | Cadastro (formulário em uma tela, pensado para celular) |
-| `/admin/animais/:id` | Edição, incluindo lar temporário e observações internas |
-| `/admin/perdidos` | Moderação: aprovar/recusar anúncios pendentes; marcar "voltou para casa" ou tirar do ar |
+
+**Princípio:** tudo o que muda com o tempo no site (animais, perdidos, textos das páginas, contatos e PIX) é alterado pela área da ONG, pelo celular, sem mexer no código nem no painel do Supabase (P3). Telas detalhadas em [prototipo/TELAS.md](prototipo/TELAS.md).
+
+**Navegação:** barra fixa no rodapé (no celular) com 4 abas: **Animais · Perdidos · Textos · Mais**. No computador (≥ 768 px), as mesmas abas ficam no cabeçalho. Telas de formulário escondem a barra e mostram a barra de "Cancelar / Salvar".
+
+| Rota | Tela | Função |
+|---|---|---|
+| `/admin/login` | T08 | Login com e-mail e senha |
+| `/admin` | T09 | **Animais:** lista com busca, abas Disponíveis/Adotados e filtro por responsável; ações rápidas: editar, marcar adotado |
+| `/admin/animais/novo` | T10 | Cadastro (formulário em uma tela, pensado para celular) |
+| `/admin/animais/:id` | T11 | Edição, incluindo lar temporário e observações internas; "Ver no site", marcar adotado, excluir |
+| `/admin/perdidos` | T14 | **Perdidos:** moderação (aprovar/recusar), anúncios no ar (renovar, voltou para casa, tirar do ar) e botão "＋ Novo anúncio" |
+| `/admin/perdidos/novo` · `/admin/perdidos/:id` | T21 | Anúncio criado ou corrigido pela equipe (RN39–RN41) |
+| `/admin/textos` | T15 | **Textos:** lista das páginas editáveis |
+| `/admin/textos/perguntas` | T16 | Perguntas frequentes: adicionar, editar, reordenar, excluir |
+| `/admin/textos/como-adotar` | T18 | Como adotar: subtítulo, passos, "antes de adotar", vantagens, aviso de protetores |
+| `/admin/textos/inicio` | T19 | Página inicial: chamada, história, foto, marcos, missão, como funcionamos, aviso de resgate |
+| `/admin/textos/ajude` | T20 | Como ajudar: introdução e formas de ajudar |
+| `/admin/textos/:lista/novo` · `/admin/textos/:lista/:id` | T17 | Formulário de um item de lista (pergunta, passo, marco…) |
+| `/admin/mais` | T22 | **Mais:** Dados da ONG, Protetores parceiros, Clínicas parceiras, Ver o site, Sair |
+| `/admin/ong` | T23 | Dados da ONG: WhatsApp, Instagram, Facebook, chave PIX |
+| `/admin/protetores` | T24 | Protetores parceiros: lista e cadastro (RN42) |
+| `/admin/clinicas` | T25 | Clínicas parceiras e desconto (RN32) |
+
+### Prioridade, se o prazo apertar (desenvolvimento de 13/10 a 23/10)
+1. **Obrigatório:** login, animais (T08–T11), editor de textos genérico (T15–T20, um só componente atende todas as páginas, RN33), perdidos com moderação (T14).
+2. **Em seguida:** anúncio pela equipe e renovar (T21, RN39–RN41), Dados da ONG (T23).
+3. **Se der tempo:** tela de gestão de protetores (T24), clínicas (T25), "Alterado por" (RN43), filtro por responsável e "Ver no site". A **tabela** `protetores` entra desde o início (o cadastro do animal já escolhe ou cria o protetor, RN42); só a tela de lista/edição fica para depois. Sem T25, as clínicas ficam como item da lista de vantagens.
 
 ### Fora do MVP (depois, se der tempo)
 - Página "Finais felizes" com animais adotados
 - Doações com pagamento integrado / campanhas (no MVP, só a chave PIX é exibida)
-- Cadastro de interessados por formulário (hoje o contato é só pelo WhatsApp)
+- **Telas de análise dos pedidos de adoção** (formulário de interesse, RN14): rodada própria, depois que a ONG fechar as perguntas do formulário
+- **Gestão de contas pelo site** (convidar/remover usuárias): no MVP, as contas são criadas manualmente no painel do Supabase
+- Histórico completo de alterações (no MVP, só "Alterado por… em…", RN43)
 - Domínio próprio `.com.br`
 - PWA (instalar o site como app no celular)
 
@@ -108,9 +131,9 @@ Problemas que o site precisa resolver:
 | `data_entrada` | date | padrão hoje; usado em "Esperando há mais tempo" |
 | `data_adocao` | date null | preenchido ao marcar como adotado; base do indicador de adoções |
 | `responsavel_tipo` | enum `ong` \| `protetor` | padrão `ong` |
-| `responsavel_nome` | text | ex.: "SOS Patas" ou nome do protetor |
-| `whatsapp` | text | só dígitos com DDD, ex.: `35999999999` |
+| `protetor_id` | uuid null FK → `protetores.id` | `on delete restrict`; **obrigatório se `responsavel_tipo = protetor`, nulo se `ong`** (CHECK). Substitui os antigos `responsavel_nome` e `whatsapp` (RN42): o nome e o WhatsApp vêm de `protetores` ou da tabela `ong` |
 | `created_at` / `updated_at` | timestamptz | automáticos |
+| `updated_by` | uuid null FK → `equipe.user_id` | preenchido por trigger com `auth.uid()` (RN43) |
 
 ### `fotos` (leitura pública)
 | Coluna | Tipo | Regra |
@@ -143,11 +166,14 @@ Problemas que o site precisa resolver:
 | `descricao` | text | obrigatório, máx. 300, **links são rejeitados** |
 | `contato_nome` | text | primeiro nome (máx. 30) |
 | `contato_whatsapp` | text | só dígitos, 10–11 com DDD |
-| `consentimento_em` | timestamptz | momento em que aceitou publicar os dados |
+| `consentimento_em` | timestamptz | momento em que aceitou publicar os dados (no anúncio da equipe: momento em que a equipe registrou a autorização, RN39) |
+| `origem` | enum `site` \| `equipe` | padrão `site`; `equipe` = criado pelo painel (RN39) |
 | `status` | enum `pendente` \| `publicado` | recusado, resolvido e expirado são **apagados** (não ficam no banco) |
 | `publicado_em` | timestamptz null | preenchido na aprovação |
-| `ip_hash` | text | hash (SHA-256 + segredo) do IP, só para limitar envios; nunca o IP puro |
-| `created_at` | timestamptz | automático |
+| `expira_em` | timestamptz null | `publicado_em + 30 dias` na aprovação; "Renovar" muda para `hoje + 30 dias` (RN25, RN41) |
+| `ip_hash` | text null | hash (SHA-256 + segredo) do IP, só para limitar envios; nunca o IP puro. Nulo quando `origem = equipe` |
+| `created_at` / `updated_at` | timestamptz | automáticos |
+| `updated_by` | uuid null FK → `equipe.user_id` | última pessoa da equipe que alterou (RN43) |
 
 ### `perdidos_fotos`
 | Coluna | Tipo | Regra |
@@ -155,6 +181,79 @@ Problemas que o site precisa resolver:
 | `id` | uuid PK | |
 | `perdido_id` | uuid FK → `perdidos.id` | `on delete cascade` |
 | `path` | text | `pendentes/{perdido_id}/{id}.webp` → `publicados/{perdido_id}/{id}.webp` após aprovação |
+
+### `equipe` (usuárias da área da ONG)
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `user_id` | uuid PK FK → `auth.users.id` | `on delete cascade` |
+| `nome` | text | primeiro nome exibido: "Olá, Gracia" e "Alterado por Gracia" |
+
+A linha é criada à mão junto com a conta (painel do Supabase), por quem mantém o site.
+
+### `ong` (dados de contato; uma linha só)
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `id` | smallint PK | `CHECK (id = 1)`: a tabela tem sempre uma única linha |
+| `nome_completo` | text | "Sociedade de Proteção aos Animais de Passos/MG" |
+| `whatsapp` | text | só dígitos, 10–11 com DDD; WhatsApp padrão da ONG |
+| `instagram` | text | usuário sem `@`, ex.: `sospatas.ong` |
+| `facebook` | text null | URL completa `https://facebook.com/...` |
+| `pix_tipo` | enum `cnpj` \| `cpf` \| `email` \| `telefone` \| `aleatoria` | rótulo exibido ao lado da chave |
+| `pix_chave` | text | ex.: `26.515.895/0001-90` |
+| `updated_at` / `updated_by` | | RN43 |
+
+Substitui a constante `ONG` do código (seção 7.1). Cabeçalho, rodapé, Início, Como ajudar e perguntas frequentes leem daqui.
+
+### `protetores` (protetores parceiros)
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `id` | uuid PK | |
+| `nome` | text | obrigatório (máx. 60), ex.: "Protetora Ana Paula" |
+| `whatsapp` | text | só dígitos, 10–11 com DDD |
+| `created_at` / `updated_at` / `updated_by` | | RN43 |
+
+### `conteudo_textos` (textos únicos das páginas)
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `chave` | text PK | uma das chaves da tabela abaixo (CHECK) |
+| `valor` | text | texto simples (RN34); string vazia = bloco escondido no site, se for opcional |
+| `updated_at` / `updated_by` | | RN43 |
+
+| Chave | Página | Limite | Obrigatório |
+|---|---|---|---|
+| `inicio.chamada_titulo` | Início, título grande | 60 | sim |
+| `inicio.chamada_texto` | Início, texto da chamada | 200 | sim |
+| `inicio.historia` | Início, "Nossa história" | 2000 | sim |
+| `inicio.historia_foto` | Início, foto da história (path no bucket `fotos`, `site/historia-{id}.webp`) | – | não |
+| `inicio.missao` | Início, missão | 400 | sim |
+| `inicio.aviso_resgate` | Início, aviso amarelo "não fazemos resgates" | 300 | sim |
+| `como_adotar.subtitulo` | Como adotar, subtítulo do topo | 100 | sim |
+| `como_adotar.aviso_protetor` | Como adotar, card amarelo de protetores (RN31) | 500 | sim |
+| `como_adotar.vantagens_rodape` | Como adotar, nota abaixo das vantagens | 200 | não |
+| `ajude.introducao` | Como ajudar, texto do topo | 300 | não |
+
+### `conteudo_itens` (listas das páginas)
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `id` | uuid PK | |
+| `lista` | enum (tabela abaixo) | obrigatório |
+| `titulo` | text null | obrigatório ou não, conforme a lista |
+| `texto` | text | obrigatório |
+| `ordem` | int | posição na lista, começa em 0 (RN35) |
+| `created_at` / `updated_at` / `updated_by` | | RN43 |
+
+| `lista` | Onde aparece | `titulo` (limite) | `texto` (limite) | Mínimo de itens |
+|---|---|---|---|---|
+| `perguntas` | Perguntas frequentes | Pergunta (150), obrigatório | Resposta (1000) | 1 |
+| `como_adotar_passos` | Como adotar (linha do tempo) e resumo no Início | Título do passo (60), obrigatório | Explicação (600) | 1 |
+| `como_adotar_antes` | Como adotar, "Antes de adotar, pense em" | – | Item (200) | 0 (bloco some) |
+| `como_adotar_vantagens` | Como adotar, "Vantagem de adotar pelo site" | Destaque em negrito (60), opcional | Item (200) | 0 (card some) |
+| `inicio_marcos` | Início, linha do tempo da história | Ano ou data (20), obrigatório | O que aconteceu (300) | 0 (bloco some) |
+| `inicio_como_funcionamos` | Início, "Como funcionamos" | Título (40), obrigatório | Texto (150) | 0 |
+| `ajude_formas` | Como ajudar (além do card fixo do PIX) | Título (40), obrigatório | Texto (300) | 0 |
+| `clinicas` | Como adotar (vantagens) e T25 | Nome da clínica (80), obrigatório | Desconto e condições (200) | 0 |
+
+**Conteúdo inicial (seed):** a migration `seed_conteudo.sql` cria `ong`, os textos e os itens com os textos atuais do protótipo (`prototipo/index.html`), para o site já estrear preenchido. A história e os marcos dependem das informações da ONG (TELAS.md, perguntas de validação).
 
 ### Segurança (Row Level Security)
 - `animais` e `fotos`: **SELECT público**; INSERT/UPDATE/DELETE só `authenticated`.
@@ -164,7 +263,11 @@ Problemas que o site precisa resolver:
 - `perdidos_fotos`: SELECT público só de anúncios publicados; escrita só pela Edge Function e por `authenticated`.
 - Bucket **`perdidos-quarentena`: PRIVADO** (sem leitura pública). A equipe vê as fotos por URL assinada de 5 minutos.
 - Bucket **`perdidos`: leitura pública**, escrita só `authenticated`. Só recebe fotos já aprovadas.
-- **Cadastro de novos usuários desativado** no Supabase Auth. As contas de Gracia e Claudia são criadas manualmente pelo painel.
+- `ong`, `conteudo_textos`, `conteudo_itens` e `protetores`: **SELECT público**; INSERT/UPDATE/DELETE só `authenticated`. `ong` não permite INSERT nem DELETE (linha única). O WhatsApp do protetor já era público no modelo anterior (`animais.whatsapp`); na rodada dos pedidos de adoção, avaliar se ainda precisa ser.
+- `equipe`: SELECT só `authenticated`; sem escrita pelo site.
+- `perdidos` com `origem = equipe`: INSERT só `authenticated` (o painel não passa pela Edge Function nem pelo Turnstile).
+- Bucket `perdidos-quarentena`: além da Edge Function, `authenticated` pode enviar e remover (edição de anúncio pendente, RN40).
+- **Cadastro de novos usuários desativado** no Supabase Auth. As contas de Gracia e Claudia são criadas manualmente pelo painel, junto com a linha em `equipe`. **Todas as usuárias têm as mesmas permissões** (sem perfis).
 
 ## 6. Regras de negócio
 
@@ -228,7 +331,7 @@ Celular do visitante                Supabase Edge Function              Equipe d
 - **RN22 – Antirrobô:** Cloudflare Turnstile no formulário (grátis, sem "clique nos semáforos").
 - **RN23 – Limite de envios:** no máximo **3 anúncios por dia por IP** (pelo `ip_hash`) e no máximo **30 anúncios pendentes** no total. Acima disso, o formulário avisa "tente mais tarde". Isso protege o armazenamento gratuito.
 - **RN24 – Exibição segura:** fotos enviadas pelo público são exibidas **somente em `<img>`**, nunca como link para download. Textos são sempre exibidos como texto (o React já escapa HTML; nunca usar `dangerouslySetInnerHTML`).
-- **RN25 – Prazo de publicação:** cada anúncio fica no ar **30 dias** após a aprovação. Depois disso, ele e as fotos são **apagados automaticamente** (mesma tarefa agendada do RN16).
+- **RN25 – Prazo de publicação:** cada anúncio fica no ar **30 dias** após a aprovação (`expira_em`). Depois disso, ele e as fotos são **apagados automaticamente** (mesma tarefa agendada do RN16). A equipe pode renovar (RN41). O prazo de 30 dias e o limite da RN23 são **fixos no código**, sem configuração pelo painel.
 - **RN26 – Recusar, tirar do ar ou "voltou para casa" apagam tudo:** registro e arquivos, nos dois buckets. Mesma lógica do RN05: primeiro os arquivos, depois o registro.
 - **RN27 – Pendentes esquecidos:** anúncios `pendente` há mais de 7 dias são apagados automaticamente.
 - **RN28 – Contra golpes e LGPD:**
@@ -245,6 +348,25 @@ Celular do visitante                Supabase Edge Function              Equipe d
 ### Saúde
 - **RN17 (alterada em 06/10/2026):** a ficha mostra só a situação real ("Castrado" ou "Ainda não castrado"). **O site não promete castração garantida pela ONG**, porque nem sempre há recurso e há animais de outros grupos e protetores. O único benefício divulgado é a prioridade no castramóvel (RN32).
 
+### Conteúdo editável pela equipe (textos das páginas)
+- **RN33 – Um editor para todas as páginas:** Início, Como adotar, Perguntas frequentes e Como ajudar são montados a partir de `conteudo_textos` e `conteudo_itens`. A área da ONG usa **dois componentes genéricos**: `CampoTextoEditavel` (um texto, com contador de caracteres) e `ListaEditavel` (lista com adicionar, editar, reordenar e excluir), configurados pela tabela de listas da seção 5. Nenhum texto dessas páginas fica fixo no código, exceto títulos de seção e rótulos de botão.
+- **RN34 – Só texto simples:** sem negrito nem editor de formatação. As quebras de linha são mantidas (`white-space: pre-line`) e endereços `http(s)://…` viram links automaticamente (`target="_blank" rel="noopener noreferrer"`), montados como elementos React, **nunca** com `dangerouslySetInnerHTML` (RN24). O limite de caracteres é validado no formulário e por `CHECK (char_length(...))` no banco.
+- **RN35 – Reordenar com setas:** cada item tem os botões ↑ e ↓, que trocam a `ordem` com o vizinho em uma única chamada (função `trocar_ordem(id_a, id_b)` no banco, para não deixar posições repetidas). Item novo entra no fim da lista.
+- **RN36 – Excluir com confirmação; não existe "ocultar":** um item só sai do site ao ser excluído, com o modal "Excluir esta pergunta? Ela some do site e não pode ser recuperada." Não é possível excluir o último item de uma lista com mínimo 1 (o botão fica desativado, com a explicação).
+- **RN37 – Salvar publica na hora:** não existe rascunho. Depois de salvar, a tela mostra "Salvo e publicado ✓" e o botão **"Ver no site"**, que abre a página pública em nova aba.
+- **RN38 – Foto da história:** uma única foto opcional, com o mesmo processamento das fotos de animais (RN02, só a versão completa de 1200 px), em `site/historia-{id}.webp`. Trocar ou remover apaga o arquivo antigo (mesma lógica da RN06).
+
+O resumo "Como adotar" no Início usa os **títulos** de `como_adotar_passos`, para os dois lugares nunca ficarem diferentes. Se duas pessoas editarem o mesmo item ao mesmo tempo, vale o último a salvar (aceitável para uma equipe de duas pessoas).
+
+### Perdidos e encontrados pela equipe
+- **RN39 – Anúncio criado pela equipe:** para quem pediu pelo WhatsApp, a equipe preenche o mesmo formulário da T13 no painel, com o checkbox obrigatório **"A pessoa autorizou publicar o primeiro nome, o WhatsApp e as fotos por 30 dias"**. O anúncio já nasce `publicado` (`origem = equipe`, sem Turnstile, sem `ip_hash`, fora do limite da RN23). As fotos passam pelo mesmo redesenho em canvas (RN20) e vão direto para o bucket público `perdidos`.
+- **RN40 – Corrigir anúncio:** a equipe pode editar todos os campos de um anúncio pendente ou no ar, remover fotos e adicionar fotos (até 2). As fotos vão para o bucket do status atual (quarentena se pendente, público se no ar). Quem anunciou **não é avisado** de edições nem de recusas.
+- **RN41 – Renovar:** botão "Renovar por mais 30 dias" nos anúncios no ar: `expira_em = hoje + 30 dias` (não acumula). O card mostra "Sai do ar em N dias".
+
+### Protetores parceiros e auditoria
+- **RN42 – Protetor cadastrado uma vez:** no cadastro do animal, ao escolher "Protetor parceiro", aparece a lista de `protetores` e a opção "＋ Novo protetor" (nome e WhatsApp, criado ali mesmo). Editar o WhatsApp de um protetor atualiza todos os animais dele. **Não é possível excluir um protetor com animais vinculados** (FK `restrict`); a tela avisa "Ana Paula tem 2 animais. Troque o responsável deles antes de excluir."
+- **RN43 – "Alterado por… em…":** animais, anúncios, textos, itens, dados da ONG e protetores mostram na edição "Alterado por Claudia em 07/10/2026". Um trigger preenche `updated_at` e `updated_by = auth.uid()`; o nome vem de `equipe`. Não há histórico completo.
+
 ### Manutenção
 - **RN16 – Evitar a pausa do Supabase:** um workflow do GitHub Actions, agendado a cada 3 dias, faz uma consulta simples na tabela `animais`.
 
@@ -258,10 +380,14 @@ sos-patas/
 │   ├── src/
 │   │   ├── pages/           # páginas públicas e admin
 │   │   ├── components/      # cards, filtros, formulário, galeria
+│   │   │   └── admin/       # BarraAdmin, ListaEditavel, CampoTextoEditavel (RN33)
 │   │   ├── lib/
 │   │   │   ├── supabase.ts  # cliente
 │   │   │   ├── animais.ts   # consultas e excluirAnimal (RN05)
-│   │   │   ├── fotos.ts     # compressão e upload (RN01–RN07)
+│   │   │   ├── fotos.ts     # compressão e upload (RN01–RN07, RN38)
+│   │   │   ├── conteudo.ts  # textos, itens, trocarOrdem (RN33–RN37)
+│   │   │   ├── ong.ts       # dados da ONG e protetores (RN42)
+│   │   │   ├── texto.ts     # TextoSimples: quebras de linha + links automáticos (RN34)
 │   │   │   └── idade.ts     # cálculo de idade (RN11, RN13)
 │   │   └── types.ts
 │   └── ...
@@ -285,7 +411,9 @@ colors: {
 fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui'] },
 ```
 
-**Dados fixos da ONG** (constante `ONG` no código):
+**Logo oficial:** copiar [prototipo/assets/logo.png](prototipo/assets/logo.png) para `site/public/logo.png` e usar esse arquivo em todo o site, inclusive no favicon e na imagem de compartilhamento (`og:image`). Regras de uso no [TELAS.md](prototipo/TELAS.md), seção Identidade visual.
+
+**Dados da ONG:** ficam na tabela `ong` e são editáveis em T23. Os valores abaixo são o conteúdo inicial (seed):
 - Nome: SOS Patas, Sociedade de Proteção aos Animais de Passos/MG
 - Instagram: @sospatas.ong
 - WhatsApp: (35) 9 8843-9614 _(confirmar)_
@@ -333,3 +461,14 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 06/10/2026 | **Sem código de adoção** (RN29 removida) | A ONG não precisa; a aba "Adotados" já comprova |
 | 06/10/2026 | Campos do animal alinhados ao termo: porte em 5 opções, raça e tipo, cor da pelagem, vacinas (quais), vacinado/vermifugado com "sem informação", problema de saúde | Pedido da ONG; a ficha do site passa a servir de base para preencher o termo |
 | 06/10/2026 | Dados do adotante (privados) ao marcar como adotado | Comprova a adoção pelo site para a prioridade na castração e permite o acompanhamento dos 15 dias |
+| 07/10/2026 | **Textos das páginas editáveis pela equipe** (Início, Como adotar, Perguntas frequentes, Como ajudar, dados da ONG, clínicas), com um editor genérico (RN33) | O site não pode depender do estudante para mudar um texto depois da entrega; um só componente reduz o tempo de desenvolvimento |
+| 07/10/2026 | Início vira **página institucional com a história da ONG**; missão e "como funcionamos" saem da Sobre, que vira **Como ajudar** (`/ajude`) | Pedido do estudante; evita repetir missão e funcionamento em duas páginas _(confirmar a troca da Sobre)_ |
+| 07/10/2026 | Perguntas frequentes sem categorias e sem "ocultar"; só excluir, com confirmação (RN36) | Cerca de 11 perguntas cabem em uma lista; menos opções para usuárias sem conhecimento técnico |
+| 07/10/2026 | Só texto simples, com links automáticos (RN34) | Segurança (sem HTML vindo do banco) e simplicidade |
+| 07/10/2026 | Salvar publica na hora, sem rascunho (RN37) | Fluxo mais simples; o botão "Ver no site" serve de conferência |
+| 07/10/2026 | Equipe pode criar, editar e renovar anúncios de perdidos (RN39–RN41); prazos fixos no código | Muitos pedidos chegam pelo WhatsApp; o anunciante não é avisado porque o site não guarda e-mail |
+| 07/10/2026 | Tabela `protetores` substitui `responsavel_nome` e `whatsapp` em `animais` (RN42) | Evita digitar o mesmo protetor várias vezes e WhatsApp errado |
+| 07/10/2026 | Todas as usuárias com as mesmas permissões; contas criadas à mão no Supabase; só "Alterado por… em…" (RN43) | Equipe pequena; gestão de contas e histórico completo ficam fora do MVP |
+| 07/10/2026 | Navegação da área da ONG por barra fixa no rodapé (Animais · Perdidos · Textos · Mais) | Padrão que as usuárias já conhecem do WhatsApp e do Instagram |
+| 07/10/2026 | Telas de análise dos pedidos de adoção ficam para uma rodada própria | Dependem da versão final do formulário (RN14) |
+| 07/10/2026 | **Logo oficial em boa resolução** (`prototipo/assets/logo.png`, 790 px) em todas as telas | Arquivo recebido da ONG; substitui o recorte do Instagram |

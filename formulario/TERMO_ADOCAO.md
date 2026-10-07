@@ -26,7 +26,7 @@ Nome · Identidade (RG) · CPF · Endereço residencial · Bairro · Cidade/UF �
 | Vacinado | sim (quais?) / não / sem informação | `vacinado` com as 3 opções + `vacinas` ✅ |
 | Endereço onde ficará o animal | o mesmo / outro | só no papel |
 | Problema de saúde | sim (qual) / não | `problema_saude` ✅ |
-| Nome do doador · Fone | – | `responsavel_nome` · `whatsapp` |
+| Nome do doador · Fone | – | `protetores.nome` · `protetores.whatsapp` (ou `ong.whatsapp` se o responsável for a SOS Patas) |
 
 ## Compromissos do adotante (resumo das cláusulas)
 1. Conhecer os cuidados do animal; **não deixá-lo em corrente** (precisa de espaço para correr); **coleira com placa de identificação**; **abrigo (casinha)** contra sol e chuva; ração de boa qualidade e água fresca todos os dias.
