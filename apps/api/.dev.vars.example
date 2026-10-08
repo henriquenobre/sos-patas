@@ -8,3 +8,6 @@ AMBIENTE=local
 # sem Cloudflare Access. Só funciona com AMBIENTE=local; em qualquer outro ambiente a
 # API recusa a requisição. O e-mail precisa existir na tabela equipe (seed_dev.sql).
 ACESSO_LOCAL_EMAIL=teste@sospatas.local
+
+# Fotos servidas pela própria API (/api/publico/fotos/*), lendo do R2 simulado
+FOTOS_URL_BASE=

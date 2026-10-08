@@ -54,6 +54,13 @@ describe('comCache', () => {
     expect(consultasAoBanco).toBe(1)
   })
 
+  it('"?qualquer=coisa" não fura o cache (não acorda o banco)', async () => {
+    await app.request(`${url}?x=1`)
+    await app.request(`${url}?x=2`)
+    await app.request(url)
+    expect(consultasAoBanco).toBe(1)
+  })
+
   it('o navegador guarda por 1 minuto e o Cloudflare por mais tempo', async () => {
     const resposta = await app.request(url)
     expect(resposta.headers.get('Cache-Control')).toBe('public, max-age=60, s-maxage=900')

@@ -6,7 +6,8 @@
   "type": "module",
   "exports": {
     ".": "./schema.ts",
-    "./testes/preparar": "./testes/preparar.ts"
+    "./testes/preparar": "./testes/preparar.ts",
+    "./seed": "./scripts/seed.ts"
   },
   "scripts": {
     "gerar": "drizzle-kit generate",

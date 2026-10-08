@@ -8,13 +8,26 @@ import type { Context } from 'hono'
 export const SEGUNDOS_CACHE_PUBLICO = 15 * 60
 /** Quanto tempo o navegador do visitante guarda. */
 export const SEGUNDOS_CACHE_NAVEGADOR = 60
+/** Fotos nunca mudam de conteúdo (trocar a foto cria outro arquivo, RN06): 1 ano. */
+export const SEGUNDOS_CACHE_FOTO = 365 * 24 * 60 * 60
+
+type OpcoesCache = {
+  /**
+   * Endereço que identifica a cópia guardada. Padrão: o caminho sem a query string, para
+   * que "?qualquer=coisa" não fure o cache. Rotas com filtros passam a URL normalizada.
+   */
+  chave?: string
+  segundosNavegador?: number
+  segundosCloudflare?: number
+  imutavel?: boolean
+}
 
 function cachePadrao(): Cache | null {
   return 'caches' in globalThis ? caches.default : null
 }
 
 /** Executa em segundo plano depois da resposta (no Workers) ou espera (nos testes). */
-async function emSegundoPlano(c: Context, tarefa: Promise<unknown>): Promise<void> {
+export async function emSegundoPlano(c: Context, tarefa: Promise<unknown>): Promise<void> {
   try {
     c.executionCtx.waitUntil(tarefa)
   } catch {
@@ -22,12 +35,28 @@ async function emSegundoPlano(c: Context, tarefa: Promise<unknown>): Promise<voi
   }
 }
 
+/** Endereço da requisição sem a query string. */
+export function urlSemQuery(c: Context): string {
+  const url = new URL(c.req.url)
+  return `${url.origin}${url.pathname}`
+}
+
 /** GET público com cache: devolve a cópia guardada ou gera, guarda e devolve. */
-export async function comCache(c: Context, gerar: () => Promise<Response>): Promise<Response> {
+export async function comCache(
+  c: Context,
+  gerar: () => Promise<Response>,
+  opcoes: OpcoesCache = {},
+): Promise<Response> {
+  const {
+    chave = urlSemQuery(c),
+    segundosNavegador = SEGUNDOS_CACHE_NAVEGADOR,
+    segundosCloudflare = SEGUNDOS_CACHE_PUBLICO,
+    imutavel = false,
+  } = opcoes
   const cache = cachePadrao()
-  const chave = new Request(c.req.url, { method: 'GET' })
+  const requisicaoChave = new Request(chave, { method: 'GET' })
   if (cache) {
-    const guardada = await cache.match(chave)
+    const guardada = await cache.match(requisicaoChave)
     if (guardada) return guardada
   }
 
@@ -35,9 +64,10 @@ export async function comCache(c: Context, gerar: () => Promise<Response>): Prom
   if (resposta.status === 200) {
     resposta.headers.set(
       'Cache-Control',
-      `public, max-age=${String(SEGUNDOS_CACHE_NAVEGADOR)}, s-maxage=${String(SEGUNDOS_CACHE_PUBLICO)}`,
+      `public, max-age=${String(segundosNavegador)}, s-maxage=${String(segundosCloudflare)}` +
+        (imutavel ? ', immutable' : ''),
     )
-    if (cache) await emSegundoPlano(c, cache.put(chave, resposta.clone()))
+    if (cache) await emSegundoPlano(c, cache.put(requisicaoChave, resposta.clone()))
   }
   return resposta
 }
@@ -49,12 +79,10 @@ export async function comCache(c: Context, gerar: () => Promise<Response>): Prom
  * Limite: a Cache API apaga só no datacenter que atendeu a requisição (o mesmo da voluntária,
  * então o "Ver no site" já mostra a mudança). Nos outros, a cópia vale até
  * SEGUNDOS_CACHE_PUBLICO. Com o domínio próprio (etapa 14), somar a limpeza global pela API
- * de purge do Cloudflare.
+ * de purge do Cloudflare. Rotas com filtros (vitrine) também expiram sozinhas nesse prazo.
  */
 export async function limparCache(c: Context, caminhos: string[]): Promise<void> {
   const cache = cachePadrao()
   if (!cache) return
   await Promise.all(caminhos.map((caminho) => cache.delete(new URL(caminho, c.req.url).toString())))
 }
-
-export { emSegundoPlano }

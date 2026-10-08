@@ -92,7 +92,7 @@ O aviso amarelo "A SOS Patas não faz resgates" foi **removido em 07/10/2026** (
 
 **Objetivo:** listar os animais disponíveis com filtros.
 
-- **Filtros (chips):** Cães/Gatos · Filhotes/Adultos (RN11) · Pequeno/Médio/Grande · "Convive com outros animais". Tocar de novo desliga o filtro.
+- **Filtros (chips):** Cães/Gatos · Filhotes/Adultos (RN11) · Mini/Pequeno/Médio/Grande/Gigante · "Convive com outros animais". Um chip por grupo; tocar de novo desliga o filtro.
 - **Ordem:** mais antigos primeiro (RN10).
 - **Grade:** 2 colunas no celular, 3 no tablet e 4 no computador.
 - **Sem resultado:** mensagem + "Limpar filtros".

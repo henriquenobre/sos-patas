@@ -33,7 +33,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 2 | Banco: schema, migrations e seed | 1 | 10–11/10 | ✅ 08/10 |
 | 3 | Pacote compartilhado (zod, limites, idade) | 1 | 11/10 | ✅ 08/10 |
 | 4 | Base da API (erros, login, armazenamento, testes) | 2, 3 | 12/10 | ✅ 08/10 |
-| 5 | API pública de leitura | 4 | 13/10 | ⬜ |
+| 5 | API pública de leitura | 4 | 13/10 | ✅ 08/10 |
 | 6 | Site público: layout e páginas de conteúdo | 5 | 13–14/10 | ⬜ |
 | 7 | Site público: vitrine e ficha do animal | 6 | 15/10 | ⬜ |
 | 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ⬜ |

@@ -20,6 +20,9 @@ ACCESS_TEAM_DOMAIN = "https://sospatas.cloudflareaccess.com"
 ACCESS_AUD = "preencher-na-etapa-14"
 # Origens com CORS liberado, separadas por vírgula. Vazio = nenhuma (mesma origem).
 CORS_ORIGENS = ""
+# Endereço público das fotos (bucket FOTOS com cache). Vazio = a API serve as fotos em
+# /api/publico/fotos/* (computador e prévia, sem domínio próprio e sem r2.dev).
+FOTOS_URL_BASE = "https://fotos.sospatas.org.br"
 
 [[hyperdrive]]
 binding = "HYPERDRIVE"
@@ -42,6 +45,7 @@ AMBIENTE = "previa"
 ACCESS_TEAM_DOMAIN = "https://sospatas.cloudflareaccess.com"
 ACCESS_AUD = "preencher-na-etapa-8"
 CORS_ORIGENS = ""
+FOTOS_URL_BASE = ""
 
 [[env.previa.hyperdrive]]
 binding = "HYPERDRIVE"
