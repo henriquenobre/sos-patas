@@ -5,7 +5,8 @@
   "description": "Schema Drizzle, migrations e seed do banco",
   "type": "module",
   "exports": {
-    ".": "./schema.ts"
+    ".": "./schema.ts",
+    "./testes/preparar": "./testes/preparar.ts"
   },
   "scripts": {
     "gerar": "drizzle-kit generate",

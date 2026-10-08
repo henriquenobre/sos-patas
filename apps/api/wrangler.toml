@@ -1,12 +1,12 @@
-# Configuração do Worker da API (docs/ARQUITETURA.md, seções 1, 6, 7 e 9).
+# Configuração do Worker da API (docs/ARQUITETURA.md, seções 1, 4, 6, 7 e 9).
 #
-# O nível de cima é a PRODUÇÃO. Os bindings não são herdados pelos ambientes:
-# o ambiente `previa` repete todos. No computador, `wrangler dev` usa estes mesmos
-# bindings com R2 simulado e o Postgres do Docker, e o arquivo `.dev.vars` troca
+# O nível de cima é a PRODUÇÃO. Os bindings e as variáveis não são herdados pelos
+# ambientes: o ambiente `previa` repete todos. No computador, `wrangler dev` usa estes
+# mesmos bindings com R2 simulado e o Postgres do Docker, e o arquivo `.dev.vars` troca
 # AMBIENTE para "local" (sem ele, a API se comporta como produção).
 #
-# Ainda a preencher: id real do Hyperdrive (etapa 8), cron da limpeza diária
-# (etapa 11) e rota sospatas.org.br/api/* (etapa 14).
+# Ainda a preencher: id real do Hyperdrive e ACCESS_AUD (etapa 8 na prévia, etapa 14 na
+# produção), cron da limpeza diária (etapa 11) e rota sospatas.org.br/api/* (etapa 14).
 
 name = "sospatas-api"
 main = "src/index.ts"
@@ -15,6 +15,11 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 AMBIENTE = "producao"
+# Login da equipe pelo Cloudflare Access (docs/ARQUITETURA.md, seção 4)
+ACCESS_TEAM_DOMAIN = "https://sospatas.cloudflareaccess.com"
+ACCESS_AUD = "preencher-na-etapa-14"
+# Origens com CORS liberado, separadas por vírgula. Vazio = nenhuma (mesma origem).
+CORS_ORIGENS = ""
 
 [[hyperdrive]]
 binding = "HYPERDRIVE"
@@ -34,6 +39,9 @@ name = "sospatas-api-previa"
 
 [env.previa.vars]
 AMBIENTE = "previa"
+ACCESS_TEAM_DOMAIN = "https://sospatas.cloudflareaccess.com"
+ACCESS_AUD = "preencher-na-etapa-8"
+CORS_ORIGENS = ""
 
 [[env.previa.hyperdrive]]
 binding = "HYPERDRIVE"

@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "postinstall": "wrangler types --strict-vars=false",
+    "postinstall": "wrangler types --strict-vars=false --env-file .dev.vars.example",
     "dev": "wrangler dev",
     "dev:node": "tsx watch src/node.ts",
     "build": "wrangler deploy --dry-run --outdir dist",
-    "tipos": "wrangler types --strict-vars=false",
-    "typecheck": "wrangler types --strict-vars=false && tsc",
+    "tipos": "wrangler types --strict-vars=false --env-file .dev.vars.example",
+    "typecheck": "wrangler types --strict-vars=false --env-file .dev.vars.example && tsc",
     "test": "vitest run"
   },
   "dependencies": {
@@ -18,7 +18,9 @@
     "@sospatas/db": "workspace:*",
     "drizzle-orm": "^0.45.3",
     "hono": "^4.13.13",
-    "postgres": "^3.4.9"
+    "jose": "^6.2.12",
+    "postgres": "^3.4.9",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "^24.19.1",

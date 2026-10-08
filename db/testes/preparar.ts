@@ -1,4 +1,5 @@
 // Antes dos testes: recria o banco de teste do zero com as migrations.
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import postgres from 'postgres'
 import { drizzle } from 'drizzle-orm/postgres-js'
@@ -14,7 +15,7 @@ export default async function preparar(): Promise<void> {
       'DROP SCHEMA IF EXISTS drizzle CASCADE; DROP SCHEMA public CASCADE; CREATE SCHEMA public;',
     )
     await migrate(drizzle({ client: sql }), {
-      migrationsFolder: fileURLToPath(new URL('../migrations', import.meta.url)),
+      migrationsFolder: join(dirname(fileURLToPath(import.meta.url)), '..', 'migrations'),
     })
   } finally {
     await sql.end()

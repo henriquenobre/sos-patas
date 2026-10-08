@@ -32,7 +32,7 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | 1 | Fundação do monorepo | 08/10/2026 | 08/10/2026 | 1 dia | CI verde no GitHub depois de corrigir os tipos do Worker (`--strict-vars=false`) |
 | 2 | Banco: schema, migrations e seed | 08/10/2026 | 08/10/2026 | 1 dia | 10 tabelas, 2 migrations, seed e 25 testes de banco |
 | 3 | Pacote compartilhado | 08/10/2026 | 08/10/2026 | 1 dia | Schemas zod, funções de idade, datas e WhatsApp; 61 testes |
-| 4 | Base da API | | | | |
+| 4 | Base da API | 08/10/2026 | 08/10/2026 | 1 dia | Erros, validação, login (Access + modo local), armazenamento, cache; 35 testes da API |
 | 5 | API pública de leitura | | | | |
 | 6 | Site público: layout e páginas de conteúdo | | | | |
 | 7 | Site público: vitrine e ficha do animal | | | | |
@@ -74,3 +74,4 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 08/10/2026 | 14:50 | 7 | **Etapa 2 concluída:** schema, migrations, seed de conteúdo e de exemplo, testes de constraints; API lendo o banco pelo Hyperdrive local | doc (verificação local) |
 | 08/10/2026 | 15:20 | 7 | **Etapa 3 concluída:** schemas zod e funções de regra no `packages/compartilhado` | doc (verificação local) |
 | 08/10/2026 | | 6 | R2 ativado no Cloudflare (cartão pessoal do mantenedor); análise de risco de cobrança registrada | relato + doc (ARQUITETURA.md, 11.1) |
+| 08/10/2026 | 16:00 | 7 | **Etapa 4 concluída:** base da API, conferida também no `wrangler dev` (login local e R2 simulado) | doc (verificação local) |

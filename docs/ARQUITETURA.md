@@ -62,15 +62,19 @@ sos-patas/
 │   │       └── lib/             # fotos.ts (compressão/canvas, RN02/RN20)
 │   └── api/                     # API: Hono + TypeScript
 │       ├── src/
-│       │   ├── index.ts         # entrada Workers (export default app + scheduled)
+│       │   ├── app.ts           # criarApp(dependencias): rotas, erros, CORS, login
+│       │   ├── index.ts         # entrada Workers: dependências do Cloudflare (Hyperdrive, R2, Access)
 │       │   ├── node.ts          # entrada Node (@hono/node-server), para VPS no futuro
+│       │   ├── dependencias.ts  # o que a API precisa do ambiente (banco, armazenamento, verificação do JWT)
 │       │   ├── db.ts            # conexão postgres.js + Drizzle (Hyperdrive)
+│       │   ├── erros.ts · validacao.ts · cache.ts
 │       │   ├── rotas/
 │       │   │   ├── publico/     # site, animais, perdidos (GET) e envio de anúncio (POST)
 │       │   │   └── admin/       # tudo da área da ONG
 │       │   ├── servicos/        # regras de negócio: excluirAnimal (RN05), aprovarPerdido…
-│       │   ├── middleware/      # access.ts (valida JWT do Access), erros, CORS
-│       │   ├── armazenamento/   # interface Armazenamento + implementação R2 (S3 no futuro)
+│       │   ├── middleware/      # access.ts (login: JWT do Access + equipe), conexoes.ts (banco por requisição)
+│       │   ├── armazenamento/   # interface Armazenamento, R2, memória (testes), webp.ts (RN21)
+│       │   ├── testes/          # apoio aos testes: banco de teste, Access falso
 │       │   └── tarefas/         # limpezas do Cron (RN15, RN25, RN27)
 │       ├── wrangler.toml        # bindings: HYPERDRIVE, FOTOS, QUARENTENA, cron; nível de cima = produção, [env.previa]
 │       └── .dev.vars.example    # variáveis locais (copiar para .dev.vars, fora do Git)
@@ -108,9 +112,9 @@ sos-patas/
 **Padrões:**
 - JSON; datas em ISO 8601; IDs `uuid`.
 - Entrada validada com os schemas zod de `packages/compartilhado` (os mesmos do formulário no front).
-- Erros: `{ "erro": "codigo_curto", "mensagem": "texto para a tela" }` com status HTTP adequado (400 validação, 401/403 acesso, 404, 409 conflito como protetor com animais, 429 limite).
+- Erros: `{ "erro": "codigo_curto", "mensagem": "texto para a tela" }` com status HTTP adequado (400 validação, 401/403 acesso, 404, 409 conflito como protetor com animais, 429 limite). Em erro de validação, também `"campos": { "nome": "Preencha este campo" }`, para o formulário mostrar a mensagem embaixo de cada campo. Erro inesperado: 500 com mensagem genérica; o detalhe só vai para o log (`apps/api/src/erros.ts`).
 - Upload: `multipart/form-data`; a API confere tamanho e **assinatura WebP** (`RIFF....WEBP`) antes de gravar (RN21). Nada de URL pré-assinada: todo arquivo passa pela API.
-- Leituras públicas com `Cache-Control: public, max-age=60` (+ cache do Hyperdrive) para aguentar picos e poupar o banco.
+- Leituras públicas com cache (`apps/api/src/cache.ts`): o navegador guarda 60 s e o Cloudflare guarda 15 min (Cache API), para aguentar picos e deixar o Neon dormir (seção 11.2). Salvar na área da ONG apaga a cópia do datacenter que atendeu a voluntária (o "Ver no site" dela já mostra a mudança); nos outros datacenters, a cópia antiga vale até 15 min. Com o domínio próprio (etapa 14), somar a limpeza global pela API de purge do Cloudflare. A Cache API só funciona no domínio próprio; no `*.workers.dev` a API consulta sempre.
 
 ### 3.1 Rotas públicas (`/api/publico`)
 
@@ -149,7 +153,8 @@ sos-patas/
 1. Quem abre `/admin` (front) ou chama `/api/admin/*` passa antes pelo **Access**, na borda do Cloudflare.
 2. A tela de login (marca da SOS Patas: logo e cores) pede o **e-mail** e envia um **código de 6 dígitos** para ele. Opcional: botão "Entrar com Google" para quem usa Gmail.
 3. Só e-mails da **política do Access** (lista da equipe) conseguem entrar. Sessão de **30 dias** no celular: na prática, a voluntária quase nunca precisa digitar o código.
-4. O Access envia à API o cabeçalho `Cf-Access-Jwt-Assertion`. O middleware `access.ts` **valida a assinatura do JWT** (chaves públicas do time, conferência de `aud` e `exp`), pega o e-mail e confere se ele existe e está ativo na tabela `equipe` (segunda barreira).
+4. O Access envia à API o cabeçalho `Cf-Access-Jwt-Assertion`. O middleware `access.ts` **valida a assinatura do JWT** (biblioteca `jose`, chaves públicas do time em `ACCESS_TEAM_DOMAIN/cdn-cgi/access/certs`, conferência de emissor, `aud` e validade), pega o e-mail e confere se ele existe e está ativo na tabela `equipe` (segunda barreira). Sem token ou token inválido: 401; e-mail fora da equipe ou desativado: 403.
+   - **Modo local:** com `AMBIENTE=local` e `ACESSO_LOCAL_EMAIL` no `.dev.vars`, a API trata a requisição como vinda desse e-mail, sem Access (no computador, `teste@sospatas.local`, do `seed_dev.sql`). Em qualquer outro ambiente, ter `ACESSO_LOCAL_EMAIL` configurado faz a API recusar a requisição (500), para nunca liberar a área da ONG sem login.
 5. "Sair" chama `/cdn-cgi/access/logout`.
 
 **Gestão de contas:** incluir ou remover alguém = adicionar ou tirar o e-mail na política do Access **e** na tabela `equipe` (feito por quem mantém o site, como antes). Todas com as mesmas permissões.
@@ -225,7 +230,7 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 | String de conexão do Neon | Hyperdrive (configuração) e GitHub (migrations, backup) |
 | `TURNSTILE_SECRET` | API |
 | `IP_HASH_SECRET` (RN23) | API |
-| `ACCESS_TEAM_DOMAIN` e `ACCESS_AUD` | API (validação do JWT) |
+| `ACCESS_TEAM_DOMAIN` e `ACCESS_AUD` | Não são segredo: ficam em `[vars]` do `wrangler.toml`, por ambiente (o `aud` muda entre prévia e produção) |
 | Chaves S3 do R2 (só para o backup) | GitHub |
 | `CLOUDFLARE_API_TOKEN` (deploy) | GitHub |
 

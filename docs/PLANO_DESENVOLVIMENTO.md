@@ -32,7 +32,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 1 | Fundação do monorepo | – | 09–10/10 | ✅ 08/10 |
 | 2 | Banco: schema, migrations e seed | 1 | 10–11/10 | ✅ 08/10 |
 | 3 | Pacote compartilhado (zod, limites, idade) | 1 | 11/10 | ✅ 08/10 |
-| 4 | Base da API (erros, login, armazenamento, testes) | 2, 3 | 12/10 | ⬜ |
+| 4 | Base da API (erros, login, armazenamento, testes) | 2, 3 | 12/10 | ✅ 08/10 |
 | 5 | API pública de leitura | 4 | 13/10 | ⬜ |
 | 6 | Site público: layout e páginas de conteúdo | 5 | 13–14/10 | ⬜ |
 | 7 | Site público: vitrine e ficha do animal | 6 | 15/10 | ⬜ |
