@@ -29,7 +29,7 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | # | Etapa | Início | Conclusão | Duração | Observações |
 |---|---|---|---|---|---|
 | 0 | Contas e serviços | 08/10/2026 | | | Domínio pendente no Registro.br; R2 a ativar |
-| 1 | Fundação do monorepo | 08/10/2026 | 08/10/2026 | 1 dia | Pronto localmente; CI confirmado só no primeiro push |
+| 1 | Fundação do monorepo | 08/10/2026 | 08/10/2026 | 1 dia | CI verde no GitHub depois de corrigir os tipos do Worker (`--strict-vars=false`) |
 | 2 | Banco: schema, migrations e seed | | | | |
 | 3 | Pacote compartilhado | | | | |
 | 4 | Base da API | | | | |
@@ -70,3 +70,4 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 08/10/2026 | 12:10 | 6 | Projeto `sospatas` no Neon: São Paulo, PostgreSQL 18, branch `production` | relato (print do painel) |
 | 08/10/2026 | | 6 | Ferramentas locais prontas: Node 24.21, pnpm 12.10 e Docker Desktop 29 | relato |
 | 08/10/2026 | 12:25 | 7 | **Etapa 1 concluída:** monorepo (web, api, compartilhado), Postgres 18 no Docker, CI; front mostra "API no ar (local)" | doc (verificação local) |
+| 08/10/2026 | | 7 | Código publicado no GitHub (`main`) e criada a branch `develop` (testes); CI verde nas duas | Git |

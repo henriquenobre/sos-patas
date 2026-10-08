@@ -29,7 +29,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | # | Etapa | Depende de | Sugestão de data | Status |
 |---|---|---|---|---|
 | 0 | Contas e serviços (manual) | – | 08–12/10 | 🔄 |
-| 1 | Fundação do monorepo | – | 09–10/10 | ✅ 08/10 (CI a confirmar no 1º push) |
+| 1 | Fundação do monorepo | – | 09–10/10 | ✅ 08/10 |
 | 2 | Banco: schema, migrations e seed | 1 | 10–11/10 | ⬜ |
 | 3 | Pacote compartilhado (zod, limites, idade) | 1 | 11/10 | ⬜ |
 | 4 | Base da API (erros, login, armazenamento, testes) | 2, 3 | 12/10 | ⬜ |
