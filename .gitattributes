@@ -1,0 +1,6 @@
+# Quebras de linha sempre LF (padrão do Prettier e do CI), inclusive no Windows
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.pdf binary
