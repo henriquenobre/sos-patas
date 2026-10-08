@@ -73,3 +73,4 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 08/10/2026 | | 7 | Código publicado no GitHub (`main`) e criada a branch `develop` (testes); CI verde nas duas | Git |
 | 08/10/2026 | 14:50 | 7 | **Etapa 2 concluída:** schema, migrations, seed de conteúdo e de exemplo, testes de constraints; API lendo o banco pelo Hyperdrive local | doc (verificação local) |
 | 08/10/2026 | 15:20 | 7 | **Etapa 3 concluída:** schemas zod e funções de regra no `packages/compartilhado` | doc (verificação local) |
+| 08/10/2026 | | 6 | R2 ativado no Cloudflare (cartão pessoal do mantenedor); análise de risco de cobrança registrada | relato + doc (ARQUITETURA.md, 11.1) |

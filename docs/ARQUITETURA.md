@@ -178,7 +178,7 @@ sos-patas/
 
 - **Aprovar anúncio** = copiar os objetos da quarentena para o bucket público e apagar da quarentena, na mesma operação (RN19).
 - **Excluir** segue a RN05: primeiro os arquivos, depois o registro.
-- Antes do domínio próprio, o bucket público usa a URL `r2.dev` (só para desenvolvimento, tem limite de requisições).
+- **Não usar a URL pública `r2.dev`** (decidido em 08/10/2026): ela não passa pelo cache do Cloudflare, então cada acesso vira uma operação cobrável do R2. Antes do domínio próprio (ambiente de teste), as fotos são servidas pela API, que tem o limite diário do Workers gratuito como teto (seção 11.1).
 - O acesso ao R2 fica atrás da interface `Armazenamento` (`colocar`, `obter`, `copiar`, `apagarPrefixo`). Para trocar de serviço (S3, MinIO na VPS), basta outra implementação.
 
 ## 7. Tarefas agendadas (Cron Trigger do Worker)
@@ -238,19 +238,70 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 - **Cloudflare e Neon** criados com esse Gmail, com o **e-mail pessoal do mantenedor como administrador** em cada um. No Registro.br, o Gmail é o e-mail de contato do domínio.
 - **GitHub:** o código fica no repositório pessoal do mantenedor, **`henriquenobre/sos-patas`** (decidido em 08/10/2026). Se a manutenção passar para outra pessoa, transferir para uma organização gratuita da ONG criada com o Gmail (Settings → Transfer ownership). Depois da transferência: reconectar o Cloudflare Pages ao repositório, conferir os secrets do GitHub Actions, atualizar o `git remote` e o link do protótipo no README (o endereço do GitHub Pages muda e não é redirecionado).
 - **Verificação em duas etapas** por aplicativo autenticador (não SMS). Senhas e códigos de reserva entregues à ONG por escrito.
-- **Cartão:** o R2 pede um meio de pagamento cadastrado, mesmo no plano gratuito (cobrança só acima de 10 GB). É o único serviço que pede. Decidir de quem é o cartão (ver P1 no DESENVOLVIMENTO.md).
+- **Cartão:** o R2 pede um meio de pagamento cadastrado, mesmo no plano gratuito. Ativado em 08/10/2026 com o **cartão pessoal do mantenedor**. É o único serviço com cartão; riscos de cobrança e proteções na seção 11.1.
 
 ## 11. Limites gratuitos e quando pagar
 
 | Recurso | Limite grátis | Uso estimado | Se passar |
 |---|---|---|---|
-| Workers: requisições | 100 mil/dia | Poucos milhares/dia | Workers Paid: US$ 5/mês (10 milhões/mês) |
+| Workers: requisições | 100 mil/dia (zera às 21h de Brasília) e 1.000 por minuto | Poucos milhares/dia | Workers Paid: US$ 5/mês (10 milhões/mês) |
 | Workers: CPU | 10 ms/requisição | Consultas simples: ~1–3 ms | Workers Paid (30 s) |
-| Hyperdrive | 100 mil consultas/dia | Bem abaixo, com cache | Vem junto com o Workers Paid |
-| Neon | 0,5 GB | Texto: muito abaixo | Plano Launch (por uso) |
+| Hyperdrive | 100 mil consultas/dia (toda consulta conta) | Bem abaixo, com cache na API | Vem junto com o Workers Paid |
+| Neon: armazenamento | 0,5 GB | Texto: muito abaixo | Plano Launch (por uso) |
+| Neon: processamento | 100 CU-horas/mês = ~400 h/mês acordado com 0,25 CU (~13 h/dia). Dorme após 5 min sem consulta | Depende de quantas horas por dia o banco fica acordado (seção 11.2) | Plano Launch (por uso) |
 | R2 | 10 GB, tráfego grátis | ~1 GB/ano no ritmo da ONG | US$ 0,015/GB/mês |
 | Cron Triggers | 5 por conta | 1 | – |
 | Access | 50 usuários | 2 a 5 | Plano pago do Zero Trust |
+
+### 11.1 Risco de cobrança e proteções (análise de 08/10/2026)
+
+**Onde pode haver cobrança:** só no **R2**, o único serviço com cartão. Os outros param de funcionar no limite, sem cobrar:
+
+| Serviço | No limite gratuito | Cobra? |
+|---|---|---|
+| Workers, Pages Functions, Hyperdrive | As requisições acima de 100 mil/dia falham até o dia seguinte (o site fica fora do ar, sem custo) | Não, enquanto a conta ficar no **Workers Free** (nunca assinar o Workers Paid sem decidir) |
+| Pages (site estático) | Banda e acessos ilimitados | Não |
+| Neon | Sem cartão: no limite de armazenamento ou de processamento, o banco para | Não |
+| Access, Turnstile, Web Analytics, Cron | Grátis dentro dos limites; acima, não deixa criar mais | Não |
+| **R2** | Acima do gratuito, cobra por uso: US$ 0,015/GB/mês guardado, US$ 4,50 por milhão de gravações (classe A) e US$ 0,36 por milhão de leituras (classe B). Tráfego de saída sempre grátis | **Sim** |
+
+**Quanto uso a ONG gera:** o gratuito do R2 é 10 GB guardados, 1 milhão de gravações e 10 milhões de leituras **por mês**. Fotos: ~1 GB/ano (10 GB duram anos). Gravações: algumas centenas por mês. Leituras: as fotos públicas passam pelo **cache do Cloudflare** (`fotos.sospatas.org.br`), e uma foto em cache não conta como leitura do R2. Mesmo sem cache, 10 milhões de leituras são cerca de 500 mil visitas por mês vendo 20 fotos cada, centenas de vezes o movimento esperado. Se um dia passar, o valor é de centavos: 20 GB guardados custariam US$ 0,15/mês.
+
+**Um atacante consegue inflar o armazenamento ou o banco?** Não de forma relevante:
+- Só a API grava no R2 e no banco; o navegador nunca grava direto (seção 6).
+- O único envio sem login é o anúncio de perdido/encontrado: Turnstile, no máximo 2 fotos de 500 KB, 3 envios por dia por IP e **30 pendentes no total** (RN21–RN23). O pior caso é ~30 MB na quarentena, apagados em 7 dias (RN27). Nada fica público sem aprovação (RN18).
+- Cadastro de animais, textos e fotos da história exigem o login do Access.
+- O banco tem limites de caracteres em todos os campos (CHECK) e o Neon sem cartão não cobra.
+
+**Um atacante consegue gerar leituras cobráveis?** É o único caminho, e fica bloqueado assim:
+- **Produção:** as fotos saem pelo domínio próprio com cache. Regra de cache "Cache Everything" com **query string ignorada** (`?x=1`, `?x=2`… não furam o cache) e validade longa (as fotos nunca mudam de conteúdo: trocar a foto gera um arquivo novo, RN06). Mais uma **regra de limite de requisições** do WAF no subdomínio de fotos (o plano gratuito tem uma). Seriam precisos mais de 10 milhões de pedidos de arquivos diferentes que não estão em cache só para começar a cobrar US$ 0,36 por milhão, e a proteção contra DDoS (grátis) atua antes disso.
+- **Teste (antes do domínio):** sem `r2.dev`; as fotos passam pela API. O Worker gratuito para em 100 mil requisições por dia, então o máximo seria ~3 milhões de leituras por mês, abaixo dos 10 milhões gratuitos.
+
+**Proteção da própria conta (o maior risco real):** quem invade a conta do Cloudflare pode criar recursos pagos. Por isso: verificação em duas etapas em todas as contas (seção 10); o token de API do GitHub Actions só com as permissões de publicar Workers e Pages, nunca de cobrança ou de contas; as chaves S3 do R2 do backup limitadas ao bucket `sospatas-backups`; nenhum segredo no repositório.
+
+**Alerta:** **alerta de orçamento do Cloudflare em US$ 1** (Billing → Budget alerts), enviado ao Gmail do site, para saber de qualquer cobrança no primeiro dólar. O Cloudflare não tem um teto que bloqueie a cobrança do R2; o alerta e os limites acima fazem esse papel. Conferir a página de uso do R2 uma vez por mês nos primeiros meses.
+
+### 11.2 Capacidade: quantos acessos o plano gratuito aguenta (08/10/2026)
+
+**Conta usada:** uma visita típica (Início → vitrine → 2 ou 3 fichas, mudando um filtro) faz cerca de **7 chamadas à API**. O HTML, o JavaScript e as fotos não contam: vêm do Pages e do cache, sem limite.
+
+| Gargalo | Limite | Equivale a | O que acontece no limite |
+|---|---|---|---|
+| Workers (requisições da API) | 100 mil/dia | **~14 mil visitas por dia** | A API responde erro até as 21h (Brasília), quando o contador zera; as páginas abrem, mas sem animais e textos. Sem cobrança |
+| Workers (rajada) | 1.000/minuto | ~140 visitas começando no mesmo minuto (ex.: post viral) | Erro só naquele minuto |
+| Hyperdrive (consultas ao banco) | 100 mil/dia | Sem cache na API, ~1,5 consulta por chamada: **~10 mil visitas/dia**. Com cache, deixa de ser gargalo | Igual ao Workers |
+| **Neon (horas acordado)** | ~13 h/dia em média (0,25 CU) | Não depende do número de visitas, e sim de **quantas horas por dia chega alguma consulta**: uma consulta a cada menos de 5 min mantém o banco acordado | O banco é suspenso até o próximo ciclo mensal: **a API fica sem dados pelo resto do mês**. Sem cobrança |
+
+**Movimento esperado da ONG:** centenas de visitas por dia, com picos quando há post no Instagram. Folga grande nos três primeiros; o Neon é o que precisa de cuidado.
+
+**Medidas (fazem parte das etapas 4 e 5):**
+1. **Neon com compute fixo em 0,25 CU** (mínimo e máximo). Com o padrão "0,25 ↔ 2 CU", um pico faz o banco gastar as horas até 8 vezes mais rápido.
+2. **Cache das leituras públicas na própria API** (Cache API do Workers, 60 s a 5 min): numa rajada de visitas, o banco recebe uma consulta por minuto por rota, e não uma por visitante. Salvar na área da ONG limpa o cache das rotas afetadas, para manter "salvar publica na hora" (RN37).
+3. **`GET /site` com uma consulta só** (textos, itens e ONG juntos).
+4. **Páginas públicas tolerantes a falha da API:** mensagem amigável ("Não conseguimos carregar agora, tente em alguns minutos") com os botões de WhatsApp e Instagram da ONG, que ficam no próprio site.
+5. **Acompanhar o uso do Neon** (horas de processamento) uma vez por semana no primeiro mês. Se passar de ~70% no meio do mês, aumentar o tempo de cache.
+
+**Se o site crescer além disso:** Workers Paid (US$ 5/mês, inclui Hyperdrive sem limite diário) e plano pago do Neon, ou a migração para VPS (seção 12).
 
 ## 12. Migração para VPS (quando precisar)
 
