@@ -59,23 +59,28 @@ sos-patas/
 │   │       ├── components/      # CardAnimal, Pata, Chapeu, TextoSimples…
 │   │       │   └── admin/       # BarraAdmin, ListaEditavel, CampoTextoEditavel (RN33)
 │   │       ├── api/             # cliente HTTP tipado + hooks TanStack Query
-│   │       └── lib/             # fotos.ts (compressão/canvas, RN02/RN20), idade.ts (RN11/RN13)
+│   │       └── lib/             # fotos.ts (compressão/canvas, RN02/RN20)
 │   └── api/                     # API: Hono + TypeScript
 │       ├── src/
-│       │   ├── index.ts         # entrada Workers (export default app + scheduled)
+│       │   ├── app.ts           # criarApp(dependencias): rotas, erros, CORS, login
+│       │   ├── index.ts         # entrada Workers: dependências do Cloudflare (Hyperdrive, R2, Access)
 │       │   ├── node.ts          # entrada Node (@hono/node-server), para VPS no futuro
+│       │   ├── dependencias.ts  # o que a API precisa do ambiente (banco, armazenamento, verificação do JWT)
 │       │   ├── db.ts            # conexão postgres.js + Drizzle (Hyperdrive)
+│       │   ├── erros.ts · validacao.ts · cache.ts
 │       │   ├── rotas/
 │       │   │   ├── publico/     # site, animais, perdidos (GET) e envio de anúncio (POST)
 │       │   │   └── admin/       # tudo da área da ONG
 │       │   ├── servicos/        # regras de negócio: excluirAnimal (RN05), aprovarPerdido…
-│       │   ├── middleware/      # access.ts (valida JWT do Access), erros, CORS
-│       │   ├── armazenamento/   # interface Armazenamento + implementação R2 (S3 no futuro)
+│       │   ├── middleware/      # access.ts (login: JWT do Access + equipe), conexoes.ts (banco por requisição)
+│       │   ├── armazenamento/   # interface Armazenamento, R2, memória (testes), webp.ts (RN21)
+│       │   ├── testes/          # apoio aos testes: banco de teste, Access falso
 │       │   └── tarefas/         # limpezas do Cron (RN15, RN25, RN27)
 │       ├── wrangler.toml        # bindings: HYPERDRIVE, FOTOS, QUARENTENA, cron; nível de cima = produção, [env.previa]
 │       └── .dev.vars.example    # variáveis locais (copiar para .dev.vars, fora do Git)
 ├── packages/
-│   └── compartilhado/           # enums, limites e config. de textos/listas (lidos também pelo banco); schemas zod (etapa 3)
+│   └── compartilhado/           # enums, limites, config. de textos/listas (lidos também pelo banco), schemas zod,
+│                                #   idade (RN11–RN13), datas no fuso de Brasília, WhatsApp
 ├── db/                          # pacote @sospatas/db
 │   ├── schema.ts                # schema Drizzle (fonte dos tipos)
 │   ├── drizzle.config.ts        # DATABASE_URL ou, sem ela, o Postgres local
@@ -107,21 +112,24 @@ sos-patas/
 **Padrões:**
 - JSON; datas em ISO 8601; IDs `uuid`.
 - Entrada validada com os schemas zod de `packages/compartilhado` (os mesmos do formulário no front).
-- Erros: `{ "erro": "codigo_curto", "mensagem": "texto para a tela" }` com status HTTP adequado (400 validação, 401/403 acesso, 404, 409 conflito como protetor com animais, 429 limite).
+- Erros: `{ "erro": "codigo_curto", "mensagem": "texto para a tela" }` com status HTTP adequado (400 validação, 401/403 acesso, 404, 409 conflito como protetor com animais, 429 limite). Em erro de validação, também `"campos": { "nome": "Preencha este campo" }`, para o formulário mostrar a mensagem embaixo de cada campo. Erro inesperado: 500 com mensagem genérica; o detalhe só vai para o log (`apps/api/src/erros.ts`).
 - Upload: `multipart/form-data`; a API confere tamanho e **assinatura WebP** (`RIFF....WEBP`) antes de gravar (RN21). Nada de URL pré-assinada: todo arquivo passa pela API.
-- Leituras públicas com `Cache-Control: public, max-age=60` (+ cache do Hyperdrive) para aguentar picos e poupar o banco.
+- Leituras públicas com cache (`apps/api/src/cache.ts`): o navegador guarda 60 s e o Cloudflare guarda 15 min (Cache API), para aguentar picos e deixar o Neon dormir (seção 11.2). Salvar na área da ONG apaga a cópia do datacenter que atendeu a voluntária (o "Ver no site" dela já mostra a mudança); nos outros datacenters, a cópia antiga vale até 15 min. Com o domínio próprio (etapa 14), somar a limpeza global pela API de purge do Cloudflare. A Cache API só funciona no domínio próprio; no `*.workers.dev` a API consulta sempre.
 
 ### 3.1 Rotas públicas (`/api/publico`)
 
 | Método e rota | Função | Regras |
 |---|---|---|
-| `GET /site` | Dados da ONG + todos os textos e itens de conteúdo, numa chamada só | RN33 |
-| `GET /animais?especie&porte&idade&convive` | Vitrine: só `disponivel`, mais antigos primeiro, **sem** `animais_privado` | RN10, RN11 |
+| `GET /site` | Dados da ONG + todos os textos e itens de conteúdo, numa chamada e **numa consulta** ao banco | RN33 |
+| `GET /animais?especie&porte&idade&convive` | Vitrine: só `disponivel`, mais antigos primeiro, **sem** `animais_privado`. Um valor por filtro: `especie=cao\|gato`, `porte=mini…gigante`, `idade=filhote\|adulto`, `convive=sim`; vazio = desligado; valor inválido = 400 | RN10, RN11 |
 | `GET /animais/destaques` | "Esperando há mais tempo" | RN12 |
 | `GET /animais/:id` | Ficha (disponível ou adotado, sem dados privados) | RN31 |
-| `GET /perdidos?tipo` | Só anúncios `publicado` e não expirados | RN18 |
+| `GET /perdidos?tipo` | Só anúncios `publicado` e não expirados, mais recentes primeiro; `tipo=perdido\|encontrado` | RN18, RN25 |
+| `GET /fotos/*` | Foto do bucket **público** (`animais/`, `site/`, `perdidos/`), com cache de 1 ano. Usada quando não há domínio de fotos (`FOTOS_URL_BASE` vazio: computador e prévia). Nunca lê a quarentena | RN19 |
 | `POST /perdidos` | Envio público: Turnstile, limites, até 2 fotos WebP ≤ 500 KB → `pendente` + fotos na **quarentena** | RN19–RN23 |
 | `POST /interesses` | _Futuro_: formulário de interesse em adoção | RN14, RN15 |
+
+**Respostas:** tipos em `packages/compartilhado/src/api/publico.ts` (`SitePublico`, `ListaAnimais`, `AnimalFicha`, `ListaPerdidos`), usados pela API e pelo front. As fotos vêm como URL pronta. A idade é calculada no front com `textoIdade` (as datas vêm cruas). O cache usa como chave o caminho com os filtros válidos em ordem fixa: parâmetros extras não criam cópias novas nem acordam o banco.
 
 ### 3.2 Rotas da área da ONG (`/api/admin`, exigem Cloudflare Access)
 
@@ -148,7 +156,8 @@ sos-patas/
 1. Quem abre `/admin` (front) ou chama `/api/admin/*` passa antes pelo **Access**, na borda do Cloudflare.
 2. A tela de login (marca da SOS Patas: logo e cores) pede o **e-mail** e envia um **código de 6 dígitos** para ele. Opcional: botão "Entrar com Google" para quem usa Gmail.
 3. Só e-mails da **política do Access** (lista da equipe) conseguem entrar. Sessão de **30 dias** no celular: na prática, a voluntária quase nunca precisa digitar o código.
-4. O Access envia à API o cabeçalho `Cf-Access-Jwt-Assertion`. O middleware `access.ts` **valida a assinatura do JWT** (chaves públicas do time, conferência de `aud` e `exp`), pega o e-mail e confere se ele existe e está ativo na tabela `equipe` (segunda barreira).
+4. O Access envia à API o cabeçalho `Cf-Access-Jwt-Assertion`. O middleware `access.ts` **valida a assinatura do JWT** (biblioteca `jose`, chaves públicas do time em `ACCESS_TEAM_DOMAIN/cdn-cgi/access/certs`, conferência de emissor, `aud` e validade), pega o e-mail e confere se ele existe e está ativo na tabela `equipe` (segunda barreira). Sem token ou token inválido: 401; e-mail fora da equipe ou desativado: 403.
+   - **Modo local:** com `AMBIENTE=local` e `ACESSO_LOCAL_EMAIL` no `.dev.vars`, a API trata a requisição como vinda desse e-mail, sem Access (no computador, `teste@sospatas.local`, do `seed_dev.sql`). Em qualquer outro ambiente, ter `ACESSO_LOCAL_EMAIL` configurado faz a API recusar a requisição (500), para nunca liberar a área da ONG sem login.
 5. "Sair" chama `/cdn-cgi/access/logout`.
 
 **Gestão de contas:** incluir ou remover alguém = adicionar ou tirar o e-mail na política do Access **e** na tabela `equipe` (feito por quem mantém o site, como antes). Todas com as mesmas permissões.
@@ -177,7 +186,8 @@ sos-patas/
 
 - **Aprovar anúncio** = copiar os objetos da quarentena para o bucket público e apagar da quarentena, na mesma operação (RN19).
 - **Excluir** segue a RN05: primeiro os arquivos, depois o registro.
-- Antes do domínio próprio, o bucket público usa a URL `r2.dev` (só para desenvolvimento, tem limite de requisições).
+- **URL das fotos:** a API devolve a URL pronta. Com `FOTOS_URL_BASE` (produção: `https://fotos.sospatas.org.br`), aponta para o domínio de fotos; vazio (computador e prévia), para `/api/publico/fotos/{path}`. As fotos da história guardam só o caminho da completa (`site/historia/{id}.webp`); a miniatura fica ao lado, `{id}-thumb.webp`.
+- **Não usar a URL pública `r2.dev`** (decidido em 08/10/2026): ela não passa pelo cache do Cloudflare, então cada acesso vira uma operação cobrável do R2. Antes do domínio próprio (ambiente de teste), as fotos são servidas pela API, que tem o limite diário do Workers gratuito como teto (seção 11.1).
 - O acesso ao R2 fica atrás da interface `Armazenamento` (`colocar`, `obter`, `copiar`, `apagarPrefixo`). Para trocar de serviço (S3, MinIO na VPS), basta outra implementação.
 
 ## 7. Tarefas agendadas (Cron Trigger do Worker)
@@ -224,7 +234,7 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 | String de conexão do Neon | Hyperdrive (configuração) e GitHub (migrations, backup) |
 | `TURNSTILE_SECRET` | API |
 | `IP_HASH_SECRET` (RN23) | API |
-| `ACCESS_TEAM_DOMAIN` e `ACCESS_AUD` | API (validação do JWT) |
+| `ACCESS_TEAM_DOMAIN` e `ACCESS_AUD` | Não são segredo: ficam em `[vars]` do `wrangler.toml`, por ambiente (o `aud` muda entre prévia e produção) |
 | Chaves S3 do R2 (só para o backup) | GitHub |
 | `CLOUDFLARE_API_TOKEN` (deploy) | GitHub |
 
@@ -237,19 +247,70 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 - **Cloudflare e Neon** criados com esse Gmail, com o **e-mail pessoal do mantenedor como administrador** em cada um. No Registro.br, o Gmail é o e-mail de contato do domínio.
 - **GitHub:** o código fica no repositório pessoal do mantenedor, **`henriquenobre/sos-patas`** (decidido em 08/10/2026). Se a manutenção passar para outra pessoa, transferir para uma organização gratuita da ONG criada com o Gmail (Settings → Transfer ownership). Depois da transferência: reconectar o Cloudflare Pages ao repositório, conferir os secrets do GitHub Actions, atualizar o `git remote` e o link do protótipo no README (o endereço do GitHub Pages muda e não é redirecionado).
 - **Verificação em duas etapas** por aplicativo autenticador (não SMS). Senhas e códigos de reserva entregues à ONG por escrito.
-- **Cartão:** o R2 pede um meio de pagamento cadastrado, mesmo no plano gratuito (cobrança só acima de 10 GB). É o único serviço que pede. Decidir de quem é o cartão (ver P1 no DESENVOLVIMENTO.md).
+- **Cartão:** o R2 pede um meio de pagamento cadastrado, mesmo no plano gratuito. Ativado em 08/10/2026 com o **cartão pessoal do mantenedor**. É o único serviço com cartão; riscos de cobrança e proteções na seção 11.1.
 
 ## 11. Limites gratuitos e quando pagar
 
 | Recurso | Limite grátis | Uso estimado | Se passar |
 |---|---|---|---|
-| Workers: requisições | 100 mil/dia | Poucos milhares/dia | Workers Paid: US$ 5/mês (10 milhões/mês) |
+| Workers: requisições | 100 mil/dia (zera às 21h de Brasília) e 1.000 por minuto | Poucos milhares/dia | Workers Paid: US$ 5/mês (10 milhões/mês) |
 | Workers: CPU | 10 ms/requisição | Consultas simples: ~1–3 ms | Workers Paid (30 s) |
-| Hyperdrive | 100 mil consultas/dia | Bem abaixo, com cache | Vem junto com o Workers Paid |
-| Neon | 0,5 GB | Texto: muito abaixo | Plano Launch (por uso) |
+| Hyperdrive | 100 mil consultas/dia (toda consulta conta) | Bem abaixo, com cache na API | Vem junto com o Workers Paid |
+| Neon: armazenamento | 0,5 GB | Texto: muito abaixo | Plano Launch (por uso) |
+| Neon: processamento | 100 CU-horas/mês = ~400 h/mês acordado com 0,25 CU (~13 h/dia). Dorme após 5 min sem consulta | Depende de quantas horas por dia o banco fica acordado (seção 11.2) | Plano Launch (por uso) |
 | R2 | 10 GB, tráfego grátis | ~1 GB/ano no ritmo da ONG | US$ 0,015/GB/mês |
 | Cron Triggers | 5 por conta | 1 | – |
 | Access | 50 usuários | 2 a 5 | Plano pago do Zero Trust |
+
+### 11.1 Risco de cobrança e proteções (análise de 08/10/2026)
+
+**Onde pode haver cobrança:** só no **R2**, o único serviço com cartão. Os outros param de funcionar no limite, sem cobrar:
+
+| Serviço | No limite gratuito | Cobra? |
+|---|---|---|
+| Workers, Pages Functions, Hyperdrive | As requisições acima de 100 mil/dia falham até o dia seguinte (o site fica fora do ar, sem custo) | Não, enquanto a conta ficar no **Workers Free** (nunca assinar o Workers Paid sem decidir) |
+| Pages (site estático) | Banda e acessos ilimitados | Não |
+| Neon | Sem cartão: no limite de armazenamento ou de processamento, o banco para | Não |
+| Access, Turnstile, Web Analytics, Cron | Grátis dentro dos limites; acima, não deixa criar mais | Não |
+| **R2** | Acima do gratuito, cobra por uso: US$ 0,015/GB/mês guardado, US$ 4,50 por milhão de gravações (classe A) e US$ 0,36 por milhão de leituras (classe B). Tráfego de saída sempre grátis | **Sim** |
+
+**Quanto uso a ONG gera:** o gratuito do R2 é 10 GB guardados, 1 milhão de gravações e 10 milhões de leituras **por mês**. Fotos: ~1 GB/ano (10 GB duram anos). Gravações: algumas centenas por mês. Leituras: as fotos públicas passam pelo **cache do Cloudflare** (`fotos.sospatas.org.br`), e uma foto em cache não conta como leitura do R2. Mesmo sem cache, 10 milhões de leituras são cerca de 500 mil visitas por mês vendo 20 fotos cada, centenas de vezes o movimento esperado. Se um dia passar, o valor é de centavos: 20 GB guardados custariam US$ 0,15/mês.
+
+**Um atacante consegue inflar o armazenamento ou o banco?** Não de forma relevante:
+- Só a API grava no R2 e no banco; o navegador nunca grava direto (seção 6).
+- O único envio sem login é o anúncio de perdido/encontrado: Turnstile, no máximo 2 fotos de 500 KB, 3 envios por dia por IP e **30 pendentes no total** (RN21–RN23). O pior caso é ~30 MB na quarentena, apagados em 7 dias (RN27). Nada fica público sem aprovação (RN18).
+- Cadastro de animais, textos e fotos da história exigem o login do Access.
+- O banco tem limites de caracteres em todos os campos (CHECK) e o Neon sem cartão não cobra.
+
+**Um atacante consegue gerar leituras cobráveis?** É o único caminho, e fica bloqueado assim:
+- **Produção:** as fotos saem pelo domínio próprio com cache. Regra de cache "Cache Everything" com **query string ignorada** (`?x=1`, `?x=2`… não furam o cache) e validade longa (as fotos nunca mudam de conteúdo: trocar a foto gera um arquivo novo, RN06). Mais uma **regra de limite de requisições** do WAF no subdomínio de fotos (o plano gratuito tem uma). Seriam precisos mais de 10 milhões de pedidos de arquivos diferentes que não estão em cache só para começar a cobrar US$ 0,36 por milhão, e a proteção contra DDoS (grátis) atua antes disso.
+- **Teste (antes do domínio):** sem `r2.dev`; as fotos passam pela API. O Worker gratuito para em 100 mil requisições por dia, então o máximo seria ~3 milhões de leituras por mês, abaixo dos 10 milhões gratuitos.
+
+**Proteção da própria conta (o maior risco real):** quem invade a conta do Cloudflare pode criar recursos pagos. Por isso: verificação em duas etapas em todas as contas (seção 10); o token de API do GitHub Actions só com as permissões de publicar Workers e Pages, nunca de cobrança ou de contas; as chaves S3 do R2 do backup limitadas ao bucket `sospatas-backups`; nenhum segredo no repositório.
+
+**Alerta:** **alerta de orçamento do Cloudflare em US$ 1** (Billing → Budget alerts), enviado ao Gmail do site, para saber de qualquer cobrança no primeiro dólar. O Cloudflare não tem um teto que bloqueie a cobrança do R2; o alerta e os limites acima fazem esse papel. Conferir a página de uso do R2 uma vez por mês nos primeiros meses.
+
+### 11.2 Capacidade: quantos acessos o plano gratuito aguenta (08/10/2026)
+
+**Conta usada:** uma visita típica (Início → vitrine → 2 ou 3 fichas, mudando um filtro) faz cerca de **7 chamadas à API**. O HTML, o JavaScript e as fotos não contam: vêm do Pages e do cache, sem limite.
+
+| Gargalo | Limite | Equivale a | O que acontece no limite |
+|---|---|---|---|
+| Workers (requisições da API) | 100 mil/dia | **~14 mil visitas por dia** | A API responde erro até as 21h (Brasília), quando o contador zera; as páginas abrem, mas sem animais e textos. Sem cobrança |
+| Workers (rajada) | 1.000/minuto | ~140 visitas começando no mesmo minuto (ex.: post viral) | Erro só naquele minuto |
+| Hyperdrive (consultas ao banco) | 100 mil/dia | Sem cache na API, ~1,5 consulta por chamada: **~10 mil visitas/dia**. Com cache, deixa de ser gargalo | Igual ao Workers |
+| **Neon (horas acordado)** | ~13 h/dia em média (0,25 CU) | Não depende do número de visitas, e sim de **quantas horas por dia chega alguma consulta**: uma consulta a cada menos de 5 min mantém o banco acordado | O banco é suspenso até o próximo ciclo mensal: **a API fica sem dados pelo resto do mês**. Sem cobrança |
+
+**Movimento esperado da ONG:** centenas de visitas por dia, com picos quando há post no Instagram. Folga grande nos três primeiros; o Neon é o que precisa de cuidado.
+
+**Medidas (fazem parte das etapas 4 e 5):**
+1. **Neon com compute fixo em 0,25 CU** (mínimo e máximo). Com o padrão "0,25 ↔ 2 CU", um pico faz o banco gastar as horas até 8 vezes mais rápido.
+2. **Cache das leituras públicas na própria API** (Cache API do Workers, 60 s a 5 min): numa rajada de visitas, o banco recebe uma consulta por minuto por rota, e não uma por visitante. Salvar na área da ONG limpa o cache das rotas afetadas, para manter "salvar publica na hora" (RN37).
+3. **`GET /site` com uma consulta só** (textos, itens e ONG juntos).
+4. **Páginas públicas tolerantes a falha da API:** mensagem amigável ("Não conseguimos carregar agora, tente em alguns minutos") com os botões de WhatsApp e Instagram da ONG, que ficam no próprio site.
+5. **Acompanhar o uso do Neon** (horas de processamento) uma vez por semana no primeiro mês. Se passar de ~70% no meio do mês, aumentar o tempo de cache.
+
+**Se o site crescer além disso:** Workers Paid (US$ 5/mês, inclui Hyperdrive sem limite diário) e plano pago do Neon, ou a migração para VPS (seção 12).
 
 ## 12. Migração para VPS (quando precisar)
 

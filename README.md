@@ -52,6 +52,10 @@ pnpm dev                                       # site em http://localhost:5173 e
 
 A página inicial mostra "API no ar (local)" quando front e API estão conversando. Sem o `.dev.vars`, a API roda como se fosse produção.
 
+**Área da ONG no computador:** sem Cloudflare Access, a API trata as chamadas de `/api/admin` como vindas de `teste@sospatas.local` (modo local do `.dev.vars`, usuária criada pelo `pnpm db:seed`). Para testar: `http://localhost:8787/api/admin/eu`.
+
+**Variável nova na API:** acrescentar em `apps/api/.dev.vars.example` (os tipos do `env` são gerados dele) e no `.dev.vars`.
+
 | Comando | O que faz |
 |---|---|
 | `pnpm dev` | Front (Vite) e API (`wrangler dev`) juntos; o Vite repassa `/api` para a API |

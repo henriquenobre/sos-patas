@@ -16,7 +16,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 
 **O que a IA faz em toda etapa:**
 1. Lê a etapa inteira e as seções citadas (RN, telas, ARQUITETURA) antes de escrever código.
-2. Trabalha numa branch `etapa-NN-nome-curto` criada a partir da `develop`, e a etapa termina com merge na `develop`. A `main` é produção e só recebe a `develop` testada (ARQUITETURA.md, seção 9).
+2. Trabalha numa branch local `etapa-NN-nome-curto` criada a partir da `develop` e deixa as alterações prontas para revisão. **Commit, merge e push só quando o mantenedor pedir** (RP05 no [CLAUDE.md](../CLAUDE.md)); quem leva o trabalho para a `develop` e a `main` é ele. A `main` é produção e só recebe a `develop` testada (ARQUITETURA.md, seção 9).
 3. Entrega só o que está em "Entregas". O que aparece em "Fora desta etapa" fica para depois, mesmo que pareça rápido.
 4. Termina com `pnpm lint`, `pnpm typecheck` e `pnpm test` passando (a partir da etapa 1).
 5. Confere a tabela da RP01 ([CLAUDE.md](../CLAUDE.md)): se o código divergiu da documentação, atualiza os dois lados e registra a decisão.
@@ -31,9 +31,9 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 0 | Contas e serviços (manual) | – | 08–12/10 | 🔄 |
 | 1 | Fundação do monorepo | – | 09–10/10 | ✅ 08/10 |
 | 2 | Banco: schema, migrations e seed | 1 | 10–11/10 | ✅ 08/10 |
-| 3 | Pacote compartilhado (zod, limites, idade) | 1 | 11/10 | ⬜ |
-| 4 | Base da API (erros, login, armazenamento, testes) | 2, 3 | 12/10 | ⬜ |
-| 5 | API pública de leitura | 4 | 13/10 | ⬜ |
+| 3 | Pacote compartilhado (zod, limites, idade) | 1 | 11/10 | ✅ 08/10 |
+| 4 | Base da API (erros, login, armazenamento, testes) | 2, 3 | 12/10 | ✅ 08/10 |
+| 5 | API pública de leitura | 4 | 13/10 | ✅ 08/10 |
 | 6 | Site público: layout e páginas de conteúdo | 5 | 13–14/10 | ⬜ |
 | 7 | Site público: vitrine e ficha do animal | 6 | 15/10 | ⬜ |
 | 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ⬜ |
@@ -65,9 +65,11 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 - [ ] **Cloudflare:** conta criada com `sitesospatas@gmail.com` (08/10/2026)
   - [x] verificação em duas etapas e seu e-mail pessoal como membro administrador (Manage account → Members)
   - [x] Zero Trust ativado no plano gratuito, com o nome do time `sospatas`
-  - [ ] R2 ativado (pede cartão: decidir de quem, P1); os buckets só são criados nas etapas 8 e 14. **Prazo: antes da etapa 8**
+  - [x] R2 ativado com o cartão pessoal do mantenedor (08/10/2026); os buckets só são criados nas etapas 8 e 14
+  - [ ] Alerta de orçamento em US$ 1 (Billing → Budget alerts) para o Gmail do site (ARQUITETURA.md, seção 11.1)
   - [ ] adicionar `sospatas.org.br` só depois que o Registro.br concluir o registro
 - [x] **Neon:** projeto `sospatas` em São Paulo, PostgreSQL 18, branch padrão `production` (08/10/2026). Falta: convidar seu e-mail pessoal; a branch `previa` fica para a etapa 8
+  - [ ] Compute da branch `production` fixo em **0,25 CU** (mínimo e máximo), para não gastar as 100 CU-horas do mês num pico (ARQUITETURA.md, seção 11.2)
 - [ ] Lista de e-mails da equipe (Gracia, Claudia e quem mais a ONG indicar, TELAS.md pergunta 13)
 - [x] Ferramentas locais (08/10/2026): Node 24.21 (pelo nvm-windows), pnpm 12.10 (pelo Corepack) e Docker Desktop 29. O Wrangler entra como dependência do projeto na etapa 1; depois dela, `pnpm wrangler login` com o seu e-mail pessoal
 
@@ -135,6 +137,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 - Utilitário que confere a assinatura WebP (`RIFF....WEBP`) e o tamanho (RN21)
 - CORS só para a origem do Pages (antes do domínio próprio)
 - Infraestrutura de testes: banco `sospatas_teste` recriado por migration, rotas testadas com `app.request()`
+- Cache das leituras públicas (Cache API do Workers) com limpeza ao salvar, para poupar o Neon (ARQUITETURA.md, seção 11.2)
 
 **Pronto quando:** testes cobrem JWT válido, expirado, `aud` errado, e-mail fora da `equipe` e usuária inativa.
 
@@ -180,7 +183,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 **Objetivo:** ver o site público rodando de verdade antes de construir a área da ONG.
 
 **Entregas:**
-- Hyperdrive apontando para a branch `previa` do Neon; migrations e seed aplicados nela. Os dados de exemplo (`seed_dev.sql`) hoje só rodam no banco local: liberar a prévia com uma opção explícita, sem nunca permitir a produção
+- Banco de teste num **projeto separado do Neon** (`sospatas-previa`), e não numa branch do projeto de produção: as 100 CU-horas do plano gratuito são por projeto (ARQUITETURA.md, seção 11.2). Hyperdrive apontando para ele; migrations e seed aplicados nele. Os dados de exemplo (`seed_dev.sql`) hoje só rodam no banco local: liberar a prévia com uma opção explícita, sem nunca permitir a produção
 - Buckets `sospatas-fotos-previa` e `sospatas-quarentena-previa`
 - Worker `--env previa` publicado (`*.workers.dev`) e Pages ligado ao GitHub (`*.pages.dev`), com `VITE_API_URL` da prévia
 - Segredos da prévia com `wrangler secret`

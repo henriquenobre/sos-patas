@@ -1,3 +1,13 @@
 # Copie para .dev.vars (fora do Git). Valores só para o computador local.
-# Segredos de prévia e produção vão por `wrangler secret put` (ARQUITETURA.md, seção 9).
+# Segredos de prévia e produção vão por `wrangler secret put` (docs/ARQUITETURA.md, seção 9).
+# Este arquivo também define os tipos do `env` (pnpm -C apps/api tipos): toda variável
+# nova da API entra aqui, com um valor de exemplo.
 AMBIENTE=local
+
+# Modo local do login: a API trata toda chamada da área da ONG como vinda deste e-mail,
+# sem Cloudflare Access. Só funciona com AMBIENTE=local; em qualquer outro ambiente a
+# API recusa a requisição. O e-mail precisa existir na tabela equipe (seed_dev.sql).
+ACESSO_LOCAL_EMAIL=teste@sospatas.local
+
+# Fotos servidas pela própria API (/api/publico/fotos/*), lendo do R2 simulado
+FOTOS_URL_BASE=

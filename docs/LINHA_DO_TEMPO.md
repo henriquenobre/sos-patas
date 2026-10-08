@@ -31,9 +31,9 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | 0 | Contas e serviços | 08/10/2026 | | | Domínio pendente no Registro.br; R2 a ativar |
 | 1 | Fundação do monorepo | 08/10/2026 | 08/10/2026 | 1 dia | CI verde no GitHub depois de corrigir os tipos do Worker (`--strict-vars=false`) |
 | 2 | Banco: schema, migrations e seed | 08/10/2026 | 08/10/2026 | 1 dia | 10 tabelas, 2 migrations, seed e 25 testes de banco |
-| 3 | Pacote compartilhado | | | | |
-| 4 | Base da API | | | | |
-| 5 | API pública de leitura | | | | |
+| 3 | Pacote compartilhado | 08/10/2026 | 08/10/2026 | 1 dia | Schemas zod, funções de idade, datas e WhatsApp; 61 testes |
+| 4 | Base da API | 08/10/2026 | 08/10/2026 | 1 dia | Erros, validação, login (Access + modo local), armazenamento, cache; 35 testes da API |
+| 5 | API pública de leitura | 08/10/2026 | 08/10/2026 | 1 dia | 6 rotas com cache; 33 testes novos, inclusive de vazamento de dados internos |
 | 6 | Site público: layout e páginas de conteúdo | | | | |
 | 7 | Site público: vitrine e ficha do animal | | | | |
 | 8 | Deploy de prévia no Cloudflare | | | | |
@@ -72,3 +72,7 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 08/10/2026 | 12:25 | 7 | **Etapa 1 concluída:** monorepo (web, api, compartilhado), Postgres 18 no Docker, CI; front mostra "API no ar (local)" | doc (verificação local) |
 | 08/10/2026 | | 7 | Código publicado no GitHub (`main`) e criada a branch `develop` (testes); CI verde nas duas | Git |
 | 08/10/2026 | 14:50 | 7 | **Etapa 2 concluída:** schema, migrations, seed de conteúdo e de exemplo, testes de constraints; API lendo o banco pelo Hyperdrive local | doc (verificação local) |
+| 08/10/2026 | 15:20 | 7 | **Etapa 3 concluída:** schemas zod e funções de regra no `packages/compartilhado` | doc (verificação local) |
+| 08/10/2026 | | 6 | R2 ativado no Cloudflare (cartão pessoal do mantenedor); análise de risco de cobrança registrada | relato + doc (ARQUITETURA.md, 11.1) |
+| 08/10/2026 | 16:00 | 7 | **Etapa 4 concluída:** base da API, conferida também no `wrangler dev` (login local e R2 simulado) | doc (verificação local) |
+| 08/10/2026 | 16:35 | 7 | **Etapa 5 concluída:** API pública de leitura, conferida no `wrangler dev` com o seed | doc (verificação local) |

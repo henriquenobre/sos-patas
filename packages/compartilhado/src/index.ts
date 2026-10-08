@@ -1,9 +1,14 @@
 // Código compartilhado entre o front (apps/web), a API (apps/api) e o banco (db/).
-// Os schemas zod e as regras de idade entram na etapa 3 do docs/PLANO_DESENVOLVIMENTO.md.
 
 export * from './dominio'
 export * from './limites'
 export * from './conteudo'
+export * from './datas'
+export * from './idade'
+export * from './whatsapp'
+export * from './texto'
+export * from './schemas'
+export type * from './api/publico'
 
 /** Resposta de GET /api/saude: confirma que a API está no ar. */
 export type RespostaSaude = {

@@ -70,3 +70,11 @@ Toda fase do projeto ou etapa do [PLANO_DESENVOLVIMENTO.md](docs/PLANO_DESENVOLV
 **Por quê:** o estudante precisa saber quanto tempo levou cada parte (contato com a ONG, protótipo, ambiente, desenvolvimento) para o relatório do projeto e para planejar trabalhos futuros.
 
 **Como aplicar:** ao concluir uma etapa, além de marcar ✅ no painel do plano, preencher a linha da etapa e o Diário. Usar a data do dia em que a etapa ficou pronta (não a do commit seguinte). Se uma data não for conhecida com certeza, escrever "_(a confirmar)_" e perguntar a quem pediu, em vez de estimar em silêncio. Marcos fora do código (resposta da ONG, domínio aprovado, reunião) também entram no Diário.
+
+## RP05 – Git só quando o mantenedor pedir
+
+A IA **não faz commit, merge nem push** por conta própria, em nenhuma branch, e **nunca leva nada para a `develop` ou a `main`**. Pode criar uma branch local de trabalho e deixar as alterações prontas; ao terminar, avisa o que mudou e espera o pedido. Quem decide quando e como as alterações sobem para o Git e o GitHub é o mantenedor.
+
+**Por quê:** o mantenedor quer revisar cada alteração e controlar o que entra na `develop` (testes) e na `main` (produção).
+
+**Como aplicar:** só rodar `git commit`, `git merge`, `git push` ou abrir PR quando o pedido for explícito na conversa, e só para o que foi pedido (um pedido de commit não autoriza push). Autorização dada numa tarefa não vale para a seguinte.
