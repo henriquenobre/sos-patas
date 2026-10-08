@@ -10,15 +10,17 @@
 | Arquivo | Papel |
 |---|---|
 | [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md) | Fonte de verdade técnica: escopo, modelo de dados, regras de negócio (RN), registro de decisões |
+| [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md) | Ordem de construção do site em etapas (0 a 15), com o que conta como pronto e o painel de status |
+| [ARQUITETURA.md](ARQUITETURA.md) | Como o site é construído e hospedado: Cloudflare Pages + Workers (Hono) + Neon + R2 + Access, API, deploy, backup e migração para VPS |
 | [prototipo/TELAS.md](prototipo/TELAS.md) | Especificação de cada tela (T01…), componentes, identidade visual, perguntas para a ONG |
 | [prototipo/index.html](prototipo/index.html) | Protótipo navegável; dados de exemplo e textos iniciais (seed) |
 | [prototipo/gerar_prints.py](prototipo/gerar_prints.py) | Gera os prints de [prototipo/telas/](prototipo/telas/) |
 | [PROJETO.md](PROJETO.md) | Projeto acadêmico: entrevistas e respostas da ONG, roteiro, formulários (fora do Git) |
 | [formulario/](formulario/) | Formulário de interesse em adoção e termo de adoção |
 | `fotos/` | Fotos originais recebidas da ONG (fora do Git) |
-| `site/`, `supabase/` | Código do site e migrations, quando o desenvolvimento começar |
+| `apps/web`, `apps/api`, `packages/compartilhado`, `db/` | Código do site (front, API, código compartilhado, schema e migrations), quando o desenvolvimento começar |
 
-Em caso de conflito: **DESENVOLVIMENTO.md > TELAS.md > protótipo**.
+Em caso de conflito: **DESENVOLVIMENTO.md e ARQUITETURA.md > TELAS.md > protótipo**.
 
 ## RP01 – Toda alteração vai para o protótipo, o projeto e a documentação
 
@@ -27,13 +29,15 @@ Nenhuma mudança fica só em um lugar. Ao alterar uma regra, uma tela, um texto 
 | Se mudou… | Atualizar |
 |---|---|
 | Regra de negócio, dado, rota ou escopo | `DESENVOLVIMENTO.md` (seção correspondente **e** uma linha no Registro de decisões, com data e motivo) |
+| Infraestrutura, rota da API, serviço, segredo, deploy ou backup | `ARQUITETURA.md` (e decisão registrada no `DESENVOLVIMENTO.md`) |
 | Tela, componente, texto ou visual | `prototipo/index.html` **e** `prototipo/TELAS.md` (descrição da tela; status ✏️ se precisar revalidar) |
 | Tela nova ou removida | Também o menu "☰ Telas do protótipo", as rotas do `render()` e a lista `TELAS` do `gerar_prints.py` |
 | Qualquer coisa visível no protótipo | Rodar `python prototipo/gerar_prints.py` para atualizar os prints |
 | Informação vinda da ONG | `PROJETO.md` (registrar a resposta como recebida, sem reescrever) e responder/riscar a pergunta em `TELAS.md` → "Perguntas para a validação" |
-| Textos e conteúdos iniciais do site | Seed no protótipo agora; `supabase/migrations/seed_conteudo.sql` quando existir |
-| Estrutura de pastas ou arquivos | Tabela acima e `README.md` |
-| Código do site (`site/`) | O protótipo e a documentação continuam valendo como especificação: se o código divergir, atualizar os dois lados |
+| Textos e conteúdos iniciais do site | Seed no protótipo agora; `db/seed/seed_conteudo.sql` quando existir |
+| Estrutura de pastas ou arquivos | Tabela acima, `ARQUITETURA.md` (seção 2) e `README.md` |
+| Banco de dados | Migration nova em `db/migrations/` (nunca alterar produção à mão) + modelo de dados no `DESENVOLVIMENTO.md` |
+| Código do site (`apps/`, `packages/`, `db/`) | O protótipo e a documentação continuam valendo como especificação: se o código divergir, atualizar os dois lados |
 
 **Por quê:** o site será desenvolvido com apoio de IA a partir da documentação (premissa P5) e mantido depois da entrega por voluntárias sem conhecimento técnico. Documento desatualizado vira código errado.
 
@@ -47,6 +51,6 @@ Textos públicos (história, números, nomes, parceiros, contatos) só com infor
 
 ## RP03 – Fotos: original fora do Git, versão otimizada no projeto
 
-Originais ficam em `fotos/` (no `.gitignore`). No projeto entram só versões reduzidas (até 1200 px, sem metadados/GPS) em `prototipo/assets/` e, no site, `site/public/` ou no Storage. Fotos com **pessoas identificáveis** só são publicadas com autorização da ONG; crianças e adolescentes, só com autorização dos responsáveis (RN38).
+Originais ficam em `fotos/` (no `.gitignore`). No projeto entram só versões reduzidas (até 1200 px, sem metadados/GPS) em `prototipo/assets/` e, no site, `apps/web/public/` ou no R2. Fotos com **pessoas identificáveis** só são publicadas com autorização da ONG; crianças e adolescentes, só com autorização dos responsáveis (RN38).
 
 **Por quê:** fotos originais pesam e podem conter localização; LGPD e ECA protegem a imagem das pessoas.

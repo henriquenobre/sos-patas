@@ -189,7 +189,7 @@ Na tela de análise, o sistema destaca em amarelo as respostas que merecem conve
 Os compromissos do formulário repetem, de forma resumida, as cláusulas do termo. Assim a pessoa já sabe o que vai assinar e evita desistência na hora da entrega.
 
 ### Dados e LGPD
-- Envio pela mesma estrutura segura dos perdidos (RN21–RN23): Edge Function, Turnstile e limite por IP.
+- Envio pela mesma estrutura segura dos perdidos (RN21–RN23): validação na API (`POST /api/publico/interesses`), Turnstile e limite por IP.
 - Tabela `pedidos_adocao` (somente `authenticated`), com status `novo` → `em_analise` → `aprovado` / `recusado`.
 - Pedidos recusados ou sem resposta são apagados em até 90 dias. Se aprovado, os dados seguem para o termo e para `animais_privado` (adotante).
 - O endereço completo **não** é pedido aqui, só no termo.

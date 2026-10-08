@@ -1,0 +1,283 @@
+# Plano de desenvolvimento: Site SOS Patas
+
+> Ordem de construção do site, dividida em etapas pequenas para executar **uma por vez** (um pedido por etapa).
+> **O quê** construir está no [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md) (escopo, modelo de dados, RN) e no [prototipo/TELAS.md](prototipo/TELAS.md); **como** e **onde**, no [ARQUITETURA.md](ARQUITETURA.md). Este arquivo só define a **ordem** e o que conta como pronto em cada etapa.
+> Prazo: site no ar até **30/10/2026**; trabalho entregue em 11/11/2026 (premissa P4).
+
+---
+
+## Como usar
+
+**Para pedir uma etapa:**
+
+```
+Execute a etapa N do PLANO_DESENVOLVIMENTO.md
+```
+
+**O que a IA faz em toda etapa:**
+1. Lê a etapa inteira e as seções citadas (RN, telas, ARQUITETURA) antes de escrever código.
+2. Trabalha numa branch `etapa-NN-nome-curto`.
+3. Entrega só o que está em "Entregas". O que aparece em "Fora desta etapa" fica para depois, mesmo que pareça rápido.
+4. Termina com `pnpm lint`, `pnpm typecheck` e `pnpm test` passando (a partir da etapa 1).
+5. Confere a tabela da RP01 ([CLAUDE.md](CLAUDE.md)): se o código divergiu da documentação, atualiza os dois lados e registra a decisão.
+6. Atualiza o **Painel** abaixo (status e data) e resume o que ficou pendente.
+
+**Ordem escolhida e por quê:** fundação → banco → regras compartilhadas → API → telas, em **fatias verticais** (cada parte do site fica pronta de ponta a ponta antes da próxima). O site público vem antes da área da ONG porque só lê dados, o que valida banco, API e visual com pouco risco. Um **deploy de prévia** entra no meio (etapa 8) para descobrir cedo problemas reais do Cloudflare (Hyperdrive, limite de 10 ms de CPU, R2), e não na véspera da entrega.
+
+## Painel
+
+| # | Etapa | Depende de | Sugestão de data | Status |
+|---|---|---|---|---|
+| 0 | Contas e serviços (manual) | – | 08–12/10 | ⬜ |
+| 1 | Fundação do monorepo | – | 09–10/10 | ⬜ |
+| 2 | Banco: schema, migrations e seed | 1 | 10–11/10 | ⬜ |
+| 3 | Pacote compartilhado (zod, limites, idade) | 1 | 11/10 | ⬜ |
+| 4 | Base da API (erros, login, armazenamento, testes) | 2, 3 | 12/10 | ⬜ |
+| 5 | API pública de leitura | 4 | 13/10 | ⬜ |
+| 6 | Site público: layout e páginas de conteúdo | 5 | 13–14/10 | ⬜ |
+| 7 | Site público: vitrine e ficha do animal | 6 | 15/10 | ⬜ |
+| 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ⬜ |
+| 9 | API da ONG: animais, fotos, adoção, protetores | 4 | 16–17/10 | ⬜ |
+| 10 | Área da ONG: estrutura e animais (T09–T11) | 9 | 17–19/10 | ⬜ |
+| 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 19–21/10 | ⬜ |
+| 12 | Editor de textos (T15–T20) | 10 | 21–23/10 | ⬜ |
+| 13 | Mais: dados da ONG, anúncio pela equipe, protetores, "Alterado por" | 11, 12 | 23–24/10 | ⬜ |
+| 14 | Produção: domínio, Access, CI/CD, backup e segurança | 8, 13 | 24–27/10 | ⬜ |
+| 15 | Dados reais, teste com a ONG e ajustes finais | 14 | 27–30/10 | ⬜ |
+
+Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada (anotar o motivo).
+
+**Se o prazo apertar** (DESENVOLVIMENTO.md, seção 4, "Prioridade"): as etapas 0 a 12, 14 e 15 são obrigatórias. Da etapa 13, Dados da ONG (T23) e anúncio pela equipe (T21) vêm primeiro; protetores (T24), "Alterado por" (RN43) e filtro por responsável podem ficar para depois da entrega.
+
+---
+
+## Etapa 0 · Contas e serviços (manual)
+
+**Feita por você, fora do código.** Comece já: o domínio `.org.br` depende de documentos da ONG e pode levar dias.
+
+- [ ] E-mail da ONG para as contas (ex.: Gmail da SOS Patas), com você como administrador (ARQUITETURA.md, seção 10)
+- [ ] **Registro.br:** pedir `sospatas.org.br` no CNPJ da ONG (CNPJ + estatuto)
+- [ ] **GitHub:** repositório do site (pode ser este) na conta/organização da ONG ou com a ONG como dona
+- [ ] **Cloudflare:** conta criada; R2 ativado (pede cartão: decidir de quem, P1); Zero Trust ativado (nome do time, ex.: `sospatas`)
+- [ ] **Neon:** projeto `sospatas`, região São Paulo se houver; branches `main` e `previa`
+- [ ] Lista de e-mails da equipe (Gracia, Claudia e quem mais a ONG indicar, TELAS.md pergunta 13)
+- [ ] Ferramentas locais: Node 22 LTS, pnpm, Docker Desktop, Wrangler (`pnpm dlx wrangler login`)
+
+**Pronto quando:** contas criadas e acessos guardados num gerenciador de senhas; domínio pedido (pode ainda não estar ativo).
+
+## Etapa 1 · Fundação do monorepo
+
+**Objetivo:** esqueleto rodando localmente, com front chamando a API.
+
+**Entregas:**
+- `pnpm-workspace.yaml`, `package.json` raiz com scripts `dev`, `build`, `lint`, `typecheck`, `test`, `db:*`
+- TypeScript estrito compartilhado (`tsconfig.base.json`), ESLint e Prettier, Vitest
+- `apps/web`: Vite + React + TypeScript + Tailwind com os **tokens de cor e fontes** (DESENVOLVIMENTO.md, seção 7.1), React Router, TanStack Query, `public/logo.png` e favicon, proxy de `/api` para o Wrangler
+- `apps/api`: Hono com `GET /api/saude`; `index.ts` (Workers) e `node.ts` (Node); `wrangler.toml` com os bindings previstos (HYPERDRIVE, FOTOS, QUARENTENA) e ambiente `previa`
+- `packages/compartilhado` vazio, já importado pelo web e pela api
+- `docker-compose.yml` com Postgres 16 (bancos `sospatas` e `sospatas_teste`)
+- `.github/workflows/ci.yml`: lint, typecheck e testes em cada PR
+- `.env.example` e `.dev.vars.example` (sem segredos reais); `.gitignore` atualizado
+- README: seção "Como rodar localmente"
+
+**Pronto quando:** `docker compose up -d` + `pnpm dev` abre o front, que mostra a resposta de `/api/saude`; CI verde.
+
+**Fora desta etapa:** banco, telas reais.
+
+## Etapa 2 · Banco: schema, migrations e seed
+
+**Objetivo:** todas as tabelas do MVP criadas por migration, com conteúdo inicial.
+
+**Entregas:**
+- `db/schema.ts` (Drizzle) com **todas** as tabelas da seção 5 do DESENVOLVIMENTO.md: `animais`, `fotos`, `animais_privado`, `perdidos`, `perdidos_fotos`, `equipe`, `ong`, `protetores`, `conteudo_textos`, `conteudo_itens`, e os enums
+- Constraints no banco: `CHECK (char_length(...))` dos limites (RN34), `CHECK` de `protetor_id` × `responsavel_tipo` (RN42), FK `restrict` de protetores, `CHECK (id = 1)` em `ong`, `CHECK` das chaves válidas de `conteudo_textos`
+- Migration inicial gerada por `drizzle-kit generate` em `db/migrations/`
+- `db/seed/seed_conteudo.sql`: `ong`, textos e itens **copiados do protótipo** (`prototipo/index.html`), com **ids fixos** nos itens de `inicio_fotos` (para casar com os arquivos no R2, etapa 14)
+- `db/seed/seed_dev.sql`: só para desenvolvimento, com os animais de exemplo do protótipo, 1 protetor, 2 anúncios de perdidos e 1 usuária de teste em `equipe`
+- Conexão: módulo `db` na API com postgres.js + Drizzle, lendo do binding Hyperdrive (local: string de conexão do Docker)
+- Testes das constraints (inserir valor acima do limite falha; protetor com animal não pode ser excluído)
+
+**Regras:** RN34, RN42, RN46 (máx. 4 números), RN38 (máx. 8 fotos: validar na API, não no banco).
+
+**Pronto quando:** `pnpm db:migrate && pnpm db:seed` cria tudo do zero no Docker; testes passam.
+
+## Etapa 3 · Pacote compartilhado
+
+**Objetivo:** uma única fonte para limites e validações, usada pelo front e pela API.
+
+**Entregas em `packages/compartilhado`:**
+- Schemas zod: animal (cadastro/edição), adoção, protetor, anúncio de perdido (público e equipe), texto, item de lista, dados da ONG
+- **Configuração das listas** (`perguntas`, `como_adotar_passos`… com rótulos, limites, obrigatoriedade e mínimo/máximo de itens), que a API e o `ListaEditavel` vão ler
+- Limites fixos: fotos (3 por animal, 2 por anúncio, 500 KB), prazos (30 dias, 7 dias, 90 dias), envios (3/dia por IP, 30 pendentes)
+- Funções: `idade` e `ehAdulto` (RN11, RN13), `esperandoHaMaisTempo` (RN12), normalizar e validar WhatsApp, `contemLink` (RN21), `linkWhatsApp(numero, texto)`
+- Testes unitários de todas as funções e dos casos de borda dos schemas
+
+**Pronto quando:** testes passam; nenhum limite numérico aparece duplicado fora deste pacote (exceto os `CHECK` do banco).
+
+## Etapa 4 · Base da API
+
+**Objetivo:** tudo o que as rotas vão precisar, antes de criar as rotas.
+
+**Entregas:**
+- Organização: `rotas/publico`, `rotas/admin`, `servicos/`, `middleware/`, `armazenamento/`, `tarefas/`
+- Tratamento de erros no formato `{ erro, mensagem }` com os status da ARQUITETURA.md, seção 3; validação de entrada com os schemas zod
+- `middleware/access.ts`: valida o JWT do Cloudflare Access (`Cf-Access-Jwt-Assertion`: assinatura, `aud`, `exp`), busca o e-mail em `equipe` e recusa se não existir ou estiver inativo. **Modo local:** e-mail fixo vindo de `.dev.vars`, ativado só com `AMBIENTE=local` (o código recusa esse modo em qualquer outro ambiente)
+- `GET /api/admin/eu`
+- Interface `Armazenamento` (`colocar`, `obter`, `copiar`, `apagarPrefixo`, `apagar`) com implementação R2 e implementação em memória para testes
+- Utilitário que confere a assinatura WebP (`RIFF....WEBP`) e o tamanho (RN21)
+- CORS só para a origem do Pages (antes do domínio próprio)
+- Infraestrutura de testes: banco `sospatas_teste` recriado por migration, rotas testadas com `app.request()`
+
+**Pronto quando:** testes cobrem JWT válido, expirado, `aud` errado, e-mail fora da `equipe` e usuária inativa.
+
+## Etapa 5 · API pública de leitura
+
+**Entregas** (ARQUITETURA.md, seção 3.1): `GET /site`, `GET /animais` (filtros), `GET /animais/destaques`, `GET /animais/:id`, `GET /perdidos?tipo`, com `Cache-Control: public, max-age=60`.
+
+**Regras:** RN10, RN11, RN12, RN18, RN31 (nome e WhatsApp do responsável vêm de `protetores` ou `ong`).
+
+**Pronto quando:** testes provam que **nenhuma** coluna de `animais_privado`, `equipe`, `ip_hash` ou anúncio `pendente`/expirado aparece nas respostas; filtros e ordenação testados.
+
+**Fora desta etapa:** `POST /perdidos` (etapa 11).
+
+## Etapa 6 · Site público: layout e páginas de conteúdo
+
+**Objetivo:** as páginas que só leem textos, já com o visual final.
+
+**Entregas:**
+- Cliente HTTP tipado + hooks TanStack Query (`api/`); `GET /site` carregado uma vez e compartilhado
+- Layout público: cabeçalho, rodapé (contatos e PIX da tabela `ong`), `BlocoPix` (copiar chave), página 404, estados de carregando e erro
+- `TextoSimples` (quebras de linha + links automáticos, sem `dangerouslySetInnerHTML`, RN24, RN34)
+- **T01** Início (inclusive a seção "Esperando há mais tempo", usando `/animais/destaques`), **T04** Como adotar, **T05** Perguntas frequentes, **T06** Como ajudar, **T07** Privacidade
+- Redirecionamento `/sobre` → `/ajude` (`public/_redirects`)
+- Visual acolhedor da página inicial (patinhas, polaroides, borda ondulada; TELAS.md, Identidade visual)
+- Título e `og:image` por página
+
+**Regras:** RN31, RN32, RN33, RN34, RN44, RN45, RN46.
+
+**Pronto quando:** cada página bate com o print do protótipo em 360 px e no computador; nenhum texto editável está fixo no código.
+
+## Etapa 7 · Site público: vitrine e ficha do animal
+
+**Entregas:** `CardAnimal`, `ChipFiltro`, **T02** Vitrine (filtros na URL, para poder compartilhar), **T03** Ficha (galeria, saúde, temperamento, responsável, benefício, aviso de protetor), `alt` das fotos ("Foto do(a) {nome}").
+
+**Regras:** RN01, RN03 (vitrine só com miniatura), RN10–RN13, RN17, RN31, RN32.
+
+**Decisão pendente:** o formulário de interesse (RN14) está fora do MVP. Antes desta etapa, definir o que o botão **"Quero adotar"** faz até ele existir (ex.: abrir o WhatsApp do responsável com mensagem pronta, ou um aviso). Registrar a escolha no DESENVOLVIMENTO.md.
+
+**Pronto quando:** filtros combinados funcionam; animal adotado abre a ficha mas não aparece na vitrine.
+
+## Etapa 8 · Deploy de prévia no Cloudflare
+
+**Objetivo:** ver o site público rodando de verdade antes de construir a área da ONG.
+
+**Entregas:**
+- Hyperdrive apontando para a branch `previa` do Neon; migrations e seed aplicados nela
+- Buckets `sospatas-fotos-previa` e `sospatas-quarentena-previa`
+- Worker `--env previa` publicado (`*.workers.dev`) e Pages ligado ao GitHub (`*.pages.dev`), com `VITE_API_URL` da prévia
+- Segredos da prévia com `wrangler secret`
+- Medição: tempo de CPU das rotas públicas no painel do Workers (precisa ficar bem abaixo de 10 ms) e tempo do primeiro acesso com o Neon "dormindo"
+- README: como publicar a prévia
+
+**Pronto quando:** a URL do Pages mostra Início, vitrine e ficha com os dados de exemplo; anotar no Painel qualquer limite que ficou perto do teto.
+
+**Fora desta etapa:** domínio, Access e deploy automático (etapa 14).
+
+## Etapa 9 · API da ONG: animais, fotos, adoção e protetores
+
+**Entregas** (ARQUITETURA.md, seção 3.2):
+- `GET /resumo` (números do T09)
+- Animais: listar (status, responsável, busca), criar, ler (com `animais_privado`), editar, excluir
+- Adoção e devolução (com nome e WhatsApp do adotante)
+- Fotos: enviar (miniatura + completa), remover, reordenar
+- Protetores: listar e criar (o cadastro do animal cria o protetor ali mesmo, RN42); editar e excluir com 409 se tiver animais
+- Serviços em `servicos/`: `excluirAnimal`, `marcarAdotado`, `devolver`, `trocarFoto`, todos com transação onde houver mais de um passo
+- `updated_at` e `updated_by` preenchidos em toda escrita (RN43, já desde aqui, mesmo que a tela venha na etapa 13)
+- Script `pnpm seed:fotos` que envia as fotos de exemplo de `prototipo/assets/` pela API local
+
+**Regras:** RN01, RN04–RN09, RN30, RN42, RN43.
+
+**Pronto quando:** testes cobrem: exclusão apaga arquivos antes do registro e **não apaga o registro se o armazenamento falhar** (RN05); adoção deixa só a foto principal (RN07); 4ª foto é recusada; arquivo que não é WebP é recusado.
+
+## Etapa 10 · Área da ONG: estrutura e animais
+
+**Entregas:**
+- Rotas `/admin/*` com layout próprio: `CabecalhoAdmin` ("Olá, {nome}" de `/eu`), `BarraAdmin` (rodapé no celular, abas no computador, some nos formulários), barra "Cancelar / Salvar"
+- `lib/fotos.ts`: escolha da foto, redesenho em canvas, miniatura 400 px e completa 1200 px em WebP, sem EXIF (RN02, RN20)
+- **T09** Painel (resumo, busca, abas Disponíveis/Adotados com "Em adaptação: faltam N dias", ações rápidas)
+- **T10** Cadastro e **T11** Edição (fotos com reordenar, lar temporário, observações, protetor existente ou "＋ Novo protetor", marcar adotado, voltar para disponível, excluir com confirmação, "Ver no site")
+- Tratamento de sessão expirada (volta ao login do Access)
+
+**Regras:** RN01–RN09, RN30, RN42; Definição de pronto (DESENVOLVIMENTO.md, seção 8).
+
+**Pronto quando:** dá para cadastrar um animal com 3 fotos **pelo celular** (testar no aparelho, na rede local), editar, adotar e excluir, e o resultado aparece certo no site público.
+
+## Etapa 11 · Perdidos e encontrados
+
+**Entregas:**
+- API pública `POST /perdidos`: Turnstile, validação, limite por IP (`ip_hash` com `IP_HASH_SECRET`) e de pendentes, fotos na quarentena (RN19–RN23)
+- API da ONG: listar por status, aprovar (copia da quarentena para o público + `expira_em`), recusar, renovar, "voltou para casa", tirar do ar, rota que transmite a foto da quarentena
+- `tarefas/`: limpeza diária (RN25, RN27) chamada pelo `scheduled()` do Worker, com cron `0 6 * * *` no `wrangler.toml`
+- Telas **T12** (lista pública, filtro, aviso contra golpes), **T13** (formulário com até 2 fotos, consentimento, Turnstile) e **T13b** (confirmação)
+- Tela **T14** (moderação com a lista de conferência da RN28, anúncios no ar com "Sai do ar em N dias"), número de pendentes na `BarraAdmin`
+
+**Regras:** RN18–RN28, RN41.
+
+**Pronto quando:** testes cobrem token inválido, 3ª foto, foto acima de 500 KB, arquivo falso com extensão `.webp`, descrição com link, 4º envio do mesmo IP no dia, aprovação movendo os arquivos e limpeza diária apagando arquivos e registro.
+
+**Fora desta etapa:** anúncio criado pela equipe (T21, etapa 13).
+
+## Etapa 12 · Editor de textos
+
+**Entregas:**
+- API: `GET /conteudo`, `PUT /conteudo/textos/:chave`, criar/editar/excluir item, `trocar-ordem` (transação), foto do item de `inicio_fotos`
+- Componentes genéricos `CampoTextoEditavel` (contador de caracteres) e `ListaEditavel` (↑ ↓, editar, excluir com confirmação, "＋ Adicionar", mínimo/máximo de itens), configurados pelo pacote compartilhado
+- Telas **T15** (lista de páginas), **T16** Perguntas, **T17** Item de lista, **T18** Como adotar, **T19** Página inicial (com fotos da história e lembrete de autorização de imagem), **T20** Como ajudar
+- "Salvo e publicado ✓" + "Ver no site" após salvar; o cache do `GET /site` não pode esconder a alteração de quem acabou de salvar
+
+**Regras:** RN33–RN38, RN46.
+
+**Pronto quando:** cada texto e lista das páginas públicas pode ser alterado pelo celular e aparece no site; não é possível apagar a última pergunta nem passar de 4 números ou 8 fotos.
+
+## Etapa 13 · Mais: dados da ONG, anúncio pela equipe, protetores e "Alterado por"
+
+Na ordem de prioridade:
+1. **T22** Mais (Dados da ONG, Protetores, Ver o site, Sair via `/cdn-cgi/access/logout`) e **T23** Dados da ONG (`GET/PUT /ong`)
+2. **T21** Anúncio pela equipe: criar (já `publicado`, sem Turnstile, autorização obrigatória) e corrigir (fotos no bucket do status atual) (RN39, RN40)
+3. **T24** Protetores parceiros: lista, edição e exclusão com o aviso de animais vinculados (RN42)
+4. "Alterado por {nome} em {data}" nas telas de edição (RN43) e filtro por responsável no T09
+
+**Pronto quando:** os itens entregues seguem a Definição de pronto; o que não coube fica anotado no Painel como "depois da entrega".
+
+## Etapa 14 · Produção
+
+**Objetivo:** o site no endereço definitivo, com login, deploy automático e backup.
+
+**Entregas:**
+- DNS de `sospatas.org.br` no Cloudflare; Pages em `sospatas.org.br`; Worker na rota `sospatas.org.br/api/*`; bucket público em `fotos.sospatas.org.br`
+- Neon `main` com migrations e `seed_conteudo.sql`; fotos da história enviadas ao R2 em `site/historia/{id}.webp` com os ids do seed (script)
+- **Cloudflare Access:** aplicação protegendo `/admin/*` e `/api/admin/*`, política com os e-mails da equipe, código por e-mail, sessão de 30 dias, página de login com logo e cores (T08); linhas em `equipe`
+- Turnstile (site key no front, segredo na API) e Web Analytics
+- `deploy.yml` (migrations → `wrangler deploy` → Pages) e `backup.yml` (dump diário → `sospatas-backups`, 30 dias)
+- `apps/web/public/_headers` com CSP e cabeçalhos de segurança (ARQUITETURA.md, seção 9)
+- Usuário do banco só com DML para a API e outro para migrations (ARQUITETURA.md, seção 5)
+- **Teste de restauração** do backup num banco vazio, documentado no README
+
+**Pronto quando:** login funciona com um e-mail da equipe e é recusado para um e-mail de fora; um merge na `main` publica sozinho; existe ao menos um backup restaurado com sucesso.
+
+## Etapa 15 · Dados reais, teste com a ONG e ajustes finais
+
+**Entregas:**
+- Apagar os dados de exemplo da produção; Gracia ou Claudia cadastram os primeiros animais reais pelo celular (tarefa 7 do roteiro)
+- Revisão em 360 px de todas as telas, acessibilidade básica (contraste, `alt`, toque ≥ 44 px), Lighthouse do Início e da vitrine
+- Correções do teste com a ONG, registradas em TELAS.md ("Registro da validação")
+- Status das telas em TELAS.md atualizado; prints regerados se o protótipo mudou
+- Documentação final para quem manter o site: README (rodar, publicar, restaurar backup, incluir/remover usuária no Access e em `equipe`)
+
+**Pronto quando:** site no ar em `sospatas.org.br` com animais reais, testado pela equipe da ONG, até **30/10/2026**.
+
+---
+
+## Depois da entrega (não planejado em etapas)
+
+Itens de "Fora do MVP" (DESENVOLVIMENTO.md, seção 4), na ordem provável: formulário de interesse em adoção e telas de análise (RN14, RN15, com a limpeza de 90 dias no cron), página "Finais felizes", PWA, gestão de contas pelo site.

@@ -210,10 +210,17 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 
 **Padrões de todas as telas de edição:** barra fixa "Cancelar / Salvar"; depois de salvar, toast **"Salvo e publicado ✓"** com link "Ver no site" (RN37); linha `AlteradoPor` (RN43); toda exclusão abre modal de confirmação (RN36).
 
-### T08 · Login · `/admin/login` · ⏳
+### T08 · Login · tela do Cloudflare Access ao abrir `/admin` · ✏️ alterada em 07/10
 ![T08](telas/T08-login-celular.png)
 
-E-mail + senha (Supabase Auth). Sem "criar conta" (cadastro desativado). "Esqueceu a senha? Fale com o administrador."
+**Sem senha** ([ARQUITETURA.md](../ARQUITETURA.md), seção 4):
+1. **E-mail** → botão **"Enviar código"**.
+2. A pessoa recebe um **código de 6 dígitos** no e-mail → digita → **"Entrar"**.
+3. Fica conectada por **30 dias** naquele celular.
+
+- Só e-mails liberados pela ONG entram. Sem "criar conta".
+- Rodapé: "Não recebeu? Confira o spam ou peça um novo código. Para liberar um e-mail novo, fale com o administrador do site."
+- **No site real**, essa tela é a página de login do Cloudflare Access, personalizada com a logo e as cores da SOS Patas. O protótipo simula as duas etapas (`#/admin/login` e `#/admin/login/codigo`, [print da etapa 2](telas/T08b-login-codigo-celular.png)).
 
 ### T09 · Painel de animais · `/admin` · ⏳
 ![T09](telas/T09-painel-celular.png)
@@ -255,7 +262,7 @@ Igual a T10, preenchido, com a linha "Alterado por… em…" (RN43) no topo e **
 
 - **Acesso:** pelo card amarelo no painel (T09), que mostra quantos anúncios estão aguardando aprovação.
 - **Abas:** Aguardando / No ar.
-- **Aguardando:** foto (do bucket privado, por URL temporária), tipo, nome, bairro, contato e descrição; botões **Recusar** (apaga tudo, RN26) e **Aprovar e publicar** (move as fotos para o bucket público).
+- **Aguardando:** foto (da quarentena privada, servida pela API só para a equipe), tipo, nome, bairro, contato e descrição; botões **Recusar** (apaga tudo, RN26) e **Aprovar e publicar** (copia as fotos para o bucket público).
 - **No ar:** "Sai do ar em N dias", **"Renovar por mais 30 dias"** (RN41), **"Voltou para casa 🎉"** e **"Tirar do ar"** (esses dois apagam o anúncio e as fotos).
 - **Em todos os cards:** botão **"Editar"** → T21 (RN40). Anúncios criados pela equipe têm o selo "Criado pela equipe".
 - **Botão "＋ Novo anúncio"** no topo → T21 (RN39).
@@ -362,7 +369,7 @@ Lista simples, com botões grandes:
 - 🤝 **Protetores parceiros** (N) → T24
 - 🌐 **Ver o site** ↗
 - 🚪 **Sair**
-- Rodapé: "Esqueceu a senha ou precisa de uma nova conta? Fale com o administrador do site."
+- Rodapé: "Precisa liberar o acesso de outra pessoa? Fale com o administrador do site."
 
 ### T23 · Dados da ONG · `/admin/ong` · ⏳
 ![T23](telas/T23-dados-da-ong-celular.png)

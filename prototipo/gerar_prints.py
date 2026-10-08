@@ -19,6 +19,7 @@ TELAS = [
     ("T06-como-ajudar", "#/ajude"),
     ("T07-privacidade", "#/privacidade"),
     ("T08-login", "#/admin/login"),
+    ("T08b-login-codigo", "#/admin/login/codigo"),
     ("T09-painel", "#/admin"),
     ("T10-cadastrar-animal", "#/admin/novo"),
     ("T11-editar-animal", "#/admin/editar/apolo"),

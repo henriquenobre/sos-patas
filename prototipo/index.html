@@ -751,17 +751,27 @@ const barraSalvar = (cancelar, rotulo = 'Salvar', extra = '') => `<div class="fi
 const tituloAdmin = (t, sub = '', direita = '') => `<div class="flex items-start justify-between gap-3"><div><h1 class="font-titulo text-3xl font-extrabold leading-tight text-azul-escuro">${t}</h1>${sub ? `<p class="text-sm text-slate-600">${sub}</p>` : ''}</div>${direita}</div>`;
 const verNoSite = href => `<a href="${href}" target="_blank" class="shrink-0 rounded-lg bg-azul-claro px-3 py-1.5 text-sm font-extrabold text-azul">Ver no site ↗</a>`;
 
-// T08 · Login
+// T08 · Login (no site real: página do Cloudflare Access com a marca da ONG; código por e-mail, sem senha)
+let loginEtapa = 'email', loginEmail = 'gracia@exemplo.com';
 function telaLogin() {
+  const campoCls = 'mt-1 w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-base focus:border-azul focus:outline-none';
   return `<main class="flex min-h-screen items-center justify-center bg-azul px-4 py-10">
-    <div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+    <div class="w-full max-w-sm rounded-3xl bg-white p-6 shadow-xl">
       <div class="flex flex-col items-center"><img src="assets/logo.png" class="h-20 w-20 rounded-xl ring-1 ring-slate-200" alt="Logo SOS Patas"><h1 class="mt-3 font-titulo text-2xl font-extrabold text-azul-escuro">Área da ONG</h1><p class="text-sm text-slate-500">Acesso restrito à equipe</p></div>
-      <form class="mt-6 space-y-4" onsubmit="event.preventDefault(); location.hash='#/admin'">
-        <label class="block"><span class="text-sm font-bold text-slate-700">E-mail</span><input type="email" value="gracia@exemplo.com" class="mt-1 w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-base focus:border-azul focus:outline-none"></label>
-        <label class="block"><span class="text-sm font-bold text-slate-700">Senha</span><input type="password" value="12345678" class="mt-1 w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-base focus:border-azul focus:outline-none"></label>
-        <button class="w-full rounded-xl bg-azul py-3.5 text-lg font-extrabold text-white">Entrar</button>
+      ${loginEtapa === 'email' ? `
+      <form class="mt-6 space-y-4" onsubmit="event.preventDefault(); loginEmail=this.email.value||loginEmail; loginEtapa='codigo'; render()">
+        <label class="block"><span class="text-sm font-bold text-slate-700">Seu e-mail</span><input name="email" type="email" value="${esc(loginEmail)}" class="${campoCls}"></label>
+        <button class="w-full rounded-full bg-azul py-3.5 text-lg font-extrabold text-white">Enviar código</button>
       </form>
-      <p class="mt-4 text-center text-xs text-slate-500">Esqueceu a senha? Fale com o administrador do site.</p>
+      <p class="mt-4 text-center text-xs text-slate-500">Sem senha: enviamos um código de 6 dígitos para o seu e-mail.</p>` : `
+      <form class="mt-6 space-y-4" onsubmit="event.preventDefault(); loginEtapa='email'; location.hash='#/admin'">
+        <p class="rounded-xl bg-azul-claro p-3 text-sm text-azul-escuro">Enviamos um código para <b>${esc(loginEmail)}</b>.</p>
+        <label class="block"><span class="text-sm font-bold text-slate-700">Código de 6 dígitos</span><input inputmode="numeric" autocomplete="one-time-code" maxlength="6" value="482913" class="${campoCls} text-center font-titulo text-2xl tracking-[0.4em]"></label>
+        <button class="w-full rounded-full bg-azul py-3.5 text-lg font-extrabold text-white">Entrar</button>
+        <button type="button" onclick="loginEtapa='email';render()" class="w-full text-sm font-bold text-azul">Usar outro e-mail</button>
+      </form>
+      <p class="mt-4 text-center text-xs text-slate-500">Não recebeu? Confira o spam ou peça um novo código. Você fica conectada por 30 dias neste celular.</p>`}
+      <p class="mt-2 text-center text-xs text-slate-400">Para liberar um e-mail novo, fale com o administrador do site.</p>
       <a href="#/" class="mt-4 block text-center text-sm font-bold text-azul">← Voltar para o site</a>
     </div>
   </main>`;
@@ -1123,7 +1133,7 @@ function telaMais() {
       ${item('#/', '🌐', 'Ver o site', 'Abre em outra aba', 'target="_blank"')}
     </div>
     <a href="#/admin/login" class="mt-4 block rounded-2xl bg-white py-3.5 text-center font-extrabold text-vermelho ring-2 ring-vermelho-claro">🚪 Sair</a>
-    <p class="mt-4 text-center text-xs text-slate-500">Esqueceu a senha ou precisa de uma nova conta?<br>Fale com o administrador do site.</p>`);
+    <p class="mt-4 text-center text-xs text-slate-500">Precisa liberar o acesso de outra pessoa?<br>Fale com o administrador do site.</p>`);
 }
 
 // T23 · Dados da ONG
@@ -1580,7 +1590,7 @@ function render() {
   else if (p[0] === 'admin' && p[1] === 'mais') html = telaMais();
   else if (p[0] === 'admin' && p[1] === 'ong') html = telaOng();
   else if (p[0] === 'admin' && p[1] === 'protetores') html = telaProtetores();
-  else if (p[0] === 'admin' && p[1] === 'login') html = telaLogin();
+  else if (p[0] === 'admin' && p[1] === 'login') { if (p[2] === 'codigo') loginEtapa = 'codigo'; html = telaLogin(); }
   else if (p[0] === 'admin' && p[1] === 'novo') html = telaForm(null);
   else if (p[0] === 'admin' && p[1] === 'editar') html = telaForm(p[2]);
   else if (p[0] === 'admin') html = telaPainel();
