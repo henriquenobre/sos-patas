@@ -51,6 +51,8 @@ export type AnimalResumo = {
   nascimento_aprox: string
   porte: Porte
   data_entrada: string
+  /** O card mostra "Protetor parceiro" quando não é da ONG */
+  responsavel_tipo: ResponsavelTipo
   /** URL da miniatura da foto principal, ou null se ainda não tem foto */
   foto: string | null
 }
@@ -66,7 +68,7 @@ export type Responsavel = {
 }
 
 /** GET /api/publico/animais/:id */
-export type AnimalFicha = Omit<AnimalResumo, 'foto'> & {
+export type AnimalFicha = Omit<AnimalResumo, 'foto' | 'responsavel_tipo'> & {
   raca: string | null
   raca_tipo: RacaTipo | null
   cor_pelagem: string | null

@@ -49,7 +49,7 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 | `Modal` | Quero adotar, adotado, excluir | Confirmações sempre com "Cancelar" |
 | `OpcoesBotao` | Formulário | Escolha em botões grandes (melhor que select no celular) |
 | `CabecalhoAdmin` | T08–T24 | Fundo azul-escuro, para diferenciar do site público; "Olá, {nome}" vem de `equipe` |
-| `BarraAdmin` | T09, T14, T15, T22 | Barra fixa no rodapé: 🐾 Animais · 🔎 Perdidos (com número de pendentes) · 📝 Textos · ☰ Mais. No computador, vira abas no cabeçalho. Some nas telas de formulário |
+| `BarraAdmin` | T09, T14, T15, T22, T27 | Barra fixa no rodapé: 🐾 Animais · 📋 Pedidos (com número de pendentes) · 🔎 Perdidos (com número de pendentes) · 📝 Textos · ☰ Mais. No computador, vira abas no cabeçalho. Some nas telas de formulário |
 | `ListaEditavel` | T16, T18–T20 | Cards com título, começo do texto e miniatura (se tiver foto); botões ↑ ↓ (RN35), **Editar** e **Excluir** (RN36); "＋ Adicionar" no fim. Configurada por `lista` (DESENVOLVIMENTO.md, `conteudo_itens`) |
 | `CampoTextoEditavel` | T18–T20 | Rótulo, onde aparece no site, caixa de texto com contador "120/400" e botão **Salvar** próprio |
 | `TextoSimples` | páginas públicas | Mostra texto do banco com quebras de linha e links automáticos, sem HTML (RN34) |
@@ -110,7 +110,19 @@ O aviso amarelo "A SOS Patas não faz resgates" foi **removido em 07/10/2026** (
 - **Bloco Temperamento:** dócil, convive com outros animais ("não informado" quando nulo).
 - **Responsável:** nome e indicação de protetor parceiro + "Adoção com formulário de interesse, termo de adoção e 15 dias de adaptação". Se for protetor, mostra um aviso amarelo de que a ONG não é responsável pela adoção (RN31).
 - **Benefício (verde):** "Adotando pelo site: prioridade na castração gratuita (castramóvel) e desconto em clínicas parceiras" (RN32).
-- **Botão "Quero adotar {nome}":** verde, **fixo no rodapé no celular**, e abre o **formulário de interesse** (RN14). No protótipo, abre um modal explicando, porque as perguntas ainda estão em definição com a ONG.
+- **Botão "Quero adotar {nome}":** verde, **fixo no rodapé no celular**, e abre o **formulário de adoção** (T26, RN14). ✏️ _Protótipo a atualizar: hoje abre um modal explicando._
+- **Animal em análise (RN48), por link direto:** sem o botão; aviso "{nome} está em processo de adoção" e botão "Ver outros animais" _(proposta)_.
+
+### T26 · Formulário de adoção · `/animais/:id/adotar` · 🆕 a desenhar no protótipo
+**Objetivo:** quem quer adotar responder às perguntas da triagem e conhecer o termo antes de pedir (RN14, RN15, RN47).
+
+- **Topo:** o animal escolhido (miniatura, nome, responsável), preenchido automaticamente.
+- **Perguntas em blocos**, uma tela com rolagem ou passos (Sobre você · Sua casa · Outros animais · Cuidados e custos), com as perguntas da [versão 1.1 do formulário](../docs/formulario/FORMULARIO_ADOCAO.md). Perguntas condicionais aparecem só quando se aplicam (proprietário permite animais, tela nas janelas para gatos, perguntas 16–18).
+- **Termo de adoção:** bloco "Antes de enviar, leia o termo" com as cláusulas do [termo](../docs/formulario/TERMO_ADOCAO.md) (abre e fecha) e o aviso de que ele é assinado em papel na entrega; caixa obrigatória **"Li o termo de adoção e estou ciente dos compromissos"** (RN47).
+- **Compromissos** (declarações da pergunta 25) e **consentimento LGPD**, todos obrigatórios; Turnstile; botão "Enviar pedido".
+- **Erros:** mensagem embaixo de cada campo; se outra pessoa acabou de pedir o animal (RN48), aviso e botão "Ver outros animais".
+
+**T26b · Pedido enviado:** "Recebemos seu pedido para adotar {nome}!", próximos passos (a equipe analisa e fala com você pelo WhatsApp; o termo é assinado na entrega; 15 dias de adaptação) e link para a vitrine.
 
 ### T04 · Como adotar · `/como-adotar` · ✅
 ![T04](telas/T04-como-adotar-celular.png)
@@ -159,6 +171,8 @@ Antiga "Sobre e ajude" (`/sobre` redireciona para cá). A missão e o "Como func
 
 Texto curto sobre LGPD: o site não cadastra visitantes, as estatísticas são anônimas, os lares temporários nunca aparecem e há canal para pedir a exclusão de dados.
 
+✏️ _A atualizar (08/10/2026), no protótipo e no site:_ trocar "O contato para adoção acontece pelo WhatsApp, por iniciativa sua" por uma seção **"Pedidos de adoção"**: o formulário guarda nome, WhatsApp, bairro e cidade e as respostas; só a equipe vê; o pedido recusado ou não concluído é apagado em 90 dias; o endereço completo e os documentos ficam só no termo em papel (RN15).
+
 ### T12 · Perdidos e encontrados · `/perdidos` · ⏳
 ![T12](telas/T12-perdidos-celular.png)
 
@@ -190,20 +204,21 @@ Texto curto sobre LGPD: o site não cadastra visitantes, as estatísticas são a
 Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, seção 4).
 
 ```
-┌──────────────────────────────┐
-│ ▓ Área da ONG    Olá, Gracia │  ← CabecalhoAdmin
-│                              │
-│        (conteúdo da aba)     │
-│                              │
-├──────┬────────┬───────┬──────┤
-│  🐾  │  🔎 ③  │  📝   │  ☰   │  ← BarraAdmin (fixa)
-│Animais│Perdidos│Textos │ Mais │
-└──────┴────────┴───────┴──────┘
+┌───────────────────────────────────┐
+│ ▓ Área da ONG         Olá, Gracia │  ← CabecalhoAdmin
+│                                   │
+│          (conteúdo da aba)        │
+│                                   │
+├───────┬───────┬───────┬──────┬────┤
+│  🐾   │ 📋 ②  │ 🔎 ③  │  📝  │ ☰  │  ← BarraAdmin (fixa)
+│Animais│Pedidos│Perdid.│Textos│Mais│
+└───────┴───────┴───────┴──────┴────┘
 ```
 
 | Aba | Tela inicial | Leva a |
 |---|---|---|
 | 🐾 Animais | T09 | T10, T11 |
+| 📋 Pedidos | T27 (número vermelho = pedidos aguardando análise) | T28 |
 | 🔎 Perdidos | T14 (número vermelho = anúncios aguardando) | T21 |
 | 📝 Textos | T15 | T16–T20, T17 |
 | ☰ Mais | T22 | T23, T24, "Ver o site", "Sair" |
@@ -228,13 +243,27 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 **Objetivo:** Gracia e Claudia controlarem tudo pelo celular.
 
 - **Números:** disponíveis · adultos esperando há mais de 90 dias · **adotados no mês** (indicador da avaliação).
-- **Abas:** Disponíveis / Adotados.
+- **Abas:** Disponíveis / Em análise / Adotados (RN48). ✏️ _Protótipo a atualizar._
 - **Busca** pelo nome.
 - **Item da lista:** miniatura, nome, espécie, idade, **lar temporário** (privado), tempo de espera (vermelho se adulto há mais de 90 dias); botões **Editar** e **Adotado ✓**.
 - **Aba Adotados:** "Em adaptação: faltam N dias" ou "Adoção concluída" (RN30).
 - **Filtro por responsável** (abaixo da busca): "Todos · SOS Patas · Protetores", e ao tocar em "Protetores" aparece a lista para escolher um. O nome do protetor aparece no item da lista.
 - **Card amarelo de perdidos:** só aparece quando há anúncios aguardando aprovação (o número também fica na aba 🔎).
 - **Botão flutuante:** "＋ Cadastrar animal", acima da `BarraAdmin`.
+
+### T27 · Pedidos de adoção · `/admin/pedidos` · 🆕 a desenhar no protótipo
+**Objetivo:** a equipe saber quem pediu qual animal e analisar logo, porque o animal fica fora do site enquanto isso (RN48, RN49).
+
+- **Abas:** Pendentes (padrão) / Aprovados / Recusados.
+- **Item:** miniatura e nome do animal, nome de quem pediu, bairro, "há N dias", número de alertas (amarelo); **vermelho se pendente há mais de 3 dias** (RN50, prazo a confirmar).
+- Animal de protetor parceiro: selo "Protetor: {nome}".
+
+### T28 · Análise do pedido · `/admin/pedidos/:id` · 🆕 a desenhar no protótipo
+- **Topo:** animal (com link para T11), quem pediu, WhatsApp com botão para conversar, data do pedido.
+- **Alertas automáticos** em amarelo no topo (tabela do FORMULARIO_ADOCAO.md), sem reprovar sozinhos.
+- **Respostas** agrupadas pelos blocos do formulário; "Ciente do termo em {data}".
+- **Observação interna** (só a equipe vê).
+- **Ações:** **Aprovar** (o animal continua fora do site até "Marcar como adotado", que já vem com nome e WhatsApp preenchidos) e **Recusar** (modal: "O animal volta para o site. Avise a pessoa pelo WhatsApp."). Linha `AlteradoPor` (RN43).
 
 ### T10 · Cadastrar animal · `/admin/animais/novo` · ⏳
 ![T10](telas/T10-cadastrar-animal-celular.png)
@@ -417,6 +446,9 @@ Enviar os prints de [telas/](telas/) à Gracia e perguntar:
 19. **Foto da assembleia de fundação:** alguém tem essa foto em melhor qualidade (o arquivo original da câmera ou celular, sem passar pelo WhatsApp, que reduz a imagem) ou outra foto do mesmo dia?
 13. **Área da ONG:** além de Gracia e Claudia, alguém mais vai ter acesso? A navegação com a barra de baixo (Animais · Perdidos · Textos · Mais) ficou fácil?
 14. Vocês recebem pedidos de "perdido/encontrado" pelo WhatsApp que gostariam de publicar por conta própria? (T21)
+20. **Pedidos de adoção (08/10/2026):** o animal sai do site enquanto o pedido está em análise. Em quantos dias vocês conseguem analisar um pedido? (proposta: avisar no painel depois de 3 dias)
+21. Nos animais de **protetores parceiros**, quem analisa o pedido: a equipe (e repassa pelo WhatsApp) ou o próprio protetor?
+22. Quem abrir a ficha de um animal em análise por um link antigo: mostrar um aviso "em processo de adoção" (proposta) ou a página "não encontrado"?
 
 ### Registro da validação
 | Data | Quem validou | Telas | Retorno | Ajustes |

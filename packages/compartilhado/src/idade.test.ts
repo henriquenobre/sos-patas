@@ -5,6 +5,7 @@ import {
   esperandoHaMaisTempo,
   idadeEmMeses,
   nascimentoAproximado,
+  textoEspera,
   textoIdade,
 } from './idade'
 
@@ -48,6 +49,20 @@ describe('nascimentoAproximado (T10)', () => {
 
   it('a idade calculada de volta é a mesma informada', () => {
     expect(textoIdade(nascimentoAproximado(4, 'anos', HOJE), HOJE)).toBe('cerca de 4 anos')
+  })
+})
+
+describe('textoEspera (selo do card)', () => {
+  it.each([
+    [1, '1 dia'],
+    [45, '45 dias'],
+    [150, '5 meses'],
+    [365, '1 ano'],
+    [400, '1 ano e 1 mês'],
+    [760, '2 anos e 1 mês'],
+    [800, '2 anos e 2 meses'],
+  ])('%i dias → "%s"', (dias, esperado) => {
+    expect(textoEspera(dias)).toBe(esperado)
   })
 })
 

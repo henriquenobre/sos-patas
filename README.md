@@ -47,10 +47,13 @@ pnpm install                                   # dependências (também gera os 
 cp apps/api/.dev.vars.example apps/api/.dev.vars
 pnpm db:up                                     # Postgres 18 no Docker (bancos sospatas e sospatas_teste)
 pnpm db:migrate && pnpm db:seed                # tabelas, conteúdo inicial e animais de exemplo
+pnpm db:fotos-historia                         # fotos da história da ONG no R2 local (uma vez)
 pnpm dev                                       # site em http://localhost:5173 e API em http://localhost:8787
 ```
 
-A página inicial mostra "API no ar (local)" quando front e API estão conversando. Sem o `.dev.vars`, a API roda como se fosse produção.
+Sem o `.dev.vars`, a API roda como se fosse produção. Páginas prontas: Início, Como adotar, Perguntas frequentes, Como ajudar e Privacidade. Vitrine, ficha e perdidos mostram "Em breve" até as etapas 7 e 11. Os animais de exemplo ainda não têm fotos (aparece uma patinha no lugar).
+
+**Testar no celular:** com o computador e o celular na mesma rede Wi-Fi, rode `pnpm dev:celular` em vez de `pnpm dev`. O Vite mostra um endereço como `http://192.168.0.10:5173` ("Network"): abra esse endereço no celular. Na primeira vez, o Windows pode pedir para liberar o Node no firewall (permitir só em redes privadas).
 
 **Área da ONG no computador:** sem Cloudflare Access, a API trata as chamadas de `/api/admin` como vindas de `teste@sospatas.local` (modo local do `.dev.vars`, usuária criada pelo `pnpm db:seed`). Para testar: `http://localhost:8787/api/admin/eu`.
 
@@ -59,6 +62,8 @@ A página inicial mostra "API no ar (local)" quando front e API estão conversan
 | Comando | O que faz |
 |---|---|
 | `pnpm dev` | Front (Vite) e API (`wrangler dev`) juntos; o Vite repassa `/api` para a API |
+| `pnpm dev:celular` | Igual ao `dev`, mas o site também abre pelo IP do computador na rede (para testar no celular) |
+| `pnpm db:fotos-historia` | Converte as fotos da história para WebP (completa e miniatura, sem metadados) e envia ao R2 local; `-- --remoto` envia ao R2 de verdade (etapa 14) |
 | `pnpm test` | Testes (Vitest) de todos os pacotes |
 | `pnpm lint` · `pnpm typecheck` · `pnpm format` | ESLint, TypeScript e Prettier |
 | `pnpm build` | Build do front e simulação do deploy da API |

@@ -34,11 +34,12 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | 3 | Pacote compartilhado | 08/10/2026 | 08/10/2026 | 1 dia | Schemas zod, funções de idade, datas e WhatsApp; 61 testes |
 | 4 | Base da API | 08/10/2026 | 08/10/2026 | 1 dia | Erros, validação, login (Access + modo local), armazenamento, cache; 35 testes da API |
 | 5 | API pública de leitura | 08/10/2026 | 08/10/2026 | 1 dia | 6 rotas com cache; 33 testes novos, inclusive de vazamento de dados internos |
-| 6 | Site público: layout e páginas de conteúdo | | | | |
+| 6 | Site público: layout e páginas de conteúdo | 08/10/2026 | 08/10/2026 | 1 dia | 5 páginas iguais ao protótipo, conferidas em 360 px e no computador; 16 testes do front |
 | 7 | Site público: vitrine e ficha do animal | | | | |
 | 8 | Deploy de prévia no Cloudflare | | | | |
 | 9 | API da ONG: animais, fotos, adoção, protetores | | | | |
 | 10 | Área da ONG: estrutura e animais | | | | |
+| 10b | Pedidos de adoção | | | | Entrou no MVP em 08/10/2026 |
 | 11 | Perdidos e encontrados | | | | |
 | 12 | Editor de textos | | | | |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores | | | | |
@@ -76,3 +77,5 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 08/10/2026 | | 6 | R2 ativado no Cloudflare (cartão pessoal do mantenedor); análise de risco de cobrança registrada | relato + doc (ARQUITETURA.md, 11.1) |
 | 08/10/2026 | 16:00 | 7 | **Etapa 4 concluída:** base da API, conferida também no `wrangler dev` (login local e R2 simulado) | doc (verificação local) |
 | 08/10/2026 | 16:35 | 7 | **Etapa 5 concluída:** API pública de leitura, conferida no `wrangler dev` com o seed | doc (verificação local) |
+| 08/10/2026 | 17:15 | 7 | **Etapa 6 concluída:** primeiras páginas do site funcionando no computador, com os dados do banco local | doc (verificação local) |
+| 08/10/2026 | | 7 | Decisão: pedidos de adoção entram no MVP (formulário com o termo, análise pela equipe, animal fora do site durante a análise); nova etapa 10b no plano | relato |
