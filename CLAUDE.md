@@ -11,6 +11,7 @@
 |---|---|
 | [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md) | Fonte de verdade técnica: escopo, modelo de dados, regras de negócio (RN), registro de decisões |
 | [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md) | Ordem de construção do site em etapas (0 a 15), com o que conta como pronto e o painel de status |
+| [LINHA_DO_TEMPO.md](LINHA_DO_TEMPO.md) | Datas reais de cada fase e etapa, da concepção à entrega (RP04) |
 | [ARQUITETURA.md](ARQUITETURA.md) | Como o site é construído e hospedado: Cloudflare Pages + Workers (Hono) + Neon + R2 + Access, API, deploy, backup e migração para VPS |
 | [prototipo/TELAS.md](prototipo/TELAS.md) | Especificação de cada tela (T01…), componentes, identidade visual, perguntas para a ONG |
 | [prototipo/index.html](prototipo/index.html) | Protótipo navegável; dados de exemplo e textos iniciais (seed) |
@@ -18,7 +19,8 @@
 | [PROJETO.md](PROJETO.md) | Projeto acadêmico: entrevistas e respostas da ONG, roteiro, formulários (fora do Git) |
 | [formulario/](formulario/) | Formulário de interesse em adoção e termo de adoção |
 | `fotos/` | Fotos originais recebidas da ONG (fora do Git) |
-| `apps/web`, `apps/api`, `packages/compartilhado`, `db/` | Código do site (front, API, código compartilhado, schema e migrations), quando o desenvolvimento começar |
+| `dados-sensiveis/` | Senhas, acessos e outros dados que não podem ir para o GitHub (fora do Git). Nunca copiar o conteúdo para outro arquivo do projeto |
+| `apps/web`, `apps/api`, `packages/compartilhado`, `db/` | Código do site (front, API, código compartilhado, schema e migrations). Como rodar: [README.md](README.md) |
 
 Em caso de conflito: **DESENVOLVIMENTO.md e ARQUITETURA.md > TELAS.md > protótipo**.
 
@@ -54,3 +56,11 @@ Textos públicos (história, números, nomes, parceiros, contatos) só com infor
 Originais ficam em `fotos/` (no `.gitignore`). No projeto entram só versões reduzidas (até 1200 px, sem metadados/GPS) em `prototipo/assets/` e, no site, `apps/web/public/` ou no R2. Fotos com **pessoas identificáveis** só são publicadas com autorização da ONG; crianças e adolescentes, só com autorização dos responsáveis (RN38).
 
 **Por quê:** fotos originais pesam e podem conter localização; LGPD e ECA protegem a imagem das pessoas.
+
+## RP04 – Registrar a data de cada etapa concluída
+
+Toda fase do projeto ou etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md) que começa ou termina ganha a data real no [LINHA_DO_TEMPO.md](LINHA_DO_TEMPO.md): **Início** e **Conclusão** na tabela correspondente, duração em dias corridos e uma linha no **Diário** com a fonte (Git, relato ou doc).
+
+**Por quê:** o estudante precisa saber quanto tempo levou cada parte (contato com a ONG, protótipo, ambiente, desenvolvimento) para o relatório do projeto e para planejar trabalhos futuros.
+
+**Como aplicar:** ao concluir uma etapa, além de marcar ✅ no painel do plano, preencher a linha da etapa e o Diário. Usar a data do dia em que a etapa ficou pronta (não a do commit seguinte). Se uma data não for conhecida com certeza, escrever "_(a confirmar)_" e perguntar a quem pediu, em vez de estimar em silêncio. Marcos fora do código (resposta da ONG, domínio aprovado, reunião) também entram no Diário.

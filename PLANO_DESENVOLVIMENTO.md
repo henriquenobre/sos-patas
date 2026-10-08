@@ -16,11 +16,11 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 
 **O que a IA faz em toda etapa:**
 1. Lê a etapa inteira e as seções citadas (RN, telas, ARQUITETURA) antes de escrever código.
-2. Trabalha numa branch `etapa-NN-nome-curto`.
+2. Trabalha numa branch `etapa-NN-nome-curto` criada a partir da `develop`, e a etapa termina com merge na `develop`. A `main` é produção e só recebe a `develop` testada (ARQUITETURA.md, seção 9).
 3. Entrega só o que está em "Entregas". O que aparece em "Fora desta etapa" fica para depois, mesmo que pareça rápido.
 4. Termina com `pnpm lint`, `pnpm typecheck` e `pnpm test` passando (a partir da etapa 1).
 5. Confere a tabela da RP01 ([CLAUDE.md](CLAUDE.md)): se o código divergiu da documentação, atualiza os dois lados e registra a decisão.
-6. Atualiza o **Painel** abaixo (status e data) e resume o que ficou pendente.
+6. Atualiza o **Painel** abaixo (status), registra as datas reais de início e conclusão no [LINHA_DO_TEMPO.md](LINHA_DO_TEMPO.md) (RP04) e resume o que ficou pendente.
 
 **Ordem escolhida e por quê:** fundação → banco → regras compartilhadas → API → telas, em **fatias verticais** (cada parte do site fica pronta de ponta a ponta antes da próxima). O site público vem antes da área da ONG porque só lê dados, o que valida banco, API e visual com pouco risco. Um **deploy de prévia** entra no meio (etapa 8) para descobrir cedo problemas reais do Cloudflare (Hyperdrive, limite de 10 ms de CPU, R2), e não na véspera da entrega.
 
@@ -28,8 +28,8 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 
 | # | Etapa | Depende de | Sugestão de data | Status |
 |---|---|---|---|---|
-| 0 | Contas e serviços (manual) | – | 08–12/10 | ⬜ |
-| 1 | Fundação do monorepo | – | 09–10/10 | ⬜ |
+| 0 | Contas e serviços (manual) | – | 08–12/10 | 🔄 |
+| 1 | Fundação do monorepo | – | 09–10/10 | ✅ 08/10 (CI a confirmar no 1º push) |
 | 2 | Banco: schema, migrations e seed | 1 | 10–11/10 | ⬜ |
 | 3 | Pacote compartilhado (zod, limites, idade) | 1 | 11/10 | ⬜ |
 | 4 | Base da API (erros, login, armazenamento, testes) | 2, 3 | 12/10 | ⬜ |
@@ -55,13 +55,21 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Feita por você, fora do código.** Comece já: o domínio `.org.br` depende de documentos da ONG e pode levar dias.
 
-- [ ] E-mail da ONG para as contas (ex.: Gmail da SOS Patas), com você como administrador (ARQUITETURA.md, seção 10)
-- [ ] **Registro.br:** pedir `sospatas.org.br` no CNPJ da ONG (CNPJ + estatuto)
-- [ ] **GitHub:** repositório do site (pode ser este) na conta/organização da ONG ou com a ONG como dona
-- [ ] **Cloudflare:** conta criada; R2 ativado (pede cartão: decidir de quem, P1); Zero Trust ativado (nome do time, ex.: `sospatas`)
-- [ ] **Neon:** projeto `sospatas`, região São Paulo se houver; branches `main` e `previa`
+- [x] E-mail das contas: `sitesospatas@gmail.com` (08/10/2026). Falta: recuperação por `sospatas@hotmail.com`, verificação em duas etapas por aplicativo e seu e-mail pessoal como administrador em cada serviço (ARQUITETURA.md, seção 10)
+- [ ] **Registro.br:** registrar `sospatas.org.br` no CNPJ da ONG (26.515.895/0001-90; livre e com CNPJ ativo de associação privada em 08/10/2026). **08/10/2026: pedido feito, ticket 32358834, "Registro pendente", prazo para concluir até 07/11/2026**
+  - conta no Registro.br de uma pessoa física (CPF) e, a partir dela, a conta da ONG como **titular**, com a presidente ou alguém autorizado por ela de acordo
+  - você como **contato técnico**, para poder mudar o DNS
+  - pagar a anuidade (boleto, PIX ou cartão); se o Registro.br pedir documentos, enviar o cartão CNPJ e o estatuto (separar o PDF do estatuto já, para não atrasar)
+  - depois de criar o site no Cloudflare, trocar os servidores DNS no Registro.br pelos 2 que o Cloudflare indicar
+- [x] **GitHub:** o site fica neste repositório, `henriquenobre/sos-patas` (decidido em 08/10/2026). Transferir para uma organização da ONG antes de deixar a manutenção (ARQUITETURA.md, seção 10)
+- [ ] **Cloudflare:** conta criada com `sitesospatas@gmail.com` (08/10/2026)
+  - [x] verificação em duas etapas e seu e-mail pessoal como membro administrador (Manage account → Members)
+  - [x] Zero Trust ativado no plano gratuito, com o nome do time `sospatas`
+  - [ ] R2 ativado (pede cartão: decidir de quem, P1); os buckets só são criados nas etapas 8 e 14. **Prazo: antes da etapa 8**
+  - [ ] adicionar `sospatas.org.br` só depois que o Registro.br concluir o registro
+- [x] **Neon:** projeto `sospatas` em São Paulo, PostgreSQL 18, branch padrão `production` (08/10/2026). Falta: convidar seu e-mail pessoal; a branch `previa` fica para a etapa 8
 - [ ] Lista de e-mails da equipe (Gracia, Claudia e quem mais a ONG indicar, TELAS.md pergunta 13)
-- [ ] Ferramentas locais: Node 22 LTS, pnpm, Docker Desktop, Wrangler (`pnpm dlx wrangler login`)
+- [x] Ferramentas locais (08/10/2026): Node 24.21 (pelo nvm-windows), pnpm 12.10 (pelo Corepack) e Docker Desktop 29. O Wrangler entra como dependência do projeto na etapa 1; depois dela, `pnpm wrangler login` com o seu e-mail pessoal
 
 **Pronto quando:** contas criadas e acessos guardados num gerenciador de senhas; domínio pedido (pode ainda não estar ativo).
 
@@ -70,12 +78,12 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 **Objetivo:** esqueleto rodando localmente, com front chamando a API.
 
 **Entregas:**
-- `pnpm-workspace.yaml`, `package.json` raiz com scripts `dev`, `build`, `lint`, `typecheck`, `test`, `db:*`
+- `pnpm-workspace.yaml`, `package.json` raiz com scripts `dev`, `build`, `lint`, `typecheck`, `test`, `db:*`, `packageManager` (versão do pnpm fixa) e `engines.node` (`>=24`); `.nvmrc` com `24`
 - TypeScript estrito compartilhado (`tsconfig.base.json`), ESLint e Prettier, Vitest
 - `apps/web`: Vite + React + TypeScript + Tailwind com os **tokens de cor e fontes** (DESENVOLVIMENTO.md, seção 7.1), React Router, TanStack Query, `public/logo.png` e favicon, proxy de `/api` para o Wrangler
 - `apps/api`: Hono com `GET /api/saude`; `index.ts` (Workers) e `node.ts` (Node); `wrangler.toml` com os bindings previstos (HYPERDRIVE, FOTOS, QUARENTENA) e ambiente `previa`
 - `packages/compartilhado` vazio, já importado pelo web e pela api
-- `docker-compose.yml` com Postgres 16 (bancos `sospatas` e `sospatas_teste`)
+- `docker-compose.yml` com Postgres 18, a mesma versão do Neon (bancos `sospatas` e `sospatas_teste`)
 - `.github/workflows/ci.yml`: lint, typecheck e testes em cada PR
 - `.env.example` e `.dev.vars.example` (sem segredos reais); `.gitignore` atualizado
 - README: seção "Como rodar localmente"
@@ -255,7 +263,7 @@ Na ordem de prioridade:
 
 **Entregas:**
 - DNS de `sospatas.org.br` no Cloudflare; Pages em `sospatas.org.br`; Worker na rota `sospatas.org.br/api/*`; bucket público em `fotos.sospatas.org.br`
-- Neon `main` com migrations e `seed_conteudo.sql`; fotos da história enviadas ao R2 em `site/historia/{id}.webp` com os ids do seed (script)
+- Neon `production` com migrations e `seed_conteudo.sql`; fotos da história enviadas ao R2 em `site/historia/{id}.webp` com os ids do seed (script)
 - **Cloudflare Access:** aplicação protegendo `/admin/*` e `/api/admin/*`, política com os e-mails da equipe, código por e-mail, sessão de 30 dias, página de login com logo e cores (T08); linhas em `equipe`
 - Turnstile (site key no front, segredo na API) e Web Analytics
 - `deploy.yml` (migrations → `wrangler deploy` → Pages) e `backup.yml` (dump diário → `sospatas-backups`, 30 dias)

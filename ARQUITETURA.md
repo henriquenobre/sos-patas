@@ -35,7 +35,7 @@
 |---|---|---|---|
 | Front | **Cloudflare Pages** (React + Vite) | Grátis, banda ilimitada | Site estático; servidores no Brasil |
 | API | **Cloudflare Workers** + **Hono** | Grátis: 100 mil req/dia, 10 ms de CPU por requisição | Não "dorme"; responde do Brasil; Hono roda igual em Node (portável) |
-| Banco | **Neon** (PostgreSQL 16+) | Grátis: 0,5 GB por projeto | Postgres padrão (portável); sem pausa de projeto |
+| Banco | **Neon** (PostgreSQL 18, São Paulo) | Grátis: 0,5 GB por projeto | Postgres padrão (portável); sem pausa de projeto |
 | Ligação API ↔ banco | **Cloudflare Hyperdrive** | Grátis: 100 mil consultas/dia | Pool de conexões e cache de leitura; Workers não mantêm conexão aberta |
 | Fotos | **Cloudflare R2** | Grátis: 10 GB, **tráfego de saída grátis** | O tráfego das fotos era o limite mais apertado (Supabase: 5 GB/mês) |
 | Login da equipe | **Cloudflare Access** (Zero Trust) | Grátis até 50 usuários | Sem senha para guardar (ver seção 4); cabe no limite de CPU |
@@ -71,21 +71,25 @@ sos-patas/
 │       │   ├── middleware/      # access.ts (valida JWT do Access), erros, CORS
 │       │   ├── armazenamento/   # interface Armazenamento + implementação R2 (S3 no futuro)
 │       │   └── tarefas/         # limpezas do Cron (RN15, RN25, RN27)
-│       └── wrangler.toml        # bindings: HYPERDRIVE, FOTOS, QUARENTENA, cron
+│       ├── wrangler.toml        # bindings: HYPERDRIVE, FOTOS, QUARENTENA, cron; nível de cima = produção, [env.previa]
+│       └── .dev.vars.example    # variáveis locais (copiar para .dev.vars, fora do Git)
 ├── packages/
 │   └── compartilhado/           # schemas zod, tipos e limites (RN34, RN21…) usados no front e na API
 ├── db/
 │   ├── schema.ts                # schema Drizzle (fonte dos tipos)
 │   ├── migrations/              # SQL gerado e versionado (drizzle-kit)
-│   └── seed/                    # seed_conteudo.sql: textos, itens, ong e fotos da história
+│   ├── seed/                    # seed_conteudo.sql: textos, itens, ong e fotos da história
+│   └── docker/                  # scripts da 1ª inicialização do Postgres local (cria sospatas_teste)
 ├── prototipo/                   # protótipo HTML (especificação visual)
+├── dados-sensiveis/             # fora do Git: senhas e acessos (nunca versionar)
 ├── docker-compose.yml           # Postgres local para desenvolvimento
 ├── .github/workflows/           # ci.yml, deploy.yml, backup.yml
-├── ARQUITETURA.md · DESENVOLVIMENTO.md · PLANO_DESENVOLVIMENTO.md · CLAUDE.md · README.md
-└── pnpm-workspace.yaml
+├── ARQUITETURA.md · DESENVOLVIMENTO.md · PLANO_DESENVOLVIMENTO.md · LINHA_DO_TEMPO.md · CLAUDE.md · README.md
+├── package.json · pnpm-workspace.yaml · tsconfig.base.json · eslint.config.js · .prettierrc.json
+└── .nvmrc                       # Node 24
 ```
 
-**Ferramentas:** pnpm (workspaces), TypeScript estrito, **Drizzle ORM** (+ drizzle-kit para migrations SQL), driver **`postgres`** (postgres.js, funciona em Workers via Hyperdrive e em Node), **zod** (validação compartilhada), **TanStack Query** (dados no front), **Vitest** (testes), **Wrangler** (Workers).
+**Ferramentas:** pnpm (workspaces, versão fixa em `packageManager`), Node 24, TypeScript estrito (6.0: o typescript-eslint ainda não aceita o TypeScript 7), ESLint (com checagem de tipos) e Prettier, Tailwind CSS 4, React Router 8, **Drizzle ORM** (+ drizzle-kit para migrations SQL), driver **`postgres`** (postgres.js, funciona em Workers via Hyperdrive e em Node), **zod** (validação compartilhada), **TanStack Query** (dados no front), **Vitest** (testes), **Wrangler** (Workers).
 
 ## 3. API
 
@@ -144,7 +148,7 @@ sos-patas/
 
 ## 5. Banco de dados
 
-- **Neon**, projeto `sospatas`, região mais próxima disponível na criação (preferir **AWS São Paulo**, se houver; senão `us-east`). Branch `main` = produção; branches do Neon para testar migrations.
+- **Neon**, projeto `sospatas` (criado em 08/10/2026), região **AWS South America East 1 (São Paulo)**, **PostgreSQL 18**, plano gratuito (compute de 0,25 a 2 CU). Branch padrão **`production`** = produção; branch `previa` (etapa 8) e outras branches do Neon para testar migrations. O Postgres local (Docker) usa a mesma versão. **Neon Auth / Better Auth não é usado** (o login é pelo Access, seção 4).
 - **Migrations:** `db/schema.ts` (Drizzle) → `drizzle-kit generate` gera SQL em `db/migrations/` (revisado e versionado) → aplicado pelo workflow de deploy (`drizzle-kit migrate`). Nunca alterar o banco de produção à mão.
 - **Constraints no banco** além da API: `CHECK (char_length(...))` dos limites de texto (RN34), `CHECK` de `protetor_id` × `responsavel_tipo` (RN42), FK `restrict` de protetores, `CHECK (id = 1)` em `ong`.
 - **Usuário do banco** da API com privilégios só de DML nas tabelas do app (sem DDL); outro usuário, só no CI, para migrations.
@@ -180,18 +184,27 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 
 - **Workflow `backup.yml`** (GitHub Actions, diário): `pg_dump` do Neon → arquivo `.sql.gz` → `sospatas-backups/AAAA-MM-DD.sql.gz` no R2 (pela API S3 do R2). Mantém os últimos **30 dias** (apaga os mais antigos).
 - **Restauração** documentada no README (`psql` a partir do dump) e **testada uma vez antes da entrega** (tarefa 8).
-- O Neon também mantém um histórico curto para restauração no plano gratuito. O backup próprio é a garantia de longo prazo.
+- O Neon também mantém **6 horas** de histórico para restauração no plano gratuito. O backup próprio é a garantia de longo prazo.
 - As fotos não entram no backup (o R2 é durável); a perda de uma foto não perde o cadastro.
 
 ## 9. Ambientes, deploy e segredos
 
 | Ambiente | Front | API | Banco | Fotos |
 |---|---|---|---|---|
-| **Local** | `pnpm dev` (Vite) | `wrangler dev` (com proxy de `/api` no Vite) | Postgres no `docker-compose` | R2 simulado localmente pelo Wrangler |
+| **Local** | `pnpm dev` (Vite, porta 5173) | `wrangler dev` (porta 8787, com proxy de `/api` no Vite) | Postgres 18 no `docker-compose` (`sospatas` e `sospatas_teste`) | R2 simulado localmente pelo Wrangler |
 | **Prévia** | URL de prévia do Pages (cada PR) | Worker de prévia (`--env previa`) | Branch do Neon `previa` | Bucket `-previa` |
-| **Produção** | `sospatas.org.br` | `sospatas.org.br/api` | Neon `main` | `fotos.sospatas.org.br` |
+| **Produção** | `sospatas.org.br` | `sospatas.org.br/api` | Neon `production` | `fotos.sospatas.org.br` |
 
-**Fluxo:** PR → `ci.yml` (lint, typecheck, testes) → merge na `main` → `deploy.yml`: migrations no Neon → `wrangler deploy` da API → o Pages publica o front pela integração com o GitHub.
+**Configuração do Worker:** no `wrangler.toml`, o nível de cima é a **produção** (`AMBIENTE=producao`) e `[env.previa]` repete todos os bindings (eles não são herdados). No computador, o `.dev.vars` troca `AMBIENTE` para `local`; sem ele, a API se comporta como produção, o que mantém desligado qualquer atalho de desenvolvimento. Os tipos do `env` (`worker-configuration.d.ts`) são gerados por `wrangler types` na instalação e no typecheck, e ficam fora do Git.
+
+**Branches:**
+| Branch | Papel | Publica em |
+|---|---|---|
+| `main` | **Produção**: só recebe merge vindo da `develop` quando a versão está testada | Produção (a partir da etapa 14) |
+| `develop` | **Integração e testes**: recebe o trabalho de cada etapa ou correção | Prévia (a partir da etapa 8) |
+| `etapa-NN-…`, `correcao-…` | Trabalho do dia a dia, criadas a partir da `develop` | – |
+
+**Fluxo:** branch de trabalho → PR para a `develop` → `ci.yml` (typecheck, lint, formatação, testes e build) → merge → prévia atualizada → testado, PR da `develop` para a `main` → `deploy.yml`: migrations no Neon → `wrangler deploy` da API → o Pages publica o front pela integração com o GitHub. Versões marcadas com tag na `main` (`v1.0.0`, …) a partir da primeira publicação.
 
 **Segredos** (nunca no código; `wrangler secret` e secrets do GitHub):
 | Segredo | Onde |
@@ -207,8 +220,11 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 
 ## 10. Contas e propriedade
 
-- **Domínio** `sospatas.org.br` no **CNPJ da ONG** (Registro.br pede CNPJ e estatuto para `.org.br`). DNS apontado para o Cloudflare.
-- **Cloudflare, Neon e GitHub** criados com um **e-mail da ONG** (ex.: `site@...` ou um Gmail da SOS Patas), com o mantenedor do site como administrador. Assim nada fica preso a uma pessoa.
+- **Domínio** `sospatas.org.br` no **CNPJ da ONG** (26.515.895/0001-90). O `.org.br` exige CNPJ de instituição sem fins lucrativos: o Registro.br confere o cadastro na Receita e só pede documentos (cartão CNPJ e estatuto) se não conseguir confirmar. Em 08/10/2026, o CNPJ estava ativo, com natureza jurídica "Associação Privada", e o domínio estava livre. Titular: a ONG; contato técnico: quem mantém o site. DNS apontado para o Cloudflare.
+- **E-mail das contas: `sitesospatas@gmail.com`** (criado em 08/10/2026), só para o site. Recuperação pelo e-mail geral da ONG (`sospatas@hotmail.com`), para a ONG retomar o acesso se o mantenedor sair. O e-mail geral não é usado como login para não depender da ONG a cada código de verificação; e-mails do próprio domínio (`site@sospatas.org.br`) também não, porque deixam de funcionar se o domínio vencer.
+- **Cloudflare e Neon** criados com esse Gmail, com o **e-mail pessoal do mantenedor como administrador** em cada um. No Registro.br, o Gmail é o e-mail de contato do domínio.
+- **GitHub:** o código fica no repositório pessoal do mantenedor, **`henriquenobre/sos-patas`** (decidido em 08/10/2026). Se a manutenção passar para outra pessoa, transferir para uma organização gratuita da ONG criada com o Gmail (Settings → Transfer ownership). Depois da transferência: reconectar o Cloudflare Pages ao repositório, conferir os secrets do GitHub Actions, atualizar o `git remote` e o link do protótipo no README (o endereço do GitHub Pages muda e não é redirecionado).
+- **Verificação em duas etapas** por aplicativo autenticador (não SMS). Senhas e códigos de reserva entregues à ONG por escrito.
 - **Cartão:** o R2 pede um meio de pagamento cadastrado, mesmo no plano gratuito (cobrança só acima de 10 GB). É o único serviço que pede. Decidir de quem é o cartão (ver P1 no DESENVOLVIMENTO.md).
 
 ## 11. Limites gratuitos e quando pagar

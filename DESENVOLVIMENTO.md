@@ -404,7 +404,7 @@ Onde fica cada regra:
 
 ## 7.1 Identidade visual
 
-Tokens definidos no protótipo (copiar para o `tailwind.config` do React):
+Tokens definidos no protótipo. No site (Tailwind 4), eles estão no bloco `@theme` de `apps/web/src/index.css`, com os mesmos nomes de classe (`bg-azul`, `text-azul-escuro`, `font-titulo`…). Valores:
 
 ```js
 colors: {
@@ -498,3 +498,11 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 07/10/2026 | Criado o [CLAUDE.md](CLAUDE.md) com as regras de manutenção do projeto (RP01: toda alteração vai para protótipo, projeto e documentação) | Evitar documentação desatualizada, já que o site é desenvolvido com IA a partir dela |
 | 07/10/2026 | **Logo oficial em boa resolução** (`prototipo/assets/logo.png`, 790 px) em todas as telas | Arquivo recebido da ONG; substitui o recorte do Instagram |
 | 08/10/2026 | Criado o [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md): 16 etapas em fatias verticais (fundação → banco → API → site público → deploy de prévia → área da ONG → produção), executadas uma por pedido | Evitar um pedido único grande para a IA; validar cedo o Cloudflare com um deploy de prévia antes da área da ONG |
+| 08/10/2026 | Domínio: `sospatas.org.br` livre e CNPJ 26.515.895/0001-90 ativo como "Associação Privada" (consulta pública); estatuto só se o Registro.br pedir ([ARQUITETURA.md](ARQUITETURA.md), seção 10) | Corrige a informação anterior de que o estatuto era sempre exigido |
+| 08/10/2026 | Contas do site (Cloudflare, Neon, GitHub, contato do Registro.br) com o Gmail **`sitesospatas@gmail.com`**, recuperação por `sospatas@hotmail.com` e o mantenedor como administrador ([ARQUITETURA.md](ARQUITETURA.md), seção 10) | O e-mail geral da ONG exigiria pedir cada código de verificação; o e-mail pessoal deixaria a ONG sem acesso se o mantenedor sair |
+| 08/10/2026 | Código no repositório pessoal `henriquenobre/sos-patas`, com transferência para uma organização da ONG se a manutenção mudar de mãos ([ARQUITETURA.md](ARQUITETURA.md), seção 10) | O repositório já existe e o mantenedor é quem trabalha nele; a transferência no GitHub é simples e mantém histórico, issues e redirecionamento do endereço |
+| 08/10/2026 | Criado o [LINHA_DO_TEMPO.md](LINHA_DO_TEMPO.md) com as datas reais desde o primeiro contato com a ONG (05/10/2026) e a regra RP04 no [CLAUDE.md](CLAUDE.md): toda etapa concluída tem a data registrada | Pedido do estudante: saber quanto tempo levou cada parte do projeto |
+| 08/10/2026 | Banco no Neon em **São Paulo**, **PostgreSQL 18**, branch de produção `production` (padrão do Neon, no lugar de `main`); Docker local na mesma versão; Neon Auth não usado ([ARQUITETURA.md](ARQUITETURA.md), seção 5) | Região mais próxima dos usuários; mesma versão local e em produção evita diferença de comportamento; o login já é feito pelo Access |
+| 08/10/2026 | **Node 24 LTS** no desenvolvimento e no CI (o plano previa o 22), com `.nvmrc` e `engines` no monorepo; pnpm com versão fixa pelo Corepack | O Node 20 instalado já está sem suporte (abr/2026); o 24 é o LTS ativo, com suporte até 2028, o que reduz atualizações para quem mantém o site |
+| 08/10/2026 | Etapa 1 (fundação do monorepo): **Tailwind 4** com os tokens em `@theme` no CSS (no lugar de `tailwind.config`), **React Router 8**, Vite 8, Vitest 5; **TypeScript fixo em 6.0**; no `wrangler.toml`, nível de cima = produção e `.dev.vars` para o ambiente local ([ARQUITETURA.md](ARQUITETURA.md), seções 2 e 9) | Versões estáveis mais recentes na data; o typescript-eslint ainda não aceita o TypeScript 7; a API nunca liga atalhos de desenvolvimento por esquecimento de configuração |
+| 08/10/2026 | Branches: **`main` = produção** e **`develop` = integração e testes** (prévia); etapas e correções em branches próprias a partir da `develop` ([ARQUITETURA.md](ARQUITETURA.md), seção 9) | Separar o que está testado do que está em desenvolvimento antes de o site ir ao ar e permitir versionar as publicações |
