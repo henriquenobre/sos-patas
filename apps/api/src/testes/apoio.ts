@@ -20,6 +20,7 @@ export function envTeste(extra: Partial<Env> = {}): Env {
     ACCESS_AUD: AUD_ACCESS,
     CORS_ORIGENS: '',
     ACESSO_LOCAL_EMAIL: '',
+    FOTOS_URL_BASE: '',
     ...extra,
   } as Partial<Env> as Env
 }

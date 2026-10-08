@@ -120,13 +120,16 @@ sos-patas/
 
 | Método e rota | Função | Regras |
 |---|---|---|
-| `GET /site` | Dados da ONG + todos os textos e itens de conteúdo, numa chamada só | RN33 |
-| `GET /animais?especie&porte&idade&convive` | Vitrine: só `disponivel`, mais antigos primeiro, **sem** `animais_privado` | RN10, RN11 |
+| `GET /site` | Dados da ONG + todos os textos e itens de conteúdo, numa chamada e **numa consulta** ao banco | RN33 |
+| `GET /animais?especie&porte&idade&convive` | Vitrine: só `disponivel`, mais antigos primeiro, **sem** `animais_privado`. Um valor por filtro: `especie=cao\|gato`, `porte=mini…gigante`, `idade=filhote\|adulto`, `convive=sim`; vazio = desligado; valor inválido = 400 | RN10, RN11 |
 | `GET /animais/destaques` | "Esperando há mais tempo" | RN12 |
 | `GET /animais/:id` | Ficha (disponível ou adotado, sem dados privados) | RN31 |
-| `GET /perdidos?tipo` | Só anúncios `publicado` e não expirados | RN18 |
+| `GET /perdidos?tipo` | Só anúncios `publicado` e não expirados, mais recentes primeiro; `tipo=perdido\|encontrado` | RN18, RN25 |
+| `GET /fotos/*` | Foto do bucket **público** (`animais/`, `site/`, `perdidos/`), com cache de 1 ano. Usada quando não há domínio de fotos (`FOTOS_URL_BASE` vazio: computador e prévia). Nunca lê a quarentena | RN19 |
 | `POST /perdidos` | Envio público: Turnstile, limites, até 2 fotos WebP ≤ 500 KB → `pendente` + fotos na **quarentena** | RN19–RN23 |
 | `POST /interesses` | _Futuro_: formulário de interesse em adoção | RN14, RN15 |
+
+**Respostas:** tipos em `packages/compartilhado/src/api/publico.ts` (`SitePublico`, `ListaAnimais`, `AnimalFicha`, `ListaPerdidos`), usados pela API e pelo front. As fotos vêm como URL pronta. A idade é calculada no front com `textoIdade` (as datas vêm cruas). O cache usa como chave o caminho com os filtros válidos em ordem fixa: parâmetros extras não criam cópias novas nem acordam o banco.
 
 ### 3.2 Rotas da área da ONG (`/api/admin`, exigem Cloudflare Access)
 
@@ -183,6 +186,7 @@ sos-patas/
 
 - **Aprovar anúncio** = copiar os objetos da quarentena para o bucket público e apagar da quarentena, na mesma operação (RN19).
 - **Excluir** segue a RN05: primeiro os arquivos, depois o registro.
+- **URL das fotos:** a API devolve a URL pronta. Com `FOTOS_URL_BASE` (produção: `https://fotos.sospatas.org.br`), aponta para o domínio de fotos; vazio (computador e prévia), para `/api/publico/fotos/{path}`. As fotos da história guardam só o caminho da completa (`site/historia/{id}.webp`); a miniatura fica ao lado, `{id}-thumb.webp`.
 - **Não usar a URL pública `r2.dev`** (decidido em 08/10/2026): ela não passa pelo cache do Cloudflare, então cada acesso vira uma operação cobrável do R2. Antes do domínio próprio (ambiente de teste), as fotos são servidas pela API, que tem o limite diário do Workers gratuito como teto (seção 11.1).
 - O acesso ao R2 fica atrás da interface `Armazenamento` (`colocar`, `obter`, `copiar`, `apagarPrefixo`). Para trocar de serviço (S3, MinIO na VPS), basta outra implementação.
 

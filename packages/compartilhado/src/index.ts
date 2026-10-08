@@ -8,6 +8,7 @@ export * from './idade'
 export * from './whatsapp'
 export * from './texto'
 export * from './schemas'
+export type * from './api/publico'
 
 /** Resposta de GET /api/saude: confirma que a API está no ar. */
 export type RespostaSaude = {
