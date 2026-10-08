@@ -1,7 +1,7 @@
 # Plano de desenvolvimento: Site SOS Patas
 
 > Ordem de construção do site, dividida em etapas pequenas para executar **uma por vez** (um pedido por etapa).
-> **O quê** construir está no [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md) (escopo, modelo de dados, RN) e no [prototipo/TELAS.md](prototipo/TELAS.md); **como** e **onde**, no [ARQUITETURA.md](ARQUITETURA.md). Este arquivo só define a **ordem** e o que conta como pronto em cada etapa.
+> **O quê** construir está no [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md) (escopo, modelo de dados, RN) e no [prototipo/TELAS.md](../prototipo/TELAS.md); **como** e **onde**, no [ARQUITETURA.md](ARQUITETURA.md). Este arquivo só define a **ordem** e o que conta como pronto em cada etapa.
 > Prazo: site no ar até **30/10/2026**; trabalho entregue em 11/11/2026 (premissa P4).
 
 ---
@@ -19,7 +19,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 2. Trabalha numa branch `etapa-NN-nome-curto` criada a partir da `develop`, e a etapa termina com merge na `develop`. A `main` é produção e só recebe a `develop` testada (ARQUITETURA.md, seção 9).
 3. Entrega só o que está em "Entregas". O que aparece em "Fora desta etapa" fica para depois, mesmo que pareça rápido.
 4. Termina com `pnpm lint`, `pnpm typecheck` e `pnpm test` passando (a partir da etapa 1).
-5. Confere a tabela da RP01 ([CLAUDE.md](CLAUDE.md)): se o código divergiu da documentação, atualiza os dois lados e registra a decisão.
+5. Confere a tabela da RP01 ([CLAUDE.md](../CLAUDE.md)): se o código divergiu da documentação, atualiza os dois lados e registra a decisão.
 6. Atualiza o **Painel** abaixo (status), registra as datas reais de início e conclusão no [LINHA_DO_TEMPO.md](LINHA_DO_TEMPO.md) (RP04) e resume o que ficou pendente.
 
 **Ordem escolhida e por quê:** fundação → banco → regras compartilhadas → API → telas, em **fatias verticais** (cada parte do site fica pronta de ponta a ponta antes da próxima). O site público vem antes da área da ONG porque só lê dados, o que valida banco, API e visual com pouco risco. Um **deploy de prévia** entra no meio (etapa 8) para descobrir cedo problemas reais do Cloudflare (Hyperdrive, limite de 10 ms de CPU, R2), e não na véspera da entrega.
@@ -29,8 +29,8 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | # | Etapa | Depende de | Sugestão de data | Status |
 |---|---|---|---|---|
 | 0 | Contas e serviços (manual) | – | 08–12/10 | 🔄 |
-| 1 | Fundação do monorepo | – | 09–10/10 | ✅ 08/10 (CI a confirmar no 1º push) |
-| 2 | Banco: schema, migrations e seed | 1 | 10–11/10 | ⬜ |
+| 1 | Fundação do monorepo | – | 09–10/10 | ✅ 08/10 |
+| 2 | Banco: schema, migrations e seed | 1 | 10–11/10 | ✅ 08/10 |
 | 3 | Pacote compartilhado (zod, limites, idade) | 1 | 11/10 | ⬜ |
 | 4 | Base da API (erros, login, armazenamento, testes) | 2, 3 | 12/10 | ⬜ |
 | 5 | API pública de leitura | 4 | 13/10 | ⬜ |
@@ -115,7 +115,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Entregas em `packages/compartilhado`:**
 - Schemas zod: animal (cadastro/edição), adoção, protetor, anúncio de perdido (público e equipe), texto, item de lista, dados da ONG
-- **Configuração das listas** (`perguntas`, `como_adotar_passos`… com rótulos, limites, obrigatoriedade e mínimo/máximo de itens), que a API e o `ListaEditavel` vão ler
+- **Configuração das listas** (`perguntas`, `como_adotar_passos`… com rótulos, limites, obrigatoriedade e mínimo/máximo de itens), que a API e o `ListaEditavel` vão ler. _Adiantado na etapa 2: `dominio.ts` (enums), `limites.ts` e `conteudo.ts` (limites, obrigatoriedade, mínimo e máximo) já existem e alimentam o banco; falta acrescentar os rótulos_
 - Limites fixos: fotos (3 por animal, 2 por anúncio, 500 KB), prazos (30 dias, 7 dias, 90 dias), envios (3/dia por IP, 30 pendentes)
 - Funções: `idade` e `ehAdulto` (RN11, RN13), `esperandoHaMaisTempo` (RN12), normalizar e validar WhatsApp, `contemLink` (RN21), `linkWhatsApp(numero, texto)`
 - Testes unitários de todas as funções e dos casos de borda dos schemas
@@ -180,7 +180,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 **Objetivo:** ver o site público rodando de verdade antes de construir a área da ONG.
 
 **Entregas:**
-- Hyperdrive apontando para a branch `previa` do Neon; migrations e seed aplicados nela
+- Hyperdrive apontando para a branch `previa` do Neon; migrations e seed aplicados nela. Os dados de exemplo (`seed_dev.sql`) hoje só rodam no banco local: liberar a prévia com uma opção explícita, sem nunca permitir a produção
 - Buckets `sospatas-fotos-previa` e `sospatas-quarentena-previa`
 - Worker `--env previa` publicado (`*.workers.dev`) e Pages ligado ao GitHub (`*.pages.dev`), com `VITE_API_URL` da prévia
 - Segredos da prévia com `wrangler secret`
@@ -276,7 +276,7 @@ Na ordem de prioridade:
 ## Etapa 15 · Dados reais, teste com a ONG e ajustes finais
 
 **Entregas:**
-- Apagar os dados de exemplo da produção; Gracia ou Claudia cadastram os primeiros animais reais pelo celular (tarefa 7 do roteiro)
+- Conferir que a produção não tem dados de exemplo (só o `seed_conteudo.sql` vai para lá); Gracia ou Claudia cadastram os primeiros animais reais pelo celular (tarefa 7 do roteiro)
 - Revisão em 360 px de todas as telas, acessibilidade básica (contraste, `alt`, toque ≥ 44 px), Lighthouse do Início e da vitrine
 - Correções do teste com a ONG, registradas em TELAS.md ("Registro da validação")
 - Status das telas em TELAS.md atualizado; prints regerados se o protótipo mudou

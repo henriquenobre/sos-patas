@@ -17,7 +17,10 @@
     "format:check": "prettier --check .",
     "db:up": "docker compose up -d --wait",
     "db:down": "docker compose down",
-    "db:reset": "docker compose down -v && docker compose up -d --wait"
+    "db:reset": "docker compose down -v && docker compose up -d --wait",
+    "db:gerar": "pnpm -C db gerar",
+    "db:migrate": "pnpm -C db migrar",
+    "db:seed": "pnpm -C db semear"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

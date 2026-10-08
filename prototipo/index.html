@@ -78,8 +78,8 @@
 
 <script>
 // ---------------------------------------------------------------------------
-// DADOS FICTÍCIOS (exceto Apolo e Pelezinho, que são animais reais da ONG)
-// Campos seguem o modelo de dados do DESENVOLVIMENTO.md (seção 5)
+// DADOS FICTÍCIOS: nenhum animal está de fato para adoção (Apolo e Pelezinho foram inspirados em animais da ONG)
+// Campos seguem o modelo de dados do docs/DESENVOLVIMENTO.md (seção 5)
 // ---------------------------------------------------------------------------
 // Tabela `ong` (uma linha só), editável em T23
 const ONG = {
@@ -176,7 +176,7 @@ const alteradoPor = alt => alt ? `<p class="text-xs font-semibold text-slate-400
 
 // ---------------------------------------------------------------------------
 // CONTEÚDO EDITÁVEL DAS PÁGINAS · tabelas conteudo_textos e conteudo_itens (RN33–RN38)
-// Valores iniciais = textos do protótipo (seed). História, marcos, números e fotos: respostas da ONG em 07/10/2026 (PROJETO.md).
+// Valores iniciais = textos do protótipo (seed). História, marcos, números e fotos: respostas da ONG em 07/10/2026 (privado/projeto/PROJETO.md).
 // ---------------------------------------------------------------------------
 const TEXTOS = { // chave: [rótulo, limite, obrigatório, onde aparece no site]
   'inicio.chamada_titulo': ['Título da chamada', 60, true, 'Texto grande no topo da página inicial'],
@@ -284,7 +284,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 const textoSimples = s => esc(s).replace(/https?:\/\/[^\s<]+/g, u => `<a href="${u}" target="_blank" rel="noopener noreferrer" class="font-bold text-azul underline">${u}</a>`);
 
 // ---------------------------------------------------------------------------
-// Regras de negócio (ver DESENVOLVIMENTO.md, seção 6)
+// Regras de negócio (ver docs/DESENVOLVIMENTO.md, seção 6)
 // ---------------------------------------------------------------------------
 const meses = a => { const n = a.nascimento_aprox;                     // meses completos de calendário
   return Math.max(0, (hoje.getFullYear() - n.getFullYear()) * 12 + hoje.getMonth() - n.getMonth() - (hoje.getDate() < n.getDate() ? 1 : 0)); };
@@ -1214,7 +1214,7 @@ function excluirProtetor(id) {
 }
 
 // ---------------------------------------------------------------------------
-// PERDIDOS E ENCONTRADOS (dados fictícios) · ver DESENVOLVIMENTO.md, RN18–RN28
+// PERDIDOS E ENCONTRADOS (dados fictícios) · ver docs/DESENVOLVIMENTO.md, RN18–RN28
 // ---------------------------------------------------------------------------
 const DIAS_PUBLICACAO = 30;                                             // RN25
 let perdidos = [

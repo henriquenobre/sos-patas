@@ -2,7 +2,7 @@
 
 > Protótipo navegável: [index.html](index.html) (abrir no navegador; botão **"☰ Telas do protótipo"** no canto inferior esquerdo).
 > Prints de cada tela (celular e computador): [telas/](telas/). Para gerar de novo: `python prototipo/gerar_prints.py`.
-> Regras de negócio (RN) e modelo de dados: [../DESENVOLVIMENTO.md](../DESENVOLVIMENTO.md).
+> Regras de negócio (RN) e modelo de dados: [../DESENVOLVIMENTO.md](../docs/DESENVOLVIMENTO.md).
 >
 > **Ao desenvolver em React, cada tela abaixo vira uma página. Reaproveitar as classes Tailwind e os tokens de design do protótipo.**
 
@@ -213,7 +213,7 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 ### T08 · Login · tela do Cloudflare Access ao abrir `/admin` · ✏️ alterada em 07/10
 ![T08](telas/T08-login-celular.png)
 
-**Sem senha** ([ARQUITETURA.md](../ARQUITETURA.md), seção 4):
+**Sem senha** ([ARQUITETURA.md](../docs/ARQUITETURA.md), seção 4):
 1. **E-mail** → botão **"Enviar código"**.
 2. A pessoa recebe um **código de 6 dígitos** no e-mail → digita → **"Entrar"**.
 3. Fica conectada por **30 dias** naquele celular.

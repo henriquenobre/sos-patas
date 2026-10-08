@@ -3,9 +3,9 @@
 > Documento de referência para construir o site. Reúne as premissas, as tecnologias, o modelo de dados e as regras de negócio já definidas.
 > **Toda nova definição entra na seção 9 (Registro de decisões)** e, se mudar alguma regra, atualiza a seção correspondente.
 >
-> Contexto do projeto acadêmico, entrevistas e formulários: [PROJETO.md](PROJETO.md).
-> **Regras de manutenção do projeto** (o que atualizar a cada alteração): [CLAUDE.md](CLAUDE.md).
-> **Telas (protótipo validado com a ONG):** [prototipo/TELAS.md](prototipo/TELAS.md) · protótipo navegável em [prototipo/index.html](prototipo/index.html).
+> Contexto do projeto acadêmico, entrevistas e formulários: [PROJETO.md](../privado/projeto/PROJETO.md).
+> **Regras de manutenção do projeto** (o que atualizar a cada alteração): [CLAUDE.md](../CLAUDE.md).
+> **Telas (protótipo validado com a ONG):** [prototipo/TELAS.md](../prototipo/TELAS.md) · protótipo navegável em [prototipo/index.html](../prototipo/index.html).
 > **Arquitetura e hospedagem** (front, API, banco, fotos, login, deploy e backup): [ARQUITETURA.md](ARQUITETURA.md).
 > **Ordem de construção** (etapas 0 a 15 e painel de status): [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md).
 
@@ -75,7 +75,7 @@ Resumo. O detalhamento (diagrama, API, login, deploy, backup e limites) está no
 
 ### Área restrita (`/admin`, exige login)
 
-**Princípio:** tudo o que muda com o tempo no site (animais, perdidos, textos das páginas, contatos e PIX) é alterado pela área da ONG, pelo celular, sem mexer no código nem em painéis técnicos (P3). O acesso é protegido pelo Cloudflare Access (código por e-mail; [ARQUITETURA.md](ARQUITETURA.md), seção 4). Telas detalhadas em [prototipo/TELAS.md](prototipo/TELAS.md).
+**Princípio:** tudo o que muda com o tempo no site (animais, perdidos, textos das páginas, contatos e PIX) é alterado pela área da ONG, pelo celular, sem mexer no código nem em painéis técnicos (P3). O acesso é protegido pelo Cloudflare Access (código por e-mail; [ARQUITETURA.md](ARQUITETURA.md), seção 4). Telas detalhadas em [prototipo/TELAS.md](../prototipo/TELAS.md).
 
 **Navegação:** barra fixa no rodapé (no celular) com 4 abas: **Animais · Perdidos · Textos · Mais**. No computador (≥ 768 px), as mesmas abas ficam no cabeçalho. Telas de formulário escondem a barra e mostram a barra de "Cancelar / Salvar".
 
@@ -262,7 +262,15 @@ Substitui a constante `ONG` do código (seção 7.1). Cabeçalho, rodapé, Iníc
 | `inicio_como_funcionamos` | Início, "Como funcionamos" | Título (40), obrigatório | Texto (150) | 0 |
 | `ajude_formas` | Como ajudar (além do card fixo do PIX) | Título (40), obrigatório | Texto (300) | 0 |
 
-**Conteúdo inicial (seed):** a migration `seed_conteudo.sql` cria `ong`, os textos e os itens com os textos atuais do protótipo (`prototipo/index.html`), para o site já estrear preenchido. História, marcos, números e fotos vêm das respostas da ONG de 07/10/2026 (PROJETO.md, Entrevista 3); as fotos estão em `prototipo/assets/historia-1.jpg` a `historia-5.jpg` (a ordem de exibição está em `FOTOS_HISTORIA`, no protótipo; a `historia-1`, da assembleia, é uma versão tratada).
+### Limites e garantias no banco (implementado em 08/10/2026, etapa 2)
+- **Limites de caracteres** de todos os campos em `packages/compartilhado/src/limites.ts` (tabelas) e `conteudo.ts` (textos e listas). Além dos citados acima: `animais.nome` 40, `raca` 60, `cor_pelagem` 60, `vacinas` 120, `problema_saude` 300; `animais_privado.lar_nome` 80, `observacoes` 1000, `adotante_nome` 80; `equipe.nome` 40; `ong.nome_completo` 120, `instagram` 30, `facebook` 200, `pix_chave` 100. O banco confere com `CHECK` gerado a partir desses arquivos.
+- **Campos obrigatórios** não aceitam texto vazio nem só espaços. `animais.descricao` e `animais_privado.observacoes` ficam `''` quando não preenchidos; `lar_nome` e `lar_tipo` podem ficar nulos (o lar não é obrigatório no cadastro, T10).
+- **Coerência:** adotado sempre tem `data_adocao` e disponível nunca tem (RN08); anúncio `publicado` sempre tem `publicado_em` e `expira_em`, e `pendente` nunca tem (RN25); anúncio da equipe não tem `ip_hash` (RN39); WhatsApp só com 10 ou 11 dígitos; e-mail da equipe em minúsculas; Instagram sem `@`; Facebook começando com `https://`.
+- **Posições:** `fotos.ordem` vai de 0 a 2 (RN01) e cada animal tem uma foto por posição; cada lista de `conteudo_itens` tem um item por posição. As duas unicidades são `DEFERRABLE` (conferidas no fim da transação), para a troca de ordem da RN35.
+- **`updated_by`** vira nulo se a linha da equipe for apagada (o normal é desativar com `ativo = false`).
+- **Conferido pela API, não pelo banco:** quantidade de itens por lista (mínimo e máximo, RN36, RN38, RN46), fotos por anúncio (RN21), data do ocorrido no futuro e links na descrição.
+
+**Conteúdo inicial (seed):** o arquivo `db/seed/seed_conteudo.sql` cria `ong`, os textos e os itens com os textos atuais do protótipo (`prototipo/index.html`), para o site já estrear preenchido. História, marcos, números e fotos vêm das respostas da ONG de 07/10/2026 (PROJETO.md, Entrevista 3); as fotos estão em `prototipo/assets/historia-1.jpg` a `historia-5.jpg` (a ordem de exibição está em `FOTOS_HISTORIA`, no protótipo; a `historia-1`, da assembleia, é uma versão tratada).
 
 ### Segurança e permissões (na API)
 A **API é a única porta para o banco e para os arquivos**: o navegador nunca fala direto com o Neon nem com o R2 (exceto para *ler* fotos públicas). Não há RLS; quem decide o que pode é a API ([ARQUITETURA.md](ARQUITETURA.md), seções 3 e 5).
@@ -311,7 +319,7 @@ A **API é a única porta para o banco e para os arquivos**: o navegador nunca f
 
 ### Contato
 - **RN14 (alterada em 06/10/2026):** o botão **"Quero adotar"** abre o **formulário de interesse em adoção**, em vez de levar direto ao WhatsApp. A ONG não quer concentrar as entrevistas em uma pessoa: quem tem interesse preenche o formulário e a equipe (ou o protetor parceiro responsável) valida depois e entra em contato pelo WhatsApp.
-  - **Perguntas do formulário:** [formulario/FORMULARIO_ADOCAO.md](formulario/FORMULARIO_ADOCAO.md) (v1 em validação no grupo; inclui os alertas automáticos para quem analisa). O PDF para o grupo é gerado com `python formulario/gerar_pdf.py`.
+  - **Perguntas do formulário:** [formulario/FORMULARIO_ADOCAO.md](formulario/FORMULARIO_ADOCAO.md) (v1 em validação no grupo; inclui os alertas automáticos para quem analisa). O PDF para o grupo é gerado com `python docs/formulario/gerar_pdf.py`.
   - **Tela pública e tela de análise na área da ONG:** _a criar depois da definição das perguntas._
 - **RN15 (alterada em 06/10/2026):** o site **passa a coletar dados de quem quer adotar**. Por isso, o formulário segue as mesmas proteções dos envios públicos (RN21–RN23: validação na API, Turnstile e limite por IP), com **consentimento explícito** (LGPD), acesso só para a equipe logada e **prazo de guarda**: pedidos recusados ou não concluídos são apagados em até 90 dias. _(Prazo a confirmar com a ONG.)_
 
@@ -396,7 +404,8 @@ Onde fica cada regra:
 | Compressão e redesenho das fotos (RN02, RN20) | `apps/web/src/lib/fotos.ts` |
 | Idade e adulto/filhote (RN11, RN13) | `packages/compartilhado` (usado no front e na API) |
 | `TextoSimples`: quebras de linha + links (RN34) | `apps/web/src/components/TextoSimples.tsx` |
-| Limites de campos e validação (RN21, RN34) | `packages/compartilhado/schemas/*` |
+| Limites de campos e validação (RN21, RN34) | `packages/compartilhado/src/limites.ts` e `conteudo.ts`; schemas zod na etapa 3 |
+| Enums e constraints do banco | `db/schema.ts` + `db/migrations/` |
 | `excluirAnimal` (RN05), adoção (RN07, RN08), aprovar/recusar anúncio (RN19, RN26) | `apps/api/src/servicos/*` |
 | Trocar ordem (RN35) | `apps/api/src/servicos/conteudo.ts` |
 | Limpezas diárias (RN25, RN27) | `apps/api/src/tarefas/*` |
@@ -416,7 +425,7 @@ colors: {
 fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui'] },
 ```
 
-**Logo oficial:** copiar [prototipo/assets/logo.png](prototipo/assets/logo.png) para `apps/web/public/logo.png` e usar esse arquivo em todo o site, inclusive no favicon e na imagem de compartilhamento (`og:image`). Regras de uso no [TELAS.md](prototipo/TELAS.md), seção Identidade visual.
+**Logo oficial:** copiar [prototipo/assets/logo.png](../prototipo/assets/logo.png) para `apps/web/public/logo.png` e usar esse arquivo em todo o site, inclusive no favicon e na imagem de compartilhamento (`og:image`). Regras de uso no [TELAS.md](../prototipo/TELAS.md), seção Identidade visual.
 
 **Dados da ONG:** ficam na tabela `ong` e são editáveis em T23. Os valores abaixo são o conteúdo inicial (seed):
 - Nome: SOS Patas, Sociedade de Proteção aos Animais de Passos/MG
@@ -495,14 +504,17 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 07/10/2026 | Segurança na **API** em vez de RLS; buckets `sospatas-fotos` (público), `sospatas-quarentena` e `sospatas-backups` (privados); toda gravação de arquivo passa pela API | Sem Supabase, a API é a única porta para banco e arquivos |
 | 07/10/2026 | RN16 deixa de ser keep-alive do Supabase e vira **tarefa diária (Cron Trigger) + backup diário do banco no R2** | O Neon não pausa projetos; o backup próprio garante a recuperação |
 | 07/10/2026 | Domínio **`sospatas.org.br`** no CNPJ da ONG entra no MVP (antes "fora do MVP") | Necessário para API e fotos no mesmo domínio e para o Access; R$ 40/ano |
-| 07/10/2026 | Criado o [CLAUDE.md](CLAUDE.md) com as regras de manutenção do projeto (RP01: toda alteração vai para protótipo, projeto e documentação) | Evitar documentação desatualizada, já que o site é desenvolvido com IA a partir dela |
+| 07/10/2026 | Criado o [CLAUDE.md](../CLAUDE.md) com as regras de manutenção do projeto (RP01: toda alteração vai para protótipo, projeto e documentação) | Evitar documentação desatualizada, já que o site é desenvolvido com IA a partir dela |
 | 07/10/2026 | **Logo oficial em boa resolução** (`prototipo/assets/logo.png`, 790 px) em todas as telas | Arquivo recebido da ONG; substitui o recorte do Instagram |
 | 08/10/2026 | Criado o [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md): 16 etapas em fatias verticais (fundação → banco → API → site público → deploy de prévia → área da ONG → produção), executadas uma por pedido | Evitar um pedido único grande para a IA; validar cedo o Cloudflare com um deploy de prévia antes da área da ONG |
 | 08/10/2026 | Domínio: `sospatas.org.br` livre e CNPJ 26.515.895/0001-90 ativo como "Associação Privada" (consulta pública); estatuto só se o Registro.br pedir ([ARQUITETURA.md](ARQUITETURA.md), seção 10) | Corrige a informação anterior de que o estatuto era sempre exigido |
 | 08/10/2026 | Contas do site (Cloudflare, Neon, GitHub, contato do Registro.br) com o Gmail **`sitesospatas@gmail.com`**, recuperação por `sospatas@hotmail.com` e o mantenedor como administrador ([ARQUITETURA.md](ARQUITETURA.md), seção 10) | O e-mail geral da ONG exigiria pedir cada código de verificação; o e-mail pessoal deixaria a ONG sem acesso se o mantenedor sair |
 | 08/10/2026 | Código no repositório pessoal `henriquenobre/sos-patas`, com transferência para uma organização da ONG se a manutenção mudar de mãos ([ARQUITETURA.md](ARQUITETURA.md), seção 10) | O repositório já existe e o mantenedor é quem trabalha nele; a transferência no GitHub é simples e mantém histórico, issues e redirecionamento do endereço |
-| 08/10/2026 | Criado o [LINHA_DO_TEMPO.md](LINHA_DO_TEMPO.md) com as datas reais desde o primeiro contato com a ONG (05/10/2026) e a regra RP04 no [CLAUDE.md](CLAUDE.md): toda etapa concluída tem a data registrada | Pedido do estudante: saber quanto tempo levou cada parte do projeto |
+| 08/10/2026 | Criado o [LINHA_DO_TEMPO.md](LINHA_DO_TEMPO.md) com as datas reais desde o primeiro contato com a ONG (05/10/2026) e a regra RP04 no [CLAUDE.md](../CLAUDE.md): toda etapa concluída tem a data registrada | Pedido do estudante: saber quanto tempo levou cada parte do projeto |
 | 08/10/2026 | Banco no Neon em **São Paulo**, **PostgreSQL 18**, branch de produção `production` (padrão do Neon, no lugar de `main`); Docker local na mesma versão; Neon Auth não usado ([ARQUITETURA.md](ARQUITETURA.md), seção 5) | Região mais próxima dos usuários; mesma versão local e em produção evita diferença de comportamento; o login já é feito pelo Access |
 | 08/10/2026 | **Node 24 LTS** no desenvolvimento e no CI (o plano previa o 22), com `.nvmrc` e `engines` no monorepo; pnpm com versão fixa pelo Corepack | O Node 20 instalado já está sem suporte (abr/2026); o 24 é o LTS ativo, com suporte até 2028, o que reduz atualizações para quem mantém o site |
 | 08/10/2026 | Etapa 1 (fundação do monorepo): **Tailwind 4** com os tokens em `@theme` no CSS (no lugar de `tailwind.config`), **React Router 8**, Vite 8, Vitest 5; **TypeScript fixo em 6.0**; no `wrangler.toml`, nível de cima = produção e `.dev.vars` para o ambiente local ([ARQUITETURA.md](ARQUITETURA.md), seções 2 e 9) | Versões estáveis mais recentes na data; o typescript-eslint ainda não aceita o TypeScript 7; a API nunca liga atalhos de desenvolvimento por esquecimento de configuração |
 | 08/10/2026 | Branches: **`main` = produção** e **`develop` = integração e testes** (prévia); etapas e correções em branches próprias a partir da `develop` ([ARQUITETURA.md](ARQUITETURA.md), seção 9) | Separar o que está testado do que está em desenvolvimento antes de o site ir ao ar e permitir versionar as publicações |
+| 08/10/2026 | Etapa 2 (banco): schema Drizzle com 10 tabelas, 13 enums e as constraints de "Limites e garantias no banco" (seção 5); definidos os limites que faltavam (nome do animal, raça, lar, observações…); seed de conteúdo com **ids fixos** (pode rodar de novo sem duplicar) e seed de exemplo só no banco local; `db/` vira o pacote `@sospatas/db` | Nenhum campo de texto sem limite; o banco protege os dados mesmo se a API falhar; os limites ficam num lugar só (`packages/compartilhado`), lido pelo banco e pela validação |
+| 08/10/2026 | Todos os animais do protótipo e do `seed_dev.sql` passam a ser tratados como **exemplos fictícios** (antes: Apolo e Pelezinho como reais); nenhum vai para a produção | Os dois eram animais da ONG, mas podem não estar mais para adoção. A produção começa sem animais e a equipe cadastra os reais (etapa 15) |
+| 08/10/2026 | **Pastas reorganizadas:** documentação em `docs/` (DESENVOLVIMENTO, ARQUITETURA, PLANO_DESENVOLVIMENTO, LINHA_DO_TEMPO e `formulario/`), protótipo continua em `prototipo/`, aplicação em `apps/`, `packages/` e `db/`; tudo que é só local (PROJETO.md, PDFs da pesquisa, fotos originais, dados sensíveis) em `privado/`, fora do Git. `CLAUDE.md` e `README.md` ficam na raiz | Separar aplicação, documentação e protótipo, local e no GitHub; uma pasta só para o que nunca pode ser publicado |

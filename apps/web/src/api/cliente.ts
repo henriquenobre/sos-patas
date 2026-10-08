@@ -1,5 +1,5 @@
 // Cliente HTTP da API. Em produção a API está na mesma origem (/api); antes do domínio
-// próprio, VITE_API_URL aponta para o Worker da prévia (ARQUITETURA.md, seção 3).
+// próprio, VITE_API_URL aponta para o Worker da prévia (docs/ARQUITETURA.md, seção 3).
 const BASE = import.meta.env.VITE_API_URL ?? ''
 
 export class ErroApi extends Error {

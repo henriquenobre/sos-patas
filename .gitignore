@@ -1,10 +1,8 @@
-# Material do projeto acadêmico (dados da entrevista e da ONG) — não publicar
-PROJETO.md
+# Tudo que é só local: projeto acadêmico (PROJETO.md e PDFs), fotos originais da ONG,
+# senhas e acessos. Nunca vai para o GitHub.
+privado/
+# PDFs gerados pelos scripts (formulário e termo)
 *.pdf
-fotos/
-
-# Senhas, acessos e outros dados que não podem ir para o GitHub
-dados-sensiveis/
 
 # Ferramentas locais
 .claude/

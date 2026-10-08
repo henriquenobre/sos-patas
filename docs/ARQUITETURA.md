@@ -1,6 +1,6 @@
 # Arquitetura: Site SOS Patas
 
-> **Como o site é construído e hospedado** (decidido em 07/10/2026, "caminho B"). As regras de negócio (RN), o modelo de dados e o escopo ficam no [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md); as telas, no [prototipo/TELAS.md](prototipo/TELAS.md). Regras de manutenção: [CLAUDE.md](CLAUDE.md).
+> **Como o site é construído e hospedado** (decidido em 07/10/2026, "caminho B"). As regras de negócio (RN), o modelo de dados e o escopo ficam no [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md); as telas, no [prototipo/TELAS.md](../prototipo/TELAS.md). Regras de manutenção: [CLAUDE.md](../CLAUDE.md).
 >
 > **Objetivo da arquitetura:** começar com **custo zero** (só o domínio, R$ 40/ano), com camadas separadas (front, API e banco) e código portável, para mudar de hospedagem sem reescrever quando o site crescer.
 
@@ -64,6 +64,7 @@ sos-patas/
 │       ├── src/
 │       │   ├── index.ts         # entrada Workers (export default app + scheduled)
 │       │   ├── node.ts          # entrada Node (@hono/node-server), para VPS no futuro
+│       │   ├── db.ts            # conexão postgres.js + Drizzle (Hyperdrive)
 │       │   ├── rotas/
 │       │   │   ├── publico/     # site, animais, perdidos (GET) e envio de anúncio (POST)
 │       │   │   └── admin/       # tudo da área da ONG
@@ -74,17 +75,25 @@ sos-patas/
 │       ├── wrangler.toml        # bindings: HYPERDRIVE, FOTOS, QUARENTENA, cron; nível de cima = produção, [env.previa]
 │       └── .dev.vars.example    # variáveis locais (copiar para .dev.vars, fora do Git)
 ├── packages/
-│   └── compartilhado/           # schemas zod, tipos e limites (RN34, RN21…) usados no front e na API
-├── db/
+│   └── compartilhado/           # enums, limites e config. de textos/listas (lidos também pelo banco); schemas zod (etapa 3)
+├── db/                          # pacote @sospatas/db
 │   ├── schema.ts                # schema Drizzle (fonte dos tipos)
-│   ├── migrations/              # SQL gerado e versionado (drizzle-kit)
-│   ├── seed/                    # seed_conteudo.sql: textos, itens, ong e fotos da história
+│   ├── drizzle.config.ts        # DATABASE_URL ou, sem ela, o Postgres local
+│   ├── migrations/              # SQL gerado e versionado (drizzle-kit) + migrations manuais
+│   ├── seed/                    # seed_conteudo.sql (ong, textos, itens), seed_dev.sql (só local), fotos_historia.json
+│   ├── scripts/                 # semear.ts (pnpm db:seed), seed.ts, url.ts
+│   ├── testes/                  # testes de migrations, seed e constraints
 │   └── docker/                  # scripts da 1ª inicialização do Postgres local (cria sospatas_teste)
-├── prototipo/                   # protótipo HTML (especificação visual)
-├── dados-sensiveis/             # fora do Git: senhas e acessos (nunca versionar)
+├── docs/                        # documentação: DESENVOLVIMENTO, ARQUITETURA, PLANO_DESENVOLVIMENTO,
+│   │                            #   LINHA_DO_TEMPO
+│   └── formulario/              # formulário de interesse e termo de adoção (+ gerar_pdf.py)
+├── prototipo/                   # protótipo HTML (especificação visual) + TELAS.md e prints
+├── privado/                     # FORA DO GIT: projeto/ (PROJETO.md e PDFs), fotos/ originais,
+│                                #   dados-sensiveis/ (senhas e acessos)
 ├── docker-compose.yml           # Postgres local para desenvolvimento
 ├── .github/workflows/           # ci.yml, deploy.yml, backup.yml
-├── ARQUITETURA.md · DESENVOLVIMENTO.md · PLANO_DESENVOLVIMENTO.md · LINHA_DO_TEMPO.md · CLAUDE.md · README.md
+├── CLAUDE.md · README.md        # na raiz: o Claude Code e o GitHub procuram estes dois aqui
+├── index.html                   # redireciona o GitHub Pages para o protótipo
 ├── package.json · pnpm-workspace.yaml · tsconfig.base.json · eslint.config.js · .prettierrc.json
 └── .nvmrc                       # Node 24
 ```
@@ -149,8 +158,11 @@ sos-patas/
 ## 5. Banco de dados
 
 - **Neon**, projeto `sospatas` (criado em 08/10/2026), região **AWS South America East 1 (São Paulo)**, **PostgreSQL 18**, plano gratuito (compute de 0,25 a 2 CU). Branch padrão **`production`** = produção; branch `previa` (etapa 8) e outras branches do Neon para testar migrations. O Postgres local (Docker) usa a mesma versão. **Neon Auth / Better Auth não é usado** (o login é pelo Access, seção 4).
-- **Migrations:** `db/schema.ts` (Drizzle) → `drizzle-kit generate` gera SQL em `db/migrations/` (revisado e versionado) → aplicado pelo workflow de deploy (`drizzle-kit migrate`). Nunca alterar o banco de produção à mão.
-- **Constraints no banco** além da API: `CHECK (char_length(...))` dos limites de texto (RN34), `CHECK` de `protetor_id` × `responsavel_tipo` (RN42), FK `restrict` de protetores, `CHECK (id = 1)` em `ong`.
+- **Migrations:** `db/schema.ts` (Drizzle) → `pnpm db:gerar` (`drizzle-kit generate`) gera SQL em `db/migrations/` (revisado e versionado) → `pnpm db:migrate` aplica (no deploy, com a `DATABASE_URL` do Neon). O que o Drizzle não gera (ex.: `UNIQUE … DEFERRABLE`) vai numa migration manual (`drizzle-kit generate --custom`). Nunca alterar o banco de produção à mão.
+- **Seed:** `pnpm db:seed` aplica `db/seed/seed_conteudo.sql` e, só no banco local, `seed_dev.sql` (dados de exemplo). Em produção: `pnpm db:seed --conteudo`. O conteúdo inicial não sobrescreve o que a equipe já editou.
+- **Testes do banco** (`db/testes/`) recriam o banco `sospatas_teste` com as migrations e conferem o seed e as constraints. No CI, um serviço Postgres 18 faz esse papel.
+- **Constraints no banco** além da API: `CHECK (char_length(...))` dos limites de texto (RN34), `CHECK` de `protetor_id` × `responsavel_tipo` (RN42), FK `restrict` de protetores, `CHECK (id = 1)` em `ong` e as demais de "Limites e garantias no banco" (DESENVOLVIMENTO.md, seção 5).
+- **Conexão na API:** `apps/api/src/db.ts` cria o cliente postgres.js + Drizzle a partir de `env.HYPERDRIVE.connectionString`, um por requisição.
 - **Usuário do banco** da API com privilégios só de DML nas tabelas do app (sem DDL); outro usuário, só no CI, para migrations.
 - **Sem RLS:** a fronteira de segurança é a API (rotas públicas só leem colunas públicas; `animais_privado` só é consultada em rotas `/admin`).
 - **Primeiro acesso após inatividade:** o Neon suspende o processamento após 5 min sem uso e "acorda" em alguns segundos. O cache de leitura do Hyperdrive e o `Cache-Control` das rotas públicas escondem isso na maioria das visitas. Se incomodar, o plano pago do Neon desliga a suspensão.
