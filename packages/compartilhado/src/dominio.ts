@@ -18,6 +18,26 @@ export const PERDIDO_STATUS = ['pendente', 'publicado'] as const
 
 export const PIX_TIPOS = ['cnpj', 'cpf', 'email', 'telefone', 'aleatoria'] as const
 
+/** Textos exibidos para cada valor (iguais aos do protótipo). */
+export const ROTULOS = {
+  especie: { cao: 'Cão', gato: 'Gato' },
+  sexo: { macho: 'Macho', femea: 'Fêmea' },
+  porte: { mini: 'Mini', pequeno: 'Pequeno', medio: 'Médio', grande: 'Grande', gigante: 'Gigante' },
+  raca_tipo: { puro: 'Raça pura', mestico: 'Mestiço' },
+  sim_nao_sem_informacao: { sim: 'Sim', nao: 'Não', sem_informacao: 'Sem informação' },
+  status_animal: { disponivel: 'Disponível', adotado: 'Adotado' },
+  responsavel_tipo: { ong: 'SOS Patas', protetor: 'Protetor parceiro' },
+  lar_tipo: { provisorio: 'Lar provisório', remunerado: 'Lar remunerado' },
+  perdido_tipo: { perdido: 'Perdido', encontrado: 'Encontrado' },
+  pix_tipo: {
+    cnpj: 'CNPJ',
+    cpf: 'CPF',
+    email: 'E-mail',
+    telefone: 'Telefone',
+    aleatoria: 'Aleatória',
+  },
+} as const
+
 export type Especie = (typeof ESPECIES)[number]
 export type Sexo = (typeof SEXOS)[number]
 export type Porte = (typeof PORTES)[number]

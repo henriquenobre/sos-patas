@@ -59,7 +59,7 @@ sos-patas/
 │   │       ├── components/      # CardAnimal, Pata, Chapeu, TextoSimples…
 │   │       │   └── admin/       # BarraAdmin, ListaEditavel, CampoTextoEditavel (RN33)
 │   │       ├── api/             # cliente HTTP tipado + hooks TanStack Query
-│   │       └── lib/             # fotos.ts (compressão/canvas, RN02/RN20), idade.ts (RN11/RN13)
+│   │       └── lib/             # fotos.ts (compressão/canvas, RN02/RN20)
 │   └── api/                     # API: Hono + TypeScript
 │       ├── src/
 │       │   ├── index.ts         # entrada Workers (export default app + scheduled)
@@ -75,7 +75,8 @@ sos-patas/
 │       ├── wrangler.toml        # bindings: HYPERDRIVE, FOTOS, QUARENTENA, cron; nível de cima = produção, [env.previa]
 │       └── .dev.vars.example    # variáveis locais (copiar para .dev.vars, fora do Git)
 ├── packages/
-│   └── compartilhado/           # enums, limites e config. de textos/listas (lidos também pelo banco); schemas zod (etapa 3)
+│   └── compartilhado/           # enums, limites, config. de textos/listas (lidos também pelo banco), schemas zod,
+│                                #   idade (RN11–RN13), datas no fuso de Brasília, WhatsApp
 ├── db/                          # pacote @sospatas/db
 │   ├── schema.ts                # schema Drizzle (fonte dos tipos)
 │   ├── drizzle.config.ts        # DATABASE_URL ou, sem ela, o Postgres local

@@ -402,9 +402,12 @@ Onde fica cada regra:
 | Regra | Arquivo |
 |---|---|
 | Compressão e redesenho das fotos (RN02, RN20) | `apps/web/src/lib/fotos.ts` |
-| Idade e adulto/filhote (RN11, RN13) | `packages/compartilhado` (usado no front e na API) |
+| Idade, adulto/filhote e "Esperando há mais tempo" (RN11–RN13) | `packages/compartilhado/src/idade.ts` (usado no front e na API) |
+| Datas no fuso de Brasília | `packages/compartilhado/src/datas.ts` (`hojeNoBrasil`): o Worker roda em UTC |
+| WhatsApp (normalizar, validar, formatar, link wa.me) e detecção de links (RN21) | `packages/compartilhado/src/whatsapp.ts` e `texto.ts` |
 | `TextoSimples`: quebras de linha + links (RN34) | `apps/web/src/components/TextoSimples.tsx` |
-| Limites de campos e validação (RN21, RN34) | `packages/compartilhado/src/limites.ts` e `conteudo.ts`; schemas zod na etapa 3 |
+| Limites de campos, prazos e quantidades (RN01, RN21, RN23, RN25, RN34…) | `packages/compartilhado/src/limites.ts` e `conteudo.ts` |
+| Validação dos formulários e da API (zod, mensagens em português) | `packages/compartilhado/src/schemas/` |
 | Enums e constraints do banco | `db/schema.ts` + `db/migrations/` |
 | `excluirAnimal` (RN05), adoção (RN07, RN08), aprovar/recusar anúncio (RN19, RN26) | `apps/api/src/servicos/*` |
 | Trocar ordem (RN35) | `apps/api/src/servicos/conteudo.ts` |
@@ -518,3 +521,4 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 08/10/2026 | Etapa 2 (banco): schema Drizzle com 10 tabelas, 13 enums e as constraints de "Limites e garantias no banco" (seção 5); definidos os limites que faltavam (nome do animal, raça, lar, observações…); seed de conteúdo com **ids fixos** (pode rodar de novo sem duplicar) e seed de exemplo só no banco local; `db/` vira o pacote `@sospatas/db` | Nenhum campo de texto sem limite; o banco protege os dados mesmo se a API falhar; os limites ficam num lugar só (`packages/compartilhado`), lido pelo banco e pela validação |
 | 08/10/2026 | Todos os animais do protótipo e do `seed_dev.sql` passam a ser tratados como **exemplos fictícios** (antes: Apolo e Pelezinho como reais); nenhum vai para a produção | Os dois eram animais da ONG, mas podem não estar mais para adoção. A produção começa sem animais e a equipe cadastra os reais (etapa 15) |
 | 08/10/2026 | **Pastas reorganizadas:** documentação em `docs/` (DESENVOLVIMENTO, ARQUITETURA, PLANO_DESENVOLVIMENTO, LINHA_DO_TEMPO e `formulario/`), protótipo continua em `prototipo/`, aplicação em `apps/`, `packages/` e `db/`; tudo que é só local (PROJETO.md, PDFs da pesquisa, fotos originais, dados sensíveis) em `privado/`, fora do Git. `CLAUDE.md` e `README.md` ficam na raiz | Separar aplicação, documentação e protótipo, local e no GitHub; uma pasta só para o que nunca pode ser publicado |
+| 08/10/2026 | Etapa 3 (pacote compartilhado): schemas zod de animal, adoção, protetor, anúncio (público e da equipe), textos, itens e dados da ONG, com mensagens em português simples; funções de idade, destaque, WhatsApp e links; **datas sempre no fuso de Brasília**; WhatsApp aceito em qualquer formato ("+55", "(35) 9…", "035…") e guardado só com dígitos; Instagram sem `@` e Facebook completado com `https://`; "quais vacinas" e `protetor_id` descartados quando não se aplicam; "Esperando há mais tempo" conta só **mais de** 90 dias | Uma regra num lugar só, usada igual no formulário e na API; o Worker roda em UTC e erraria o "hoje" à noite; menos erro de digitação para as voluntárias |
