@@ -92,7 +92,8 @@ O aviso amarelo "A SOS Patas não faz resgates" foi **removido em 07/10/2026** (
 
 **Objetivo:** listar os animais disponíveis com filtros.
 
-- **Filtros (chips):** Cães/Gatos · Filhotes/Adultos (RN11) · Mini/Pequeno/Médio/Grande/Gigante · "Convive com outros animais". Um chip por grupo; tocar de novo desliga o filtro.
+- **Filtros (chips):** Cães/Gatos · Filhotes/Adultos (RN11) · Mini/Pequeno/Médio/Grande/Gigante · "Convive com outros animais". Um chip por grupo; tocar de novo desliga o filtro. Os filtros ficam no endereço (`/animais?especie=gato&idade=adulto`), para compartilhar a busca.
+- **Subtítulo:** "{N} cães e gatos esperando uma família", com o total de disponíveis (RN46).
 - **Ordem:** mais antigos primeiro (RN10).
 - **Grade:** 2 colunas no celular, 3 no tablet e 4 no computador.
 - **Sem resultado:** mensagem + "Limpar filtros".
@@ -110,7 +111,8 @@ O aviso amarelo "A SOS Patas não faz resgates" foi **removido em 07/10/2026** (
 - **Bloco Temperamento:** dócil, convive com outros animais ("não informado" quando nulo).
 - **Responsável:** nome e indicação de protetor parceiro + "Adoção com formulário de interesse, termo de adoção e 15 dias de adaptação". Se for protetor, mostra um aviso amarelo de que a ONG não é responsável pela adoção (RN31).
 - **Benefício (verde):** "Adotando pelo site: prioridade na castração gratuita (castramóvel) e desconto em clínicas parceiras" (RN32).
-- **Botão "Quero adotar {nome}":** verde, **fixo no rodapé no celular**, e abre o **formulário de adoção** (T26, RN14). ✏️ _Protótipo a atualizar: hoje abre um modal explicando._
+- **Botão "Quero adotar {nome}":** verde, com patinha (sem o ícone do WhatsApp), **fixo no rodapé no celular**, e abre o **formulário de adoção** (T26, RN14). ✏️ _Protótipo a atualizar: hoje abre um modal explicando e usa o ícone do WhatsApp._
+- **Galeria:** tocar numa miniatura troca a foto grande.
 - **Animal em análise (RN48), por link direto:** sem o botão; aviso "{nome} está em processo de adoção" e botão "Ver outros animais" _(proposta)_.
 
 ### T26 · Formulário de adoção · `/animais/:id/adotar` · 🆕 a desenhar no protótipo

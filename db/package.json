@@ -15,7 +15,8 @@
     "semear": "tsx scripts/semear.ts",
     "typecheck": "tsc",
     "test": "vitest run",
-    "fotos-historia": "tsx scripts/fotos-historia.ts"
+    "fotos-historia": "tsx scripts/fotos-historia.ts",
+    "fotos-exemplo": "tsx scripts/fotos-exemplo.ts"
   },
   "dependencies": {
     "@sospatas/compartilhado": "workspace:*",

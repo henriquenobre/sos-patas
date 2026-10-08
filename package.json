@@ -22,7 +22,8 @@
     "db:gerar": "pnpm -C db gerar",
     "db:migrate": "pnpm -C db migrar",
     "db:seed": "pnpm -C db semear",
-    "db:fotos-historia": "pnpm -C db fotos-historia"
+    "db:fotos-historia": "pnpm -C db fotos-historia",
+    "db:fotos-exemplo": "pnpm -C db fotos-exemplo"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

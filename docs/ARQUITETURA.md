@@ -61,7 +61,7 @@ sos-patas/
 │   │       ├── components/      # CardAnimal, FotoAnimal, Pata, Chapeu, TextoSimples, BlocoPix, Estados…
 │   │       │   └── admin/       # BarraAdmin, ListaEditavel, CampoTextoEditavel (RN33)
 │   │       ├── api/             # cliente HTTP + hooks TanStack Query (publico.ts: useSite, useDestaques, useVitrine)
-│   │       ├── lib/             # pix.ts, animal.ts; fotos.ts (compressão/canvas, RN02/RN20, etapa 10)
+│   │       ├── lib/             # pix.ts, animal.ts, filtros.ts (filtros da vitrine na URL); fotos.ts (canvas, RN02/RN20, etapa 10)
 │   │       └── testes/          # renderizar.tsx: rotas reais com a API simulada
 │   └── api/                     # API: Hono + TypeScript
 │       ├── src/
@@ -89,7 +89,8 @@ sos-patas/
 │   ├── drizzle.config.ts        # DATABASE_URL ou, sem ela, o Postgres local
 │   ├── migrations/              # SQL gerado e versionado (drizzle-kit) + migrations manuais
 │   ├── seed/                    # seed_conteudo.sql (ong, textos, itens), seed_dev.sql (só local), fotos_historia.json
-│   ├── scripts/                 # semear.ts (pnpm db:seed), seed.ts, url.ts, fotos-historia.ts (pnpm db:fotos-historia)
+│   ├── scripts/                 # semear.ts (pnpm db:seed), seed.ts, url.ts, imagens.ts (WebP + envio ao R2),
+│   │                            #   fotos-historia.ts (pnpm db:fotos-historia), fotos-exemplo.ts (só local)
 │   ├── testes/                  # testes de migrations, seed e constraints
 │   └── docker/                  # scripts da 1ª inicialização do Postgres local (cria sospatas_teste)
 ├── docs/                        # documentação: DESENVOLVIMENTO, ARQUITETURA, PLANO_DESENVOLVIMENTO,

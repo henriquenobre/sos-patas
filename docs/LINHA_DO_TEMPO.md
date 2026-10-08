@@ -35,7 +35,7 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | 4 | Base da API | 08/10/2026 | 08/10/2026 | 1 dia | Erros, validação, login (Access + modo local), armazenamento, cache; 35 testes da API |
 | 5 | API pública de leitura | 08/10/2026 | 08/10/2026 | 1 dia | 6 rotas com cache; 33 testes novos, inclusive de vazamento de dados internos |
 | 6 | Site público: layout e páginas de conteúdo | 08/10/2026 | 08/10/2026 | 1 dia | 5 páginas iguais ao protótipo, conferidas em 360 px e no computador; 16 testes do front |
-| 7 | Site público: vitrine e ficha do animal | | | | |
+| 7 | Site público: vitrine e ficha do animal | 08/10/2026 | 08/10/2026 | 1 dia | Filtros na URL, ficha completa, fotos de exemplo no computador; 11 testes novos do front |
 | 8 | Deploy de prévia no Cloudflare | | | | |
 | 9 | API da ONG: animais, fotos, adoção, protetores | | | | |
 | 10 | Área da ONG: estrutura e animais | | | | |
@@ -79,3 +79,4 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 08/10/2026 | 16:35 | 7 | **Etapa 5 concluída:** API pública de leitura, conferida no `wrangler dev` com o seed | doc (verificação local) |
 | 08/10/2026 | 17:15 | 7 | **Etapa 6 concluída:** primeiras páginas do site funcionando no computador, com os dados do banco local | doc (verificação local) |
 | 08/10/2026 | | 7 | Decisão: pedidos de adoção entram no MVP (formulário com o termo, análise pela equipe, animal fora do site durante a análise); nova etapa 10b no plano | relato |
+| 08/10/2026 | 18:40 | 7 | **Etapa 7 concluída:** vitrine e ficha do animal funcionando no computador, com fotos de exemplo | doc (verificação local) |

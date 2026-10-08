@@ -35,7 +35,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 4 | Base da API (erros, login, armazenamento, testes) | 2, 3 | 12/10 | ✅ 08/10 |
 | 5 | API pública de leitura | 4 | 13/10 | ✅ 08/10 |
 | 6 | Site público: layout e páginas de conteúdo | 5 | 13–14/10 | ✅ 08/10 |
-| 7 | Site público: vitrine e ficha do animal | 6 | 15/10 | ⬜ |
+| 7 | Site público: vitrine e ficha do animal | 6 | 15/10 | ✅ 08/10 |
 | 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ⬜ |
 | 9 | API da ONG: animais, fotos, adoção, protetores | 4 | 16–17/10 | ⬜ |
 | 10 | Área da ONG: estrutura e animais (T09–T11) | 9 | 17–19/10 | ⬜ |
@@ -205,7 +205,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 - Protetores: listar e criar (o cadastro do animal cria o protetor ali mesmo, RN42); editar e excluir com 409 se tiver animais
 - Serviços em `servicos/`: `excluirAnimal`, `marcarAdotado`, `devolver`, `trocarFoto`, todos com transação onde houver mais de um passo
 - `updated_at` e `updated_by` preenchidos em toda escrita (RN43, já desde aqui, mesmo que a tela venha na etapa 13)
-- Script `pnpm seed:fotos` que envia as fotos de exemplo de `prototipo/assets/` pela API local
+- ~~Script `pnpm seed:fotos`~~: adiantado na etapa 7 como `pnpm db:fotos-exemplo` (direto no R2 local e no banco, sem passar pela API)
 
 **Regras:** RN01, RN04–RN09, RN30, RN42, RN43.
 

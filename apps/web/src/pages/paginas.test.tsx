@@ -103,9 +103,9 @@ describe('Privacidade (T07) e páginas especiais', () => {
     ).toBeInTheDocument()
   })
 
-  it('vitrine ainda em construção mostra "Em breve" (etapa 7)', async () => {
+  it('perdidos ainda em construção mostra "Em breve" (etapa 11)', async () => {
     simularApi(API_PADRAO)
-    renderizarEm('/animais')
+    renderizarEm('/perdidos')
     expect(await screen.findByRole('heading', { name: 'Em breve' })).toBeInTheDocument()
   })
 })

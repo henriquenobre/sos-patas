@@ -48,10 +48,11 @@ cp apps/api/.dev.vars.example apps/api/.dev.vars
 pnpm db:up                                     # Postgres 18 no Docker (bancos sospatas e sospatas_teste)
 pnpm db:migrate && pnpm db:seed                # tabelas, conteúdo inicial e animais de exemplo
 pnpm db:fotos-historia                         # fotos da história da ONG no R2 local (uma vez)
+pnpm db:fotos-exemplo                          # fotos ilustrativas dos animais de exemplo (depois de cada db:seed)
 pnpm dev                                       # site em http://localhost:5173 e API em http://localhost:8787
 ```
 
-Sem o `.dev.vars`, a API roda como se fosse produção. Páginas prontas: Início, Como adotar, Perguntas frequentes, Como ajudar e Privacidade. Vitrine, ficha e perdidos mostram "Em breve" até as etapas 7 e 11. Os animais de exemplo ainda não têm fotos (aparece uma patinha no lugar).
+Sem o `.dev.vars`, a API roda como se fosse produção. Páginas prontas: Início, vitrine (com filtros na URL), ficha do animal, Como adotar, Perguntas frequentes, Como ajudar e Privacidade. O formulário de adoção ("Quero adotar") e os perdidos mostram "Em breve" até as etapas 10b e 11.
 
 **Testar no celular:** com o computador e o celular na mesma rede Wi-Fi, rode `pnpm dev:celular` em vez de `pnpm dev`. O Vite mostra um endereço como `http://192.168.0.10:5173` ("Network"): abra esse endereço no celular. Na primeira vez, o Windows pode pedir para liberar o Node no firewall (permitir só em redes privadas).
 
@@ -63,6 +64,7 @@ Sem o `.dev.vars`, a API roda como se fosse produção. Páginas prontas: Iníci
 |---|---|
 | `pnpm dev` | Front (Vite) e API (`wrangler dev`) juntos; o Vite repassa `/api` para a API |
 | `pnpm dev:celular` | Igual ao `dev`, mas o site também abre pelo IP do computador na rede (para testar no celular) |
+| `pnpm db:fotos-exemplo` | Só no computador: fotos do protótipo para os animais e anúncios de exemplo (R2 local + tabelas `fotos` e `perdidos_fotos`). O `db:seed` apaga as fotos; rode de novo depois dele |
 | `pnpm db:fotos-historia` | Converte as fotos da história para WebP (completa e miniatura, sem metadados) e envia ao R2 local; `-- --remoto` envia ao R2 de verdade (etapa 14) |
 | `pnpm test` | Testes (Vitest) de todos os pacotes |
 | `pnpm lint` · `pnpm typecheck` · `pnpm format` | ESLint, TypeScript e Prettier |
