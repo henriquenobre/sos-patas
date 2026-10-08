@@ -1,5 +1,5 @@
 -- Dados de exemplo SÓ PARA DESENVOLVIMENTO: animais, protetores e anúncios do protótipo
--- (fictícios, exceto Apolo e Pelezinho). Apaga animais, protetores e anúncios antes de inserir.
+-- (todos fictícios: nenhum está de fato para adoção). Apaga animais, protetores e anúncios antes de inserir.
 -- O script `pnpm db:seed` recusa rodar este arquivo fora do banco local.
 BEGIN;
 

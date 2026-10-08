@@ -51,4 +51,4 @@ A página inicial mostra "API no ar (local)" quando front e API estão conversan
 | `pnpm db:migrate` · `pnpm db:seed` | Aplica as migrations; aplica o conteúdo inicial e os dados de exemplo (com `--conteudo`, só o conteúdo) |
 | `pnpm -C apps/api dev:node` | API em Node puro, sem Cloudflare (teste de portabilidade) |
 
-> No protótipo, os animais Apolo e Pelezinho são reais da ONG; os demais são fictícios, com fotos apenas ilustrativas. A história e as fotos institucionais da página inicial foram enviadas pela ONG.
+> No protótipo, todos os animais são exemplos fictícios: nenhum está de fato para adoção, e as fotos são apenas ilustrativas. A história e as fotos institucionais da página inicial foram enviadas pela ONG.

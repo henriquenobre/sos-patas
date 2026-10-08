@@ -180,7 +180,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 **Objetivo:** ver o site público rodando de verdade antes de construir a área da ONG.
 
 **Entregas:**
-- Hyperdrive apontando para a branch `previa` do Neon; migrations e seed aplicados nela
+- Hyperdrive apontando para a branch `previa` do Neon; migrations e seed aplicados nela. Os dados de exemplo (`seed_dev.sql`) hoje só rodam no banco local: liberar a prévia com uma opção explícita, sem nunca permitir a produção
 - Buckets `sospatas-fotos-previa` e `sospatas-quarentena-previa`
 - Worker `--env previa` publicado (`*.workers.dev`) e Pages ligado ao GitHub (`*.pages.dev`), com `VITE_API_URL` da prévia
 - Segredos da prévia com `wrangler secret`
@@ -276,7 +276,7 @@ Na ordem de prioridade:
 ## Etapa 15 · Dados reais, teste com a ONG e ajustes finais
 
 **Entregas:**
-- Apagar os dados de exemplo da produção; Gracia ou Claudia cadastram os primeiros animais reais pelo celular (tarefa 7 do roteiro)
+- Conferir que a produção não tem dados de exemplo (só o `seed_conteudo.sql` vai para lá); Gracia ou Claudia cadastram os primeiros animais reais pelo celular (tarefa 7 do roteiro)
 - Revisão em 360 px de todas as telas, acessibilidade básica (contraste, `alt`, toque ≥ 44 px), Lighthouse do Início e da vitrine
 - Correções do teste com a ONG, registradas em TELAS.md ("Registro da validação")
 - Status das telas em TELAS.md atualizado; prints regerados se o protótipo mudou
