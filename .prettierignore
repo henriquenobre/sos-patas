@@ -2,7 +2,7 @@
 prototipo/
 # Página de entrada do protótipo no GitHub Pages
 /index.html
-formulario/
+docs/formulario/
 *.md
 pnpm-lock.yaml
 dist/

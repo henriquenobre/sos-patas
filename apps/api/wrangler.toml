@@ -1,4 +1,4 @@
-# Configuração do Worker da API (ARQUITETURA.md, seções 1, 6, 7 e 9).
+# Configuração do Worker da API (docs/ARQUITETURA.md, seções 1, 6, 7 e 9).
 #
 # O nível de cima é a PRODUÇÃO. Os bindings não são herdados pelos ambientes:
 # o ambiente `previa` repete todos. No computador, `wrangler dev` usa estes mesmos

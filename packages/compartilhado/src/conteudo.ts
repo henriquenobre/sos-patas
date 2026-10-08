@@ -1,4 +1,4 @@
-// Textos e listas editáveis das páginas (DESENVOLVIMENTO.md, seção 5: conteudo_textos e
+// Textos e listas editáveis das páginas (docs/DESENVOLVIMENTO.md, seção 5: conteudo_textos e
 // conteudo_itens; RN33–RN38, RN46). Esta configuração monta os CHECK do banco e, nas etapas
 // seguintes, a validação da API e os formulários genéricos da área da ONG.
 

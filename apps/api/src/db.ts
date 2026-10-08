@@ -1,4 +1,4 @@
-// Conexão com o banco (ARQUITETURA.md, seção 5). No Workers, a string de conexão vem do
+// Conexão com o banco (docs/ARQUITETURA.md, seção 5). No Workers, a string de conexão vem do
 // binding HYPERDRIVE (no computador, aponta para o Postgres do Docker). Em Node, de DATABASE_URL.
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'

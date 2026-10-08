@@ -1,6 +1,6 @@
 # Arquitetura: Site SOS Patas
 
-> **Como o site é construído e hospedado** (decidido em 07/10/2026, "caminho B"). As regras de negócio (RN), o modelo de dados e o escopo ficam no [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md); as telas, no [prototipo/TELAS.md](prototipo/TELAS.md). Regras de manutenção: [CLAUDE.md](CLAUDE.md).
+> **Como o site é construído e hospedado** (decidido em 07/10/2026, "caminho B"). As regras de negócio (RN), o modelo de dados e o escopo ficam no [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md); as telas, no [prototipo/TELAS.md](../prototipo/TELAS.md). Regras de manutenção: [CLAUDE.md](../CLAUDE.md).
 >
 > **Objetivo da arquitetura:** começar com **custo zero** (só o domínio, R$ 40/ano), com camadas separadas (front, API e banco) e código portável, para mudar de hospedagem sem reescrever quando o site crescer.
 
@@ -84,11 +84,16 @@ sos-patas/
 │   ├── scripts/                 # semear.ts (pnpm db:seed), seed.ts, url.ts
 │   ├── testes/                  # testes de migrations, seed e constraints
 │   └── docker/                  # scripts da 1ª inicialização do Postgres local (cria sospatas_teste)
-├── prototipo/                   # protótipo HTML (especificação visual)
-├── dados-sensiveis/             # fora do Git: senhas e acessos (nunca versionar)
+├── docs/                        # documentação: DESENVOLVIMENTO, ARQUITETURA, PLANO_DESENVOLVIMENTO,
+│   │                            #   LINHA_DO_TEMPO
+│   └── formulario/              # formulário de interesse e termo de adoção (+ gerar_pdf.py)
+├── prototipo/                   # protótipo HTML (especificação visual) + TELAS.md e prints
+├── privado/                     # FORA DO GIT: projeto/ (PROJETO.md e PDFs), fotos/ originais,
+│                                #   dados-sensiveis/ (senhas e acessos)
 ├── docker-compose.yml           # Postgres local para desenvolvimento
 ├── .github/workflows/           # ci.yml, deploy.yml, backup.yml
-├── ARQUITETURA.md · DESENVOLVIMENTO.md · PLANO_DESENVOLVIMENTO.md · LINHA_DO_TEMPO.md · CLAUDE.md · README.md
+├── CLAUDE.md · README.md        # na raiz: o Claude Code e o GitHub procuram estes dois aqui
+├── index.html                   # redireciona o GitHub Pages para o protótipo
 ├── package.json · pnpm-workspace.yaml · tsconfig.base.json · eslint.config.js · .prettierrc.json
 └── .nvmrc                       # Node 24
 ```

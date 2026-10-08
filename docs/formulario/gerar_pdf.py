@@ -1,6 +1,6 @@
 """Gera o PDF do formulário de adoção a partir do FORMULARIO_ADOCAO.md.
 
-Uso: python formulario/gerar_pdf.py
+Uso: python docs/formulario/gerar_pdf.py
 O MD é a fonte de verdade: edite o MD e gere o PDF de novo.
 """
 import re
@@ -14,7 +14,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 PASTA = Path(__file__).parent
 MD = PASTA / "FORMULARIO_ADOCAO.md"
 PDF = PASTA / "Formulario_Adocao_SOS_Patas.pdf"
-LOGO = PASTA.parent / "prototipo" / "assets" / "logo.png"
+RAIZ = PASTA.parent.parent  # docs/formulario -> raiz do repositório
+LOGO = RAIZ / "prototipo" / "assets" / "logo.png"
 
 AZUL, AZUL_ESC, AZUL_CLARO = colors.HexColor("#1F3E9C"), colors.HexColor("#152B70"), colors.HexColor("#E8EDFB")
 CINZA = colors.HexColor("#64748B")

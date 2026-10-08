@@ -1,7 +1,7 @@
 # Linha do tempo: Site SOS Patas
 
 > Datas **reais** do projeto, da primeira conversa com a ONG até a entrega, para saber quanto tempo levou cada parte.
-> As datas **planejadas** ficam no [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md) (desenvolvimento) e no roteiro do PROJETO.md (projeto acadêmico). Regra de registro: RP04 no [CLAUDE.md](CLAUDE.md).
+> As datas **planejadas** ficam no [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md) (desenvolvimento) e no roteiro do PROJETO.md (projeto acadêmico). Regra de registro: RP04 no [CLAUDE.md](../CLAUDE.md).
 >
 > **Duração** = dias corridos, contando o primeiro e o último dia. Fonte: **Git** (horário do commit), **relato** (informado pelo estudante) ou **doc** (data escrita nos documentos do projeto).
 

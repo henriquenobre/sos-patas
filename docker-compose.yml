@@ -1,4 +1,4 @@
-# Postgres local para desenvolvimento e testes (ARQUITETURA.md, seção 9).
+# Postgres local para desenvolvimento e testes (docs/ARQUITETURA.md, seção 9).
 # Mesma versão do Neon de produção (18). Usuário e senha valem só no computador local.
 services:
   postgres:

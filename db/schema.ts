@@ -1,4 +1,4 @@
-// Schema do banco (DESENVOLVIMENTO.md, seção 5). Fonte dos tipos da API.
+// Schema do banco (docs/DESENVOLVIMENTO.md, seção 5). Fonte dos tipos da API.
 // Mudou algo aqui: `pnpm db:gerar` cria a migration em db/migrations/ (nunca alterar o banco à mão).
 //
 // Os nomes das propriedades são iguais aos das colunas (snake_case), como na documentação.

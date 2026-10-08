@@ -1,4 +1,4 @@
-// Entrada em Node, para rodar a API numa VPS ou em Docker (ARQUITETURA.md, seção 12).
+// Entrada em Node, para rodar a API numa VPS ou em Docker (docs/ARQUITETURA.md, seção 12).
 // Os bindings do Cloudflare (Hyperdrive e R2) não existem aqui. Quando a API passar a
 // usar banco e arquivos, este arquivo monta as implementações equivalentes
 // (conexão Postgres direta e a interface Armazenamento com S3).

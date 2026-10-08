@@ -6,25 +6,37 @@ Site de adoção de animais para a **ONG SOS Patas**, de Passos/MG, desenvolvido
 
 ## O que tem aqui
 
-| Pasta/arquivo | Conteúdo |
+**Aplicação** (o site)
+
+| Pasta | Conteúdo |
 |---|---|
 | [apps/web/](apps/web/) | Site (front): React + Vite + Tailwind |
 | [apps/api/](apps/api/) | API: Hono no Cloudflare Workers |
-| [packages/compartilhado/](packages/compartilhado/) | Tipos e validações usados pelo front e pela API |
+| [packages/compartilhado/](packages/compartilhado/) | Limites, tipos e validações usados pelo front, pela API e pelo banco |
 | [db/](db/) | Banco: schema (Drizzle), migrations, seed e testes |
-| [prototipo/](prototipo/) | Protótipo navegável das telas (HTML + Tailwind) |
-| [prototipo/TELAS.md](prototipo/TELAS.md) | Especificação de cada tela |
-| [prototipo/telas/](prototipo/telas/) | Prints das telas no celular e no computador |
-| [formulario/FORMULARIO_ADOCAO.md](formulario/FORMULARIO_ADOCAO.md) | Perguntas do formulário de interesse em adoção (em validação) |
-| [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md) | Guia técnico: tecnologias, modelo de dados e regras de negócio |
-| [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md) | Plano de desenvolvimento em etapas, com painel de status |
-| [LINHA_DO_TEMPO.md](LINHA_DO_TEMPO.md) | Datas reais de cada fase, da concepção à entrega |
-| [ARQUITETURA.md](ARQUITETURA.md) | Arquitetura e hospedagem: front, API, banco, fotos, login, deploy e backup |
-| [CLAUDE.md](CLAUDE.md) | Regras de manutenção do projeto: o que atualizar a cada alteração |
+
+**Documentação** ([docs/](docs/))
+
+| Arquivo | Conteúdo |
+|---|---|
+| [DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md) | Guia técnico: escopo, modelo de dados, regras de negócio e registro de decisões |
+| [ARQUITETURA.md](docs/ARQUITETURA.md) | Arquitetura e hospedagem: front, API, banco, fotos, login, deploy e backup |
+| [PLANO_DESENVOLVIMENTO.md](docs/PLANO_DESENVOLVIMENTO.md) | Plano de desenvolvimento em etapas, com painel de status |
+| [LINHA_DO_TEMPO.md](docs/LINHA_DO_TEMPO.md) | Datas reais de cada fase, da concepção à entrega |
+| [formulario/](docs/formulario/) | Formulário de interesse em adoção (em validação) e termo de adoção |
+| [CLAUDE.md](CLAUDE.md) | Regras de manutenção do projeto: o que atualizar a cada alteração (fica na raiz, onde o Claude Code procura) |
+
+**Protótipo** ([prototipo/](prototipo/))
+
+| Arquivo | Conteúdo |
+|---|---|
+| [index.html](prototipo/index.html) | Protótipo navegável das telas (HTML + Tailwind) |
+| [TELAS.md](prototipo/TELAS.md) | Especificação de cada tela |
+| [telas/](prototipo/telas/) | Prints das telas no celular e no computador |
 
 ## Tecnologias
 
-React + Vite + TypeScript + Tailwind CSS 4 (Cloudflare Pages) · API em Hono (Cloudflare Workers) · PostgreSQL (Neon) · Fotos no Cloudflare R2 · Login pelo Cloudflare Access. Detalhes: [ARQUITETURA.md](ARQUITETURA.md).
+React + Vite + TypeScript + Tailwind CSS 4 (Cloudflare Pages) · API em Hono (Cloudflare Workers) · PostgreSQL (Neon) · Fotos no Cloudflare R2 · Login pelo Cloudflare Access. Detalhes: [ARQUITETURA.md](docs/ARQUITETURA.md).
 
 ## Como rodar localmente
 

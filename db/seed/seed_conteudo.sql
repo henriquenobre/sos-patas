@@ -1,4 +1,4 @@
--- Conteúdo inicial do site (DESENVOLVIMENTO.md, seção 5, "Conteúdo inicial (seed)").
+-- Conteúdo inicial do site (docs/DESENVOLVIMENTO.md, seção 5, "Conteúdo inicial (seed)").
 -- Textos copiados do protótipo (prototipo/index.html); história, marcos, números e fotos
 -- enviados pela ONG em 07/10/2026. Pode rodar de novo sem estragar nada: não sobrescreve o
 -- que a equipe já editou e só preenche uma lista se ela estiver vazia.

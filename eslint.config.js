@@ -12,7 +12,7 @@ export default tseslint.config(
       '**/.wrangler/**',
       '**/worker-configuration.d.ts',
       'prototipo/**',
-      'formulario/**',
+      'docs/formulario/**',
     ],
   },
   js.configs.recommended,

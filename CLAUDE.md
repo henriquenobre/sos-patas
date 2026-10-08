@@ -2,25 +2,31 @@
 
 > Regras de trabalho que valem para **toda alteração** neste repositório, feita por pessoa ou por IA.
 > Este arquivo é lido automaticamente pelo Claude Code no início de cada conversa.
-> Regras de negócio do site (RN) ficam no [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md), seção 6; aqui ficam as regras de **como** o projeto é mantido (RP).
+> Regras de negócio do site (RN) ficam no [DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md), seção 6; aqui ficam as regras de **como** o projeto é mantido (RP).
 > Para acrescentar uma regra: próximo número livre, título curto, "Por quê" e "Como aplicar".
 
 ## Onde está cada coisa
 
-| Arquivo | Papel |
+O repositório tem três partes: **aplicação** (código do site), **documentação** (`docs/`) e **protótipo** (`prototipo/`). O que é só local fica em `privado/`, fora do Git.
+
+| Onde | O que é |
 |---|---|
-| [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md) | Fonte de verdade técnica: escopo, modelo de dados, regras de negócio (RN), registro de decisões |
-| [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md) | Ordem de construção do site em etapas (0 a 15), com o que conta como pronto e o painel de status |
-| [LINHA_DO_TEMPO.md](LINHA_DO_TEMPO.md) | Datas reais de cada fase e etapa, da concepção à entrega (RP04) |
-| [ARQUITETURA.md](ARQUITETURA.md) | Como o site é construído e hospedado: Cloudflare Pages + Workers (Hono) + Neon + R2 + Access, API, deploy, backup e migração para VPS |
+| **Documentação** | |
+| [docs/DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md) | Fonte de verdade técnica: escopo, modelo de dados, regras de negócio (RN), registro de decisões |
+| [docs/ARQUITETURA.md](docs/ARQUITETURA.md) | Como o site é construído e hospedado: Cloudflare Pages + Workers (Hono) + Neon + R2 + Access, API, deploy, backup e migração para VPS |
+| [docs/PLANO_DESENVOLVIMENTO.md](docs/PLANO_DESENVOLVIMENTO.md) | Ordem de construção do site em etapas (0 a 15), com o que conta como pronto e o painel de status |
+| [docs/LINHA_DO_TEMPO.md](docs/LINHA_DO_TEMPO.md) | Datas reais de cada fase e etapa, da concepção à entrega (RP04) |
+| [docs/formulario/](docs/formulario/) | Formulário de interesse em adoção e termo de adoção (`gerar_pdf.py` gera os PDFs) |
+| **Protótipo** | |
 | [prototipo/TELAS.md](prototipo/TELAS.md) | Especificação de cada tela (T01…), componentes, identidade visual, perguntas para a ONG |
 | [prototipo/index.html](prototipo/index.html) | Protótipo navegável; dados de exemplo e textos iniciais (seed) |
 | [prototipo/gerar_prints.py](prototipo/gerar_prints.py) | Gera os prints de [prototipo/telas/](prototipo/telas/) |
-| [PROJETO.md](PROJETO.md) | Projeto acadêmico: entrevistas e respostas da ONG, roteiro, formulários (fora do Git) |
-| [formulario/](formulario/) | Formulário de interesse em adoção e termo de adoção |
-| `fotos/` | Fotos originais recebidas da ONG (fora do Git) |
-| `dados-sensiveis/` | Senhas, acessos e outros dados que não podem ir para o GitHub (fora do Git). Nunca copiar o conteúdo para outro arquivo do projeto |
-| `apps/web`, `apps/api`, `packages/compartilhado`, `db/` | Código do site (front, API, código compartilhado, schema e migrations). Como rodar: [README.md](README.md) |
+| **Aplicação** | |
+| `apps/web`, `apps/api`, `packages/compartilhado`, `db/` | Código do site (front, API, código compartilhado, banco). Como rodar: [README.md](README.md) |
+| **Só local (`privado/`, fora do Git)** | |
+| `privado/projeto/` | Projeto acadêmico: [PROJETO.md](privado/projeto/PROJETO.md) (entrevistas e respostas da ONG, roteiro, formulários da faculdade) e os PDFs da pesquisa |
+| `privado/fotos/` | Fotos originais recebidas da ONG |
+| `privado/dados-sensiveis/` | Senhas, acessos e outros dados que não podem ir para o GitHub. Nunca copiar o conteúdo para outro arquivo do projeto |
 
 Em caso de conflito: **DESENVOLVIMENTO.md e ARQUITETURA.md > TELAS.md > protótipo**.
 
@@ -35,9 +41,9 @@ Nenhuma mudança fica só em um lugar. Ao alterar uma regra, uma tela, um texto 
 | Tela, componente, texto ou visual | `prototipo/index.html` **e** `prototipo/TELAS.md` (descrição da tela; status ✏️ se precisar revalidar) |
 | Tela nova ou removida | Também o menu "☰ Telas do protótipo", as rotas do `render()` e a lista `TELAS` do `gerar_prints.py` |
 | Qualquer coisa visível no protótipo | Rodar `python prototipo/gerar_prints.py` para atualizar os prints |
-| Informação vinda da ONG | `PROJETO.md` (registrar a resposta como recebida, sem reescrever) e responder/riscar a pergunta em `TELAS.md` → "Perguntas para a validação" |
+| Informação vinda da ONG | `privado/projeto/PROJETO.md` (registrar a resposta como recebida, sem reescrever) e responder/riscar a pergunta em `TELAS.md` → "Perguntas para a validação" |
 | Textos e conteúdos iniciais do site | Seed no protótipo **e** `db/seed/seed_conteudo.sql` (os dois iguais) |
-| Estrutura de pastas ou arquivos | Tabela acima, `ARQUITETURA.md` (seção 2) e `README.md` |
+| Estrutura de pastas ou arquivos | Tabela acima, `docs/ARQUITETURA.md` (seção 2) e `README.md` |
 | Banco de dados | `db/schema.ts` + migration nova com `pnpm db:gerar` (nunca alterar produção à mão nem editar migration já aplicada) + modelo de dados no `DESENVOLVIMENTO.md`. Limite de campo muda em `packages/compartilhado` |
 | Código do site (`apps/`, `packages/`, `db/`) | O protótipo e a documentação continuam valendo como especificação: se o código divergir, atualizar os dois lados |
 
@@ -53,13 +59,13 @@ Textos públicos (história, números, nomes, parceiros, contatos) só com infor
 
 ## RP03 – Fotos: original fora do Git, versão otimizada no projeto
 
-Originais ficam em `fotos/` (no `.gitignore`). No projeto entram só versões reduzidas (até 1200 px, sem metadados/GPS) em `prototipo/assets/` e, no site, `apps/web/public/` ou no R2. Fotos com **pessoas identificáveis** só são publicadas com autorização da ONG; crianças e adolescentes, só com autorização dos responsáveis (RN38).
+Originais ficam em `privado/fotos/` (fora do Git). No projeto entram só versões reduzidas (até 1200 px, sem metadados/GPS) em `prototipo/assets/` e, no site, `apps/web/public/` ou no R2. Fotos com **pessoas identificáveis** só são publicadas com autorização da ONG; crianças e adolescentes, só com autorização dos responsáveis (RN38).
 
 **Por quê:** fotos originais pesam e podem conter localização; LGPD e ECA protegem a imagem das pessoas.
 
 ## RP04 – Registrar a data de cada etapa concluída
 
-Toda fase do projeto ou etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md) que começa ou termina ganha a data real no [LINHA_DO_TEMPO.md](LINHA_DO_TEMPO.md): **Início** e **Conclusão** na tabela correspondente, duração em dias corridos e uma linha no **Diário** com a fonte (Git, relato ou doc).
+Toda fase do projeto ou etapa do [PLANO_DESENVOLVIMENTO.md](docs/PLANO_DESENVOLVIMENTO.md) que começa ou termina ganha a data real no [LINHA_DO_TEMPO.md](docs/LINHA_DO_TEMPO.md): **Início** e **Conclusão** na tabela correspondente, duração em dias corridos e uma linha no **Diário** com a fonte (Git, relato ou doc).
 
 **Por quê:** o estudante precisa saber quanto tempo levou cada parte (contato com a ONG, protótipo, ambiente, desenvolvimento) para o relatório do projeto e para planejar trabalhos futuros.
 

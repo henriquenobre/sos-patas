@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-/* Tokens de identidade visual (DESENVOLVIMENTO.md, seção 7.1), com os mesmos nomes do
+/* Tokens de identidade visual (docs/DESENVOLVIMENTO.md, seção 7.1), com os mesmos nomes do
    protótipo: bg-azul, text-azul-escuro, bg-vermelho-claro, bg-fundo, font-titulo… */
 @theme {
   --color-azul: #1f3e9c;

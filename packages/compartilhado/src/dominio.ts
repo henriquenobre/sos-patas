@@ -1,4 +1,4 @@
-// Valores fixos do domínio (DESENVOLVIMENTO.md, seção 5). Os enums do banco e, a partir da
+// Valores fixos do domínio (docs/DESENVOLVIMENTO.md, seção 5). Os enums do banco e, a partir da
 // etapa 3, os schemas zod são montados a partir destas listas.
 
 export const ESPECIES = ['cao', 'gato'] as const

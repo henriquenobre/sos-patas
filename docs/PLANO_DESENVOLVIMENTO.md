@@ -1,7 +1,7 @@
 # Plano de desenvolvimento: Site SOS Patas
 
 > Ordem de construção do site, dividida em etapas pequenas para executar **uma por vez** (um pedido por etapa).
-> **O quê** construir está no [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md) (escopo, modelo de dados, RN) e no [prototipo/TELAS.md](prototipo/TELAS.md); **como** e **onde**, no [ARQUITETURA.md](ARQUITETURA.md). Este arquivo só define a **ordem** e o que conta como pronto em cada etapa.
+> **O quê** construir está no [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md) (escopo, modelo de dados, RN) e no [prototipo/TELAS.md](../prototipo/TELAS.md); **como** e **onde**, no [ARQUITETURA.md](ARQUITETURA.md). Este arquivo só define a **ordem** e o que conta como pronto em cada etapa.
 > Prazo: site no ar até **30/10/2026**; trabalho entregue em 11/11/2026 (premissa P4).
 
 ---
@@ -19,7 +19,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 2. Trabalha numa branch `etapa-NN-nome-curto` criada a partir da `develop`, e a etapa termina com merge na `develop`. A `main` é produção e só recebe a `develop` testada (ARQUITETURA.md, seção 9).
 3. Entrega só o que está em "Entregas". O que aparece em "Fora desta etapa" fica para depois, mesmo que pareça rápido.
 4. Termina com `pnpm lint`, `pnpm typecheck` e `pnpm test` passando (a partir da etapa 1).
-5. Confere a tabela da RP01 ([CLAUDE.md](CLAUDE.md)): se o código divergiu da documentação, atualiza os dois lados e registra a decisão.
+5. Confere a tabela da RP01 ([CLAUDE.md](../CLAUDE.md)): se o código divergiu da documentação, atualiza os dois lados e registra a decisão.
 6. Atualiza o **Painel** abaixo (status), registra as datas reais de início e conclusão no [LINHA_DO_TEMPO.md](LINHA_DO_TEMPO.md) (RP04) e resume o que ficou pendente.
 
 **Ordem escolhida e por quê:** fundação → banco → regras compartilhadas → API → telas, em **fatias verticais** (cada parte do site fica pronta de ponta a ponta antes da próxima). O site público vem antes da área da ONG porque só lê dados, o que valida banco, API e visual com pouco risco. Um **deploy de prévia** entra no meio (etapa 8) para descobrir cedo problemas reais do Cloudflare (Hyperdrive, limite de 10 ms de CPU, R2), e não na véspera da entrega.
