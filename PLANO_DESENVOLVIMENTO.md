@@ -30,7 +30,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 |---|---|---|---|---|
 | 0 | Contas e serviços (manual) | – | 08–12/10 | 🔄 |
 | 1 | Fundação do monorepo | – | 09–10/10 | ✅ 08/10 |
-| 2 | Banco: schema, migrations e seed | 1 | 10–11/10 | ⬜ |
+| 2 | Banco: schema, migrations e seed | 1 | 10–11/10 | ✅ 08/10 |
 | 3 | Pacote compartilhado (zod, limites, idade) | 1 | 11/10 | ⬜ |
 | 4 | Base da API (erros, login, armazenamento, testes) | 2, 3 | 12/10 | ⬜ |
 | 5 | API pública de leitura | 4 | 13/10 | ⬜ |
@@ -115,7 +115,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Entregas em `packages/compartilhado`:**
 - Schemas zod: animal (cadastro/edição), adoção, protetor, anúncio de perdido (público e equipe), texto, item de lista, dados da ONG
-- **Configuração das listas** (`perguntas`, `como_adotar_passos`… com rótulos, limites, obrigatoriedade e mínimo/máximo de itens), que a API e o `ListaEditavel` vão ler
+- **Configuração das listas** (`perguntas`, `como_adotar_passos`… com rótulos, limites, obrigatoriedade e mínimo/máximo de itens), que a API e o `ListaEditavel` vão ler. _Adiantado na etapa 2: `dominio.ts` (enums), `limites.ts` e `conteudo.ts` (limites, obrigatoriedade, mínimo e máximo) já existem e alimentam o banco; falta acrescentar os rótulos_
 - Limites fixos: fotos (3 por animal, 2 por anúncio, 500 KB), prazos (30 dias, 7 dias, 90 dias), envios (3/dia por IP, 30 pendentes)
 - Funções: `idade` e `ehAdulto` (RN11, RN13), `esperandoHaMaisTempo` (RN12), normalizar e validar WhatsApp, `contemLink` (RN21), `linkWhatsApp(numero, texto)`
 - Testes unitários de todas as funções e dos casos de borda dos schemas

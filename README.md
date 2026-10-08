@@ -11,7 +11,7 @@ Site de adoção de animais para a **ONG SOS Patas**, de Passos/MG, desenvolvido
 | [apps/web/](apps/web/) | Site (front): React + Vite + Tailwind |
 | [apps/api/](apps/api/) | API: Hono no Cloudflare Workers |
 | [packages/compartilhado/](packages/compartilhado/) | Tipos e validações usados pelo front e pela API |
-| [db/](db/) | Banco: script do Postgres local (schema e migrations a partir da etapa 2) |
+| [db/](db/) | Banco: schema (Drizzle), migrations, seed e testes |
 | [prototipo/](prototipo/) | Protótipo navegável das telas (HTML + Tailwind) |
 | [prototipo/TELAS.md](prototipo/TELAS.md) | Especificação de cada tela |
 | [prototipo/telas/](prototipo/telas/) | Prints das telas no celular e no computador |
@@ -34,6 +34,7 @@ React + Vite + TypeScript + Tailwind CSS 4 (Cloudflare Pages) · API em Hono (Cl
 pnpm install                                   # dependências (também gera os tipos do Worker)
 cp apps/api/.dev.vars.example apps/api/.dev.vars
 pnpm db:up                                     # Postgres 18 no Docker (bancos sospatas e sospatas_teste)
+pnpm db:migrate && pnpm db:seed                # tabelas, conteúdo inicial e animais de exemplo
 pnpm dev                                       # site em http://localhost:5173 e API em http://localhost:8787
 ```
 
@@ -45,7 +46,9 @@ A página inicial mostra "API no ar (local)" quando front e API estão conversan
 | `pnpm test` | Testes (Vitest) de todos os pacotes |
 | `pnpm lint` · `pnpm typecheck` · `pnpm format` | ESLint, TypeScript e Prettier |
 | `pnpm build` | Build do front e simulação do deploy da API |
-| `pnpm db:up` · `pnpm db:down` · `pnpm db:reset` | Sobe, para ou recria do zero o Postgres local |
+| `pnpm db:up` · `pnpm db:down` · `pnpm db:reset` | Sobe, para ou recria do zero o Postgres local (depois do reset: `db:migrate` e `db:seed`) |
+| `pnpm db:gerar` | Gera a migration depois de mudar `db/schema.ts` |
+| `pnpm db:migrate` · `pnpm db:seed` | Aplica as migrations; aplica o conteúdo inicial e os dados de exemplo (com `--conteudo`, só o conteúdo) |
 | `pnpm -C apps/api dev:node` | API em Node puro, sem Cloudflare (teste de portabilidade) |
 
 > No protótipo, os animais Apolo e Pelezinho são reais da ONG; os demais são fictícios, com fotos apenas ilustrativas. A história e as fotos institucionais da página inicial foram enviadas pela ONG.

@@ -36,9 +36,9 @@ Nenhuma mudança fica só em um lugar. Ao alterar uma regra, uma tela, um texto 
 | Tela nova ou removida | Também o menu "☰ Telas do protótipo", as rotas do `render()` e a lista `TELAS` do `gerar_prints.py` |
 | Qualquer coisa visível no protótipo | Rodar `python prototipo/gerar_prints.py` para atualizar os prints |
 | Informação vinda da ONG | `PROJETO.md` (registrar a resposta como recebida, sem reescrever) e responder/riscar a pergunta em `TELAS.md` → "Perguntas para a validação" |
-| Textos e conteúdos iniciais do site | Seed no protótipo agora; `db/seed/seed_conteudo.sql` quando existir |
+| Textos e conteúdos iniciais do site | Seed no protótipo **e** `db/seed/seed_conteudo.sql` (os dois iguais) |
 | Estrutura de pastas ou arquivos | Tabela acima, `ARQUITETURA.md` (seção 2) e `README.md` |
-| Banco de dados | Migration nova em `db/migrations/` (nunca alterar produção à mão) + modelo de dados no `DESENVOLVIMENTO.md` |
+| Banco de dados | `db/schema.ts` + migration nova com `pnpm db:gerar` (nunca alterar produção à mão nem editar migration já aplicada) + modelo de dados no `DESENVOLVIMENTO.md`. Limite de campo muda em `packages/compartilhado` |
 | Código do site (`apps/`, `packages/`, `db/`) | O protótipo e a documentação continuam valendo como especificação: se o código divergir, atualizar os dois lados |
 
 **Por quê:** o site será desenvolvido com apoio de IA a partir da documentação (premissa P5) e mantido depois da entrega por voluntárias sem conhecimento técnico. Documento desatualizado vira código errado.

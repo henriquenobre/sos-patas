@@ -1,0 +1,27 @@
+[
+  {
+    "id": "a091baf8-91c6-5bec-b4aa-e0d82e5c1eb9",
+    "origem": "prototipo/assets/historia-4.jpg",
+    "path": "site/historia/a091baf8-91c6-5bec-b4aa-e0d82e5c1eb9.webp"
+  },
+  {
+    "id": "31ed179a-92d7-5cd2-909f-a6a615f88839",
+    "origem": "prototipo/assets/historia-1.jpg",
+    "path": "site/historia/31ed179a-92d7-5cd2-909f-a6a615f88839.webp"
+  },
+  {
+    "id": "8ece0e7c-94b3-5f98-81ef-ba8de5f9b212",
+    "origem": "prototipo/assets/historia-2.jpg",
+    "path": "site/historia/8ece0e7c-94b3-5f98-81ef-ba8de5f9b212.webp"
+  },
+  {
+    "id": "f4a76c21-2ef5-5453-b994-f7f3ab42a260",
+    "origem": "prototipo/assets/historia-3.jpg",
+    "path": "site/historia/f4a76c21-2ef5-5453-b994-f7f3ab42a260.webp"
+  },
+  {
+    "id": "9b824f2e-b6d9-5716-8c8b-fc7fdba8381f",
+    "origem": "prototipo/assets/historia-5.jpg",
+    "path": "site/historia/9b824f2e-b6d9-5716-8c8b-fc7fdba8381f.webp"
+  }
+]

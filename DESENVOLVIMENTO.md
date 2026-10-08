@@ -262,7 +262,15 @@ Substitui a constante `ONG` do código (seção 7.1). Cabeçalho, rodapé, Iníc
 | `inicio_como_funcionamos` | Início, "Como funcionamos" | Título (40), obrigatório | Texto (150) | 0 |
 | `ajude_formas` | Como ajudar (além do card fixo do PIX) | Título (40), obrigatório | Texto (300) | 0 |
 
-**Conteúdo inicial (seed):** a migration `seed_conteudo.sql` cria `ong`, os textos e os itens com os textos atuais do protótipo (`prototipo/index.html`), para o site já estrear preenchido. História, marcos, números e fotos vêm das respostas da ONG de 07/10/2026 (PROJETO.md, Entrevista 3); as fotos estão em `prototipo/assets/historia-1.jpg` a `historia-5.jpg` (a ordem de exibição está em `FOTOS_HISTORIA`, no protótipo; a `historia-1`, da assembleia, é uma versão tratada).
+### Limites e garantias no banco (implementado em 08/10/2026, etapa 2)
+- **Limites de caracteres** de todos os campos em `packages/compartilhado/src/limites.ts` (tabelas) e `conteudo.ts` (textos e listas). Além dos citados acima: `animais.nome` 40, `raca` 60, `cor_pelagem` 60, `vacinas` 120, `problema_saude` 300; `animais_privado.lar_nome` 80, `observacoes` 1000, `adotante_nome` 80; `equipe.nome` 40; `ong.nome_completo` 120, `instagram` 30, `facebook` 200, `pix_chave` 100. O banco confere com `CHECK` gerado a partir desses arquivos.
+- **Campos obrigatórios** não aceitam texto vazio nem só espaços. `animais.descricao` e `animais_privado.observacoes` ficam `''` quando não preenchidos; `lar_nome` e `lar_tipo` podem ficar nulos (o lar não é obrigatório no cadastro, T10).
+- **Coerência:** adotado sempre tem `data_adocao` e disponível nunca tem (RN08); anúncio `publicado` sempre tem `publicado_em` e `expira_em`, e `pendente` nunca tem (RN25); anúncio da equipe não tem `ip_hash` (RN39); WhatsApp só com 10 ou 11 dígitos; e-mail da equipe em minúsculas; Instagram sem `@`; Facebook começando com `https://`.
+- **Posições:** `fotos.ordem` vai de 0 a 2 (RN01) e cada animal tem uma foto por posição; cada lista de `conteudo_itens` tem um item por posição. As duas unicidades são `DEFERRABLE` (conferidas no fim da transação), para a troca de ordem da RN35.
+- **`updated_by`** vira nulo se a linha da equipe for apagada (o normal é desativar com `ativo = false`).
+- **Conferido pela API, não pelo banco:** quantidade de itens por lista (mínimo e máximo, RN36, RN38, RN46), fotos por anúncio (RN21), data do ocorrido no futuro e links na descrição.
+
+**Conteúdo inicial (seed):** o arquivo `db/seed/seed_conteudo.sql` cria `ong`, os textos e os itens com os textos atuais do protótipo (`prototipo/index.html`), para o site já estrear preenchido. História, marcos, números e fotos vêm das respostas da ONG de 07/10/2026 (PROJETO.md, Entrevista 3); as fotos estão em `prototipo/assets/historia-1.jpg` a `historia-5.jpg` (a ordem de exibição está em `FOTOS_HISTORIA`, no protótipo; a `historia-1`, da assembleia, é uma versão tratada).
 
 ### Segurança e permissões (na API)
 A **API é a única porta para o banco e para os arquivos**: o navegador nunca fala direto com o Neon nem com o R2 (exceto para *ler* fotos públicas). Não há RLS; quem decide o que pode é a API ([ARQUITETURA.md](ARQUITETURA.md), seções 3 e 5).
@@ -396,7 +404,8 @@ Onde fica cada regra:
 | Compressão e redesenho das fotos (RN02, RN20) | `apps/web/src/lib/fotos.ts` |
 | Idade e adulto/filhote (RN11, RN13) | `packages/compartilhado` (usado no front e na API) |
 | `TextoSimples`: quebras de linha + links (RN34) | `apps/web/src/components/TextoSimples.tsx` |
-| Limites de campos e validação (RN21, RN34) | `packages/compartilhado/schemas/*` |
+| Limites de campos e validação (RN21, RN34) | `packages/compartilhado/src/limites.ts` e `conteudo.ts`; schemas zod na etapa 3 |
+| Enums e constraints do banco | `db/schema.ts` + `db/migrations/` |
 | `excluirAnimal` (RN05), adoção (RN07, RN08), aprovar/recusar anúncio (RN19, RN26) | `apps/api/src/servicos/*` |
 | Trocar ordem (RN35) | `apps/api/src/servicos/conteudo.ts` |
 | Limpezas diárias (RN25, RN27) | `apps/api/src/tarefas/*` |
@@ -506,3 +515,4 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 08/10/2026 | **Node 24 LTS** no desenvolvimento e no CI (o plano previa o 22), com `.nvmrc` e `engines` no monorepo; pnpm com versão fixa pelo Corepack | O Node 20 instalado já está sem suporte (abr/2026); o 24 é o LTS ativo, com suporte até 2028, o que reduz atualizações para quem mantém o site |
 | 08/10/2026 | Etapa 1 (fundação do monorepo): **Tailwind 4** com os tokens em `@theme` no CSS (no lugar de `tailwind.config`), **React Router 8**, Vite 8, Vitest 5; **TypeScript fixo em 6.0**; no `wrangler.toml`, nível de cima = produção e `.dev.vars` para o ambiente local ([ARQUITETURA.md](ARQUITETURA.md), seções 2 e 9) | Versões estáveis mais recentes na data; o typescript-eslint ainda não aceita o TypeScript 7; a API nunca liga atalhos de desenvolvimento por esquecimento de configuração |
 | 08/10/2026 | Branches: **`main` = produção** e **`develop` = integração e testes** (prévia); etapas e correções em branches próprias a partir da `develop` ([ARQUITETURA.md](ARQUITETURA.md), seção 9) | Separar o que está testado do que está em desenvolvimento antes de o site ir ao ar e permitir versionar as publicações |
+| 08/10/2026 | Etapa 2 (banco): schema Drizzle com 10 tabelas, 13 enums e as constraints de "Limites e garantias no banco" (seção 5); definidos os limites que faltavam (nome do animal, raça, lar, observações…); seed de conteúdo com **ids fixos** (pode rodar de novo sem duplicar) e seed de exemplo só no banco local; `db/` vira o pacote `@sospatas/db` | Nenhum campo de texto sem limite; o banco protege os dados mesmo se a API falhar; os limites ficam num lugar só (`packages/compartilhado`), lido pelo banco e pela validação |
