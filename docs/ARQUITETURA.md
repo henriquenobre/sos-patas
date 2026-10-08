@@ -55,11 +55,14 @@ sos-patas/
 │   ├── web/                     # FRONT: React + Vite + TypeScript + Tailwind + React Router
 │   │   ├── public/              # logo.png, favicon, _headers (segurança), _redirects (/sobre → /ajude)
 │   │   └── src/
-│   │       ├── pages/           # públicas (T01–T07, T12, T13) e admin (T08–T24)
-│   │       ├── components/      # CardAnimal, Pata, Chapeu, TextoSimples…
+│   │       ├── rotas.tsx        # rotas do site (docs/DESENVOLVIMENTO.md, seção 4)
+│   │       ├── layouts/         # LayoutPublico, Cabecalho (menu do celular), Rodape (contatos e PIX)
+│   │       ├── pages/           # públicas (T01–T07, T12, T13) e admin (T08–T24); Avisos (404, Em breve)
+│   │       ├── components/      # CardAnimal, FotoAnimal, Pata, Chapeu, TextoSimples, BlocoPix, Estados…
 │   │       │   └── admin/       # BarraAdmin, ListaEditavel, CampoTextoEditavel (RN33)
-│   │       ├── api/             # cliente HTTP tipado + hooks TanStack Query
-│   │       └── lib/             # fotos.ts (compressão/canvas, RN02/RN20)
+│   │       ├── api/             # cliente HTTP + hooks TanStack Query (publico.ts: useSite, useDestaques, useVitrine)
+│   │       ├── lib/             # pix.ts, animal.ts; fotos.ts (compressão/canvas, RN02/RN20, etapa 10)
+│   │       └── testes/          # renderizar.tsx: rotas reais com a API simulada
 │   └── api/                     # API: Hono + TypeScript
 │       ├── src/
 │       │   ├── app.ts           # criarApp(dependencias): rotas, erros, CORS, login
@@ -86,7 +89,7 @@ sos-patas/
 │   ├── drizzle.config.ts        # DATABASE_URL ou, sem ela, o Postgres local
 │   ├── migrations/              # SQL gerado e versionado (drizzle-kit) + migrations manuais
 │   ├── seed/                    # seed_conteudo.sql (ong, textos, itens), seed_dev.sql (só local), fotos_historia.json
-│   ├── scripts/                 # semear.ts (pnpm db:seed), seed.ts, url.ts
+│   ├── scripts/                 # semear.ts (pnpm db:seed), seed.ts, url.ts, fotos-historia.ts (pnpm db:fotos-historia)
 │   ├── testes/                  # testes de migrations, seed e constraints
 │   └── docker/                  # scripts da 1ª inicialização do Postgres local (cria sospatas_teste)
 ├── docs/                        # documentação: DESENVOLVIMENTO, ARQUITETURA, PLANO_DESENVOLVIMENTO,
@@ -127,7 +130,7 @@ sos-patas/
 | `GET /perdidos?tipo` | Só anúncios `publicado` e não expirados, mais recentes primeiro; `tipo=perdido\|encontrado` | RN18, RN25 |
 | `GET /fotos/*` | Foto do bucket **público** (`animais/`, `site/`, `perdidos/`), com cache de 1 ano. Usada quando não há domínio de fotos (`FOTOS_URL_BASE` vazio: computador e prévia). Nunca lê a quarentena | RN19 |
 | `POST /perdidos` | Envio público: Turnstile, limites, até 2 fotos WebP ≤ 500 KB → `pendente` + fotos na **quarentena** | RN19–RN23 |
-| `POST /interesses` | _Futuro_: formulário de interesse em adoção | RN14, RN15 |
+| `POST /animais/:id/pedidos` | Formulário de adoção: Turnstile, limites (2/dia por IP, 1 pendente por WhatsApp), validação pelo schema da versão do formulário. Numa transação: grava o pedido e passa o animal para `em_analise` (409 se ele não estiver mais disponível). Depois, limpa o cache da vitrine, dos destaques e da ficha | RN14, RN15, RN47, RN48, RN50 |
 
 **Respostas:** tipos em `packages/compartilhado/src/api/publico.ts` (`SitePublico`, `ListaAnimais`, `AnimalFicha`, `ListaPerdidos`), usados pela API e pelo front. As fotos vêm como URL pronta. A idade é calculada no front com `textoIdade` (as datas vêm cruas). O cache usa como chave o caminho com os filtros válidos em ordem fixa: parâmetros extras não criam cópias novas nem acordam o banco.
 
@@ -145,6 +148,7 @@ sos-patas/
 | Textos | `GET /conteudo` · `PUT /conteudo/textos/:chave` | RN33, RN34, RN37 |
 | Itens de lista | `POST /conteudo/itens` · `PUT/DELETE /conteudo/itens/:id` · `POST /conteudo/itens/trocar-ordem` · `POST /conteudo/itens/:id/foto` | RN35, RN36, RN38 |
 | Dados da ONG | `GET/PUT /ong` | T23 |
+| Pedidos de adoção | `GET /pedidos?status` · `GET /pedidos/:id` (com os alertas calculados) · `PUT /pedidos/:id/observacao` · `POST /pedidos/:id/aprovar` · `POST /pedidos/:id/recusar` (animal volta a `disponivel`). "Marcar como adotado" (`POST /animais/:id/adocao`) aceita `pedido_id` para preencher o adotante | RN48, RN49 |
 
 **Gravação de `updated_at` / `updated_by` (RN43):** a API preenche os dois em toda escrita, a partir da usuária identificada pelo Access. Operações com mais de um passo no banco (trocar ordem, aprovar anúncio, adoção) rodam em **transação**.
 
@@ -198,7 +202,7 @@ Um cron diário (03:00, horário de Brasília = `0 6 * * *` UTC) chama `schedule
 |---|---|
 | Apagar anúncios `publicado` com `expira_em` vencido (arquivos + registro) | RN25 |
 | Apagar anúncios `pendente` há mais de 7 dias (arquivos da quarentena + registro) | RN27 |
-| _Futuro:_ apagar pedidos de interesse recusados/não concluídos há mais de 90 dias | RN15 |
+| Apagar pedidos de adoção recusados ou não concluídos há mais de 90 dias, e aprovados 90 dias depois da adoção | RN15 |
 
 O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa projetos gratuitos.
 
@@ -279,6 +283,7 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 **Um atacante consegue inflar o armazenamento ou o banco?** Não de forma relevante:
 - Só a API grava no R2 e no banco; o navegador nunca grava direto (seção 6).
 - O único envio sem login é o anúncio de perdido/encontrado: Turnstile, no máximo 2 fotos de 500 KB, 3 envios por dia por IP e **30 pendentes no total** (RN21–RN23). O pior caso é ~30 MB na quarentena, apagados em 7 dias (RN27). Nada fica público sem aprovação (RN18).
+- O formulário de adoção só grava texto no banco (sem arquivos): Turnstile, limites de caracteres, 2 pedidos por dia por IP e 1 pendente por WhatsApp (RN50).
 - Cadastro de animais, textos e fotos da história exigem o login do Access.
 - O banco tem limites de caracteres em todos os campos (CHECK) e o Neon sem cartão não cobra.
 

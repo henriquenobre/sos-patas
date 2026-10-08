@@ -34,12 +34,13 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 3 | Pacote compartilhado (zod, limites, idade) | 1 | 11/10 | ✅ 08/10 |
 | 4 | Base da API (erros, login, armazenamento, testes) | 2, 3 | 12/10 | ✅ 08/10 |
 | 5 | API pública de leitura | 4 | 13/10 | ✅ 08/10 |
-| 6 | Site público: layout e páginas de conteúdo | 5 | 13–14/10 | ⬜ |
+| 6 | Site público: layout e páginas de conteúdo | 5 | 13–14/10 | ✅ 08/10 |
 | 7 | Site público: vitrine e ficha do animal | 6 | 15/10 | ⬜ |
 | 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ⬜ |
 | 9 | API da ONG: animais, fotos, adoção, protetores | 4 | 16–17/10 | ⬜ |
 | 10 | Área da ONG: estrutura e animais (T09–T11) | 9 | 17–19/10 | ⬜ |
-| 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 19–21/10 | ⬜ |
+| 10b | Pedidos de adoção: formulário com o termo, análise e animal fora do site (RN47–RN50) | 10 | 19–20/10 | ⬜ |
+| 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 20–21/10 | ⬜ |
 | 12 | Editor de textos (T15–T20) | 10 | 21–23/10 | ⬜ |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores, "Alterado por" | 11, 12 | 23–24/10 | ⬜ |
 | 14 | Produção: domínio, Access, CI/CD, backup e segurança | 8, 13 | 24–27/10 | ⬜ |
@@ -47,7 +48,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 
 Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada (anotar o motivo).
 
-**Se o prazo apertar** (DESENVOLVIMENTO.md, seção 4, "Prioridade"): as etapas 0 a 12, 14 e 15 são obrigatórias. Da etapa 13, Dados da ONG (T23) e anúncio pela equipe (T21) vêm primeiro; protetores (T24), "Alterado por" (RN43) e filtro por responsável podem ficar para depois da entrega.
+**Se o prazo apertar** (DESENVOLVIMENTO.md, seção 4, "Prioridade"): as etapas 0 a 12 (inclusive a 10b, que entrou em 08/10/2026), 14 e 15 são obrigatórias. Da etapa 13, Dados da ONG (T23) e anúncio pela equipe (T21) vêm primeiro; protetores (T24), "Alterado por" (RN43) e filtro por responsável podem ficar para depois da entrega.
 
 ---
 
@@ -174,7 +175,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Regras:** RN01, RN03 (vitrine só com miniatura), RN10–RN13, RN17, RN31, RN32.
 
-**Decisão pendente:** o formulário de interesse (RN14) está fora do MVP. Antes desta etapa, definir o que o botão **"Quero adotar"** faz até ele existir (ex.: abrir o WhatsApp do responsável com mensagem pronta, ou um aviso). Registrar a escolha no DESENVOLVIMENTO.md.
+**"Quero adotar" (decidido em 08/10/2026):** o botão leva a `/animais/:id/adotar` (formulário de adoção, RN14). Até a etapa 10b, essa rota mostra "Em breve". A ficha já trata o status `em_analise` (RN48) quando ele existir.
 
 **Pronto quando:** filtros combinados funcionam; animal adotado abre a ficha mas não aparece na vitrine.
 
@@ -223,6 +224,21 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Pronto quando:** dá para cadastrar um animal com 3 fotos **pelo celular** (testar no aparelho, na rede local), editar, adotar e excluir, e o resultado aparece certo no site público.
 
+## Etapa 10b · Pedidos de adoção
+
+**Objetivo:** quem quer adotar preenche o formulário e conhece o termo; o pedido fica salvo, o animal sai do site e a equipe avalia (RN14, RN15, RN47–RN50). Entrou no MVP em 08/10/2026.
+
+**Entregas:**
+- Migration: valor `em_analise` no enum `status_animal` e tabela `pedidos_adocao` (com índice único parcial: um `pendente` por animal) (DESENVOLVIMENTO.md, seção 5)
+- Pacote compartilhado: schema do formulário **versão 1.1** (perguntas e condicionais do [FORMULARIO_ADOCAO.md](formulario/FORMULARIO_ADOCAO.md)), texto do termo (TERMO_ADOCAO.md) e a função dos **alertas automáticos**
+- API pública `POST /animais/:id/pedidos` (Turnstile, limites, transação que esconde o animal, limpeza de cache) e a ficha respondendo "em processo de adoção" para `em_analise`
+- API da ONG: listar, ver (com alertas), anotar, aprovar e recusar; "Marcar como adotado" com `pedido_id`
+- Limpeza diária do RN15 (com as tarefas da etapa 11, no mesmo cron)
+- Telas **T26** (formulário com o termo) e **T26b** (confirmação); **T27** e **T28** na área da ONG; aba **Pedidos** na `BarraAdmin`; aba **Em análise** no T09
+- Texto de Privacidade atualizado (TELAS.md, T07) no site e no protótipo; T26–T28 desenhadas no protótipo
+
+**Pronto quando:** testes cobrem: o pedido esconde o animal da vitrine e dos destaques; o segundo pedido do mesmo animal recebe 409; recusar devolve o animal ao site; aprovar mantém o animal fora até "Marcar como adotado"; os limites de envio; os alertas da tabela do formulário; nenhum dado do pedido aparece em rota pública.
+
 ## Etapa 11 · Perdidos e encontrados
 
 **Entregas:**
@@ -266,7 +282,7 @@ Na ordem de prioridade:
 
 **Entregas:**
 - DNS de `sospatas.org.br` no Cloudflare; Pages em `sospatas.org.br`; Worker na rota `sospatas.org.br/api/*`; bucket público em `fotos.sospatas.org.br`
-- Neon `production` com migrations e `seed_conteudo.sql`; fotos da história enviadas ao R2 em `site/historia/{id}.webp` com os ids do seed (script)
+- Neon `production` com migrations e `seed_conteudo.sql`; fotos da história enviadas ao R2 em `site/historia/{id}.webp` com os ids do seed (script pronto desde a etapa 6: `pnpm db:fotos-historia -- --remoto`)
 - **Cloudflare Access:** aplicação protegendo `/admin/*` e `/api/admin/*`, política com os e-mails da equipe, código por e-mail, sessão de 30 dias, página de login com logo e cores (T08); linhas em `equipe`
 - Turnstile (site key no front, segredo na API) e Web Analytics
 - `deploy.yml` (migrations → `wrangler deploy` → Pages) e `backup.yml` (dump diário → `sospatas-backups`, 30 dias)
@@ -291,4 +307,4 @@ Na ordem de prioridade:
 
 ## Depois da entrega (não planejado em etapas)
 
-Itens de "Fora do MVP" (DESENVOLVIMENTO.md, seção 4), na ordem provável: formulário de interesse em adoção e telas de análise (RN14, RN15, com a limpeza de 90 dias no cron), página "Finais felizes", PWA, gestão de contas pelo site.
+Itens de "Fora do MVP" (DESENVOLVIMENTO.md, seção 4), na ordem provável: página "Finais felizes", PWA, gestão de contas pelo site. (Os pedidos de adoção entraram no MVP em 08/10/2026: etapa 10b.)

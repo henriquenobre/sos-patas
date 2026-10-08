@@ -84,6 +84,7 @@ const colunasResumo = {
   nascimento_aprox: animais.nascimento_aprox,
   porte: animais.porte,
   data_entrada: animais.data_entrada,
+  responsavel_tipo: animais.responsavel_tipo,
   foto_path: fotos.path_miniatura,
 }
 

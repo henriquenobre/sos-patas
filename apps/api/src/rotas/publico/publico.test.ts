@@ -305,6 +305,7 @@ describe('GET /animais (vitrine)', () => {
     const thor = corpo.animais.find((animal) => animal.nome === 'Thor')
     expect(thor?.foto).toBe(`/api/publico/fotos/animais/${ID.thor}/f1-thumb.webp`)
     expect(corpo.animais.find((animal) => animal.nome === 'Nina')?.foto).toBeNull()
+    expect(corpo.animais.find((animal) => animal.nome === 'Mel')?.responsavel_tipo).toBe('protetor')
   })
 
   it.each([
