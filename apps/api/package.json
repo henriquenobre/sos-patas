@@ -1,0 +1,26 @@
+{
+  "name": "@sospatas/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "wrangler types",
+    "dev": "wrangler dev",
+    "dev:node": "tsx watch src/node.ts",
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "tipos": "wrangler types",
+    "typecheck": "wrangler types && tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.3",
+    "@sospatas/compartilhado": "workspace:*",
+    "hono": "^4.13.13"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.1",
+    "tsx": "^4.23.15",
+    "vitest": "^5.0.3",
+    "wrangler": "^4.148.0"
+  }
+}

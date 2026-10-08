@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+/* Tokens de identidade visual (DESENVOLVIMENTO.md, seção 7.1), com os mesmos nomes do
+   protótipo: bg-azul, text-azul-escuro, bg-vermelho-claro, bg-fundo, font-titulo… */
+@theme {
+  --color-azul: #1f3e9c;
+  --color-azul-escuro: #152b70;
+  --color-azul-claro: #e8edfb;
+  --color-vermelho: #e02a2f;
+  --color-vermelho-claro: #fdecec;
+  --color-amarelo: #f5a623;
+  --color-amarelo-claro: #fef5e4;
+  --color-fundo: #f6f7fb;
+
+  --font-titulo: 'Baloo 2', system-ui, sans-serif;
+  --font-corpo: Nunito, system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-corpo);
+}

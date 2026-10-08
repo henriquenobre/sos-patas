@@ -1,0 +1,49 @@
+# Configuração do Worker da API (ARQUITETURA.md, seções 1, 6, 7 e 9).
+#
+# O nível de cima é a PRODUÇÃO. Os bindings não são herdados pelos ambientes:
+# o ambiente `previa` repete todos. No computador, `wrangler dev` usa estes mesmos
+# bindings com R2 simulado e o Postgres do Docker, e o arquivo `.dev.vars` troca
+# AMBIENTE para "local" (sem ele, a API se comporta como produção).
+#
+# Ainda a preencher: id real do Hyperdrive (etapa 8), cron da limpeza diária
+# (etapa 11) e rota sospatas.org.br/api/* (etapa 14).
+
+name = "sospatas-api"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+AMBIENTE = "producao"
+
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "preencher-na-etapa-8"
+localConnectionString = "postgres://sospatas:sospatas@localhost:5432/sospatas"
+
+[[r2_buckets]]
+binding = "FOTOS"
+bucket_name = "sospatas-fotos"
+
+[[r2_buckets]]
+binding = "QUARENTENA"
+bucket_name = "sospatas-quarentena"
+
+[env.previa]
+name = "sospatas-api-previa"
+
+[env.previa.vars]
+AMBIENTE = "previa"
+
+[[env.previa.hyperdrive]]
+binding = "HYPERDRIVE"
+id = "preencher-na-etapa-8"
+localConnectionString = "postgres://sospatas:sospatas@localhost:5432/sospatas"
+
+[[env.previa.r2_buckets]]
+binding = "FOTOS"
+bucket_name = "sospatas-fotos-previa"
+
+[[env.previa.r2_buckets]]
+binding = "QUARENTENA"
+bucket_name = "sospatas-quarentena-previa"

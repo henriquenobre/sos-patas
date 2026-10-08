@@ -1,0 +1,25 @@
+# Postgres local para desenvolvimento e testes (ARQUITETURA.md, seção 9).
+# Mesma versão do Neon de produção (18). Usuário e senha valem só no computador local.
+services:
+  postgres:
+    image: postgres:18
+    container_name: sospatas-postgres
+    environment:
+      POSTGRES_USER: sospatas
+      POSTGRES_PASSWORD: sospatas
+      POSTGRES_DB: sospatas
+    ports:
+      - '5432:5432'
+    volumes:
+      # A partir do Postgres 18, a imagem guarda os dados em /var/lib/postgresql/18/...
+      - dados-postgres:/var/lib/postgresql
+      # Cria o banco sospatas_teste na primeira inicialização
+      - ./db/docker:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U sospatas -d sospatas']
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
+volumes:
+  dados-postgres:

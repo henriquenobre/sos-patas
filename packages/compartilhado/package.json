@@ -1,0 +1,17 @@
+{
+  "name": "@sospatas/compartilhado",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Schemas, tipos e limites usados pelo front e pela API",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.3"
+  }
+}

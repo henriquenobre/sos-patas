@@ -3,8 +3,23 @@ PROJETO.md
 *.pdf
 fotos/
 
+# Senhas, acessos e outros dados que não podem ir para o GitHub
+dados-sensiveis/
+
 # Ferramentas locais
 .claude/
 __pycache__/
-.env*
 node_modules/
+
+# Variáveis e segredos locais (os modelos *.example vão para o Git)
+.env*
+!.env.example
+.dev.vars*
+!.dev.vars.example
+
+# Gerados no build e pelo Wrangler
+dist/
+coverage/
+.wrangler/
+worker-configuration.d.ts
+*.tsbuildinfo

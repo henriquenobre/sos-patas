@@ -1,0 +1,10 @@
+# Fora do código do site: protótipo e documentos têm formatação própria
+prototipo/
+# Página de entrada do protótipo no GitHub Pages
+/index.html
+formulario/
+*.md
+pnpm-lock.yaml
+dist/
+.wrangler/
+worker-configuration.d.ts

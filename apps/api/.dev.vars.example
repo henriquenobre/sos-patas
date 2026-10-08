@@ -1,0 +1,3 @@
+# Copie para .dev.vars (fora do Git). Valores só para o computador local.
+# Segredos de prévia e produção vão por `wrangler secret put` (ARQUITETURA.md, seção 9).
+AMBIENTE=local
