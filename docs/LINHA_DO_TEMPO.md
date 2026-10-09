@@ -36,7 +36,7 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | 5 | API pública de leitura | 08/10/2026 | 08/10/2026 | 1 dia | 6 rotas com cache; 33 testes novos, inclusive de vazamento de dados internos |
 | 6 | Site público: layout e páginas de conteúdo | 08/10/2026 | 08/10/2026 | 1 dia | 5 páginas iguais ao protótipo, conferidas em 360 px e no computador; 16 testes do front |
 | 7 | Site público: vitrine e ficha do animal | 08/10/2026 | 08/10/2026 | 1 dia | Filtros na URL, ficha completa, fotos de exemplo no computador; 11 testes novos do front |
-| 8 | Deploy de prévia no Cloudflare | | | | |
+| 8 | Deploy de prévia no Cloudflare | 09/10/2026 | 09/10/2026 | 1 dia | sospatas.pages.dev + Worker de prévia; CPU de 12 a 41 ms em instância nova (teto de 10 ms) |
 | 9 | API da ONG: animais, fotos, adoção, protetores | | | | |
 | 10 | Área da ONG: estrutura e animais | | | | |
 | 10b | Pedidos de adoção | 09/10/2026 | | | Entrou no MVP em 08/10/2026. Banco, API e formulário prontos em 09/10; telas da área da ONG com a etapa 10 |
@@ -84,3 +84,8 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 09/10/2026 | | 7 | Etapa 10b adiantada: pedidos de adoção no banco, na API e no site (formulário + termo), testados de ponta a ponta no navegador; protótipo congelado | doc (verificação local) |
 | 09/10/2026 | | 7 | A ONG enviou novas formas de ajudar (mensalistas, apadrinhamento, bazar, Empresa amiga); página Como ajudar atualizada (só texto). A história da página inicial passa a abrir com a foto da equipe em 2016 | relato (09/10) |
 | 09/10/2026 | | 7 | Contato da ONG no site passa a ser o e-mail `sitesospatas@gmail.com` (a ONG ainda vai providenciar um WhatsApp próprio); nova página "Fale com a ONG" com formulário, que só funciona em produção (etapa 14) | relato (09/10) |
+| 09/10/2026 | | 6 | Alerta de orçamento de US$ 1 criado no Cloudflare (Billing → Budget alerts) | relato |
+| 09/10/2026 | | 6 | Compute do Neon de produção fixo em 0,25 CU | relato |
+| 09/10/2026 | 11:50 | 7 | **Etapa 8 iniciada:** criado o projeto `sospatas-previa` no Neon (São Paulo, PostgreSQL 18, 0,25 CU), separado da produção | relato + painel do Neon |
+| 09/10/2026 | | 7 | Prévia: migrations e dados de exemplo no Neon `sospatas-previa`, Hyperdrive e buckets `-previa` criados, fotos enviadas ao R2 de verdade pela primeira vez | doc (verificação) |
+| 09/10/2026 | | 7 | **Etapa 8 concluída:** site no ar pela primeira vez, em https://sospatas.pages.dev, com a API da prévia, dados de exemplo e fotos; Neon frio 0,87 s; CPU perto do teto em instância nova | doc (verificação no navegador e `wrangler tail`) |

@@ -64,14 +64,44 @@ Sem o `.dev.vars`, a API roda como se fosse produção. Páginas prontas: Iníci
 |---|---|
 | `pnpm dev` | Front (Vite) e API (`wrangler dev`) juntos; o Vite repassa `/api` para a API |
 | `pnpm dev:celular` | Igual ao `dev`, mas o site também abre pelo IP do computador na rede (para testar no celular) |
-| `pnpm db:fotos-exemplo` | Só no computador: fotos do protótipo para os animais e anúncios de exemplo (R2 local + tabelas `fotos` e `perdidos_fotos`). O `db:seed` apaga as fotos; rode de novo depois dele |
+| `pnpm db:fotos-exemplo` | No computador (ou na prévia, com `--previa`): fotos do protótipo para os animais e anúncios de exemplo (R2 local + tabelas `fotos` e `perdidos_fotos`). O `db:seed` apaga as fotos; rode de novo depois dele |
 | `pnpm db:fotos-historia` | Converte as fotos da história para WebP (completa e miniatura, sem metadados) e envia ao R2 local; `-- --remoto` envia ao R2 de verdade (etapa 14) |
 | `pnpm test` | Testes (Vitest) de todos os pacotes |
 | `pnpm lint` · `pnpm typecheck` · `pnpm format` | ESLint, TypeScript e Prettier |
 | `pnpm build` | Build do front e simulação do deploy da API |
 | `pnpm db:up` · `pnpm db:down` · `pnpm db:reset` | Sobe, para ou recria do zero o Postgres local (depois do reset: `db:migrate` e `db:seed`) |
 | `pnpm db:gerar` | Gera a migration depois de mudar `db/schema.ts` |
-| `pnpm db:migrate` · `pnpm db:seed` | Aplica as migrations; aplica o conteúdo inicial e os dados de exemplo (com `--conteudo`, só o conteúdo) |
+| `pnpm db:migrate` · `pnpm db:seed` | Aplica as migrations; aplica o conteúdo inicial e os dados de exemplo (com `--conteudo`, só o conteúdo; com `--previa`, no banco da prévia) |
 | `pnpm -C apps/api dev:node` | API em Node puro, sem Cloudflare (teste de portabilidade) |
+
+## Publicar a prévia
+
+A prévia é uma cópia do site com os dados de exemplo, em endereços do Cloudflare (`*.pages.dev` e `*.workers.dev`), para testar antes da produção ([ARQUITETURA.md](docs/ARQUITETURA.md), seção 9). Precisa do login no Wrangler: `pnpm -C apps/api exec wrangler login`.
+
+| Peça | Onde |
+|---|---|
+| Banco | Projeto `sospatas-previa` do Neon. A string de conexão (sem pooling) fica em `privado/dados-sensiveis/` |
+| Ligação API ↔ banco | Hyperdrive `sospatas-previa` (id no `[env.previa]` do `wrangler.toml`) |
+| Fotos | Buckets `sospatas-fotos-previa` e `sospatas-quarentena-previa` |
+| API | Worker `sospatas-api-previa` |
+| Site | Pages `sospatas` (`https://sospatas.pages.dev`), branch de produção do Pages = `develop` até a etapa 14. Variáveis: `VITE_API_URL=https://sospatas-api-previa.sospatas.workers.dev`, `VITE_TURNSTILE_SITE_KEY` (Site key pública do widget Turnstile "SOS Patas") e `PNPM_VERSION=12.10.1` |
+
+**Atualizar o banco da prévia** (Git Bash, com a string do Neon em `DATABASE_URL`):
+
+```bash
+export DATABASE_URL='postgresql://...'                 # string do sospatas-previa
+pnpm db:migrate                                        # migrations novas
+pnpm db:seed --previa                                  # volta os dados de exemplo (apaga as fotos)
+pnpm db:fotos-exemplo --previa                         # fotos dos animais de exemplo nos buckets -previa
+pnpm db:fotos-historia -- --remoto --bucket=sospatas-fotos-previa   # só se as fotos da história mudarem
+```
+
+O `--previa` só funciona num banco marcado como prévia; a produção nunca tem a marca, e os dados de exemplo são recusados nela. A marca foi posta uma vez (09/10/2026) no SQL Editor do projeto `sospatas-previa`: `COMMENT ON DATABASE neondb IS 'sospatas:previa';`. Se o projeto for recriado, repetir.
+
+**Publicar a API:** `pnpm -C apps/api exec wrangler deploy --env previa`. Segredos (uma vez, ou para trocar): `pnpm -C apps/api exec wrangler secret put TURNSTILE_SECRET --env previa` e o mesmo para `IP_HASH_SECRET` (texto aleatório longo).
+
+**Publicar o site:** o Pages publica sozinho a cada push na `develop`.
+
+**Depois de publicar a API**, as rotas públicas podem mostrar a versão anterior por até 15 minutos: a borda do Cloudflare guarda as respostas (`s-maxage=900`). Mudou a configuração e o site ainda mostra o comportamento antigo? Espere e recarregue.
 
 > No protótipo, todos os animais são exemplos fictícios: nenhum está de fato para adoção, e as fotos são apenas ilustrativas. A história e as fotos institucionais da página inicial foram enviadas pela ONG.

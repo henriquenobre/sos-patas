@@ -36,7 +36,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 5 | API pública de leitura | 4 | 13/10 | ✅ 08/10 |
 | 6 | Site público: layout e páginas de conteúdo | 5 | 13–14/10 | ✅ 08/10 |
 | 7 | Site público: vitrine e ficha do animal | 6 | 15/10 | ✅ 08/10 |
-| 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ⬜ |
+| 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ✅ 09/10 · ⚠️ CPU perto do teto (ver etapa 8) |
 | 9 | API da ONG: animais, fotos, adoção, protetores | 4 | 16–17/10 | ⬜ |
 | 10 | Área da ONG: estrutura e animais (T09–T11) | 9 | 17–19/10 | ⬜ |
 | 10b | Pedidos de adoção: formulário com o termo, análise e animal fora do site (RN47–RN50) | 10 | 19–20/10 | 🔄 banco, API e formulário prontos em 09/10; faltam as telas T27/T28 (com a etapa 10) |
@@ -67,12 +67,12 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
   - [x] verificação em duas etapas e seu e-mail pessoal como membro administrador (Manage account → Members)
   - [x] Zero Trust ativado no plano gratuito, com o nome do time `sospatas`
   - [x] R2 ativado com o cartão pessoal do mantenedor (08/10/2026); os buckets só são criados nas etapas 8 e 14
-  - [ ] Alerta de orçamento em US$ 1 (Billing → Budget alerts) para o Gmail do site (ARQUITETURA.md, seção 11.1)
+  - [x] Alerta de orçamento em US$ 1 (Billing → Budget alerts) para o Gmail do site (ARQUITETURA.md, seção 11.1) (09/10/2026)
   - [ ] adicionar `sospatas.org.br` só depois que o Registro.br concluir o registro
-- [x] **Neon:** projeto `sospatas` em São Paulo, PostgreSQL 18, branch padrão `production` (08/10/2026). Falta: convidar seu e-mail pessoal; a branch `previa` fica para a etapa 8
-  - [ ] Compute da branch `production` fixo em **0,25 CU** (mínimo e máximo), para não gastar as 100 CU-horas do mês num pico (ARQUITETURA.md, seção 11.2)
+- [x] **Neon:** projeto `sospatas` em São Paulo, PostgreSQL 18, branch padrão `production` (08/10/2026). Falta: convidar seu e-mail pessoal. A prévia usa um projeto separado, `sospatas-previa` (criado em 09/10/2026, etapa 8)
+  - [x] Compute da branch `production` fixo em **0,25 CU** (mínimo e máximo), para não gastar as 100 CU-horas do mês num pico (ARQUITETURA.md, seção 11.2) (09/10/2026; o `sospatas-previa` também)
 - [ ] Lista de e-mails da equipe (Gracia, Claudia e quem mais a ONG indicar, TELAS.md pergunta 13)
-- [x] Ferramentas locais (08/10/2026): Node 24.21 (pelo nvm-windows), pnpm 12.10 (pelo Corepack) e Docker Desktop 29. O Wrangler entra como dependência do projeto na etapa 1; depois dela, `pnpm wrangler login` com o seu e-mail pessoal
+- [x] Ferramentas locais (08/10/2026): Node 24.21 (pelo nvm-windows), pnpm 12.10 (pelo Corepack) e Docker Desktop 29. O Wrangler é dependência do `apps/api` (etapa 1): `pnpm -C apps/api exec wrangler login` com o seu e-mail pessoal (na raiz, `pnpm wrangler` não encontra o comando)
 
 **Pronto quando:** contas criadas e acessos guardados num gerenciador de senhas; domínio pedido (pode ainda não estar ativo).
 
@@ -190,6 +190,11 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 - Segredos da prévia com `wrangler secret`
 - Medição: tempo de CPU das rotas públicas no painel do Workers (precisa ficar bem abaixo de 10 ms) e tempo do primeiro acesso com o Neon "dormindo"
 - README: como publicar a prévia
+
+**Resultado (09/10/2026):** prévia no ar em https://sospatas.pages.dev (Pages, branch de produção `develop`) com a API em https://sospatas-api-previa.sospatas.workers.dev. Projeto `sospatas-previa` no Neon (0,25 CU) com migrations e dados de exemplo, liberados com `--previa` só em banco marcado (`COMMENT ON DATABASE`); Hyperdrive `sospatas-previa`; buckets `-previa` (local `enam`) com as fotos; Turnstile "SOS Patas" para `sospatas.pages.dev`; segredos com `wrangler secret`. Início, vitrine, ficha e Como ajudar conferidos no navegador (celular e computador), com fotos.
+
+- **Ajustes descobertos:** o site e a API ficam em domínios diferentes, então a prévia precisa de `CORS_ORIGENS` e de `FOTOS_URL_BASE` apontando para a rota de fotos do Worker. Depois de publicar a API, as respostas antigas ficam até 15 min no cache da borda (README).
+- **Medições:** resposta das rotas públicas entre 0,13 e 0,25 s. Primeiro acesso com o Neon dormindo: 0,87 s (0,18 s logo depois). **Tempo de CPU: 2 a 9 ms com o Worker aquecido, mas 12 a 41 ms nas primeiras requisições de uma instância nova** (`wrangler tail`, 17 requisições, todas `ok`). ⚠️ Perto do teto de 10 ms do Workers Free: investigar antes da etapa 14 (peso da inicialização: API com 1,26 MB, 227 KB compactada; medir rota por rota).
 
 **Pronto quando:** a URL do Pages mostra Início, vitrine e ficha com os dados de exemplo; anotar no Painel qualquer limite que ficou perto do teto.
 

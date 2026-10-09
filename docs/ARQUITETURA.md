@@ -134,7 +134,7 @@ sos-patas/
 | `GET /animais/destaques` | "Esperando há mais tempo" | RN12 |
 | `GET /animais/:id` | Ficha (disponível ou adotado, sem dados privados) | RN31 |
 | `GET /perdidos?tipo` | Só anúncios `publicado` e não expirados, mais recentes primeiro; `tipo=perdido\|encontrado` | RN18, RN25 |
-| `GET /fotos/*` | Foto do bucket **público** (`animais/`, `site/`, `perdidos/`), com cache de 1 ano. Usada quando não há domínio de fotos (`FOTOS_URL_BASE` vazio: computador e prévia). Nunca lê a quarentena | RN19 |
+| `GET /fotos/*` | Foto do bucket **público** (`animais/`, `site/`, `perdidos/`), com cache de 1 ano. Usada quando não há domínio de fotos (computador e prévia). Nunca lê a quarentena | RN19 |
 | `POST /perdidos` | Envio público: Turnstile, limites, até 2 fotos WebP ≤ 500 KB → `pendente` + fotos na **quarentena** | RN19–RN23 |
 | `POST /animais/:id/pedidos` | Formulário de adoção: Turnstile, limites (2/dia por IP, 1 pendente por WhatsApp), validação pelo schema da versão do formulário. Numa transação: grava o pedido e passa o animal para `em_analise` (409 se ele não estiver mais disponível). Depois, limpa o cache da vitrine, dos destaques e da ficha | RN14, RN15, RN47, RN48, RN50 |
 | `POST /contato` | Formulário "Fale com a ONG": Turnstile, validação, limite de 3 por dia por IP (`contato_envios`, só o hash). Envia o e-mail para a ONG com `Reply-To` de quem escreveu; **não grava a mensagem**. 503 `email_indisponivel` se o envio falhar | RN51 |
@@ -177,7 +177,7 @@ sos-patas/
 
 ## 5. Banco de dados
 
-- **Neon**, projeto `sospatas` (criado em 08/10/2026), região **AWS South America East 1 (São Paulo)**, **PostgreSQL 18**, plano gratuito (compute de 0,25 a 2 CU). Branch padrão **`production`** = produção; branch `previa` (etapa 8) e outras branches do Neon para testar migrations. O Postgres local (Docker) usa a mesma versão. **Neon Auth / Better Auth não é usado** (o login é pelo Access, seção 4).
+- **Neon**, projeto `sospatas` (criado em 08/10/2026), região **AWS South America East 1 (São Paulo)**, **PostgreSQL 18**, plano gratuito, compute fixo em 0,25 CU (09/10/2026). Branch padrão **`production`** = produção; outras branches do Neon para testar migrations. A **prévia** fica num projeto separado, **`sospatas-previa`** (criado em 09/10/2026, mesma região e versão, 0,25 CU), porque as 100 CU-horas do plano gratuito são por projeto (seção 11.2): uso na prévia não consome a cota da produção. O Postgres local (Docker) usa a mesma versão. **Neon Auth / Better Auth não é usado** (o login é pelo Access, seção 4).
 - **Migrations:** `db/schema.ts` (Drizzle) → `pnpm db:gerar` (`drizzle-kit generate`) gera SQL em `db/migrations/` (revisado e versionado) → `pnpm db:migrate` aplica (no deploy, com a `DATABASE_URL` do Neon). O que o Drizzle não gera (ex.: `UNIQUE … DEFERRABLE`) vai numa migration manual (`drizzle-kit generate --custom`). Nunca alterar o banco de produção à mão.
 - **Seed:** `pnpm db:seed` aplica `db/seed/seed_conteudo.sql` e, só no banco local, `seed_dev.sql` (dados de exemplo). Em produção: `pnpm db:seed --conteudo`. O conteúdo inicial não sobrescreve o que a equipe já editou.
 - **Testes do banco** (`db/testes/`) recriam o banco `sospatas_teste` com as migrations e conferem o seed e as constraints. No CI, um serviço Postgres 18 faz esse papel.
@@ -195,9 +195,11 @@ sos-patas/
 | `sospatas-quarentena` | **Privado**: só a API lê e grava (rota admin que transmite o arquivo para a equipe) | `perdidos/{perdido_id}/{id}.webp` enquanto `pendente` (RN19) |
 | `sospatas-backups` | **Privado** | Dumps diários do banco (seção 8) |
 
+Na prévia, `sospatas-fotos-previa` e `sospatas-quarentena-previa` (criados em 09/10/2026), ambos privados: a API serve as fotos em `/api/publico/fotos/*`. Local dos buckets: **`enam`** (leste da América do Norte), o mais próximo do Brasil, já que o R2 não tem região na América do Sul; o cache do Cloudflare entrega as fotos a partir de São Paulo.
+
 - **Aprovar anúncio** = copiar os objetos da quarentena para o bucket público e apagar da quarentena, na mesma operação (RN19).
 - **Excluir** segue a RN05: primeiro os arquivos, depois o registro.
-- **URL das fotos:** a API devolve a URL pronta. Com `FOTOS_URL_BASE` (produção: `https://fotos.sospatas.org.br`), aponta para o domínio de fotos; vazio (computador e prévia), para `/api/publico/fotos/{path}`. As fotos da história guardam só o caminho da completa (`site/historia/{id}.webp`); a miniatura fica ao lado, `{id}-thumb.webp`.
+- **URL das fotos:** a API devolve a URL pronta. Com `FOTOS_URL_BASE` (produção: `https://fotos.sospatas.org.br`), aponta para o domínio de fotos; vazio (computador), para `/api/publico/fotos/{path}`. Na prévia, o site (`pages.dev`) e a API (`workers.dev`) ficam em domínios diferentes, então `FOTOS_URL_BASE` é a rota de fotos do próprio Worker da prévia (`https://sospatas-api-previa.sospatas.workers.dev/api/publico/fotos`). As fotos da história guardam só o caminho da completa (`site/historia/{id}.webp`); a miniatura fica ao lado, `{id}-thumb.webp`.
 - **Não usar a URL pública `r2.dev`** (decidido em 08/10/2026): ela não passa pelo cache do Cloudflare, então cada acesso vira uma operação cobrável do R2. Antes do domínio próprio (ambiente de teste), as fotos são servidas pela API, que tem o limite diário do Workers gratuito como teto (seção 11.1).
 - O acesso ao R2 fica atrás da interface `Armazenamento` (`colocar`, `obter`, `copiar`, `apagarPrefixo`). Para trocar de serviço (S3, MinIO na VPS), basta outra implementação.
 
@@ -226,7 +228,7 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 | Ambiente | Front | API | Banco | Fotos |
 |---|---|---|---|---|
 | **Local** | `pnpm dev` (Vite, porta 5173) | `wrangler dev` (porta 8787, com proxy de `/api` no Vite) | Postgres 18 no `docker-compose` (`sospatas` e `sospatas_teste`) | R2 simulado localmente pelo Wrangler |
-| **Prévia** | URL de prévia do Pages (cada PR) | Worker de prévia (`--env previa`) | Branch do Neon `previa` | Bucket `-previa` |
+| **Prévia** | Pages, branch `develop` | Worker `sospatas-api-previa` (`--env previa`, `*.workers.dev`), Hyperdrive `sospatas-previa` | Projeto do Neon `sospatas-previa`, marcado com `COMMENT ON DATABASE` para aceitar os dados de exemplo (`--previa`) | Buckets `-previa` |
 | **Produção** | `sospatas.org.br` | `sospatas.org.br/api` | Neon `production` | `fotos.sospatas.org.br` |
 
 **Configuração do Worker:** no `wrangler.toml`, o nível de cima é a **produção** (`AMBIENTE=producao`) e `[env.previa]` repete todos os bindings (eles não são herdados). No computador, o `.dev.vars` troca `AMBIENTE` para `local`; sem ele, a API se comporta como produção, o que mantém desligado qualquer atalho de desenvolvimento. Os tipos do `env` (`worker-configuration.d.ts`) são gerados por `wrangler types` na instalação e no typecheck, e ficam fora do Git.
