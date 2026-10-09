@@ -533,14 +533,24 @@ describe('fotos (RN01–RN06)', () => {
     expect(await fotosNoBanco(ID.mel)).toHaveLength(3)
   })
 
-  it('duas fotos ao mesmo tempo na mesma posição: uma entra, a outra recebe 409 e não sobra arquivo', async () => {
+  it('duas fotos ao mesmo tempo: as duas entram, cada uma numa posição', async () => {
     const respostas = await Promise.all([
       enviarFoto(`/animais/${ID.mel}/fotos`),
       enviarFoto(`/animais/${ID.mel}/fotos`),
     ])
-    expect(respostas.map((r) => r.status).sort()).toEqual([201, 409])
-    expect(await fotosNoBanco(ID.mel)).toHaveLength(1)
-    expect(teste.fotos.arquivos.size).toBe(2)
+    expect(respostas.map((r) => r.status)).toEqual([201, 201])
+    const ordens = await Promise.all(respostas.map(async (r) => (await json<FotoAdmin>(r)).ordem))
+    expect(ordens.sort()).toEqual([0, 1])
+    expect(teste.fotos.arquivos.size).toBe(4)
+  })
+
+  it('várias fotos ao mesmo tempo não passam do limite, e as recusadas não deixam arquivo', async () => {
+    const respostas = await Promise.all(
+      Array.from({ length: 5 }, async () => enviarFoto(`/animais/${ID.mel}/fotos`)),
+    )
+    expect(respostas.map((r) => r.status).sort()).toEqual([201, 201, 201, 409, 409])
+    expect(await fotosNoBanco(ID.mel)).toHaveLength(3)
+    expect(teste.fotos.arquivos.size).toBe(6)
   })
 
   it('arquivo que não é WebP é recusado, mesmo com o tipo image/webp (RN21)', async () => {

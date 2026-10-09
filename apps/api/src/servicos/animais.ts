@@ -22,7 +22,7 @@ import { ErroApi, codigoPostgres, erros } from '../erros'
 import { ehUuid } from '../validacao'
 import { urlFoto } from './fotos'
 
-type Tx = Parameters<Parameters<Db['transaction']>[0]>[0]
+export type Tx = Parameters<Parameters<Db['transaction']>[0]>[0]
 
 const animalNaoEncontrado = () => erros.naoEncontrado('Não encontramos este animal.')
 

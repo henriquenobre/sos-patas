@@ -11,7 +11,7 @@ import type { Db } from '../db'
 import type { Usuaria } from '../dependencias'
 import { codigoPostgres, erros } from '../erros'
 import { ehUuid } from '../validacao'
-import { exigirAnimal, prefixoFotosAnimal, registrarAlteracao } from './animais'
+import { exigirAnimal, prefixoFotosAnimal, registrarAlteracao, type Tx } from './animais'
 import { urlFoto } from './fotos'
 
 /** Miniatura (cards) e completa (ficha) da mesma foto, já em WebP (RN02). */
@@ -79,6 +79,14 @@ async function buscarFoto(db: Db, animalId: string, fotoId: string) {
   return foto
 }
 
+async function contarFotos(db: Db | Tx, animalId: string): Promise<number> {
+  const [contagem] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(fotos)
+    .where(eq(fotos.animal_id, animalId))
+  return contagem?.n ?? 0
+}
+
 const maisFotosQueOLimite = () =>
   erros.conflito(
     `Cada animal pode ter até ${String(MAX_FOTOS_ANIMAL)} fotos. Remova uma antes de enviar outra.`,
@@ -95,30 +103,32 @@ export async function adicionarFoto(
 ): Promise<FotoAdmin> {
   if (!ehUuid(animalId)) throw erros.naoEncontrado('Não encontramos este animal.')
   await exigirAnimal(db, animalId)
-  const [contagem] = await db
-    .select({ n: sql<number>`count(*)::int` })
-    .from(fotos)
-    .where(eq(fotos.animal_id, animalId))
-  const ordem = contagem?.n ?? 0
-  if (ordem >= MAX_FOTOS_ANIMAL) throw maisFotosQueOLimite()
+  // Conferência antecipada, para não gravar arquivos à toa; a que vale é a da transação
+  if ((await contarFotos(db, animalId)) >= MAX_FOTOS_ANIMAL) throw maisFotosQueOLimite()
 
   const id = crypto.randomUUID()
   const destino = caminhos(animalId, id)
   await gravarArquivos(armazenamento, destino, arquivos)
+  let ordem: number
   try {
-    await db.transaction(async (tx) => {
+    ordem = await db.transaction(async (tx) => {
+      // Trava o animal antes de contar: fotos enviadas ao mesmo tempo entram uma de cada vez,
+      // cada uma na próxima posição livre, sem passar do limite
+      await registrarAlteracao(tx, animalId, usuaria)
+      const proxima = await contarFotos(tx, animalId)
+      if (proxima >= MAX_FOTOS_ANIMAL) throw maisFotosQueOLimite()
       await tx.insert(fotos).values({
         id,
         animal_id: animalId,
-        ordem,
+        ordem: proxima,
         path_miniatura: destino.miniatura,
         path_completa: destino.completa,
       })
-      await registrarAlteracao(tx, animalId, usuaria)
+      return proxima
     })
   } catch (erro) {
     await apagarSemFalhar(armazenamento, [destino.miniatura, destino.completa])
-    // Duas fotos enviadas ao mesmo tempo para a mesma posição, ou o animal foi excluído
+    // Posição ocupada por uma remoção ou reordenação simultânea, ou o animal foi excluído
     const codigo = codigoPostgres(erro)
     if (codigo === '23505') {
       throw erros.conflito(
