@@ -37,6 +37,8 @@ export const erros = {
   conflito: (mensagem: string) => new ErroApi(409, 'conflito', mensagem),
   limite: (mensagem = 'Muitos envios agora. Tente mais tarde.') =>
     new ErroApi(429, 'limite', mensagem),
+  /** O R2 (ou outro armazenamento) falhou: nada foi alterado no banco (RN05, RN06). */
+  armazenamento: (mensagem: string) => new ErroApi(503, 'armazenamento', mensagem),
 }
 
 const MENSAGEM_ERRO_INTERNO = 'Algo deu errado do nosso lado. Tente de novo em alguns minutos.'
@@ -61,4 +63,19 @@ export function tratarErro(erro: Error, c: Context): Response {
 /** app.notFound */
 export function rotaNaoEncontrada(c: Context): Response {
   return c.json<CorpoErro>({ erro: 'nao_encontrado', mensagem: 'Endereço não encontrado.' }, 404)
+}
+
+/**
+ * Código do erro do Postgres (23505 = valor repetido, 23503 = referência inexistente). O
+ * Drizzle embrulha o erro do driver em DrizzleQueryError, com o original em `cause`.
+ */
+export function codigoPostgres(erro: unknown): string | undefined {
+  const comCodigo = (valor: unknown) =>
+    typeof valor === 'object' && valor !== null && 'code' in valor && typeof valor.code === 'string'
+      ? valor.code
+      : undefined
+  return (
+    comCodigo(erro) ??
+    (erro instanceof Error ? comCodigo((erro as Error & { cause?: unknown }).cause) : undefined)
+  )
 }

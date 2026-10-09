@@ -320,6 +320,7 @@ A **API é a única porta para o banco e para os arquivos**: o navegador nunca f
 | Bucket `sospatas-quarentena` | **Nunca** (o envio público grava pela API) | Leitura pela API (rota que transmite a foto para a moderação) |
 
 - **Todas as usuárias têm as mesmas permissões** (sem perfis). Contas = e-mail liberado no Access + linha ativa em `equipe`.
+- **Escritas da área da ONG só a partir das páginas do próprio site** (proteção contra CSRF: conferência da `Origin` e corpo `application/json`; [ARQUITETURA.md](ARQUITETURA.md), seção 3).
 - O WhatsApp do protetor já era público no modelo anterior; na rodada dos pedidos de adoção, avaliar se ainda precisa ser.
 
 ## 6. Regras de negócio
@@ -458,7 +459,10 @@ Onde fica cada regra:
 | Limites de campos, prazos e quantidades (RN01, RN21, RN23, RN25, RN34…) | `packages/compartilhado/src/limites.ts` e `conteudo.ts` |
 | Validação dos formulários e da API (zod, mensagens em português) | `packages/compartilhado/src/schemas/` |
 | Enums e constraints do banco | `db/schema.ts` + `db/migrations/` |
-| `excluirAnimal` (RN05), adoção (RN07, RN08), aprovar/recusar anúncio (RN19, RN26) | `apps/api/src/servicos/*` |
+| `excluirAnimal` (RN05), `marcarAdotado` (RN07, RN08), `devolver` (RN30, RN49) | `apps/api/src/servicos/animais.ts` |
+| Fotos do animal: enviar, `trocarFoto` (RN06), remover e reordenar (RN01) | `apps/api/src/servicos/fotos-animal.ts` |
+| Protetores: excluir só sem animais (RN42) | `apps/api/src/servicos/protetores.ts` |
+| Aprovar/recusar anúncio (RN19, RN26) | `apps/api/src/servicos/*` (etapa 11) |
 | Trocar ordem (RN35) | `apps/api/src/servicos/conteudo.ts` |
 | Limpezas diárias (RN15, RN25, RN27) | `apps/api/src/tarefas/*` |
 | Formulário de adoção (perguntas, opções, declarações), termo e alertas automáticos (RN47, RN49) | `packages/compartilhado/src/adocao/` (formulario.ts, termo.ts, alertas.ts) e `src/schemas/pedido.ts` (validação) |
@@ -591,3 +595,5 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 09/10/2026 | Formas de ajudar **sem imagem**: o selo da Empresa amiga foi testado no card e retirado | Pedido do mantenedor: a imagem deixava os cards com tamanhos desiguais |
 | 09/10/2026 | **Contato da ONG pelo e-mail (RN51):** o WhatsApp sai do site (rodapé, perguntas frequentes, Como ajudar, privacidade); `ong.email` novo e `ong.whatsapp` opcional (migration 0003); nova página **Fale com a ONG** (`/contato`, T29) com formulário enviado pelo Cloudflare Email Routing, sem guardar a mensagem (tabela `contato_envios` só para o limite de 3 por dia por IP) | Pedido do mantenedor: a ONG ainda não tem WhatsApp próprio para o site e o número usado era pessoal. O formulário só funciona com o domínio no Cloudflare (etapa 14) |
 | 09/10/2026 | Banco da prévia num **projeto separado do Neon** (`sospatas-previa`) em vez de uma branch `previa` do projeto de produção; compute dos dois fixo em 0,25 CU ([ARQUITETURA.md](ARQUITETURA.md), seções 5 e 9) | As 100 CU-horas do plano gratuito são por projeto: testes na prévia não podem consumir a cota da produção |
+| 09/10/2026 | **Etapa 9, decisões da API da ONG:** (1) "Marcar como adotado" é recusado (409) enquanto houver pedido **aguardando análise** do animal; com pedido aprovado, o `GET /animais/:id` traz quem pediu (`pedido_aprovado`) para preencher o modal, em vez de a rota de adoção receber `pedido_id`. (2) "Voltar para disponível" de um adotado **apaga o nome e o WhatsApp do adotante** e mantém a `data_entrada` original; de um animal em análise com pedido aprovado, marca o pedido como `nao_concluido`; com pedido pendente, 409 (quem devolve é o "Recusar"). (3) Remover uma foto faz as seguintes subirem uma posição (a 2ª vira a principal). (4) Nova rota `PUT /animais/:id/fotos/:fotoId` para **trocar** a foto mantendo a posição. (5) Falha do armazenamento responde **503** e não altera o banco ([ARQUITETURA.md](ARQUITETURA.md), seção 3.2) | (1) e (2): a adoção precisa partir de um pedido decidido, e o adotante é dado pessoal que perde a finalidade quando a adoção não acontece (LGPD). (3) e (4): a T10/T11 tem 3 espaços fixos de foto, e a principal nunca pode ficar vazia com outras fotos no animal. (5): mesma regra da RN05 para todas as operações com arquivos |
+| 09/10/2026 | **Proteção contra CSRF** nas rotas `/api/admin`: escritas só com `Origin` do próprio site (ou de `CORS_ORIGENS`, na prévia) e JSON só com `Content-Type: application/json`; o proxy do Vite passa a manter o `Host` (`changeOrigin: false`) ([ARQUITETURA.md](ARQUITETURA.md), seção 3) | Revisão de segurança pedida pelo mantenedor: o cookie de login do Access iria junto num envio disparado por outro site, e o CORS não bloqueia formulários |
