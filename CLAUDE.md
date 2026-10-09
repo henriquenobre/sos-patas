@@ -72,7 +72,11 @@ Toda fase do projeto ou etapa do [PLANO_DESENVOLVIMENTO.md](docs/PLANO_DESENVOLV
 
 ## RP05 – Git só quando o mantenedor pedir
 
-A IA **não faz commit, merge nem push** por conta própria, em nenhuma branch, e **nunca leva nada para a `develop` ou a `main`**. Pode criar uma branch local de trabalho e deixar as alterações prontas; ao terminar, avisa o que mudou e espera o pedido. Quem decide quando e como as alterações sobem para o Git e o GitHub é o mantenedor.
+A IA **não faz commit, merge nem push** por conta própria, em nenhuma branch, e **nunca leva nada para a `main`**. Ao terminar, avisa o que mudou e espera o pedido. Quem decide quando e como as alterações sobem para o Git e o GitHub é o mantenedor.
+
+Onde trabalhar:
+- **Etapa nova do plano:** branch local `etapa-NN-nome-curto`, criada a partir da `develop` atualizada.
+- **Correção ou ajuste fora de uma etapa:** direto na `develop`, sem branch nova. As alterações ficam sem commit até o mantenedor pedir.
 
 **Por quê:** o mantenedor quer revisar cada alteração e controlar o que entra na `develop` (testes) e na `main` (produção).
 
