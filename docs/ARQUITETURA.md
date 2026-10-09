@@ -245,7 +245,7 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 | `develop` | **Integração e testes**: recebe o trabalho de cada etapa ou correção | Prévia (a partir da etapa 8) |
 | `etapa-NN-…`, `correcao-…` | Trabalho do dia a dia, criadas a partir da `develop` | – |
 
-**Fluxo:** branch de trabalho → PR para a `develop` → `ci.yml` (typecheck, lint, formatação, testes e build) → merge → prévia atualizada → testado, PR da `develop` para a `main` → `deploy.yml`: migrations no Neon → `wrangler deploy` da API → o Pages publica o front pela integração com o GitHub. Versões marcadas com tag na `main` (`v1.0.0`, …) a partir da primeira publicação.
+**Fluxo:** branch da etapa → PR para a `develop` (correções fora de uma etapa são feitas direto na `develop`, RP05) → `ci.yml` (typecheck, lint, formatação, testes e build) → merge → prévia atualizada → testado, PR da `develop` para a `main` → `deploy.yml`: migrations no Neon → `wrangler deploy` da API → o Pages publica o front pela integração com o GitHub. Versões marcadas com tag na `main` (`v1.0.0`, …) a partir da primeira publicação.
 
 **Segredos** (nunca no código; `wrangler secret` e secrets do GitHub):
 | Segredo | Onde |

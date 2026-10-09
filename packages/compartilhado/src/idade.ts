@@ -17,13 +17,13 @@ export function ehAdulto(nascimento: string, hoje: string): boolean {
   return idadeEmMeses(nascimento, hoje) >= 12
 }
 
-/** RN13: idade aproximada para exibir: "cerca de 3 meses", "cerca de 2 anos". */
+/** RN13: idade aproximada para exibir, só o número: "3 meses", "2 anos". */
 export function textoIdade(nascimento: string, hoje: string): string {
   const meses = idadeEmMeses(nascimento, hoje)
   if (meses < 1) return 'menos de 1 mês'
-  if (meses < 12) return `cerca de ${meses} ${meses === 1 ? 'mês' : 'meses'}`
+  if (meses < 12) return `${meses} ${meses === 1 ? 'mês' : 'meses'}`
   const anos = Math.floor(meses / 12)
-  return `cerca de ${anos} ${anos === 1 ? 'ano' : 'anos'}`
+  return `${anos} ${anos === 1 ? 'ano' : 'anos'}`
 }
 
 export type UnidadeIdade = 'meses' | 'anos'

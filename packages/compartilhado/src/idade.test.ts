@@ -32,10 +32,10 @@ describe('ehAdulto (RN11)', () => {
 describe('textoIdade (RN13)', () => {
   it.each([
     ['2026-09-20', 'menos de 1 mês'],
-    ['2026-09-08', 'cerca de 1 mês'],
-    ['2026-07-08', 'cerca de 3 meses'],
-    ['2025-10-08', 'cerca de 1 ano'],
-    ['2024-04-08', 'cerca de 2 anos'],
+    ['2026-09-08', '1 mês'],
+    ['2026-07-08', '3 meses'],
+    ['2025-10-08', '1 ano'],
+    ['2024-04-08', '2 anos'],
   ])('nascimento %s → "%s"', (nascimento, esperado) => {
     expect(textoIdade(nascimento, HOJE)).toBe(esperado)
   })
@@ -48,7 +48,7 @@ describe('nascimentoAproximado (T10)', () => {
   })
 
   it('a idade calculada de volta é a mesma informada', () => {
-    expect(textoIdade(nascimentoAproximado(4, 'anos', HOJE), HOJE)).toBe('cerca de 4 anos')
+    expect(textoIdade(nascimentoAproximado(4, 'anos', HOJE), HOJE)).toBe('4 anos')
   })
 })
 
