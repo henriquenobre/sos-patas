@@ -359,7 +359,7 @@ function Formulario({
             )}
             {campoTexto('historico_animais', L.texto_longo, {
               multilinha: true,
-              obrigatorio: false,
+              dica: 'Se nunca teve, escreva "Nunca tive".',
             })}
           </Bloco>
 

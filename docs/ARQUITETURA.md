@@ -89,7 +89,7 @@ sos-patas/
 │       └── .dev.vars.example    # variáveis locais (copiar para .dev.vars, fora do Git)
 ├── packages/
 │   └── compartilhado/           # enums, limites, config. de textos/listas (lidos também pelo banco), schemas zod,
-│                                #   adocao/ (formulário 1.1, termo, alertas), api/ (tipos das respostas),
+│                                #   adocao/ (formulário 1.2, termo, alertas), api/ (tipos das respostas),
 │                                #   idade (RN11–RN13), datas no fuso de Brasília, WhatsApp
 ├── db/                          # pacote @sospatas/db
 │   ├── schema.ts                # schema Drizzle (fonte dos tipos)

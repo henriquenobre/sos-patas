@@ -1,8 +1,9 @@
-// Formulário de adoção, versão 1.1 (docs/formulario/FORMULARIO_ADOCAO.md), aprovado pela ONG
-// em 08/10/2026. Textos iguais aos do documento. Mudou uma pergunta: criar a versão seguinte,
-// sem apagar esta (os pedidos antigos continuam sendo lidos com a versão deles).
+// Formulário de adoção, versão 1.2 (docs/formulario/FORMULARIO_ADOCAO.md): a 1.1 aprovada pela
+// ONG em 08/10/2026, com a pergunta 19 obrigatória (09/10/2026). Textos iguais aos do documento.
+// Mudou uma pergunta: criar a versão seguinte, sem apagar esta (os pedidos antigos continuam
+// sendo lidos com a versão deles).
 
-export const VERSAO_FORMULARIO = '1.1'
+export const VERSAO_FORMULARIO = '1.2'
 
 /** Opções de cada pergunta de escolha: valor guardado → texto mostrado. */
 export const OPCOES = {

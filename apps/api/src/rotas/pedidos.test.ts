@@ -57,6 +57,7 @@ function corpo(extra: Partial<PedidoAdocaoEntrada> = {}): PedidoAdocaoEntrada {
     castrar: 'sim',
     arcar_custos: 'sim',
     horas_sozinho: 'menos_4',
+    historico_animais: 'Tive uma gata que morreu de velhice.',
     mudanca_viagem: 'Levo comigo ou deixo com minha mãe.',
     declaracoes: Array.from({ length: 8 }, () => true),
     ciente_termo: true,
@@ -137,7 +138,7 @@ describe('envio do formulário pelo site', () => {
       status: 'pendente',
       nome: 'Fernanda Souza',
       whatsapp: '35999990001',
-      versao_formulario: '1.1',
+      versao_formulario: '1.2',
       versao_termo: '2026-10',
     })
     expect(pedido?.termo_ciente_em).toBeInstanceOf(Date)

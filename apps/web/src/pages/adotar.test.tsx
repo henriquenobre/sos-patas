@@ -117,6 +117,7 @@ async function preencherFormulario(user: ReturnType<typeof usuario>) {
   await escolher(user, PERGUNTAS.castrar, 'Sim')
   await escolher(user, PERGUNTAS.arcar_custos, 'Sim')
   await escolher(user, PERGUNTAS.horas_sozinho, 'Menos de 4 horas')
+  await digitar(user, PERGUNTAS.historico_animais, 'Nunca tive.')
   await digitar(user, PERGUNTAS.mudanca_viagem, 'Levo comigo.')
   for (const declaracao of DECLARACOES) {
     await user.click(screen.getByRole('checkbox', { name: declaracao }))

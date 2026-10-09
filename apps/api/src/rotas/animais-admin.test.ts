@@ -203,7 +203,7 @@ beforeEach(async () => {
   const pedidoBase = {
     whatsapp: '35933334444',
     bairro_cidade: 'Centro, Passos',
-    versao_formulario: '1.1',
+    versao_formulario: '1.2',
     respostas: {} as never,
     termo_ciente_em: new Date(),
     versao_termo: '1',

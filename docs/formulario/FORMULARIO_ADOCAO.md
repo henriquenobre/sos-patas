@@ -1,8 +1,8 @@
 # Formulário de Interesse em Adoção: SOS Patas
 
-> **Versão 1.1 · aprovada pela ONG em 08/10/2026**, alinhada ao [Termo de Responsabilidade de Adoção](TERMO_ADOCAO.md). No site desde 09/10/2026 (`packages/compartilhado/src/adocao/formulario.ts`).
+> **Versão 1.2 · 09/10/2026** (a 1.1, aprovada pela ONG em 08/10/2026, com a pergunta 19 obrigatória), alinhada ao [Termo de Responsabilidade de Adoção](TERMO_ADOCAO.md). No site desde 09/10/2026 (`packages/compartilhado/src/adocao/formulario.ts`).
 > Preenchido pelo interessado ao tocar em "Quero adotar" na ficha do animal. O pedido fica salvo no sistema e a equipe analisa na área da ONG e entra em contato pelo WhatsApp.
-> **Esta versão (1.1) é a usada no site** (decisão de 08/10/2026). Ajustes pedidos pela ONG entram como nova versão. Regras: RN14, RN15 e RN47–RN50 no [DESENVOLVIMENTO.md](../DESENVOLVIMENTO.md).
+> **Esta versão (1.2) é a usada no site** (1.1 desde 08/10/2026; 1.2 em 09/10/2026). Ajustes pedidos pela ONG entram como nova versão. Regras: RN14, RN15 e RN47–RN50 no [DESENVOLVIMENTO.md](../DESENVOLVIMENTO.md).
 > Itens com **\*** são obrigatórios. Perguntas que surgiram do grupo estão marcadas com 🟦.
 
 <!-- inicio-formulario -->
@@ -114,8 +114,9 @@ Tipo: escolha única
 - Só castrados
 - Nenhum dos dois
 
-### 19. Já teve animais antes? O que aconteceu com eles?
-Tipo: texto longo (opcional)
+### 19. Já teve animais antes? O que aconteceu com eles? *
+Tipo: texto longo
+> Obrigatória: a ONG sempre pergunta, por causa de doenças, fugas e outros problemas com animais anteriores. Quem nunca teve escreve "Nunca tive".
 
 ## 4. Cuidados e custos
 
