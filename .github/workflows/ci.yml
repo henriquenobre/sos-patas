@@ -10,10 +10,12 @@ jobs:
     name: Lint, tipos, testes e build
     runs-on: ubuntu-latest
 
-    # Postgres para os testes do banco e da API (mesma versão do Neon)
+    # Postgres para os testes do banco e da API (mesma versão do Neon).
+    # Imagem oficial pelo espelho da AWS: o Docker Hub limita downloads anônimos
+    # e os runners do GitHub batem nesse limite (erro toomanyrequests).
     services:
       postgres:
-        image: postgres:18
+        image: public.ecr.aws/docker/library/postgres:18
         env:
           POSTGRES_USER: sospatas
           POSTGRES_PASSWORD: sospatas
