@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { PIX_TIPOS } from '../dominio'
 import { LISTAS, TEXTOS, type ChaveTexto, type ConfigLista, type NomeLista } from '../conteudo'
 import { LIMITES } from '../limites'
-import { opcao, textoObrigatorio, textoOpcional, textoOuNulo, whatsapp } from './comuns'
+import { email, opcao, textoObrigatorio, textoOpcional, textoOuNulo, whatsapp } from './comuns'
 
 /** Schema do texto de uma chave, com o limite e a obrigatoriedade dela. */
 export function schemaTexto(chave: ChaveTexto) {
@@ -61,8 +61,14 @@ const facebook = z
     'Cole o endereço da página do Facebook',
   )
 
+/** Dados da ONG (T23). Sem WhatsApp próprio, o contato do site é o e-mail (RN51). */
 export const ongEntrada = z.object({
-  whatsapp,
+  email: email(L.email),
+  whatsapp: z
+    .string()
+    .nullish()
+    .transform((valor) => (valor?.trim() ? valor : null))
+    .pipe(whatsapp.nullable()),
   instagram,
   facebook,
   pix_tipo: opcao(PIX_TIPOS, 'Escolha o tipo da chave PIX'),

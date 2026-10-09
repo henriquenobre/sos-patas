@@ -6,6 +6,7 @@ import { criarApp } from './app'
 import { ArmazenamentoMemoria } from './armazenamento/memoria'
 import { criarDb } from './db'
 import { chavesDoTime, verificarJwtAccess } from './middleware/access'
+import { verificarTurnstileCloudflare } from './servicos/seguranca'
 
 // Os tipos gerados pelo Wrangler dizem que as variáveis sempre existem; fora do Workers, podem faltar.
 function lerVariavel(nome: string, padrao: string): string {
@@ -18,6 +19,11 @@ const env = {
   ACCESS_AUD: lerVariavel('ACCESS_AUD', ''),
   CORS_ORIGENS: lerVariavel('CORS_ORIGENS', ''),
   ACESSO_LOCAL_EMAIL: lerVariavel('ACESSO_LOCAL_EMAIL', ''),
+  FOTOS_URL_BASE: lerVariavel('FOTOS_URL_BASE', ''),
+  TURNSTILE_SECRET: lerVariavel('TURNSTILE_SECRET', ''),
+  IP_HASH_SECRET: lerVariavel('IP_HASH_SECRET', ''),
+  EMAIL_REMETENTE: lerVariavel('EMAIL_REMETENTE', ''),
+  EMAIL_DESTINO: lerVariavel('EMAIL_DESTINO', ''),
 } as Partial<Env> as Env
 
 const urlBanco = lerVariavel('DATABASE_URL', 'postgres://sospatas:sospatas@localhost:5432/sospatas')
@@ -34,6 +40,11 @@ const app = criarApp({
       emissor: envDaRequisicao.ACCESS_TEAM_DOMAIN,
       aud: envDaRequisicao.ACCESS_AUD,
     }),
+  verificarTurnstile: (envDaRequisicao, token, ip) =>
+    verificarTurnstileCloudflare(envDaRequisicao.TURNSTILE_SECRET, token, ip),
+  // Sem Email Routing fora do Cloudflare: numa VPS, trocar por SMTP ou outro serviço
+  // (docs/ARQUITETURA.md, seção 12). Até lá, o formulário de contato responde 503.
+  enviarEmail: () => Promise.reject(new Error('Envio de e-mail não configurado no Node')),
 })
 
 const porta = Number(lerVariavel('PORT', '8787'))

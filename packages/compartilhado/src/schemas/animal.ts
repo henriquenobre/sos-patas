@@ -9,7 +9,7 @@ import {
   SEXOS,
   SIM_NAO_SEM_INFORMACAO,
 } from '../dominio'
-import { LIMITES } from '../limites'
+import { LIMITES, MAX_FOTOS_ANIMAL } from '../limites'
 import {
   dataAteHoje,
   opcao,
@@ -84,6 +84,7 @@ export const adocaoEntrada = z.object({
 })
 
 export type AdocaoEntrada = z.input<typeof adocaoEntrada>
+export type AdocaoDados = z.output<typeof adocaoEntrada>
 
 /** Protetor parceiro, criado no cadastro do animal ou na tela T24 (RN42). */
 export const protetorEntrada = z.object({
@@ -92,3 +93,15 @@ export const protetorEntrada = z.object({
 })
 
 export type ProtetorEntrada = z.input<typeof protetorEntrada>
+export type ProtetorDados = z.output<typeof protetorEntrada>
+
+/** Nova ordem das fotos: os ids de todas as fotos do animal; a primeira vira a principal (RN01). */
+export const ordemFotosEntrada = z.object({
+  fotos: z
+    .array(z.uuid('Foto inválida'), { error: 'Informe a ordem das fotos' })
+    .min(1, 'Informe a ordem das fotos')
+    .max(MAX_FOTOS_ANIMAL, `Cada animal tem no máximo ${String(MAX_FOTOS_ANIMAL)} fotos`)
+    .refine((ids) => new Set(ids).size === ids.length, 'Foto repetida na ordem'),
+})
+
+export type OrdemFotosEntrada = z.input<typeof ordemFotosEntrada>

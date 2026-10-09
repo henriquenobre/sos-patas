@@ -73,6 +73,13 @@ describe('comCache', () => {
     expect(await depois.json()).toEqual({ versao: 2 })
   })
 
+  it('no computador (AMBIENTE=local), não guarda: mudanças no banco aparecem na hora', async () => {
+    await app.request(url, {}, { AMBIENTE: 'local' })
+    const segunda = await app.request(url, {}, { AMBIENTE: 'local' })
+    expect(consultasAoBanco).toBe(2)
+    expect(segunda.headers.get('Cache-Control')).toBe('no-store')
+  })
+
   it('sem Cache API (Node, testes), gera a resposta sempre', async () => {
     vi.unstubAllGlobals()
     await app.request(url)

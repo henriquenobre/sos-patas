@@ -15,7 +15,7 @@ export function ehCaminhoFotoPublica(caminho: string): boolean {
 
 /**
  * URL para o <img>. Com FOTOS_URL_BASE (produção), o domínio de fotos com cache; vazio
- * (computador e prévia), a própria API serve a foto.
+ * (computador), a própria API serve a foto. Na prévia, a base é a rota de fotos do próprio Worker.
  */
 export function urlFoto(env: Env, caminho: string): string {
   const base = env.FOTOS_URL_BASE.trim().replace(/\/$/, '')

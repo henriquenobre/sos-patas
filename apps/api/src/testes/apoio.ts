@@ -5,10 +5,13 @@ import { criarApp } from '../app'
 import { ArmazenamentoMemoria } from '../armazenamento/memoria'
 import { criarDb } from '../db'
 import type { Dependencias } from '../dependencias'
+import type { MensagemEmail } from '../servicos/email'
 import { verificarJwtAccess } from '../middleware/access'
 
 export const URL_TESTE =
   process.env.TEST_DATABASE_URL ?? 'postgres://sospatas:sospatas@localhost:5432/sospatas_teste'
+
+export const TOKEN_TURNSTILE_VALIDO = 'turnstile-ok'
 
 export const TIME_ACCESS = 'https://sospatas-teste.cloudflareaccess.com'
 export const AUD_ACCESS = 'aud-de-teste'
@@ -21,6 +24,10 @@ export function envTeste(extra: Partial<Env> = {}): Env {
     CORS_ORIGENS: '',
     ACESSO_LOCAL_EMAIL: '',
     FOTOS_URL_BASE: '',
+    TURNSTILE_SECRET: 'segredo-teste',
+    IP_HASH_SECRET: 'segredo-ip-teste',
+    EMAIL_REMETENTE: 'site@sospatas.org.br',
+    EMAIL_DESTINO: 'sitesospatas@gmail.com',
     ...extra,
   } as Partial<Env> as Env
 }
@@ -54,6 +61,9 @@ export async function criarAppTeste() {
   const fotos = new ArmazenamentoMemoria()
   const quarentena = new ArmazenamentoMemoria()
   const conexao = criarDb(URL_TESTE)
+  /** E-mails "enviados" nos testes; com falharEmail = true, o envio dá erro */
+  const emails: MensagemEmail[] = []
+  const controle = { falharEmail: false }
 
   const dependencias: Dependencias = {
     // Nos testes, uma conexão só para todas as requisições
@@ -66,11 +76,20 @@ export async function criarAppTeste() {
         emissor: env.ACCESS_TEAM_DOMAIN,
         aud: env.ACCESS_AUD,
       }),
+    // Turnstile falso: só o token TOKEN_TURNSTILE_VALIDO passa
+    verificarTurnstile: (_env, token) => Promise.resolve(token === TOKEN_TURNSTILE_VALIDO),
+    enviarEmail: (_env, mensagem) => {
+      if (controle.falharEmail) return Promise.reject(new Error('Email Routing fora do ar'))
+      emails.push(mensagem)
+      return Promise.resolve()
+    },
   }
 
   return {
     app: criarApp(dependencias),
     db: conexao.db,
+    emails,
+    controle,
     encerrar: conexao.encerrar,
     fotos,
     quarentena,

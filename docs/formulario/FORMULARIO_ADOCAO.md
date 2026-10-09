@@ -1,7 +1,8 @@
 # Formulário de Interesse em Adoção: SOS Patas
 
-> **Versão 1.1 · rascunho para validação no grupo da ONG (06/10/2026)**, alinhado ao [Termo de Responsabilidade de Adoção](TERMO_ADOCAO.md)
-> Preenchido pelo interessado ao tocar em "Quero adotar" na ficha do animal. Depois, a equipe (ou o protetor parceiro) analisa e entra em contato pelo WhatsApp.
+> **Versão 1.1 · aprovada pela ONG em 08/10/2026**, alinhada ao [Termo de Responsabilidade de Adoção](TERMO_ADOCAO.md). No site desde 09/10/2026 (`packages/compartilhado/src/adocao/formulario.ts`).
+> Preenchido pelo interessado ao tocar em "Quero adotar" na ficha do animal. O pedido fica salvo no sistema e a equipe analisa na área da ONG e entra em contato pelo WhatsApp.
+> **Esta versão (1.1) é a usada no site** (decisão de 08/10/2026). Ajustes pedidos pela ONG entram como nova versão. Regras: RN14, RN15 e RN47–RN50 no [DESENVOLVIMENTO.md](../DESENVOLVIMENTO.md).
 > Itens com **\*** são obrigatórios. Perguntas que surgiram do grupo estão marcadas com 🟦.
 
 <!-- inicio-formulario -->
@@ -189,14 +190,18 @@ Na tela de análise, o sistema destaca em amarelo as respostas que merecem conve
 Os compromissos do formulário repetem, de forma resumida, as cláusulas do termo. Assim a pessoa já sabe o que vai assinar e evita desistência na hora da entrega.
 
 ### Dados e LGPD
-- Envio pela mesma estrutura segura dos perdidos (RN21–RN23): validação na API (`POST /api/publico/interesses`), Turnstile e limite por IP.
-- Tabela `pedidos_adocao` (somente `authenticated`), com status `novo` → `em_analise` → `aprovado` / `recusado`.
-- Pedidos recusados ou sem resposta são apagados em até 90 dias. Se aprovado, os dados seguem para o termo e para `animais_privado` (adotante).
+- Envio seguro, como nos perdidos: validação na API (`POST /api/publico/animais/:id/pedidos`), Turnstile, 2 pedidos por dia por IP e 1 pendente por WhatsApp (RN50).
+- **Depois do formulário, a pessoa lê o termo de adoção** ([TERMO_ADOCAO.md](TERMO_ADOCAO.md)) e marca que está ciente: esse aceite fica registrado no banco com data, hora e versão do termo (RN47). Definição da ONG de 08/10/2026: tudo pelo site.
+- **Se aprovado,** a ONG fala com a pessoa pelo WhatsApp para combinar onde ela busca o animal (RN49).
+- Tabela `pedidos_adocao` (só a equipe logada), com status `pendente` → `aprovado` / `recusado` (e `nao_concluido` se a adoção aprovada não acontecer). Nome, WhatsApp e bairro/cidade em colunas; as demais respostas em `respostas` (jsonb), com a versão do formulário.
+- **Enquanto o pedido está pendente ou aprovado, o animal sai do site** (`em_analise`, RN48). Recusar devolve o animal ao site.
+- Pedidos recusados ou não concluídos são apagados 90 dias depois; aprovados, 90 dias depois de o animal ser marcado como adotado. O nome e o WhatsApp de quem adotou seguem para `animais_privado` (RN15, RN30).
 - O endereço completo **não** é pedido aqui, só no termo.
 
 ### Pendências com a ONG
 - [ ] Validar as perguntas (tirar, mudar ou acrescentar)
-- [ ] Quem analisa os pedidos? E, nos animais de protetores parceiros, o protetor recebe o pedido por WhatsApp ou terá login?
+- [ ] Quem analisa os pedidos? E, nos animais de protetores parceiros, o protetor recebe o pedido por WhatsApp ou terá login? _(Proposta de 08/10/2026: a equipe analisa todos no painel e repassa ao protetor pelo WhatsApp.)_
+- [ ] Em quantos dias a equipe consegue analisar um pedido? O animal fica fora do site enquanto isso _(proposta: alerta no painel depois de 3 dias)_
 - [ ] O prazo de 90 dias para apagar pedidos não aprovados está bom?
 - [x] Receber o **termo de adoção** atual → transcrito em [TERMO_ADOCAO.md](TERMO_ADOCAO.md)
 - [x] Usar o número do termo como código da adoção? **Não** (06/10/2026)

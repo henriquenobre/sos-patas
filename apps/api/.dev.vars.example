@@ -11,3 +11,11 @@ ACESSO_LOCAL_EMAIL=teste@sospatas.local
 
 # Fotos servidas pela própria API (/api/publico/fotos/*), lendo do R2 simulado
 FOTOS_URL_BASE=
+
+# Turnstile (antirrobô dos formulários públicos, RN22, RN50). Chave de TESTE oficial do Cloudflare,
+# que sempre aprova. Prévia e produção: `wrangler secret put TURNSTILE_SECRET`.
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+
+# Segredo do hash do IP (limite de envios, RN23, RN50). Qualquer texto local; prévia e produção:
+# `wrangler secret put IP_HASH_SECRET` com um valor aleatório longo.
+IP_HASH_SECRET=segredo-local-de-desenvolvimento

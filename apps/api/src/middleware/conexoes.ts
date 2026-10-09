@@ -9,6 +9,8 @@ export const conexoes = (dependencias: Dependencias) =>
     c.set('db', db)
     c.set('fotos', dependencias.fotos(c.env))
     c.set('quarentena', dependencias.quarentena(c.env))
+    c.set('verificarTurnstile', (token, ip) => dependencias.verificarTurnstile(c.env, token, ip))
+    c.set('enviarEmail', (mensagem) => dependencias.enviarEmail(c.env, mensagem))
     try {
       await next()
     } finally {

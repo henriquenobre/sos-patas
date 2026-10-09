@@ -40,6 +40,7 @@
 | Fotos | **Cloudflare R2** | Grátis: 10 GB, **tráfego de saída grátis** | O tráfego das fotos era o limite mais apertado (Supabase: 5 GB/mês) |
 | Login da equipe | **Cloudflare Access** (Zero Trust) | Grátis até 50 usuários | Sem senha para guardar (ver seção 4); cabe no limite de CPU |
 | Antirrobô | **Cloudflare Turnstile** | Grátis | Formulários públicos (RN22) |
+| E-mail do "Fale com a ONG" | **Cloudflare Email Routing** (binding `send_email`) | Grátis | Entrega a mensagem do formulário no Gmail da ONG (RN51); exige o domínio no Cloudflare |
 | Tarefas agendadas | **Workers Cron Triggers** | Grátis: 5 por conta | Limpezas diárias (RN25, RN27, RN15) |
 | Domínio | **Registro.br** (`sospatas.org.br`) | R$ 40/ano | Registrado no CNPJ da ONG |
 | Código, CI/CD e backup | **GitHub** + **GitHub Actions** | Grátis | Testes, deploy, migrations e backup |
@@ -55,38 +56,48 @@ sos-patas/
 │   ├── web/                     # FRONT: React + Vite + TypeScript + Tailwind + React Router
 │   │   ├── public/              # logo.png, favicon, _headers (segurança), _redirects (/sobre → /ajude)
 │   │   └── src/
-│   │       ├── pages/           # públicas (T01–T07, T12, T13) e admin (T08–T24)
-│   │       ├── components/      # CardAnimal, Pata, Chapeu, TextoSimples…
+│   │       ├── rotas.tsx        # rotas do site (docs/DESENVOLVIMENTO.md, seção 4)
+│   │       ├── layouts/         # LayoutPublico, Cabecalho (menu do celular), Rodape (contatos e PIX)
+│   │       ├── pages/           # públicas (T01–T07, T12, T13, T26, T29 Contato) e admin (T08–T28); Avisos (404, Em breve)
+│   │       ├── components/      # CardAnimal, FotoAnimal, Pata, Chapeu, TextoSimples, BlocoPix, Estados, Campos, Turnstile…
 │   │       │   └── admin/       # BarraAdmin, ListaEditavel, CampoTextoEditavel (RN33)
-│   │       ├── api/             # cliente HTTP tipado + hooks TanStack Query
-│   │       └── lib/             # fotos.ts (compressão/canvas, RN02/RN20)
+│   │       ├── api/             # cliente HTTP + hooks TanStack Query (publico.ts: useSite, useDestaques, useVitrine)
+│   │       ├── lib/             # pix.ts, animal.ts, contato.ts (link mailto), filtros.ts (filtros da vitrine na URL);
+│   │       │                    #   fotos.ts (canvas, RN02/RN20, etapa 10)
+│   │       └── testes/          # renderizar.tsx: rotas reais com a API simulada
 │   └── api/                     # API: Hono + TypeScript
 │       ├── src/
 │       │   ├── app.ts           # criarApp(dependencias): rotas, erros, CORS, login
-│       │   ├── index.ts         # entrada Workers: dependências do Cloudflare (Hyperdrive, R2, Access)
+│       │   ├── index.ts         # entrada Workers: dependências do Cloudflare (Hyperdrive, R2, Access, Email Routing)
 │       │   ├── node.ts          # entrada Node (@hono/node-server), para VPS no futuro
 │       │   ├── dependencias.ts  # o que a API precisa do ambiente (banco, armazenamento, verificação do JWT)
 │       │   ├── db.ts            # conexão postgres.js + Drizzle (Hyperdrive)
 │       │   ├── erros.ts · validacao.ts · cache.ts
 │       │   ├── rotas/
-│       │   │   ├── publico/     # site, animais, perdidos (GET) e envio de anúncio (POST)
-│       │   │   └── admin/       # tudo da área da ONG
-│       │   ├── servicos/        # regras de negócio: excluirAnimal (RN05), aprovarPerdido…
+│       │   │   ├── publico/     # site, animais, perdidos (GET); envios: pedidos.ts, contato.ts (RN51), anúncio (etapa 11)
+│       │   │   └── admin/       # tudo da área da ONG: animais.ts (com resumo e fotos), protetores.ts, pedidos.ts
+│       │   ├── servicos/        # regras de negócio: publico.ts, pedidos.ts (RN47–RN50), contato.ts e email.ts (RN51),
+│       │   │                    #   seguranca.ts (Turnstile, hash do IP), equipe.ts, fotos.ts (URLs),
+│       │   │                    #   animais.ts (excluirAnimal RN05, marcarAdotado RN07, devolver RN30),
+│       │   │                    #   fotos-animal.ts (enviar, trocarFoto, remover, reordenar), protetores.ts (RN42); aprovarPerdido… (etapa 11)
 │       │   ├── middleware/      # access.ts (login: JWT do Access + equipe), conexoes.ts (banco por requisição)
 │       │   ├── armazenamento/   # interface Armazenamento, R2, memória (testes), webp.ts (RN21)
+│       │   ├── email/           # cloudflare.ts: envio pelo Email Routing (só no Workers)
 │       │   ├── testes/          # apoio aos testes: banco de teste, Access falso
-│       │   └── tarefas/         # limpezas do Cron (RN15, RN25, RN27)
-│       ├── wrangler.toml        # bindings: HYPERDRIVE, FOTOS, QUARENTENA, cron; nível de cima = produção, [env.previa]
+│       │   └── tarefas/         # limpeza.ts: tarefa diária do Cron (RN15 pronta; RN25, RN27 na etapa 11)
+│       ├── wrangler.toml        # bindings: HYPERDRIVE, FOTOS, QUARENTENA, EMAIL (só produção), cron; [env.previa]
 │       └── .dev.vars.example    # variáveis locais (copiar para .dev.vars, fora do Git)
 ├── packages/
 │   └── compartilhado/           # enums, limites, config. de textos/listas (lidos também pelo banco), schemas zod,
+│                                #   adocao/ (formulário 1.1, termo, alertas), api/ (tipos das respostas),
 │                                #   idade (RN11–RN13), datas no fuso de Brasília, WhatsApp
 ├── db/                          # pacote @sospatas/db
 │   ├── schema.ts                # schema Drizzle (fonte dos tipos)
 │   ├── drizzle.config.ts        # DATABASE_URL ou, sem ela, o Postgres local
 │   ├── migrations/              # SQL gerado e versionado (drizzle-kit) + migrations manuais
 │   ├── seed/                    # seed_conteudo.sql (ong, textos, itens), seed_dev.sql (só local), fotos_historia.json
-│   ├── scripts/                 # semear.ts (pnpm db:seed), seed.ts, url.ts
+│   ├── scripts/                 # semear.ts (pnpm db:seed), seed.ts, url.ts, imagens.ts (WebP + envio ao R2),
+│   │                            #   fotos-historia.ts (pnpm db:fotos-historia), fotos-exemplo.ts (só local)
 │   ├── testes/                  # testes de migrations, seed e constraints
 │   └── docker/                  # scripts da 1ª inicialização do Postgres local (cria sospatas_teste)
 ├── docs/                        # documentação: DESENVOLVIMENTO, ARQUITETURA, PLANO_DESENVOLVIMENTO,
@@ -112,9 +123,10 @@ sos-patas/
 **Padrões:**
 - JSON; datas em ISO 8601; IDs `uuid`.
 - Entrada validada com os schemas zod de `packages/compartilhado` (os mesmos do formulário no front).
-- Erros: `{ "erro": "codigo_curto", "mensagem": "texto para a tela" }` com status HTTP adequado (400 validação, 401/403 acesso, 404, 409 conflito como protetor com animais, 429 limite). Em erro de validação, também `"campos": { "nome": "Preencha este campo" }`, para o formulário mostrar a mensagem embaixo de cada campo. Erro inesperado: 500 com mensagem genérica; o detalhe só vai para o log (`apps/api/src/erros.ts`).
+- Erros: `{ "erro": "codigo_curto", "mensagem": "texto para a tela" }` com status HTTP adequado (400 validação, 401/403 acesso, 404, 409 conflito como protetor com animais, 429 limite, 503 quando o armazenamento de fotos falha e nada foi alterado). Em erro de validação, também `"campos": { "nome": "Preencha este campo" }`, para o formulário mostrar a mensagem embaixo de cada campo. Erro inesperado: 500 com mensagem genérica; o detalhe só vai para o log (`apps/api/src/erros.ts`).
 - Upload: `multipart/form-data`; a API confere tamanho e **assinatura WebP** (`RIFF....WEBP`) antes de gravar (RN21). Nada de URL pré-assinada: todo arquivo passa pela API.
-- Leituras públicas com cache (`apps/api/src/cache.ts`): o navegador guarda 60 s e o Cloudflare guarda 15 min (Cache API), para aguentar picos e deixar o Neon dormir (seção 11.2). Salvar na área da ONG apaga a cópia do datacenter que atendeu a voluntária (o "Ver no site" dela já mostra a mudança); nos outros datacenters, a cópia antiga vale até 15 min. Com o domínio próprio (etapa 14), somar a limpeza global pela API de purge do Cloudflare. A Cache API só funciona no domínio próprio; no `*.workers.dev` a API consulta sempre.
+- **Proteção contra CSRF na área da ONG** (09/10/2026): o login do Access é um cookie, que o navegador manda junto mesmo quando outro site dispara o envio, e o CORS não impede isso. Por isso, (1) toda escrita em `/api/admin` (POST, PUT, DELETE) só é aceita se a `Origin` for o mesmo endereço que o navegador chamou (`Host`) ou estiver em `CORS_ORIGENS` (prévia); `Sec-Fetch-Site` de outro site também é recusado; resposta 403 `origem_nao_permitida` (`middleware/origem.ts`); (2) rotas que leem JSON exigem `Content-Type: application/json`, senão 415 (`validacao.ts`), o que fecha o truque do formulário que manda JSON como `text/plain`. Requisição sem `Origin` nem `Sec-Fetch-Site` não vem de navegador e passa (não carrega o cookie de ninguém). No computador, o proxy do Vite mantém o `Host` (`changeOrigin: false`), como em produção. Na etapa 14, somar o cookie do Access com `SameSite=Lax`.
+- Leituras públicas com cache (`apps/api/src/cache.ts`; desligado no computador, `AMBIENTE=local`, para os testes verem o banco na hora): o navegador guarda 60 s e o Cloudflare guarda 15 min (Cache API), para aguentar picos e deixar o Neon dormir (seção 11.2). Salvar na área da ONG apaga a cópia do datacenter que atendeu a voluntária (o "Ver no site" dela já mostra a mudança); nos outros datacenters, a cópia antiga vale até 15 min. Com o domínio próprio (etapa 14), somar a limpeza global pela API de purge do Cloudflare. A Cache API só funciona no domínio próprio; no `*.workers.dev` a API consulta sempre.
 
 ### 3.1 Rotas públicas (`/api/publico`)
 
@@ -125,9 +137,10 @@ sos-patas/
 | `GET /animais/destaques` | "Esperando há mais tempo" | RN12 |
 | `GET /animais/:id` | Ficha (disponível ou adotado, sem dados privados) | RN31 |
 | `GET /perdidos?tipo` | Só anúncios `publicado` e não expirados, mais recentes primeiro; `tipo=perdido\|encontrado` | RN18, RN25 |
-| `GET /fotos/*` | Foto do bucket **público** (`animais/`, `site/`, `perdidos/`), com cache de 1 ano. Usada quando não há domínio de fotos (`FOTOS_URL_BASE` vazio: computador e prévia). Nunca lê a quarentena | RN19 |
+| `GET /fotos/*` | Foto do bucket **público** (`animais/`, `site/`, `perdidos/`), com cache de 1 ano. Usada quando não há domínio de fotos (computador e prévia). Nunca lê a quarentena | RN19 |
 | `POST /perdidos` | Envio público: Turnstile, limites, até 2 fotos WebP ≤ 500 KB → `pendente` + fotos na **quarentena** | RN19–RN23 |
-| `POST /interesses` | _Futuro_: formulário de interesse em adoção | RN14, RN15 |
+| `POST /animais/:id/pedidos` | Formulário de adoção: Turnstile, limites (2/dia por IP, 1 pendente por WhatsApp), validação pelo schema da versão do formulário. Numa transação: grava o pedido e passa o animal para `em_analise` (409 se ele não estiver mais disponível). Depois, limpa o cache da vitrine, dos destaques e da ficha | RN14, RN15, RN47, RN48, RN50 |
+| `POST /contato` | Formulário "Fale com a ONG": Turnstile, validação, limite de 3 por dia por IP (`contato_envios`, só o hash). Envia o e-mail para a ONG com `Reply-To` de quem escreveu; **não grava a mensagem**. 503 `email_indisponivel` se o envio falhar | RN51 |
 
 **Respostas:** tipos em `packages/compartilhado/src/api/publico.ts` (`SitePublico`, `ListaAnimais`, `AnimalFicha`, `ListaPerdidos`), usados pela API e pelo front. As fotos vêm como URL pronta. A idade é calculada no front com `textoIdade` (as datas vêm cruas). O cache usa como chave o caminho com os filtros válidos em ordem fixa: parâmetros extras não criam cópias novas nem acordam o banco.
 
@@ -136,17 +149,20 @@ sos-patas/
 | Recurso | Rotas | Regras |
 |---|---|---|
 | Sessão | `GET /eu` (nome da usuária) | RN43 |
-| Resumo | `GET /resumo` (disponíveis, adultos +90 dias, adotados no mês, perdidos pendentes) | T09 |
-| Animais | `GET /animais?status&responsavel&busca` · `POST /animais` · `GET/PUT/DELETE /animais/:id` | RN05, RN09 |
-| Adoção | `POST /animais/:id/adocao` (nome e WhatsApp do adotante) · `POST /animais/:id/devolucao` | RN07, RN08, RN30 |
-| Fotos do animal | `POST /animais/:id/fotos` (miniatura + completa) · `DELETE /animais/:id/fotos/:fotoId` · `PUT /animais/:id/fotos/ordem` | RN01–RN06 |
-| Protetores | `GET/POST /protetores` · `PUT/DELETE /protetores/:id` (409 se houver animais) | RN42 |
+| Resumo | `GET /resumo` (disponíveis, adultos +90 dias, adotados no mês, perdidos pendentes, pedidos pendentes) | T09 |
+| Animais | `GET /animais?status&responsavel&busca` (`status` padrão `disponivel`; `responsavel` = `ong`, `protetor` ou o id de um protetor; `busca` = parte do nome) · `POST /animais` · `GET/PUT/DELETE /animais/:id`. O `GET` traz o bloco privado, as fotos com id e posição, "Alterado por" e, se houver pedido aprovado, quem pediu (`pedido_aprovado`), para preencher o "Marcar como adotado". Excluir apaga os arquivos antes do registro; se o armazenamento falhar, 503 e nada é excluído | RN05, RN09, RN43 |
+| Adoção | `POST /animais/:id/adocao` (nome e WhatsApp do adotante; 409 se houver pedido aguardando análise) · `POST /animais/:id/devolucao` (adotado: volta sem os dados do adotante; em análise com pedido aprovado: o pedido vira `nao_concluido`) | RN07, RN08, RN30, RN49 |
+| Fotos do animal | `POST /animais/:id/fotos` (multipart `miniatura` + `completa`, próxima posição livre) · `PUT /animais/:id/fotos/:fotoId` (trocar a foto, mesma posição) · `DELETE /animais/:id/fotos/:fotoId` (as seguintes sobem uma posição) · `PUT /animais/:id/fotos/ordem` (`{ fotos: [ids] }`, todas as fotos atuais) | RN01–RN06 |
+| Protetores | `GET/POST /protetores` (com quantos animais cada um tem) · `PUT/DELETE /protetores/:id` (409 se houver animais) | RN42 |
 | Perdidos | `GET /perdidos?status` · `POST /perdidos` (equipe) · `PUT /perdidos/:id` · `POST /perdidos/:id/aprovar` · `POST /perdidos/:id/renovar` · `DELETE /perdidos/:id` · `GET /perdidos/:id/fotos/:fotoId` (lê a quarentena) | RN18, RN25, RN26, RN39–RN41 |
 | Textos | `GET /conteudo` · `PUT /conteudo/textos/:chave` | RN33, RN34, RN37 |
 | Itens de lista | `POST /conteudo/itens` · `PUT/DELETE /conteudo/itens/:id` · `POST /conteudo/itens/trocar-ordem` · `POST /conteudo/itens/:id/foto` | RN35, RN36, RN38 |
 | Dados da ONG | `GET/PUT /ong` | T23 |
+| Pedidos de adoção | `GET /pedidos?status` · `GET /pedidos/:id` (com os alertas calculados) · `PUT /pedidos/:id/observacao` · `POST /pedidos/:id/aprovar` · `POST /pedidos/:id/recusar` (animal volta a `disponivel`). "Marcar como adotado" abre com o nome e o WhatsApp de quem pediu, que vêm em `pedido_aprovado` no `GET /animais/:id` | RN48, RN49 |
 
-**Gravação de `updated_at` / `updated_by` (RN43):** a API preenche os dois em toda escrita, a partir da usuária identificada pelo Access. Operações com mais de um passo no banco (trocar ordem, aprovar anúncio, adoção) rodam em **transação**.
+**Gravação de `updated_at` / `updated_by` (RN43):** a API preenche os dois em toda escrita, a partir da usuária identificada pelo Access. Operações com mais de um passo no banco (trocar ordem, aprovar anúncio, adoção) rodam em **transação**. Mudanças nas fotos também gravam quem alterou o animal.
+
+**Ordem entre arquivos e banco (RN05, RN06, RN07):** excluir animal, remover foto e as fotos extras da adoção apagam **primeiro os arquivos** e só depois o banco; se o armazenamento falhar, a API responde 503 e nada muda. Na troca de foto, a ordem é a inversa: grava a nova, atualiza o registro e só então apaga a antiga, para o site nunca apontar para um arquivo que não existe; se apagar a antiga falhar, o arquivo sobra no bucket e fica registrado no log.
 
 ## 4. Login da equipe: Cloudflare Access
 
@@ -166,7 +182,7 @@ sos-patas/
 
 ## 5. Banco de dados
 
-- **Neon**, projeto `sospatas` (criado em 08/10/2026), região **AWS South America East 1 (São Paulo)**, **PostgreSQL 18**, plano gratuito (compute de 0,25 a 2 CU). Branch padrão **`production`** = produção; branch `previa` (etapa 8) e outras branches do Neon para testar migrations. O Postgres local (Docker) usa a mesma versão. **Neon Auth / Better Auth não é usado** (o login é pelo Access, seção 4).
+- **Neon**, projeto `sospatas` (criado em 08/10/2026), região **AWS South America East 1 (São Paulo)**, **PostgreSQL 18**, plano gratuito, compute fixo em 0,25 CU (09/10/2026). Branch padrão **`production`** = produção; outras branches do Neon para testar migrations. A **prévia** fica num projeto separado, **`sospatas-previa`** (criado em 09/10/2026, mesma região e versão, 0,25 CU), porque as 100 CU-horas do plano gratuito são por projeto (seção 11.2): uso na prévia não consome a cota da produção. O Postgres local (Docker) usa a mesma versão. **Neon Auth / Better Auth não é usado** (o login é pelo Access, seção 4).
 - **Migrations:** `db/schema.ts` (Drizzle) → `pnpm db:gerar` (`drizzle-kit generate`) gera SQL em `db/migrations/` (revisado e versionado) → `pnpm db:migrate` aplica (no deploy, com a `DATABASE_URL` do Neon). O que o Drizzle não gera (ex.: `UNIQUE … DEFERRABLE`) vai numa migration manual (`drizzle-kit generate --custom`). Nunca alterar o banco de produção à mão.
 - **Seed:** `pnpm db:seed` aplica `db/seed/seed_conteudo.sql` e, só no banco local, `seed_dev.sql` (dados de exemplo). Em produção: `pnpm db:seed --conteudo`. O conteúdo inicial não sobrescreve o que a equipe já editou.
 - **Testes do banco** (`db/testes/`) recriam o banco `sospatas_teste` com as migrations e conferem o seed e as constraints. No CI, um serviço Postgres 18 faz esse papel.
@@ -184,21 +200,24 @@ sos-patas/
 | `sospatas-quarentena` | **Privado**: só a API lê e grava (rota admin que transmite o arquivo para a equipe) | `perdidos/{perdido_id}/{id}.webp` enquanto `pendente` (RN19) |
 | `sospatas-backups` | **Privado** | Dumps diários do banco (seção 8) |
 
+Na prévia, `sospatas-fotos-previa` e `sospatas-quarentena-previa` (criados em 09/10/2026), ambos privados: a API serve as fotos em `/api/publico/fotos/*`. Local dos buckets: **`enam`** (leste da América do Norte), o mais próximo do Brasil, já que o R2 não tem região na América do Sul; o cache do Cloudflare entrega as fotos a partir de São Paulo.
+
 - **Aprovar anúncio** = copiar os objetos da quarentena para o bucket público e apagar da quarentena, na mesma operação (RN19).
 - **Excluir** segue a RN05: primeiro os arquivos, depois o registro.
-- **URL das fotos:** a API devolve a URL pronta. Com `FOTOS_URL_BASE` (produção: `https://fotos.sospatas.org.br`), aponta para o domínio de fotos; vazio (computador e prévia), para `/api/publico/fotos/{path}`. As fotos da história guardam só o caminho da completa (`site/historia/{id}.webp`); a miniatura fica ao lado, `{id}-thumb.webp`.
+- **URL das fotos:** a API devolve a URL pronta. Com `FOTOS_URL_BASE` (produção: `https://fotos.sospatas.org.br`), aponta para o domínio de fotos; vazio (computador), para `/api/publico/fotos/{path}`. Na prévia, o site (`pages.dev`) e a API (`workers.dev`) ficam em domínios diferentes, então `FOTOS_URL_BASE` é a rota de fotos do próprio Worker da prévia (`https://sospatas-api-previa.sospatas.workers.dev/api/publico/fotos`). As fotos da história guardam só o caminho da completa (`site/historia/{id}.webp`); a miniatura fica ao lado, `{id}-thumb.webp`.
 - **Não usar a URL pública `r2.dev`** (decidido em 08/10/2026): ela não passa pelo cache do Cloudflare, então cada acesso vira uma operação cobrável do R2. Antes do domínio próprio (ambiente de teste), as fotos são servidas pela API, que tem o limite diário do Workers gratuito como teto (seção 11.1).
 - O acesso ao R2 fica atrás da interface `Armazenamento` (`colocar`, `obter`, `copiar`, `apagarPrefixo`). Para trocar de serviço (S3, MinIO na VPS), basta outra implementação.
 
 ## 7. Tarefas agendadas (Cron Trigger do Worker)
 
-Um cron diário (03:00, horário de Brasília = `0 6 * * *` UTC) chama `scheduled()` na API, que executa:
+Um cron diário (03:00, horário de Brasília = `0 6 * * *` UTC; `[triggers]` no `wrangler.toml`, configurado desde 09/10/2026) chama `scheduled()` em `apps/api/src/index.ts`, que executa `tarefas/limpeza.ts`:
 
 | Tarefa | Regra |
 |---|---|
 | Apagar anúncios `publicado` com `expira_em` vencido (arquivos + registro) | RN25 |
 | Apagar anúncios `pendente` há mais de 7 dias (arquivos da quarentena + registro) | RN27 |
-| _Futuro:_ apagar pedidos de interesse recusados/não concluídos há mais de 90 dias | RN15 |
+| Apagar pedidos de adoção recusados ou não concluídos há mais de 90 dias, e aprovados 90 dias depois da adoção | RN15 |
+| Apagar o registro de envios do "Fale com a ONG" com mais de 1 dia (`contato_envios`) | RN51 |
 
 O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa projetos gratuitos.
 
@@ -214,7 +233,7 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 | Ambiente | Front | API | Banco | Fotos |
 |---|---|---|---|---|
 | **Local** | `pnpm dev` (Vite, porta 5173) | `wrangler dev` (porta 8787, com proxy de `/api` no Vite) | Postgres 18 no `docker-compose` (`sospatas` e `sospatas_teste`) | R2 simulado localmente pelo Wrangler |
-| **Prévia** | URL de prévia do Pages (cada PR) | Worker de prévia (`--env previa`) | Branch do Neon `previa` | Bucket `-previa` |
+| **Prévia** | Pages, branch `develop` | Worker `sospatas-api-previa` (`--env previa`, `*.workers.dev`), Hyperdrive `sospatas-previa` | Projeto do Neon `sospatas-previa`, marcado com `COMMENT ON DATABASE` para aceitar os dados de exemplo (`--previa`) | Buckets `-previa` |
 | **Produção** | `sospatas.org.br` | `sospatas.org.br/api` | Neon `production` | `fotos.sospatas.org.br` |
 
 **Configuração do Worker:** no `wrangler.toml`, o nível de cima é a **produção** (`AMBIENTE=producao`) e `[env.previa]` repete todos os bindings (eles não são herdados). No computador, o `.dev.vars` troca `AMBIENTE` para `local`; sem ele, a API se comporta como produção, o que mantém desligado qualquer atalho de desenvolvimento. Os tipos do `env` (`worker-configuration.d.ts`) são gerados por `wrangler types` na instalação e no typecheck, e ficam fora do Git.
@@ -237,6 +256,8 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 | `ACCESS_TEAM_DOMAIN` e `ACCESS_AUD` | Não são segredo: ficam em `[vars]` do `wrangler.toml`, por ambiente (o `aud` muda entre prévia e produção) |
 | Chaves S3 do R2 (só para o backup) | GitHub |
 | `CLOUDFLARE_API_TOKEN` (deploy) | GitHub |
+
+**E-mail do "Fale com a ONG" (RN51):** a API envia pelo **Cloudflare Email Routing** (binding `EMAIL` do tipo `send_email`, só no nível de produção do `wrangler.toml`). O remetente é `EMAIL_REMETENTE` (`site@sospatas.org.br`) e o destino é `EMAIL_DESTINO` (`sitesospatas@gmail.com`), ambos em `[vars]`; a mensagem é montada em texto puro com `Reply-To` de quem escreveu (`servicos/email.ts`). Na etapa 14: ativar o Email Routing em `sospatas.org.br` (o Cloudflare cria os registros MX/SPF), **verificar** `sitesospatas@gmail.com` como destino (chega um e-mail de confirmação nessa caixa) e conferir com um envio real. Na prévia não há binding (o Email Routing exige o domínio) e o formulário responde 503, com o e-mail da ONG na tela; no computador, o `wrangler dev` simula o envio e mostra o arquivo da mensagem no terminal. Se o e-mail da ONG mudar, é preciso verificar o novo destino e trocar `EMAIL_DESTINO` e `destination_address`.
 
 **Segurança do front:** arquivo `_headers` no Pages com `Content-Security-Policy` (fontes do Google, fotos de `fotos.sospatas.org.br`, Turnstile), `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy` (sem câmera/localização).
 
@@ -279,6 +300,7 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 **Um atacante consegue inflar o armazenamento ou o banco?** Não de forma relevante:
 - Só a API grava no R2 e no banco; o navegador nunca grava direto (seção 6).
 - O único envio sem login é o anúncio de perdido/encontrado: Turnstile, no máximo 2 fotos de 500 KB, 3 envios por dia por IP e **30 pendentes no total** (RN21–RN23). O pior caso é ~30 MB na quarentena, apagados em 7 dias (RN27). Nada fica público sem aprovação (RN18).
+- O formulário de adoção só grava texto no banco (sem arquivos): Turnstile, limites de caracteres, 2 pedidos por dia por IP e 1 pendente por WhatsApp (RN50).
 - Cadastro de animais, textos e fotos da história exigem o login do Access.
 - O banco tem limites de caracteres em todos os campos (CHECK) e o Neon sem cartão não cobra.
 
@@ -320,5 +342,6 @@ O código já nasce preparado:
 3. Fotos: manter o R2 (acessível de qualquer lugar pela API S3) ou trocar a implementação de `Armazenamento`.
 4. Login: manter o Access na frente da VPS (domínio continua no Cloudflare, via proxy ou Tunnel).
 5. Cron: trocar o Cron Trigger por um cron do sistema chamando as mesmas funções de `tarefas/`.
+6. E-mail do "Fale com a ONG": o Email Routing só existe no Workers; em `node.ts`, trocar `enviarEmail` por SMTP ou um serviço de envio (a mensagem já sai pronta de `servicos/email.ts`).
 
 Custo de referência (out/2026): Contabo Cloud VPS 10 ≈ R$ 30–36/mês; Hostinger KVM 1 ≈ R$ 28–48/mês.

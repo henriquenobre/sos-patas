@@ -19,7 +19,7 @@ O repositório tem três partes: **aplicação** (código do site), **documenta�
 | [docs/formulario/](docs/formulario/) | Formulário de interesse em adoção e termo de adoção (`gerar_pdf.py` gera os PDFs) |
 | **Protótipo** | |
 | [prototipo/TELAS.md](prototipo/TELAS.md) | Especificação de cada tela (T01…), componentes, identidade visual, perguntas para a ONG |
-| [prototipo/index.html](prototipo/index.html) | Protótipo navegável; dados de exemplo e textos iniciais (seed) |
+| [prototipo/index.html](prototipo/index.html) | Protótipo navegável, validado com a ONG. **Congelado desde 09/10/2026**: não é mais atualizado |
 | [prototipo/gerar_prints.py](prototipo/gerar_prints.py) | Gera os prints de [prototipo/telas/](prototipo/telas/) |
 | **Aplicação** | |
 | `apps/web`, `apps/api`, `packages/compartilhado`, `db/` | Código do site (front, API, código compartilhado, banco). Como rodar: [README.md](README.md) |
@@ -28,7 +28,7 @@ O repositório tem três partes: **aplicação** (código do site), **documenta�
 | `privado/fotos/` | Fotos originais recebidas da ONG |
 | `privado/dados-sensiveis/` | Senhas, acessos e outros dados que não podem ir para o GitHub. Nunca copiar o conteúdo para outro arquivo do projeto |
 
-Em caso de conflito: **DESENVOLVIMENTO.md e ARQUITETURA.md > TELAS.md > protótipo**.
+Em caso de conflito: **DESENVOLVIMENTO.md e ARQUITETURA.md > TELAS.md > site (`apps/web`) > protótipo**. O protótipo está **congelado desde 09/10/2026**: não é mais atualizado e fica só como registro do que foi validado com a ONG.
 
 ## RP01 – Toda alteração vai para o protótipo, o projeto e a documentação
 
@@ -38,11 +38,10 @@ Nenhuma mudança fica só em um lugar. Ao alterar uma regra, uma tela, um texto 
 |---|---|
 | Regra de negócio, dado, rota ou escopo | `DESENVOLVIMENTO.md` (seção correspondente **e** uma linha no Registro de decisões, com data e motivo) |
 | Infraestrutura, rota da API, serviço, segredo, deploy ou backup | `ARQUITETURA.md` (e decisão registrada no `DESENVOLVIMENTO.md`) |
-| Tela, componente, texto ou visual | `prototipo/index.html` **e** `prototipo/TELAS.md` (descrição da tela; status ✏️ se precisar revalidar) |
-| Tela nova ou removida | Também o menu "☰ Telas do protótipo", as rotas do `render()` e a lista `TELAS` do `gerar_prints.py` |
-| Qualquer coisa visível no protótipo | Rodar `python prototipo/gerar_prints.py` para atualizar os prints |
+| Tela, componente, texto ou visual | O código do site (`apps/web`) **e** `prototipo/TELAS.md` (descrição da tela; status ✏️ se precisar revalidar). O protótipo não é mais atualizado (congelado em 09/10/2026) |
+| Tela nova ou removida | Também as rotas em `apps/web/src/rotas.tsx` e a tabela de rotas do `DESENVOLVIMENTO.md` (seção 4) |
 | Informação vinda da ONG | `privado/projeto/PROJETO.md` (registrar a resposta como recebida, sem reescrever) e responder/riscar a pergunta em `TELAS.md` → "Perguntas para a validação" |
-| Textos e conteúdos iniciais do site | Seed no protótipo **e** `db/seed/seed_conteudo.sql` (os dois iguais) |
+| Textos e conteúdos iniciais do site | `db/seed/seed_conteudo.sql` (o protótipo não é mais atualizado) |
 | Estrutura de pastas ou arquivos | Tabela acima, `docs/ARQUITETURA.md` (seção 2) e `README.md` |
 | Banco de dados | `db/schema.ts` + migration nova com `pnpm db:gerar` (nunca alterar produção à mão nem editar migration já aplicada) + modelo de dados no `DESENVOLVIMENTO.md`. Limite de campo muda em `packages/compartilhado` |
 | Código do site (`apps/`, `packages/`, `db/`) | O protótipo e a documentação continuam valendo como especificação: se o código divergir, atualizar os dois lados |

@@ -34,6 +34,21 @@ export const whatsapp = z
   .transform(normalizarWhatsapp)
   .refine(ehWhatsappValido, 'Informe o WhatsApp com DDD (10 ou 11 números)')
 
+/** E-mail: sem espaços, guardado em minúsculas. */
+export const email = (limite: number) =>
+  z
+    .string({ error: 'Informe o e-mail' })
+    .trim()
+    .toLowerCase()
+    .min(1, 'Informe o e-mail')
+    .max(limite, mensagemLimite(limite))
+    .pipe(z.email({ error: 'Confira o e-mail (exemplo: nome@gmail.com)' }))
+
+/** Token do Turnstile (antirrobô dos formulários públicos). */
+export const turnstileToken = z
+  .string({ error: 'Confirme que você não é um robô' })
+  .min(1, 'Confirme que você não é um robô')
+
 /** Data 'AAAA-MM-DD'. */
 export const data = z.string({ error: 'Informe a data' }).refine(ehDataValida, 'Data inválida')
 

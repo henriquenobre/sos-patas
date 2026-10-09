@@ -5,6 +5,8 @@
 > Regras de negócio (RN) e modelo de dados: [../DESENVOLVIMENTO.md](../docs/DESENVOLVIMENTO.md).
 >
 > **Ao desenvolver em React, cada tela abaixo vira uma página. Reaproveitar as classes Tailwind e os tokens de design do protótipo.**
+>
+> **Protótipo congelado desde 09/10/2026:** ele não é mais atualizado. Mudanças de tela vão direto para o site (`apps/web`) e para esta especificação; telas novas (T26 em diante) existem só no site.
 
 **Status de validação:** ⏳ aguardando a ONG · ✅ validada · ✏️ ajustar
 
@@ -49,7 +51,7 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 | `Modal` | Quero adotar, adotado, excluir | Confirmações sempre com "Cancelar" |
 | `OpcoesBotao` | Formulário | Escolha em botões grandes (melhor que select no celular) |
 | `CabecalhoAdmin` | T08–T24 | Fundo azul-escuro, para diferenciar do site público; "Olá, {nome}" vem de `equipe` |
-| `BarraAdmin` | T09, T14, T15, T22 | Barra fixa no rodapé: 🐾 Animais · 🔎 Perdidos (com número de pendentes) · 📝 Textos · ☰ Mais. No computador, vira abas no cabeçalho. Some nas telas de formulário |
+| `BarraAdmin` | T09, T14, T15, T22, T27 | Barra fixa no rodapé: 🐾 Animais · 📋 Pedidos (com número de pendentes) · 🔎 Perdidos (com número de pendentes) · 📝 Textos · ☰ Mais. No computador, vira abas no cabeçalho. Some nas telas de formulário |
 | `ListaEditavel` | T16, T18–T20 | Cards com título, começo do texto e miniatura (se tiver foto); botões ↑ ↓ (RN35), **Editar** e **Excluir** (RN36); "＋ Adicionar" no fim. Configurada por `lista` (DESENVOLVIMENTO.md, `conteudo_itens`) |
 | `CampoTextoEditavel` | T18–T20 | Rótulo, onde aparece no site, caixa de texto com contador "120/400" e botão **Salvar** próprio |
 | `TextoSimples` | páginas públicas | Mostra texto do banco com quebras de linha e links automáticos, sem HTML (RN34) |
@@ -69,7 +71,7 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 2. **Números em destaque** ✎ (`inicio_numeros`, até 4, RN46): faixa branca logo abaixo da chamada, sobre a borda ondulada. Conteúdo: **Desde 2015** (cuidando dos animais de Passos) · **+100** (feiras de adoção) · **+1.000** (animais adotados, somando feiras e redes sociais). Com 3 números, ficam lado a lado também no celular; com 4, 2×2 no celular. O recorde de 32 adoções numa feira saiu da faixa em 07/10.
    - Substituiu em 07/10 os números automáticos "animais esperando" e "adotados no último mês", que mudavam todo mês, e o card "R$ 0 taxa de adoção" (RN45). "Adotados no mês" continua no painel da ONG (T09).
 3. **Nossa história** (conteúdo enviado pela ONG em 07/10/2026):
-   - **card com a 1ª foto** de `inicio_fotos` (voluntários em feira de adoção, com legenda sobre a foto; **a primeira deve ser a foto mais nítida**, porque aparece grande) + **texto** ✎ (`inicio.historia`: origem em 2015 no grupo de WhatsApp, socorro imediato, primeira feira em 2016, mais de 100 feiras, quase mil adotados, voluntários que construíram a ONG);
+   - **card com a 1ª foto** de `inicio_fotos` (desde 09/10/2026, a **equipe da SOS Patas em 2016**, escolha do mantenedor; legenda sobre a foto. A foto aparece grande e o arquivo que temos é pequeno, 720×540: ver pergunta 23. A ordem fica na lista `inicio_fotos` do `seed_conteudo.sql` e depois é trocada pela ONG em T19) + **texto** ✎ (`inicio.historia`: origem em 2015 no grupo de WhatsApp, socorro imediato, primeira feira em 2016, mais de 100 feiras, quase mil adotados, voluntários que construíram a ONG);
    - **linha do tempo** ✎ (`inicio_marcos`): 2015 · 5 de julho de 2016 · 2016 · Hoje. No computador fica ao lado do texto;
    - **galeria "Nossa história em fotos"** ✎ (demais itens de `inicio_fotos`, com legenda): 2 colunas no celular, 4 no computador. A foto da **assembleia de fundação** fica aqui: o original é de baixa resolução, com lâmpadas estouradas e flash.
      - **Tratamento aplicado em 07/10/2026** (`assets/historia-1.jpg`): recorte da faixa das lâmpadas, sem cortar ninguém; brilho reduzido em volta das luzes e do ponto de flash; realces estourados comprimidos; redução leve de ruído; contraste, cor e nitidez ajustados.
@@ -92,7 +94,8 @@ O aviso amarelo "A SOS Patas não faz resgates" foi **removido em 07/10/2026** (
 
 **Objetivo:** listar os animais disponíveis com filtros.
 
-- **Filtros (chips):** Cães/Gatos · Filhotes/Adultos (RN11) · Mini/Pequeno/Médio/Grande/Gigante · "Convive com outros animais". Um chip por grupo; tocar de novo desliga o filtro.
+- **Filtros (chips):** Cães/Gatos · Filhotes/Adultos (RN11) · Mini/Pequeno/Médio/Grande/Gigante · "Convive com outros animais". Um chip por grupo; tocar de novo desliga o filtro. Os filtros ficam no endereço (`/animais?especie=gato&idade=adulto`), para compartilhar a busca.
+- **Subtítulo:** "{N} cães e gatos esperando uma família", com o total de disponíveis (RN46).
 - **Ordem:** mais antigos primeiro (RN10).
 - **Grade:** 2 colunas no celular, 3 no tablet e 4 no computador.
 - **Sem resultado:** mensagem + "Limpar filtros".
@@ -110,12 +113,25 @@ O aviso amarelo "A SOS Patas não faz resgates" foi **removido em 07/10/2026** (
 - **Bloco Temperamento:** dócil, convive com outros animais ("não informado" quando nulo).
 - **Responsável:** nome e indicação de protetor parceiro + "Adoção com formulário de interesse, termo de adoção e 15 dias de adaptação". Se for protetor, mostra um aviso amarelo de que a ONG não é responsável pela adoção (RN31).
 - **Benefício (verde):** "Adotando pelo site: prioridade na castração gratuita (castramóvel) e desconto em clínicas parceiras" (RN32).
-- **Botão "Quero adotar {nome}":** verde, **fixo no rodapé no celular**, e abre o **formulário de interesse** (RN14). No protótipo, abre um modal explicando, porque as perguntas ainda estão em definição com a ONG.
+- **Botão "Quero adotar {nome}":** verde, com patinha (sem o ícone do WhatsApp), **fixo no rodapé no celular**, e abre o **formulário de adoção** (T26, RN14). ✏️ _Protótipo a atualizar: hoje abre um modal explicando e usa o ícone do WhatsApp._
+- **Galeria:** tocar numa miniatura troca a foto grande.
+- **Animal em análise (RN48), por link direto:** sem o botão; aviso "{nome} está em processo de adoção" e botão "Ver outros animais" _(proposta)_.
+
+### T26 · Formulário de adoção · `/animais/:id/adotar` · 🆕 só no site (09/10/2026)
+**Objetivo:** fluxo definido com a ONG em 08/10/2026, todo pelo site: responder ao formulário, ler o termo e registrar a ciência (RN14, RN15, RN47).
+
+- **Topo:** o animal escolhido (miniatura, nome, responsável) e os passos "1. Formulário" e "2. Termo de adoção".
+- **Passo 1, formulário:** as perguntas da [versão 1.1](../docs/formulario/FORMULARIO_ADOCAO.md) em blocos (Sobre você · Sua casa · Outros animais · Cuidados e custos), com opções em botões grandes; perguntas condicionais só quando se aplicam (proprietário, se alugado; telas, se gato; 16 a 18, se tem animais); as 8 declarações (pergunta 25, a última é o consentimento LGPD). "Continuar para o termo de adoção" confere tudo antes de avançar e mostra a mensagem embaixo de cada campo.
+- **Passo 2, termo:** o **Termo de Responsabilidade de Adoção** inteiro (9 cláusulas e o aviso da Lei 9.605/98), a caixa **"Li o Termo de Responsabilidade de Adoção e estou ciente dos compromissos. Se a adoção for aprovada, assumo esses compromissos."** (a "assinatura", RN47), o Turnstile e o botão verde "Enviar pedido de adoção" (com "Voltar ao formulário").
+- **Erros do envio:** campo do formulário → volta ao passo 1 com o campo destacado; outra pessoa pediu o animal antes, ou a pessoa já tem pedido em análise → aviso com "Ver outros animais"; limite de envios ou Turnstile → mensagem para tentar de novo.
+- **Animal em análise ou adotado:** sem formulário, só o aviso.
+
+**T26b · Pedido enviado:** "Recebemos seu pedido para adotar {nome}!" e os próximos passos: 1. análise pela equipe (o animal fica reservado e sai do site); 2. se aprovado, a ONG fala com a pessoa pelo WhatsApp informado para **combinar onde buscar o animal**; 3. 15 dias de adaptação. Aviso de que o aceite do termo ficou registrado, e link para a vitrine.
 
 ### T04 · Como adotar · `/como-adotar` · ✅
 ![T04](telas/T04-como-adotar-celular.png)
 
-- **Linha do tempo com 5 passos:** escolher → **preencher o formulário de interesse** → análise pela equipe ou protetor, com contato pelo WhatsApp → termo de responsabilidade → **período de adaptação de 15 dias** (se não se adaptar, devolver a quem doou; nunca repassar nem abandonar).
+- **Linha do tempo com 5 passos** (fluxo da ONG de 08/10/2026, textos no seed): escolher o animal → **preencher o formulário de adoção** → **ler o termo de adoção e marcar que está ciente** (fica registrado no site) → **análise e contato** (se aprovado, a ONG combina pelo WhatsApp onde buscar o animal) → **período de adaptação de 15 dias** (se não se adaptar, devolver a quem doou; nunca repassar nem abandonar).
 - **Card verde "Vantagem de adotar pelo site":** prioridade no castramóvel e desconto em clínicas parceiras (a ONG confere na lista de adoções).
 - **Card amarelo "Animais de protetores parceiros":** a adoção é combinada com o protetor e a ONG não é responsável.
 - **Validado pela ONG em 06/10/2026** (prazo de adaptação, devolução, responsabilidade do protetor e benefício da castração).
@@ -143,7 +159,7 @@ O aviso amarelo "A SOS Patas não faz resgates" foi **removido em 07/10/2026** (
 
 **Textos a validar com a Gracia** (principalmente as respostas 3, 6 e 8).
 
-**Editável em T16:** as perguntas e respostas vêm de `conteudo_itens` (`lista = perguntas`), na ordem definida pela equipe. O bloco "Não encontrou sua dúvida?" fica fixo e usa o Instagram e o WhatsApp da tabela `ong`.
+**Editável em T16:** as perguntas e respostas vêm de `conteudo_itens` (`lista = perguntas`), na ordem definida pela equipe. O bloco "Não encontrou sua dúvida?" fica fixo, usa o Instagram e o **e-mail** da tabela `ong` e tem o botão "Fale com a ONG" (RN51, 09/10/2026; antes, o WhatsApp).
 
 ### T06 · Como ajudar · `/ajude` · ✏️ reformulada em 07/10
 ![T06](telas/T06-como-ajudar-celular.png)
@@ -151,13 +167,26 @@ O aviso amarelo "A SOS Patas não faz resgates" foi **removido em 07/10/2026** (
 Antiga "Sobre e ajude" (`/sobre` redireciona para cá). A missão e o "Como funcionamos" foram para o Início (T01).
 - **Introdução** ✎ (`ajude.introducao`), opcional.
 - **Card vermelho do PIX:** tipo e chave da tabela `ong`, botão "Copiar chave PIX". Fixo, não é item de lista.
-- **Formas de ajudar** ✎ (`ajude_formas`): "Seja lar temporário", "Compartilhe"… (título + texto).
+- **Formas de ajudar** ✎ (`ajude_formas`): título + texto, sem imagem (o selo da Empresa amiga foi testado e retirado em 09/10/2026: deixava os cards desiguais). Desde 09/10/2026: "Seja mensalista", "Apadrinhe um animal", "Empresa amiga", "Doe para o bazar", "Seja lar temporário" e "Compartilhe".
+- **Botão "Fale com a ONG"** (09/10/2026): leva ao formulário T29 com o assunto "Quero ajudar a ONG" já escolhido (RN51; antes, "Falar com a ONG pelo WhatsApp").
 - **Menu do site:** o item "Sobre e ajude" passa a se chamar **"Como ajudar"**.
 
 ### T07 · Privacidade · `/privacidade` · ⏳
 ![T07](telas/T07-privacidade-celular.png)
 
-Texto curto sobre LGPD: o site não cadastra visitantes, as estatísticas são anônimas, os lares temporários nunca aparecem e há canal para pedir a exclusão de dados.
+Texto curto sobre LGPD: o site não cadastra visitantes, as estatísticas são anônimas, os lares temporários nunca aparecem e há canal para pedir a exclusão de dados. Desde 09/10/2026 tem a seção **"Fale com a ONG"** (a mensagem vai para o e-mail da ONG e não fica no site; só um código do IP por 1 dia, contra abuso) e o pedido de informações ou exclusão de dados é **pelo e-mail** da ONG (RN51).
+
+✏️ _A atualizar (08/10/2026), no protótipo e no site:_ trocar "O contato para adoção acontece pelo WhatsApp, por iniciativa sua" por uma seção **"Pedidos de adoção"**: o formulário guarda nome, WhatsApp, bairro e cidade e as respostas; só a equipe vê; o pedido recusado ou não concluído é apagado em 90 dias; o endereço completo e os documentos ficam só no termo em papel (RN15).
+
+### T29 · Fale com a ONG · `/contato` · 🆕 só no site (09/10/2026)
+
+Contato com a ONG enquanto ela não tem WhatsApp próprio (RN51). Sem print: o protótipo está congelado; a referência é o site.
+- **Formulário:** Seu nome*, Seu e-mail* ("A resposta da ONG chega neste e-mail."), WhatsApp ou telefone (opcional), **Assunto*** em botões (Adoção · Quero ajudar a ONG · Animal perdido ou encontrado · Sou protetor independente · Outro assunto), Mensagem*, Turnstile e o aviso "Sua mensagem vai para o e-mail da ONG e não fica guardada no site (privacidade)". Botão azul **Enviar mensagem**.
+- `?assunto=ajudar` (vindo de Como ajudar) ou `?assunto=adocao` (vindo da confirmação do pedido de adoção) já deixa o assunto escolhido.
+- **Enviado:** patinha, "Mensagem enviada!" e "A equipe da SOS Patas é formada por voluntários e responde pelo e-mail que você informou assim que puder.", botão "Ver os animais para adoção".
+- **Falha no envio** (ex.: e-mail fora do ar): aviso em vermelho e o bloco abaixo continua visível.
+- **"Prefere escrever direto?"** (sempre visível): o e-mail da ONG com link que abre o aplicativo de e-mail; o WhatsApp aparece aqui também quando a ONG cadastrar um em T23.
+- **Rodapé do site** (todas as páginas): o contato da ONG passa a ser o **e-mail**, e "Fale com a ONG" entra em "Navegue". O WhatsApp só aparece se estiver preenchido em T23.
 
 ### T12 · Perdidos e encontrados · `/perdidos` · ⏳
 ![T12](telas/T12-perdidos-celular.png)
@@ -190,20 +219,21 @@ Texto curto sobre LGPD: o site não cadastra visitantes, as estatísticas são a
 Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, seção 4).
 
 ```
-┌──────────────────────────────┐
-│ ▓ Área da ONG    Olá, Gracia │  ← CabecalhoAdmin
-│                              │
-│        (conteúdo da aba)     │
-│                              │
-├──────┬────────┬───────┬──────┤
-│  🐾  │  🔎 ③  │  📝   │  ☰   │  ← BarraAdmin (fixa)
-│Animais│Perdidos│Textos │ Mais │
-└──────┴────────┴───────┴──────┘
+┌───────────────────────────────────┐
+│ ▓ Área da ONG         Olá, Gracia │  ← CabecalhoAdmin
+│                                   │
+│          (conteúdo da aba)        │
+│                                   │
+├───────┬───────┬───────┬──────┬────┤
+│  🐾   │ 📋 ②  │ 🔎 ③  │  📝  │ ☰  │  ← BarraAdmin (fixa)
+│Animais│Pedidos│Perdid.│Textos│Mais│
+└───────┴───────┴───────┴──────┴────┘
 ```
 
 | Aba | Tela inicial | Leva a |
 |---|---|---|
 | 🐾 Animais | T09 | T10, T11 |
+| 📋 Pedidos | T27 (número vermelho = pedidos aguardando análise) | T28 |
 | 🔎 Perdidos | T14 (número vermelho = anúncios aguardando) | T21 |
 | 📝 Textos | T15 | T16–T20, T17 |
 | ☰ Mais | T22 | T23, T24, "Ver o site", "Sair" |
@@ -228,13 +258,27 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 **Objetivo:** Gracia e Claudia controlarem tudo pelo celular.
 
 - **Números:** disponíveis · adultos esperando há mais de 90 dias · **adotados no mês** (indicador da avaliação).
-- **Abas:** Disponíveis / Adotados.
+- **Abas:** Disponíveis / Em análise / Adotados (RN48). ✏️ _Protótipo a atualizar._
 - **Busca** pelo nome.
 - **Item da lista:** miniatura, nome, espécie, idade, **lar temporário** (privado), tempo de espera (vermelho se adulto há mais de 90 dias); botões **Editar** e **Adotado ✓**.
 - **Aba Adotados:** "Em adaptação: faltam N dias" ou "Adoção concluída" (RN30).
 - **Filtro por responsável** (abaixo da busca): "Todos · SOS Patas · Protetores", e ao tocar em "Protetores" aparece a lista para escolher um. O nome do protetor aparece no item da lista.
 - **Card amarelo de perdidos:** só aparece quando há anúncios aguardando aprovação (o número também fica na aba 🔎).
 - **Botão flutuante:** "＋ Cadastrar animal", acima da `BarraAdmin`.
+
+### T27 · Pedidos de adoção · `/admin/pedidos` · 🆕 a desenhar no protótipo
+**Objetivo:** a equipe saber quem pediu qual animal e analisar logo, porque o animal fica fora do site enquanto isso (RN48, RN49).
+
+- **Abas:** Pendentes (padrão) / Aprovados / Recusados.
+- **Item:** miniatura e nome do animal, nome de quem pediu, bairro, "há N dias", número de alertas (amarelo); **vermelho se pendente há mais de 3 dias** (RN50, prazo a confirmar).
+- Animal de protetor parceiro: selo "Protetor: {nome}".
+
+### T28 · Análise do pedido · `/admin/pedidos/:id` · 🆕 a desenhar no protótipo
+- **Topo:** animal (com link para T11), quem pediu, WhatsApp com botão para conversar, data do pedido.
+- **Alertas automáticos** em amarelo no topo (tabela do FORMULARIO_ADOCAO.md), sem reprovar sozinhos.
+- **Respostas** agrupadas pelos blocos do formulário; "Ciente do termo em {data}".
+- **Observação interna** (só a equipe vê).
+- **Ações:** **Aprovar** (o animal continua fora do site até "Marcar como adotado", que já vem com nome e WhatsApp preenchidos) e **Recusar** (modal: "O animal volta para o site. Avise a pessoa pelo WhatsApp."). Linha `AlteradoPor` (RN43).
 
 ### T10 · Cadastrar animal · `/admin/animais/novo` · ⏳
 ![T10](telas/T10-cadastrar-animal-celular.png)
@@ -375,7 +419,8 @@ Lista simples, com botões grandes:
 ![T23](telas/T23-dados-da-ong-celular.png)
 
 Formulário com os dados da tabela `ong`:
-- **WhatsApp da ONG*** (com máscara `(35) 9 9999-9999`; salvo só com dígitos). Ajuda: "Usado no rodapé, nas perguntas frequentes e nos animais da SOS Patas."
+- **E-mail da ONG*** (RN51). Ajuda: "Usado no rodapé, nas perguntas frequentes, na privacidade e no Fale com a ONG. As mensagens do formulário chegam no e-mail configurado no Cloudflare: se trocar o e-mail, avise o administrador do site."
+- **WhatsApp da ONG** (opcional desde 09/10/2026; com máscara `(35) 9 9999-9999`; salvo só com dígitos). Ajuda: "Deixe vazio enquanto a ONG não tiver um número próprio para o site. Preenchido, aparece no rodapé e no Fale com a ONG."
 - **Instagram*** (com `@` fixo à esquerda) e **Facebook** (link, opcional).
 - **PIX:** tipo da chave (botões: CNPJ, CPF, E-mail, Telefone, Aleatória) e chave*.
 - **Prévia** do card do PIX como aparece no site.
@@ -400,9 +445,9 @@ Enviar os prints de [telas/](telas/) à Gracia e perguntar:
 1. As cores e o visual combinam com a SOS Patas? ~~Vocês têm o logo em boa qualidade?~~ **Respondido:** logo recebida em 06/10.
 2. A ficha do animal tem tudo o que vocês querem mostrar? Falta algum campo?
 3. ~~"Castração garantida pela ONG"~~: **respondido**, não usar (RN17).
-3.1. **Formulário de interesse em adoção:** quais perguntas? (em definição no grupo)
+3.1. ~~Formulário de interesse em adoção~~: **respondido em 08/10/2026**: a ONG fechou o fluxo (tudo pelo site: formulário 1.1 → termo com ciência registrada → análise → contato para combinar a retirada).
 4. Os textos das **perguntas frequentes** estão corretos? Querem mudar ou acrescentar alguma?
-5. O WhatsApp de contato padrão é o **(35) 9 8843-9614**?
+5. ~~O WhatsApp de contato padrão é o **(35) 9 8843-9614**?~~ **Respondido em 09/10/2026:** por enquanto, todo contato com a ONG pelo site é pelo e-mail `sitesospatas@gmail.com`; a ONG vai providenciar um WhatsApp próprio (RN51).
 6. Podemos mostrar a **chave PIX** no site?
 7. O formulário de cadastro está fácil de entender no celular?
 8. O botão do WhatsApp na ficha deve ir para o número da ONG ou do responsável pelo animal?
@@ -417,6 +462,14 @@ Enviar os prints de [telas/](telas/) à Gracia e perguntar:
 19. **Foto da assembleia de fundação:** alguém tem essa foto em melhor qualidade (o arquivo original da câmera ou celular, sem passar pelo WhatsApp, que reduz a imagem) ou outra foto do mesmo dia?
 13. **Área da ONG:** além de Gracia e Claudia, alguém mais vai ter acesso? A navegação com a barra de baixo (Animais · Perdidos · Textos · Mais) ficou fácil?
 14. Vocês recebem pedidos de "perdido/encontrado" pelo WhatsApp que gostariam de publicar por conta própria? (T21)
+20. **Pedidos de adoção (08/10/2026):** o animal sai do site enquanto o pedido está em análise. Em quantos dias vocês conseguem analisar um pedido? (proposta: avisar no painel depois de 3 dias)
+21. Nos animais de **protetores parceiros**, quem analisa o pedido: a equipe (e repassa pelo WhatsApp) ou o próprio protetor?
+22. Quem abrir a ficha de um animal em análise por um link antigo: mostrar um aviso "em processo de adoção" (proposta) ou a página "não encontrado"?
+23. **Foto da equipe em 2016** (a primeira da história, 09/10/2026): alguém tem essa foto em tamanho maior (o arquivo original da câmera ou celular, sem passar pelo WhatsApp)? A que temos é pequena e fica um pouco borrada em tela grande.
+24. **Mensalistas** (Como ajudar, 09/10/2026): como alguém se torna mensalista? Basta fazer o PIX todo mês, ou a pessoa avisa a ONG (o site hoje diz "fale com a ONG pelo WhatsApp")?
+25. **Bazar** (Como ajudar, 09/10/2026): o que o bazar aceita (roupas, calçados, objetos, móveis?) e onde ou como a doação é entregue?
+26. **Empresa amiga ou Empresa madrinha?** O selo diz "Empresa Amiga" e o cartaz diz "Seja uma Empresa Madrinha". O site usa "Empresa amiga" (só texto). Qual nome usar? E querem mostrar no site as empresas que já ajudam (nome ou logo, com autorização delas)?
+27. **Apadrinhamento** (Como ajudar, 09/10/2026): o padrinho ajuda com um valor fixo por mês ou só quando o animal precisa de cuidados médicos? Quais animais podem ser apadrinhados (todos ou só alguns, como os que esperam há mais tempo)? Querem um botão "Apadrinhar" na ficha do animal, além do card em Como ajudar?
 
 ### Registro da validação
 | Data | Quem validou | Telas | Retorno | Ajustes |

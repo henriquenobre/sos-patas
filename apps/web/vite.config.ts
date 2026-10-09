@@ -6,8 +6,10 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     // Em desenvolvimento, /api vai para o `wrangler dev` (mesma origem, como em produção).
+    // changeOrigin: false mantém o Host da página (localhost:5173 ou o IP, no celular): a API
+    // compara o Host com a Origin para recusar escritas vindas de outro site (middleware/origem.ts).
     proxy: {
-      '/api': 'http://localhost:8787',
+      '/api': { target: 'http://localhost:8787', changeOrigin: false },
     },
   },
   test: {

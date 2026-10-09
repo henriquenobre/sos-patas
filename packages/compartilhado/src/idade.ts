@@ -42,6 +42,16 @@ export function diasEsperando(dataEntrada: string, hoje: string): number {
   return Math.max(0, diasEntre(dataEntrada, hoje))
 }
 
+/** Tempo de espera no selo do card: "45 dias", "5 meses", "2 anos e 3 meses". */
+export function textoEspera(dias: number): string {
+  if (dias < 60) return `${String(dias)} ${dias === 1 ? 'dia' : 'dias'}`
+  if (dias < 365) return `${String(Math.floor(dias / 30))} meses`
+  const anos = Math.floor(dias / 365)
+  const meses = Math.floor((dias % 365) / 30)
+  const textoAnos = `${String(anos)} ${anos === 1 ? 'ano' : 'anos'}`
+  return meses ? `${textoAnos} e ${String(meses)} ${meses === 1 ? 'mês' : 'meses'}` : textoAnos
+}
+
 /** RN12: adulto disponível que entrou há mais de 90 dias. */
 export function esperandoHaMaisTempo(
   animal: { status: StatusAnimal; nascimento_aprox: string; data_entrada: string },

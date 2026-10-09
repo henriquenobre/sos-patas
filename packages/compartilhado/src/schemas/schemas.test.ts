@@ -5,6 +5,7 @@ import { hojeNoBrasil, somarDias } from '../datas'
 import {
   adocaoEntrada,
   animalEntrada,
+  contatoEntrada,
   ongEntrada,
   perdidoEquipeEntrada,
   perdidoPublicoEntrada,
@@ -192,6 +193,7 @@ describe('textos e itens das páginas', () => {
 
 describe('dados da ONG', () => {
   const ong = {
+    email: ' SiteSOSPatas@gmail.com ',
     whatsapp: '(35) 9 8843-9614',
     instagram: '@sospatas.ong',
     facebook: 'facebook.com/sospatasmg',
@@ -201,6 +203,7 @@ describe('dados da ONG', () => {
 
   it('limpa o @ do Instagram e completa o endereço do Facebook', () => {
     expect(ongEntrada.parse(ong)).toMatchObject({
+      email: 'sitesospatas@gmail.com',
       whatsapp: '35988439614',
       instagram: 'sospatas.ong',
       facebook: 'https://facebook.com/sospatasmg',
@@ -212,5 +215,44 @@ describe('dados da ONG', () => {
     expect(erros(ongEntrada.safeParse({ ...ong, instagram: 'sos patas' }))).toHaveProperty(
       'instagram',
     )
+  })
+
+  it('WhatsApp da ONG é opcional; e-mail é obrigatório e válido (RN51)', () => {
+    expect(ongEntrada.parse({ ...ong, whatsapp: '' }).whatsapp).toBeNull()
+    expect(ongEntrada.parse({ ...ong, whatsapp: null }).whatsapp).toBeNull()
+    expect(erros(ongEntrada.safeParse({ ...ong, whatsapp: '123' }))).toHaveProperty('whatsapp')
+    expect(erros(ongEntrada.safeParse({ ...ong, email: 'sospatas' }))).toHaveProperty('email')
+  })
+})
+
+describe('formulário "Fale com a ONG" (RN51)', () => {
+  const contato = {
+    nome: ' Fernanda ',
+    email: 'Fernanda@Exemplo.com',
+    telefone: '',
+    assunto: 'adocao',
+    mensagem: ' Olá! ',
+    turnstile_token: 'token',
+  }
+
+  it('limpa espaços, e-mail em minúsculas, telefone vazio vira nulo', () => {
+    expect(contatoEntrada.parse(contato)).toEqual({
+      nome: 'Fernanda',
+      email: 'fernanda@exemplo.com',
+      telefone: null,
+      assunto: 'adocao',
+      mensagem: 'Olá!',
+      turnstile_token: 'token',
+    })
+  })
+
+  it('recusa assunto fora da lista, mensagem longa e falta do Turnstile', () => {
+    const resultado = contatoEntrada.safeParse({
+      ...contato,
+      assunto: 'spam',
+      mensagem: 'a'.repeat(LIMITES.contato.mensagem + 1),
+      turnstile_token: '',
+    })
+    expect(Object.keys(erros(resultado)).sort()).toEqual(['assunto', 'mensagem', 'turnstile_token'])
   })
 })

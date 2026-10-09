@@ -45,7 +45,8 @@ export async function buscarSite(db: Db, env: Env): Promise<SitePublico> {
   const [linha] = await db.execute<{ site: LinhaSite }>(sql`
     SELECT json_build_object(
       'ong', (SELECT json_build_object(
-                'nome_completo', nome_completo, 'whatsapp', whatsapp, 'instagram', instagram,
+                'nome_completo', nome_completo, 'email', email, 'whatsapp', whatsapp,
+                'instagram', instagram,
                 'facebook', facebook, 'pix_tipo', pix_tipo, 'pix_chave', pix_chave)
               FROM ong WHERE id = 1),
       'textos', (SELECT coalesce(json_object_agg(chave, valor), '{}'::json) FROM conteudo_textos),
@@ -84,6 +85,7 @@ const colunasResumo = {
   nascimento_aprox: animais.nascimento_aprox,
   porte: animais.porte,
   data_entrada: animais.data_entrada,
+  responsavel_tipo: animais.responsavel_tipo,
   foto_path: fotos.path_miniatura,
 }
 
@@ -196,7 +198,7 @@ export async function buscarFicha(db: Db, env: Env, id: string): Promise<AnimalF
   const responsavel =
     responsavel_tipo === 'protetor'
       ? { tipo: responsavel_tipo, nome: protetor_nome ?? '', whatsapp: protetor_whatsapp ?? '' }
-      : { tipo: responsavel_tipo, nome: ROTULOS.responsavel_tipo.ong, whatsapp: ong_whatsapp ?? '' }
+      : { tipo: responsavel_tipo, nome: ROTULOS.responsavel_tipo.ong, whatsapp: ong_whatsapp }
 
   return {
     ...dados,

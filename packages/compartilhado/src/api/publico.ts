@@ -19,7 +19,10 @@ export type FotoPublica = { miniatura: string; completa: string }
 
 export type OngPublica = {
   nome_completo: string
-  whatsapp: string
+  /** Contato principal do site enquanto a ONG não tem WhatsApp próprio (RN51) */
+  email: string
+  /** Vazio até a ONG ter um número próprio para o site (RN51); com ele, o WhatsApp volta a aparecer */
+  whatsapp: string | null
   instagram: string
   facebook: string | null
   pix_tipo: PixTipo
@@ -51,6 +54,8 @@ export type AnimalResumo = {
   nascimento_aprox: string
   porte: Porte
   data_entrada: string
+  /** O card mostra "Protetor parceiro" quando não é da ONG */
+  responsavel_tipo: ResponsavelTipo
   /** URL da miniatura da foto principal, ou null se ainda não tem foto */
   foto: string | null
 }
@@ -62,11 +67,12 @@ export type Responsavel = {
   tipo: ResponsavelTipo
   /** "SOS Patas" ou o nome do protetor parceiro (RN31, RN42) */
   nome: string
-  whatsapp: string
+  /** Do protetor; da ONG, null enquanto ela não tem WhatsApp próprio (RN51) */
+  whatsapp: string | null
 }
 
 /** GET /api/publico/animais/:id */
-export type AnimalFicha = Omit<AnimalResumo, 'foto'> & {
+export type AnimalFicha = Omit<AnimalResumo, 'foto' | 'responsavel_tipo'> & {
   raca: string | null
   raca_tipo: RacaTipo | null
   cor_pelagem: string | null

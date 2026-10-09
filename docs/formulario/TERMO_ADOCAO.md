@@ -2,7 +2,7 @@
 
 > Transcrição do termo em papel usado pela ONG (arquivo original: `termo_adocao.pdf`, só local).
 > Serve de referência para o formulário de interesse, os textos do site e o modelo de dados.
-> **O termo continua em papel, assinado por doador e adotante.** O site não coleta RG, CPF nem endereço completo.
+> **Desde 08/10/2026 (definição da ONG), o termo é lido e aceito no site** (RN47): depois do formulário de adoção, a pessoa marca que leu e está ciente, e o aceite fica registrado no banco com data, hora e versão (`VERSAO_TERMO`, em `packages/compartilhado/src/adocao/termo.ts`, que reproduz as cláusulas abaixo). O site não coleta RG, CPF nem endereço completo. Antes disso, o termo era só em papel.
 
 ## Cabeçalho
 - Título: **Termo de Responsabilidade de Adoção**

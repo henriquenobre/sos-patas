@@ -305,6 +305,7 @@ describe('GET /animais (vitrine)', () => {
     const thor = corpo.animais.find((animal) => animal.nome === 'Thor')
     expect(thor?.foto).toBe(`/api/publico/fotos/animais/${ID.thor}/f1-thumb.webp`)
     expect(corpo.animais.find((animal) => animal.nome === 'Nina')?.foto).toBeNull()
+    expect(corpo.animais.find((animal) => animal.nome === 'Mel')?.responsavel_tipo).toBe('protetor')
   })
 
   it.each([
@@ -346,7 +347,7 @@ describe('GET /animais/:id (ficha)', () => {
       `/api/publico/fotos/animais/${ID.thor}/f1.webp`,
       `/api/publico/fotos/animais/${ID.thor}/f2.webp`,
     ])
-    expect(corpo.responsavel).toEqual({ tipo: 'ong', nome: 'SOS Patas', whatsapp: '35988439614' })
+    expect(corpo.responsavel).toEqual({ tipo: 'ong', nome: 'SOS Patas', whatsapp: null })
   })
 
   it('animal de protetor mostra o nome e o WhatsApp do protetor (RN31)', async () => {

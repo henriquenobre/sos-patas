@@ -34,12 +34,13 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 3 | Pacote compartilhado (zod, limites, idade) | 1 | 11/10 | ✅ 08/10 |
 | 4 | Base da API (erros, login, armazenamento, testes) | 2, 3 | 12/10 | ✅ 08/10 |
 | 5 | API pública de leitura | 4 | 13/10 | ✅ 08/10 |
-| 6 | Site público: layout e páginas de conteúdo | 5 | 13–14/10 | ⬜ |
-| 7 | Site público: vitrine e ficha do animal | 6 | 15/10 | ⬜ |
-| 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ⬜ |
-| 9 | API da ONG: animais, fotos, adoção, protetores | 4 | 16–17/10 | ⬜ |
+| 6 | Site público: layout e páginas de conteúdo | 5 | 13–14/10 | ✅ 08/10 |
+| 7 | Site público: vitrine e ficha do animal | 6 | 15/10 | ✅ 08/10 |
+| 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ✅ 09/10 · ⚠️ CPU perto do teto (ver etapa 8) |
+| 9 | API da ONG: animais, fotos, adoção, protetores | 4 | 16–17/10 | ✅ 09/10 |
 | 10 | Área da ONG: estrutura e animais (T09–T11) | 9 | 17–19/10 | ⬜ |
-| 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 19–21/10 | ⬜ |
+| 10b | Pedidos de adoção: formulário com o termo, análise e animal fora do site (RN47–RN50) | 10 | 19–20/10 | 🔄 banco, API e formulário prontos em 09/10; faltam as telas T27/T28 (com a etapa 10) |
+| 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 20–21/10 | ⬜ |
 | 12 | Editor de textos (T15–T20) | 10 | 21–23/10 | ⬜ |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores, "Alterado por" | 11, 12 | 23–24/10 | ⬜ |
 | 14 | Produção: domínio, Access, CI/CD, backup e segurança | 8, 13 | 24–27/10 | ⬜ |
@@ -47,7 +48,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 
 Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada (anotar o motivo).
 
-**Se o prazo apertar** (DESENVOLVIMENTO.md, seção 4, "Prioridade"): as etapas 0 a 12, 14 e 15 são obrigatórias. Da etapa 13, Dados da ONG (T23) e anúncio pela equipe (T21) vêm primeiro; protetores (T24), "Alterado por" (RN43) e filtro por responsável podem ficar para depois da entrega.
+**Se o prazo apertar** (DESENVOLVIMENTO.md, seção 4, "Prioridade"): as etapas 0 a 12 (inclusive a 10b, que entrou em 08/10/2026), 14 e 15 são obrigatórias. Da etapa 13, Dados da ONG (T23) e anúncio pela equipe (T21) vêm primeiro; protetores (T24), "Alterado por" (RN43) e filtro por responsável podem ficar para depois da entrega.
 
 ---
 
@@ -66,12 +67,12 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
   - [x] verificação em duas etapas e seu e-mail pessoal como membro administrador (Manage account → Members)
   - [x] Zero Trust ativado no plano gratuito, com o nome do time `sospatas`
   - [x] R2 ativado com o cartão pessoal do mantenedor (08/10/2026); os buckets só são criados nas etapas 8 e 14
-  - [ ] Alerta de orçamento em US$ 1 (Billing → Budget alerts) para o Gmail do site (ARQUITETURA.md, seção 11.1)
+  - [x] Alerta de orçamento em US$ 1 (Billing → Budget alerts) para o Gmail do site (ARQUITETURA.md, seção 11.1) (09/10/2026)
   - [ ] adicionar `sospatas.org.br` só depois que o Registro.br concluir o registro
-- [x] **Neon:** projeto `sospatas` em São Paulo, PostgreSQL 18, branch padrão `production` (08/10/2026). Falta: convidar seu e-mail pessoal; a branch `previa` fica para a etapa 8
-  - [ ] Compute da branch `production` fixo em **0,25 CU** (mínimo e máximo), para não gastar as 100 CU-horas do mês num pico (ARQUITETURA.md, seção 11.2)
+- [x] **Neon:** projeto `sospatas` em São Paulo, PostgreSQL 18, branch padrão `production` (08/10/2026). Falta: convidar seu e-mail pessoal. A prévia usa um projeto separado, `sospatas-previa` (criado em 09/10/2026, etapa 8)
+  - [x] Compute da branch `production` fixo em **0,25 CU** (mínimo e máximo), para não gastar as 100 CU-horas do mês num pico (ARQUITETURA.md, seção 11.2) (09/10/2026; o `sospatas-previa` também)
 - [ ] Lista de e-mails da equipe (Gracia, Claudia e quem mais a ONG indicar, TELAS.md pergunta 13)
-- [x] Ferramentas locais (08/10/2026): Node 24.21 (pelo nvm-windows), pnpm 12.10 (pelo Corepack) e Docker Desktop 29. O Wrangler entra como dependência do projeto na etapa 1; depois dela, `pnpm wrangler login` com o seu e-mail pessoal
+- [x] Ferramentas locais (08/10/2026): Node 24.21 (pelo nvm-windows), pnpm 12.10 (pelo Corepack) e Docker Desktop 29. O Wrangler é dependência do `apps/api` (etapa 1): `pnpm -C apps/api exec wrangler login` com o seu e-mail pessoal (na raiz, `pnpm wrangler` não encontra o comando)
 
 **Pronto quando:** contas criadas e acessos guardados num gerenciador de senhas; domínio pedido (pode ainda não estar ativo).
 
@@ -174,7 +175,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Regras:** RN01, RN03 (vitrine só com miniatura), RN10–RN13, RN17, RN31, RN32.
 
-**Decisão pendente:** o formulário de interesse (RN14) está fora do MVP. Antes desta etapa, definir o que o botão **"Quero adotar"** faz até ele existir (ex.: abrir o WhatsApp do responsável com mensagem pronta, ou um aviso). Registrar a escolha no DESENVOLVIMENTO.md.
+**"Quero adotar" (decidido em 08/10/2026):** o botão leva a `/animais/:id/adotar` (formulário de adoção, RN14). Até a etapa 10b, essa rota mostra "Em breve". A ficha já trata o status `em_analise` (RN48) quando ele existir.
 
 **Pronto quando:** filtros combinados funcionam; animal adotado abre a ficha mas não aparece na vitrine.
 
@@ -190,6 +191,11 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 - Medição: tempo de CPU das rotas públicas no painel do Workers (precisa ficar bem abaixo de 10 ms) e tempo do primeiro acesso com o Neon "dormindo"
 - README: como publicar a prévia
 
+**Resultado (09/10/2026):** prévia no ar em https://sospatas.pages.dev (Pages, branch de produção `develop`) com a API em https://sospatas-api-previa.sospatas.workers.dev. Projeto `sospatas-previa` no Neon (0,25 CU) com migrations e dados de exemplo, liberados com `--previa` só em banco marcado (`COMMENT ON DATABASE`); Hyperdrive `sospatas-previa`; buckets `-previa` (local `enam`) com as fotos; Turnstile "SOS Patas" para `sospatas.pages.dev`; segredos com `wrangler secret`. Início, vitrine, ficha e Como ajudar conferidos no navegador (celular e computador), com fotos.
+
+- **Ajustes descobertos:** o site e a API ficam em domínios diferentes, então a prévia precisa de `CORS_ORIGENS` e de `FOTOS_URL_BASE` apontando para a rota de fotos do Worker. Depois de publicar a API, as respostas antigas ficam até 15 min no cache da borda (README).
+- **Medições:** resposta das rotas públicas entre 0,13 e 0,25 s. Primeiro acesso com o Neon dormindo: 0,87 s (0,18 s logo depois). **Tempo de CPU: 2 a 9 ms com o Worker aquecido, mas 12 a 41 ms nas primeiras requisições de uma instância nova** (`wrangler tail`, 17 requisições, todas `ok`). ⚠️ Perto do teto de 10 ms do Workers Free: investigar antes da etapa 14 (peso da inicialização: API com 1,26 MB, 227 KB compactada; medir rota por rota).
+
 **Pronto quando:** a URL do Pages mostra Início, vitrine e ficha com os dados de exemplo; anotar no Painel qualquer limite que ficou perto do teto.
 
 **Fora desta etapa:** domínio, Access e deploy automático (etapa 14).
@@ -204,11 +210,13 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 - Protetores: listar e criar (o cadastro do animal cria o protetor ali mesmo, RN42); editar e excluir com 409 se tiver animais
 - Serviços em `servicos/`: `excluirAnimal`, `marcarAdotado`, `devolver`, `trocarFoto`, todos com transação onde houver mais de um passo
 - `updated_at` e `updated_by` preenchidos em toda escrita (RN43, já desde aqui, mesmo que a tela venha na etapa 13)
-- Script `pnpm seed:fotos` que envia as fotos de exemplo de `prototipo/assets/` pela API local
+- ~~Script `pnpm seed:fotos`~~: adiantado na etapa 7 como `pnpm db:fotos-exemplo` (direto no R2 local e no banco, sem passar pela API)
 
 **Regras:** RN01, RN04–RN09, RN30, RN42, RN43.
 
 **Pronto quando:** testes cobrem: exclusão apaga arquivos antes do registro e **não apaga o registro se o armazenamento falhar** (RN05); adoção deixa só a foto principal (RN07); 4ª foto é recusada; arquivo que não é WebP é recusado.
+
+**Resultado (09/10/2026):** rotas em `rotas/admin/animais.ts` e `protetores.ts`; serviços `servicos/animais.ts` (`excluirAnimal`, `marcarAdotado`, `devolver`), `fotos-animal.ts` (enviar, `trocarFoto`, remover, reordenar) e `protetores.ts`. 44 testes novos (139 na API), todos os itens do "Pronto quando" cobertos, mais: armazenamento fora do ar na adoção e na remoção de foto (nada muda), duas fotos enviadas ao mesmo tempo, devolução com e sem pedido, protetor com animais e acesso sem login. Conferido também no `wrangler dev` (envio de foto multipart no runtime do Workers). Decisões no Registro do DESENVOLVIMENTO.md (09/10/2026). De carona: o código de erro do Postgres vinha embrulhado pelo Drizzle (`cause`), e a checagem de "duas pessoas pediram o mesmo animal" do pedido de adoção não o encontrava; corrigido com `codigoPostgres` em `erros.ts`.
 
 ## Etapa 10 · Área da ONG: estrutura e animais
 
@@ -222,6 +230,23 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 **Regras:** RN01–RN09, RN30, RN42; Definição de pronto (DESENVOLVIMENTO.md, seção 8).
 
 **Pronto quando:** dá para cadastrar um animal com 3 fotos **pelo celular** (testar no aparelho, na rede local), editar, adotar e excluir, e o resultado aparece certo no site público.
+
+## Etapa 10b · Pedidos de adoção
+
+**Objetivo:** quem quer adotar preenche o formulário e aceita o termo no site; o pedido fica salvo, o animal sai do site e a equipe avalia (RN14, RN15, RN47–RN50). Entrou no MVP em 08/10/2026; fluxo fechado com a ONG no mesmo dia.
+
+**Feito em 09/10/2026 (adiantado):** migration, pacote compartilhado (formulário 1.1, termo, alertas), API pública e da equipe, limpeza diária com o cron, telas T26 e T26b, ficha em análise, texto da Privacidade e dos passos de "Como adotar". **Falta:** telas T27 e T28 e a aba Pedidos, que dependem da estrutura da área da ONG (etapa 10), e "Marcar como adotado" com `pedido_id` (etapa 9).
+
+**Entregas:**
+- Migration: valor `em_analise` no enum `status_animal` e tabela `pedidos_adocao` (com índice único parcial: um `pendente` por animal) (DESENVOLVIMENTO.md, seção 5)
+- Pacote compartilhado: schema do formulário **versão 1.1** (perguntas e condicionais do [FORMULARIO_ADOCAO.md](formulario/FORMULARIO_ADOCAO.md)), texto do termo (TERMO_ADOCAO.md) e a função dos **alertas automáticos**
+- API pública `POST /animais/:id/pedidos` (Turnstile, limites, transação que esconde o animal, limpeza de cache) e a ficha respondendo "em processo de adoção" para `em_analise`
+- API da ONG: listar, ver (com alertas), anotar, aprovar e recusar; "Marcar como adotado" com `pedido_id`
+- Limpeza diária do RN15 (com as tarefas da etapa 11, no mesmo cron)
+- Telas **T26** (formulário com o termo) e **T26b** (confirmação); **T27** e **T28** na área da ONG; aba **Pedidos** na `BarraAdmin`; aba **Em análise** no T09
+- Texto de Privacidade atualizado (TELAS.md, T07) no site (o protótipo está congelado desde 09/10/2026)
+
+**Pronto quando:** testes cobrem: o pedido esconde o animal da vitrine e dos destaques; o segundo pedido do mesmo animal recebe 409; recusar devolve o animal ao site; aprovar mantém o animal fora até "Marcar como adotado"; os limites de envio; os alertas da tabela do formulário; nenhum dado do pedido aparece em rota pública.
 
 ## Etapa 11 · Perdidos e encontrados
 
@@ -266,15 +291,16 @@ Na ordem de prioridade:
 
 **Entregas:**
 - DNS de `sospatas.org.br` no Cloudflare; Pages em `sospatas.org.br`; Worker na rota `sospatas.org.br/api/*`; bucket público em `fotos.sospatas.org.br`
-- Neon `production` com migrations e `seed_conteudo.sql`; fotos da história enviadas ao R2 em `site/historia/{id}.webp` com os ids do seed (script)
-- **Cloudflare Access:** aplicação protegendo `/admin/*` e `/api/admin/*`, política com os e-mails da equipe, código por e-mail, sessão de 30 dias, página de login com logo e cores (T08); linhas em `equipe`
+- Neon `production` com migrations e `seed_conteudo.sql`; fotos da história enviadas ao R2 em `site/historia/{id}.webp` com os ids do seed (script pronto desde a etapa 6: `pnpm db:fotos-historia -- --remoto`)
+- **Cloudflare Access:** aplicação protegendo `/admin/*` e `/api/admin/*`, política com os e-mails da equipe, código por e-mail, sessão de 30 dias, página de login com logo e cores (T08); linhas em `equipe`; cookie com **`SameSite=Lax`** (camada extra contra CSRF, além do `middleware/origem.ts`) e conferir no navegador que salvar na área da ONG continua funcionando
 - Turnstile (site key no front, segredo na API) e Web Analytics
+- **Email Routing** em `sospatas.org.br` com `sitesospatas@gmail.com` verificado como destino; testar o "Fale com a ONG" (`/contato`, RN51) com um envio real (formulário pronto desde 09/10/2026; ARQUITETURA.md, seção 9)
 - `deploy.yml` (migrations → `wrangler deploy` → Pages) e `backup.yml` (dump diário → `sospatas-backups`, 30 dias)
 - `apps/web/public/_headers` com CSP e cabeçalhos de segurança (ARQUITETURA.md, seção 9)
 - Usuário do banco só com DML para a API e outro para migrations (ARQUITETURA.md, seção 5)
 - **Teste de restauração** do backup num banco vazio, documentado no README
 
-**Pronto quando:** login funciona com um e-mail da equipe e é recusado para um e-mail de fora; um merge na `main` publica sozinho; existe ao menos um backup restaurado com sucesso.
+**Pronto quando:** login funciona com um e-mail da equipe e é recusado para um e-mail de fora; um merge na `main` publica sozinho; existe ao menos um backup restaurado com sucesso; uma mensagem do "Fale com a ONG" chega no Gmail da ONG e a resposta volta para quem escreveu.
 
 ## Etapa 15 · Dados reais, teste com a ONG e ajustes finais
 
@@ -291,4 +317,4 @@ Na ordem de prioridade:
 
 ## Depois da entrega (não planejado em etapas)
 
-Itens de "Fora do MVP" (DESENVOLVIMENTO.md, seção 4), na ordem provável: formulário de interesse em adoção e telas de análise (RN14, RN15, com a limpeza de 90 dias no cron), página "Finais felizes", PWA, gestão de contas pelo site.
+Itens de "Fora do MVP" (DESENVOLVIMENTO.md, seção 4), na ordem provável: página "Finais felizes", PWA, gestão de contas pelo site. (Os pedidos de adoção entraram no MVP em 08/10/2026: etapa 10b.)
