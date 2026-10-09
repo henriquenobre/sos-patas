@@ -16,7 +16,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 
 **O que a IA faz em toda etapa:**
 1. Lê a etapa inteira e as seções citadas (RN, telas, ARQUITETURA) antes de escrever código.
-2. Trabalha numa branch local `etapa-NN-nome-curto` criada a partir da `develop` e deixa as alterações prontas para revisão. **Commit, merge e push só quando o mantenedor pedir** (RP05 no [CLAUDE.md](../CLAUDE.md)); quem leva o trabalho para a `develop` e a `main` é ele. A `main` é produção e só recebe a `develop` testada (ARQUITETURA.md, seção 9).
+2. Trabalha numa branch local `etapa-NN-nome-curto` criada a partir da `develop` (correções fora de uma etapa vão direto na `develop`, sem branch nova) e deixa as alterações prontas para revisão. **Commit, merge e push só quando o mantenedor pedir** (RP05 no [CLAUDE.md](../CLAUDE.md)); quem leva o trabalho para a `develop` e a `main` é ele. A `main` é produção e só recebe a `develop` testada (ARQUITETURA.md, seção 9).
 3. Entrega só o que está em "Entregas". O que aparece em "Fora desta etapa" fica para depois, mesmo que pareça rápido.
 4. Termina com `pnpm lint`, `pnpm typecheck` e `pnpm test` passando (a partir da etapa 1).
 5. Confere a tabela da RP01 ([CLAUDE.md](../CLAUDE.md)): se o código divergiu da documentação, atualiza os dois lados e registra a decisão.
