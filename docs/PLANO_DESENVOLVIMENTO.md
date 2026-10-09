@@ -37,7 +37,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 6 | Site público: layout e páginas de conteúdo | 5 | 13–14/10 | ✅ 08/10 |
 | 7 | Site público: vitrine e ficha do animal | 6 | 15/10 | ✅ 08/10 |
 | 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ✅ 09/10 · ⚠️ CPU perto do teto (ver etapa 8) |
-| 9 | API da ONG: animais, fotos, adoção, protetores | 4 | 16–17/10 | ⬜ |
+| 9 | API da ONG: animais, fotos, adoção, protetores | 4 | 16–17/10 | ✅ 09/10 |
 | 10 | Área da ONG: estrutura e animais (T09–T11) | 9 | 17–19/10 | ⬜ |
 | 10b | Pedidos de adoção: formulário com o termo, análise e animal fora do site (RN47–RN50) | 10 | 19–20/10 | 🔄 banco, API e formulário prontos em 09/10; faltam as telas T27/T28 (com a etapa 10) |
 | 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 20–21/10 | ⬜ |
@@ -216,6 +216,8 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Pronto quando:** testes cobrem: exclusão apaga arquivos antes do registro e **não apaga o registro se o armazenamento falhar** (RN05); adoção deixa só a foto principal (RN07); 4ª foto é recusada; arquivo que não é WebP é recusado.
 
+**Resultado (09/10/2026):** rotas em `rotas/admin/animais.ts` e `protetores.ts`; serviços `servicos/animais.ts` (`excluirAnimal`, `marcarAdotado`, `devolver`), `fotos-animal.ts` (enviar, `trocarFoto`, remover, reordenar) e `protetores.ts`. 44 testes novos (139 na API), todos os itens do "Pronto quando" cobertos, mais: armazenamento fora do ar na adoção e na remoção de foto (nada muda), duas fotos enviadas ao mesmo tempo, devolução com e sem pedido, protetor com animais e acesso sem login. Conferido também no `wrangler dev` (envio de foto multipart no runtime do Workers). Decisões no Registro do DESENVOLVIMENTO.md (09/10/2026). De carona: o código de erro do Postgres vinha embrulhado pelo Drizzle (`cause`), e a checagem de "duas pessoas pediram o mesmo animal" do pedido de adoção não o encontrava; corrigido com `codigoPostgres` em `erros.ts`.
+
 ## Etapa 10 · Área da ONG: estrutura e animais
 
 **Entregas:**
@@ -290,7 +292,7 @@ Na ordem de prioridade:
 **Entregas:**
 - DNS de `sospatas.org.br` no Cloudflare; Pages em `sospatas.org.br`; Worker na rota `sospatas.org.br/api/*`; bucket público em `fotos.sospatas.org.br`
 - Neon `production` com migrations e `seed_conteudo.sql`; fotos da história enviadas ao R2 em `site/historia/{id}.webp` com os ids do seed (script pronto desde a etapa 6: `pnpm db:fotos-historia -- --remoto`)
-- **Cloudflare Access:** aplicação protegendo `/admin/*` e `/api/admin/*`, política com os e-mails da equipe, código por e-mail, sessão de 30 dias, página de login com logo e cores (T08); linhas em `equipe`
+- **Cloudflare Access:** aplicação protegendo `/admin/*` e `/api/admin/*`, política com os e-mails da equipe, código por e-mail, sessão de 30 dias, página de login com logo e cores (T08); linhas em `equipe`; cookie com **`SameSite=Lax`** (camada extra contra CSRF, além do `middleware/origem.ts`) e conferir no navegador que salvar na área da ONG continua funcionando
 - Turnstile (site key no front, segredo na API) e Web Analytics
 - **Email Routing** em `sospatas.org.br` com `sitesospatas@gmail.com` verificado como destino; testar o "Fale com a ONG" (`/contato`, RN51) com um envio real (formulário pronto desde 09/10/2026; ARQUITETURA.md, seção 9)
 - `deploy.yml` (migrations → `wrangler deploy` → Pages) e `backup.yml` (dump diário → `sospatas-backups`, 30 dias)

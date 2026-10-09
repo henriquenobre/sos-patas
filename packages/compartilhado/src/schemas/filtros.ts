@@ -1,6 +1,6 @@
-// Filtros das rotas públicas (query string). Valor vazio = filtro desligado.
+// Filtros das rotas (query string). Valor vazio = filtro desligado.
 import { z } from 'zod'
-import { ESPECIES, PERDIDO_TIPOS, PORTES } from '../dominio'
+import { ESPECIES, PERDIDO_TIPOS, PORTES, RESPONSAVEL_TIPOS, STATUS_ANIMAL } from '../dominio'
 
 /** "?especie=" (chip desligado) vale como ausente. */
 const opcional = <T extends z.ZodType>(schema: T) =>
@@ -26,3 +26,19 @@ export const filtroPerdidos = z.object({
 })
 
 export type FiltroPerdidos = z.output<typeof filtroPerdidos>
+
+/** Abas, busca e filtro por responsável do painel de animais (T09). */
+export const filtroAnimaisAdmin = z.object({
+  status: z.preprocess(
+    (valor) => (valor === '' ? undefined : valor),
+    z.enum(STATUS_ANIMAL, { error: 'Situação inválida' }).default('disponivel'),
+  ),
+  /** "ong", "protetor" (qualquer protetor) ou o id de um protetor; vazio = todos */
+  responsavel: opcional(
+    z.union([z.enum(RESPONSAVEL_TIPOS), z.uuid()], { error: 'Responsável inválido' }),
+  ),
+  /** Parte do nome */
+  busca: opcional(z.string().trim().max(40, 'Busca muito longa')),
+})
+
+export type FiltroAnimaisAdmin = z.output<typeof filtroAnimaisAdmin>

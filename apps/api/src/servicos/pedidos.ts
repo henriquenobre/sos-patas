@@ -14,7 +14,7 @@ import {
 import { animais, equipe, fotos, pedidosAdocao, protetores } from '@sospatas/db'
 import type { Db } from '../db'
 import type { Usuaria } from '../dependencias'
-import { ErroApi, erros } from '../erros'
+import { ErroApi, codigoPostgres, erros } from '../erros'
 import { urlFoto } from './fotos'
 
 /** Rotas públicas afetadas quando um animal entra ou sai do site (para limpar o cache). */
@@ -125,7 +125,7 @@ export async function criarPedido(
   } catch (erro) {
     if (erro instanceof ErroApi) throw erro
     // Violação do índice "um pendente por animal": duas pessoas ao mesmo tempo
-    if ((erro as { code?: string } | null)?.code === '23505') throw outraPessoaPediu(animalNome)
+    if (codigoPostgres(erro) === '23505') throw outraPessoaPediu(animalNome)
     throw erro
   }
 }

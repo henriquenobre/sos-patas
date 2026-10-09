@@ -75,9 +75,11 @@ sos-patas/
 │       │   ├── erros.ts · validacao.ts · cache.ts
 │       │   ├── rotas/
 │       │   │   ├── publico/     # site, animais, perdidos (GET); envios: pedidos.ts, contato.ts (RN51), anúncio (etapa 11)
-│       │   │   └── admin/       # tudo da área da ONG
+│       │   │   └── admin/       # tudo da área da ONG: animais.ts (com resumo e fotos), protetores.ts, pedidos.ts
 │       │   ├── servicos/        # regras de negócio: publico.ts, pedidos.ts (RN47–RN50), contato.ts e email.ts (RN51),
-│       │   │                    #   seguranca.ts (Turnstile, hash do IP), equipe.ts, fotos.ts; excluirAnimal (RN05), aprovarPerdido… (etapas 9, 11)
+│       │   │                    #   seguranca.ts (Turnstile, hash do IP), equipe.ts, fotos.ts (URLs),
+│       │   │                    #   animais.ts (excluirAnimal RN05, marcarAdotado RN07, devolver RN30),
+│       │   │                    #   fotos-animal.ts (enviar, trocarFoto, remover, reordenar), protetores.ts (RN42); aprovarPerdido… (etapa 11)
 │       │   ├── middleware/      # access.ts (login: JWT do Access + equipe), conexoes.ts (banco por requisição)
 │       │   ├── armazenamento/   # interface Armazenamento, R2, memória (testes), webp.ts (RN21)
 │       │   ├── email/           # cloudflare.ts: envio pelo Email Routing (só no Workers)
@@ -121,8 +123,9 @@ sos-patas/
 **Padrões:**
 - JSON; datas em ISO 8601; IDs `uuid`.
 - Entrada validada com os schemas zod de `packages/compartilhado` (os mesmos do formulário no front).
-- Erros: `{ "erro": "codigo_curto", "mensagem": "texto para a tela" }` com status HTTP adequado (400 validação, 401/403 acesso, 404, 409 conflito como protetor com animais, 429 limite). Em erro de validação, também `"campos": { "nome": "Preencha este campo" }`, para o formulário mostrar a mensagem embaixo de cada campo. Erro inesperado: 500 com mensagem genérica; o detalhe só vai para o log (`apps/api/src/erros.ts`).
+- Erros: `{ "erro": "codigo_curto", "mensagem": "texto para a tela" }` com status HTTP adequado (400 validação, 401/403 acesso, 404, 409 conflito como protetor com animais, 429 limite, 503 quando o armazenamento de fotos falha e nada foi alterado). Em erro de validação, também `"campos": { "nome": "Preencha este campo" }`, para o formulário mostrar a mensagem embaixo de cada campo. Erro inesperado: 500 com mensagem genérica; o detalhe só vai para o log (`apps/api/src/erros.ts`).
 - Upload: `multipart/form-data`; a API confere tamanho e **assinatura WebP** (`RIFF....WEBP`) antes de gravar (RN21). Nada de URL pré-assinada: todo arquivo passa pela API.
+- **Proteção contra CSRF na área da ONG** (09/10/2026): o login do Access é um cookie, que o navegador manda junto mesmo quando outro site dispara o envio, e o CORS não impede isso. Por isso, (1) toda escrita em `/api/admin` (POST, PUT, DELETE) só é aceita se a `Origin` for o mesmo endereço que o navegador chamou (`Host`) ou estiver em `CORS_ORIGENS` (prévia); `Sec-Fetch-Site` de outro site também é recusado; resposta 403 `origem_nao_permitida` (`middleware/origem.ts`); (2) rotas que leem JSON exigem `Content-Type: application/json`, senão 415 (`validacao.ts`), o que fecha o truque do formulário que manda JSON como `text/plain`. Requisição sem `Origin` nem `Sec-Fetch-Site` não vem de navegador e passa (não carrega o cookie de ninguém). No computador, o proxy do Vite mantém o `Host` (`changeOrigin: false`), como em produção. Na etapa 14, somar o cookie do Access com `SameSite=Lax`.
 - Leituras públicas com cache (`apps/api/src/cache.ts`; desligado no computador, `AMBIENTE=local`, para os testes verem o banco na hora): o navegador guarda 60 s e o Cloudflare guarda 15 min (Cache API), para aguentar picos e deixar o Neon dormir (seção 11.2). Salvar na área da ONG apaga a cópia do datacenter que atendeu a voluntária (o "Ver no site" dela já mostra a mudança); nos outros datacenters, a cópia antiga vale até 15 min. Com o domínio próprio (etapa 14), somar a limpeza global pela API de purge do Cloudflare. A Cache API só funciona no domínio próprio; no `*.workers.dev` a API consulta sempre.
 
 ### 3.1 Rotas públicas (`/api/publico`)
@@ -146,18 +149,20 @@ sos-patas/
 | Recurso | Rotas | Regras |
 |---|---|---|
 | Sessão | `GET /eu` (nome da usuária) | RN43 |
-| Resumo | `GET /resumo` (disponíveis, adultos +90 dias, adotados no mês, perdidos pendentes) | T09 |
-| Animais | `GET /animais?status&responsavel&busca` · `POST /animais` · `GET/PUT/DELETE /animais/:id` | RN05, RN09 |
-| Adoção | `POST /animais/:id/adocao` (nome e WhatsApp do adotante) · `POST /animais/:id/devolucao` | RN07, RN08, RN30 |
-| Fotos do animal | `POST /animais/:id/fotos` (miniatura + completa) · `DELETE /animais/:id/fotos/:fotoId` · `PUT /animais/:id/fotos/ordem` | RN01–RN06 |
-| Protetores | `GET/POST /protetores` · `PUT/DELETE /protetores/:id` (409 se houver animais) | RN42 |
+| Resumo | `GET /resumo` (disponíveis, adultos +90 dias, adotados no mês, perdidos pendentes, pedidos pendentes) | T09 |
+| Animais | `GET /animais?status&responsavel&busca` (`status` padrão `disponivel`; `responsavel` = `ong`, `protetor` ou o id de um protetor; `busca` = parte do nome) · `POST /animais` · `GET/PUT/DELETE /animais/:id`. O `GET` traz o bloco privado, as fotos com id e posição, "Alterado por" e, se houver pedido aprovado, quem pediu (`pedido_aprovado`), para preencher o "Marcar como adotado". Excluir apaga os arquivos antes do registro; se o armazenamento falhar, 503 e nada é excluído | RN05, RN09, RN43 |
+| Adoção | `POST /animais/:id/adocao` (nome e WhatsApp do adotante; 409 se houver pedido aguardando análise) · `POST /animais/:id/devolucao` (adotado: volta sem os dados do adotante; em análise com pedido aprovado: o pedido vira `nao_concluido`) | RN07, RN08, RN30, RN49 |
+| Fotos do animal | `POST /animais/:id/fotos` (multipart `miniatura` + `completa`, próxima posição livre) · `PUT /animais/:id/fotos/:fotoId` (trocar a foto, mesma posição) · `DELETE /animais/:id/fotos/:fotoId` (as seguintes sobem uma posição) · `PUT /animais/:id/fotos/ordem` (`{ fotos: [ids] }`, todas as fotos atuais) | RN01–RN06 |
+| Protetores | `GET/POST /protetores` (com quantos animais cada um tem) · `PUT/DELETE /protetores/:id` (409 se houver animais) | RN42 |
 | Perdidos | `GET /perdidos?status` · `POST /perdidos` (equipe) · `PUT /perdidos/:id` · `POST /perdidos/:id/aprovar` · `POST /perdidos/:id/renovar` · `DELETE /perdidos/:id` · `GET /perdidos/:id/fotos/:fotoId` (lê a quarentena) | RN18, RN25, RN26, RN39–RN41 |
 | Textos | `GET /conteudo` · `PUT /conteudo/textos/:chave` | RN33, RN34, RN37 |
 | Itens de lista | `POST /conteudo/itens` · `PUT/DELETE /conteudo/itens/:id` · `POST /conteudo/itens/trocar-ordem` · `POST /conteudo/itens/:id/foto` | RN35, RN36, RN38 |
 | Dados da ONG | `GET/PUT /ong` | T23 |
-| Pedidos de adoção | `GET /pedidos?status` · `GET /pedidos/:id` (com os alertas calculados) · `PUT /pedidos/:id/observacao` · `POST /pedidos/:id/aprovar` · `POST /pedidos/:id/recusar` (animal volta a `disponivel`). "Marcar como adotado" (`POST /animais/:id/adocao`) aceita `pedido_id` para preencher o adotante | RN48, RN49 |
+| Pedidos de adoção | `GET /pedidos?status` · `GET /pedidos/:id` (com os alertas calculados) · `PUT /pedidos/:id/observacao` · `POST /pedidos/:id/aprovar` · `POST /pedidos/:id/recusar` (animal volta a `disponivel`). "Marcar como adotado" abre com o nome e o WhatsApp de quem pediu, que vêm em `pedido_aprovado` no `GET /animais/:id` | RN48, RN49 |
 
-**Gravação de `updated_at` / `updated_by` (RN43):** a API preenche os dois em toda escrita, a partir da usuária identificada pelo Access. Operações com mais de um passo no banco (trocar ordem, aprovar anúncio, adoção) rodam em **transação**.
+**Gravação de `updated_at` / `updated_by` (RN43):** a API preenche os dois em toda escrita, a partir da usuária identificada pelo Access. Operações com mais de um passo no banco (trocar ordem, aprovar anúncio, adoção) rodam em **transação**. Mudanças nas fotos também gravam quem alterou o animal.
+
+**Ordem entre arquivos e banco (RN05, RN06, RN07):** excluir animal, remover foto e as fotos extras da adoção apagam **primeiro os arquivos** e só depois o banco; se o armazenamento falhar, a API responde 503 e nada muda. Na troca de foto, a ordem é a inversa: grava a nova, atualiza o registro e só então apaga a antiga, para o site nunca apontar para um arquivo que não existe; se apagar a antiga falhar, o arquivo sobra no bucket e fica registrado no log.
 
 ## 4. Login da equipe: Cloudflare Access
 

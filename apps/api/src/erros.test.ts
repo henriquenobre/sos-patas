@@ -2,7 +2,7 @@
 import { Hono } from 'hono'
 import { describe, expect, it, vi } from 'vitest'
 import { protetorEntrada } from '@sospatas/compartilhado'
-import { erros, tratarErro, type CorpoErro } from './erros'
+import { codigoPostgres, erros, tratarErro, type CorpoErro } from './erros'
 import { lerJson } from './validacao'
 
 const app = new Hono()
@@ -70,5 +70,14 @@ describe('erros da API', () => {
     expect(JSON.parse(corpo)).toMatchObject({ erro: 'erro_interno' })
     expect(log).toHaveBeenCalled()
     log.mockRestore()
+  })
+})
+
+describe('codigoPostgres', () => {
+  it('lê o código do erro do driver, direto ou embrulhado pelo Drizzle (cause)', () => {
+    expect(codigoPostgres({ code: '23505' })).toBe('23505')
+    expect(codigoPostgres(new Error('Failed query', { cause: { code: '23503' } }))).toBe('23503')
+    expect(codigoPostgres(new Error('outro'))).toBeUndefined()
+    expect(codigoPostgres(null)).toBeUndefined()
   })
 })

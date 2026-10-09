@@ -5,6 +5,7 @@ import type { RespostaSaude } from '@sospatas/compartilhado'
 import type { ConfigApp, Dependencias } from './dependencias'
 import { rotaNaoEncontrada, tratarErro } from './erros'
 import { exigirEquipe } from './middleware/access'
+import { exigirMesmaOrigem } from './middleware/origem'
 import { conexoes } from './middleware/conexoes'
 import { rotasAdmin } from './rotas/admin'
 import { rotasPublicas } from './rotas/publico'
@@ -46,7 +47,8 @@ export function criarApp(dependencias: Dependencias) {
   app.use('/publico/*', conexoes(dependencias))
   app.route('/publico', rotasPublicas)
 
-  app.use('/admin/*', conexoes(dependencias), exigirEquipe(dependencias))
+  // Primeiro a origem (CSRF), que não precisa do banco; depois o login
+  app.use('/admin/*', exigirMesmaOrigem, conexoes(dependencias), exigirEquipe(dependencias))
   app.route('/admin', rotasAdmin)
 
   return app
