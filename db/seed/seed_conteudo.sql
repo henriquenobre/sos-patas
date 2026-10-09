@@ -4,10 +4,13 @@
 -- que a equipe já editou e só preenche uma lista se ela estiver vazia.
 -- Os ids são fixos: os de inicio_fotos dão nome aos arquivos site/historia/{id}.webp no R2
 -- (etapa 14; mapa em db/seed/fotos_historia.json).
+-- Formas de ajudar (mensalistas, apadrinhamento, Empresa amiga, bazar) enviadas pela ONG em
+-- 09/10/2026.
 BEGIN;
 
-INSERT INTO ong (id, nome_completo, whatsapp, instagram, facebook, pix_tipo, pix_chave) VALUES
-  (1, 'Sociedade de Proteção aos Animais de Passos/MG', '35988439614', 'sospatas.ong', 'https://www.facebook.com/sospatasmg', 'cnpj', '26.515.895/0001-90')
+-- Sem WhatsApp próprio da ONG por enquanto: o contato do site é o e-mail (RN51, 09/10/2026)
+INSERT INTO ong (id, nome_completo, email, whatsapp, instagram, facebook, pix_tipo, pix_chave) VALUES
+  (1, 'Sociedade de Proteção aos Animais de Passos/MG', 'sitesospatas@gmail.com', NULL, 'sospatas.ong', 'https://www.facebook.com/sospatasmg', 'cnpj', '26.515.895/0001-90')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO conteudo_textos (chave, valor) VALUES
@@ -31,8 +34,8 @@ SELECT v.id::uuid, 'perguntas', v.titulo, v.texto, v.foto_path, v.ordem FROM (VA
   ('976f6e6b-be9d-5a5a-8323-0da68697527f', 'O animal é de um protetor parceiro. Quem é o responsável?', 'O próprio protetor. A adoção, o termo e uma eventual devolução são combinados diretamente com ele. A SOS Patas só ajuda a divulgar.', NULL, 3),
   ('a4ebc0a3-90c5-5971-9e8d-47a3c3b30cdb', 'Os animais são castrados e vacinados?', 'Cada ficha mostra a situação de castração, vacinas e vermífugo de cada animal. Filhotes podem ainda não ter idade para castrar.', NULL, 4),
   ('ecd26605-30f8-5f19-8786-a749f3c94782', 'Posso adotar se moro em apartamento?', 'Depende do animal. Na ficha você vê o porte e o temperamento, e a equipe avalia pelo formulário de interesse.', NULL, 5),
-  ('764028f3-b3ec-53a6-9f6d-a9352e293f60', 'Como posso ajudar a ONG?', 'Com doações pelo PIX (CNPJ 26.515.895/0001-90), oferecendo lar temporário ou compartilhando os animais nas redes sociais.', NULL, 6),
-  ('2a394a64-198e-55b3-858b-9f469138d7b8', 'Sou protetor independente. Posso divulgar um animal aqui?', 'Fale com a SOS Patas pelo WhatsApp. Animais de protetores parceiros aparecem no site com o nome do responsável.', NULL, 7)
+  ('764028f3-b3ec-53a6-9f6d-a9352e293f60', 'Como posso ajudar a ONG?', 'Com doações pelo PIX (CNPJ 26.515.895/0001-90), sendo mensalista (qualquer valor todo mês), apadrinhando um animal, doando para o bazar, trazendo sua empresa como Empresa amiga (ração todo mês), oferecendo lar temporário ou compartilhando os animais nas redes sociais. Veja a página Como ajudar.', NULL, 6),
+  ('2a394a64-198e-55b3-858b-9f469138d7b8', 'Sou protetor independente. Posso divulgar um animal aqui?', 'Entre em contato com a SOS Patas pela página "Fale com a ONG". Animais de protetores parceiros aparecem no site com o nome do responsável.', NULL, 7)
 ) AS v (id, titulo, texto, foto_path, ordem)
 WHERE NOT EXISTS (SELECT 1 FROM conteudo_itens WHERE lista = 'perguntas');
 
@@ -40,9 +43,9 @@ WHERE NOT EXISTS (SELECT 1 FROM conteudo_itens WHERE lista = 'perguntas');
 INSERT INTO conteudo_itens (id, lista, titulo, texto, foto_path, ordem)
 SELECT v.id::uuid, 'como_adotar_passos', v.titulo, v.texto, v.foto_path, v.ordem FROM (VALUES
   ('f0a17227-d877-5d59-a0fa-230252713b23', 'Escolha o animal', 'Navegue pela vitrine, use os filtros e abra a ficha para ver saúde e temperamento.', NULL, 0),
-  ('baaa25fd-e22f-5060-98ec-b164349afb9d', 'Preencha o formulário de interesse', 'Toque em "Quero adotar" e responda algumas perguntas sobre você, sua casa e sua rotina. Leva poucos minutos.', NULL, 1),
-  ('0ae866ff-05c3-5dd7-b9a8-e430b4a326c3', 'Análise', 'A equipe da SOS Patas (ou o protetor parceiro responsável pelo animal) analisa o formulário e entra em contato pelo WhatsApp.', NULL, 2),
-  ('7e213f20-2ab9-55d8-a9e6-94bdd0b7c7ec', 'Termo de responsabilidade', 'Você assina o termo de responsabilidade de adoção e fica com uma via.', NULL, 3),
+  ('baaa25fd-e22f-5060-98ec-b164349afb9d', 'Preencha o formulário de adoção', 'Toque em "Quero adotar" e responda algumas perguntas sobre você, sua casa e sua rotina. Leva poucos minutos.', NULL, 1),
+  ('0ae866ff-05c3-5dd7-b9a8-e430b4a326c3', 'Leia o termo de adoção', 'No fim do formulário, leia o termo de responsabilidade de adoção e marque que está ciente dos compromissos. Seu aceite fica registrado no site.', NULL, 2),
+  ('7e213f20-2ab9-55d8-a9e6-94bdd0b7c7ec', 'Análise e contato', 'A equipe da SOS Patas (ou o protetor parceiro responsável pelo animal) analisa o pedido. Enquanto isso, o animal fica reservado. Se o pedido for aprovado, entramos em contato pelo WhatsApp para combinar onde você busca o animal.', NULL, 3),
   ('bdf84215-4372-5777-927c-dc563b5420e9', 'Período de adaptação: 15 dias', 'Nos primeiros 15 dias, acompanhamos a adaptação pelo WhatsApp e, se necessário, com uma visita. Se o animal não se adaptar, avise e devolva a quem doou dentro desse prazo. Depois dos 15 dias, se desistir, avise quem doou e mantenha o animal como lar provisório até um novo lar. Nunca repasse para outra pessoa nem abandone.', NULL, 4)
 ) AS v (id, titulo, texto, foto_path, ordem)
 WHERE NOT EXISTS (SELECT 1 FROM conteudo_itens WHERE lista = 'como_adotar_passos');
@@ -89,9 +92,9 @@ WHERE NOT EXISTS (SELECT 1 FROM conteudo_itens WHERE lista = 'inicio_numeros');
 -- inicio_fotos
 INSERT INTO conteudo_itens (id, lista, titulo, texto, foto_path, ordem)
 SELECT v.id::uuid, 'inicio_fotos', v.titulo, v.texto, v.foto_path, v.ordem FROM (VALUES
-  ('a091baf8-91c6-5bec-b4aa-e0d82e5c1eb9', NULL, 'Voluntários em feira de adoção', 'site/historia/a091baf8-91c6-5bec-b4aa-e0d82e5c1eb9.webp', 0), -- historia-4.jpg
+  ('8ece0e7c-94b3-5f98-81ef-ba8de5f9b212', NULL, 'Equipe da SOS Patas em 2016', 'site/historia/8ece0e7c-94b3-5f98-81ef-ba8de5f9b212.webp', 0), -- historia-2.jpg (abre a história desde 09/10/2026)
   ('31ed179a-92d7-5cd2-909f-a6a615f88839', NULL, 'Assembleia de fundação da ONG, 5 de julho de 2016', 'site/historia/31ed179a-92d7-5cd2-909f-a6a615f88839.webp', 1), -- historia-1.jpg
-  ('8ece0e7c-94b3-5f98-81ef-ba8de5f9b212', NULL, 'Equipe da SOS Patas em 2016', 'site/historia/8ece0e7c-94b3-5f98-81ef-ba8de5f9b212.webp', 2), -- historia-2.jpg
+  ('a091baf8-91c6-5bec-b4aa-e0d82e5c1eb9', NULL, 'Voluntários em feira de adoção', 'site/historia/a091baf8-91c6-5bec-b4aa-e0d82e5c1eb9.webp', 2), -- historia-4.jpg
   ('f4a76c21-2ef5-5453-b994-f7f3ab42a260', NULL, 'Feira de adoção', 'site/historia/f4a76c21-2ef5-5453-b994-f7f3ab42a260.webp', 3), -- historia-3.jpg
   ('9b824f2e-b6d9-5716-8c8b-fc7fdba8381f', NULL, 'Feira de adoção na praça', 'site/historia/9b824f2e-b6d9-5716-8c8b-fc7fdba8381f.webp', 4) -- historia-5.jpg
 ) AS v (id, titulo, texto, foto_path, ordem)
@@ -110,8 +113,12 @@ WHERE NOT EXISTS (SELECT 1 FROM conteudo_itens WHERE lista = 'inicio_como_funcio
 -- ajude_formas
 INSERT INTO conteudo_itens (id, lista, titulo, texto, foto_path, ordem)
 SELECT v.id::uuid, 'ajude_formas', v.titulo, v.texto, v.foto_path, v.ordem FROM (VALUES
-  ('9da9c932-6ed4-5106-964d-b559f8e6db21', 'Seja lar temporário', 'Acolha um animal em casa até ele ser adotado. Fale com a ONG pelo WhatsApp.', NULL, 0),
-  ('8d4799dd-b23e-598f-b9a2-46d3f7482e5e', 'Compartilhe', 'Divulgar os animais nas redes ajuda muito. Siga @sospatas.ong no Instagram e a página https://www.facebook.com/sospatasmg no Facebook.', NULL, 1)
+  ('6861986a-57e3-5463-b5bd-43153f014ee5', 'Seja mensalista', 'Doe qualquer valor todo mês pelo PIX da ONG. Para se tornar mensalista, entre em contato com a ONG.', NULL, 0),
+  ('e895bdb3-128b-58e9-9c80-03124c54ff2e', 'Apadrinhe um animal', 'Ajude todo mês um animal da ONG. Quando ele precisar de cuidados médicos, a ONG entra em contato com você, padrinho ou madrinha. Entre em contato com a ONG.', NULL, 1),
+  ('e25f44dd-63b2-57f9-bedd-8a3e6162f51b', 'Empresa amiga', 'Sua empresa pode doar ração todo mês: com 1 saco de 15 kg por mês, ajuda a manter um animal alimentado, seguro e com dignidade. Entre em contato com a ONG.', NULL, 2),
+  ('16ac7849-f4b8-5363-a4db-cc88e0c78834', 'Doe para o bazar', 'Doações para o bazar da SOS Patas também ajudam os animais. Entre em contato com a ONG para combinar a entrega.', NULL, 3),
+  ('9da9c932-6ed4-5106-964d-b559f8e6db21', 'Seja lar temporário', 'Acolha um animal em casa até ele ser adotado. Entre em contato com a ONG.', NULL, 4),
+  ('8d4799dd-b23e-598f-b9a2-46d3f7482e5e', 'Compartilhe', 'Divulgar os animais nas redes ajuda muito. Siga @sospatas.ong no Instagram e a página https://www.facebook.com/sospatasmg no Facebook.', NULL, 5)
 ) AS v (id, titulo, texto, foto_path, ordem)
 WHERE NOT EXISTS (SELECT 1 FROM conteudo_itens WHERE lista = 'ajude_formas');
 

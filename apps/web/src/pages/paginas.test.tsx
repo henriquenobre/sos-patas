@@ -71,7 +71,15 @@ describe('Perguntas frequentes (T05)', () => {
     const primeira = (await screen.findByText('Vocês recebem animais?')).closest('details')
     expect(primeira).toHaveAttribute('open')
     expect(screen.getByText('E se não se adaptar?').closest('details')).not.toHaveAttribute('open')
-    expect(within(screen.getByRole('main')).getByText('(35) 9 8843-9614')).toBeInTheDocument()
+    const principal = within(screen.getByRole('main'))
+    expect(principal.getByRole('link', { name: 'sitesospatas@gmail.com' })).toHaveAttribute(
+      'href',
+      'mailto:sitesospatas@gmail.com',
+    )
+    expect(principal.getByRole('link', { name: 'Fale com a ONG' })).toHaveAttribute(
+      'href',
+      '/contato',
+    )
   })
 })
 
@@ -82,6 +90,9 @@ describe('Como ajudar (T06) e /sobre', () => {
     expect(await screen.findByRole('heading', { name: 'Como ajudar' })).toBeInTheDocument()
     expect(screen.getByText('Doe pelo PIX')).toBeInTheDocument()
     expect(screen.getByText('Seja lar temporário')).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('main')).getByRole('link', { name: /Fale com a ONG/ }),
+    ).toHaveAttribute('href', '/contato?assunto=ajudar')
   })
 })
 
@@ -92,7 +103,7 @@ describe('Privacidade (T07) e páginas especiais', () => {
     expect(
       await screen.findByRole('heading', { name: 'Política de privacidade' }),
     ).toBeInTheDocument()
-    expect(screen.getByText(/pelo WhatsApp da ONG\./)).toBeInTheDocument()
+    expect(screen.getByText(/pelo e-mail da ONG\./)).toBeInTheDocument()
   })
 
   it('endereço inexistente mostra a página 404', async () => {

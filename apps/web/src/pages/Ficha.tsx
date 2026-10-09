@@ -201,6 +201,32 @@ export function Ficha() {
   }
 
   const animal = ficha.data
+
+  // RN48: com pedido de adoção em análise, o animal sai do site; por um link antigo, só o aviso
+  if (animal.status === 'em_analise') {
+    return (
+      <>
+        <title>{`${animal.nome} · SOS Patas`}</title>
+        <section className="mx-auto max-w-xl px-4 py-12 text-center">
+          <div className="mx-auto h-40 w-40 overflow-hidden rounded-full ring-4 ring-azul-claro">
+            <FotoAnimal url={animal.fotos[0]?.miniatura ?? null} alt={textoAlternativo(animal)} />
+          </div>
+          <h1 className="mt-4 font-titulo text-3xl font-extrabold text-azul-escuro">
+            {animal.nome} está em processo de adoção
+          </h1>
+          <p className="mt-2 text-slate-600">
+            Que tal conhecer outros animais que esperam uma família?
+          </p>
+          <Link
+            to="/animais"
+            className="mt-6 inline-block min-h-11 rounded-full bg-azul px-6 py-3 font-extrabold text-white"
+          >
+            Ver outros animais
+          </Link>
+        </section>
+      </>
+    )
+  }
   const disponivel = animal.status === 'disponivel'
   const protetor = animal.responsavel.tipo === 'protetor'
 

@@ -27,6 +27,11 @@ export default tseslint.config(
     rules: {
       // Template strings com números são comuns em textos da interface ("faltam 3 dias").
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
+      // "_" no início = descartado de propósito (ex.: tirar campos de um objeto com rest)
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', ignoreRestSiblings: true },
+      ],
     },
   },
   {

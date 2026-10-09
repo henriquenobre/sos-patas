@@ -19,7 +19,10 @@ export type FotoPublica = { miniatura: string; completa: string }
 
 export type OngPublica = {
   nome_completo: string
-  whatsapp: string
+  /** Contato principal do site enquanto a ONG não tem WhatsApp próprio (RN51) */
+  email: string
+  /** Vazio até a ONG ter um número próprio para o site (RN51); com ele, o WhatsApp volta a aparecer */
+  whatsapp: string | null
   instagram: string
   facebook: string | null
   pix_tipo: PixTipo
@@ -64,7 +67,8 @@ export type Responsavel = {
   tipo: ResponsavelTipo
   /** "SOS Patas" ou o nome do protetor parceiro (RN31, RN42) */
   nome: string
-  whatsapp: string
+  /** Do protetor; da ONG, null enquanto ela não tem WhatsApp próprio (RN51) */
+  whatsapp: string | null
 }
 
 /** GET /api/publico/animais/:id */

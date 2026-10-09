@@ -54,7 +54,7 @@ Resumo. O detalhamento (diagrama, API, login, deploy, backup e limites) está no
 | Estatísticas | Cloudflare Web Analytics | Grátis, sem cookies |
 | Código, CI/CD e backup | GitHub + GitHub Actions | Grátis |
 | Domínio | `sospatas.org.br` (Registro.br, CNPJ da ONG) | R$ 40/ano |
-| Contato | Link `https://wa.me/55DDDNUMERO?text=...` | Grátis |
+| Contato | E-mail da ONG (link `mailto:`) e formulário "Fale com a ONG" enviado pelo **Cloudflare Email Routing** (RN51); link `https://wa.me/...` só quando a ONG tiver WhatsApp próprio | Grátis |
 
 **Capacidade estimada:** mais de 200 mil animais em texto (0,5 GB); cerca de 25 mil fotos completas nos 10 GB do R2, sem limite de tráfego; folga grande nas 100 mil requisições diárias.
 
@@ -67,10 +67,11 @@ Resumo. O detalhamento (diagrama, API, login, deploy, backup e limites) está no
 | `/animais` | Vitrine | Grade de cards (miniatura, nome, idade, porte) com filtros: espécie, porte, idade (filhote/adulto), convive com outros animais |
 | `/animais/:id` | Ficha do animal | Fotos completas, todos os campos, responsável e botão **"Quero adotar"** (abre o formulário de adoção). Animal com pedido em análise não aparece na vitrine; pela ficha, mostra só um aviso (RN48) |
 | `/animais/:id/adotar` | Formulário de adoção (T26) | Perguntas do [formulário de interesse](formulario/FORMULARIO_ADOCAO.md), **termo de adoção para leitura e ciência** e consentimento LGPD, com Turnstile. O pedido fica salvo para a equipe avaliar (RN14, RN15, RN47–RN50) |
-| `/como-adotar` | Como adotar | Passo a passo: formulário de interesse, análise, termo de adoção, adaptação de 15 dias |
+| `/como-adotar` | Como adotar | Passo a passo (fluxo definido com a ONG em 08/10/2026): formulário de adoção → leitura e aceite do termo no site → análise da equipe e contato para combinar onde buscar o animal → adaptação de 15 dias |
 | `/perguntas-frequentes` | Perguntas frequentes | Adoção, adaptação, protetores parceiros, como ajudar. **Sem perguntas sobre resgate ou busca de animais** (RN44) |
 | `/ajude` | Como ajudar | **PIX** (da tabela `ong`) e formas de ajudar (lar temporário, compartilhar…), editáveis. Substitui a antiga `/sobre`: missão e "como funcionamos" foram para o Início. `/sobre` redireciona para `/ajude` |
 | `/privacidade` | Política de privacidade | Texto simples sobre LGPD |
+| `/contato` | Fale com a ONG (T29) | Formulário (nome, e-mail, telefone opcional, assunto e mensagem) com Turnstile, enviado por e-mail para a ONG, e o e-mail da ONG para quem prefere escrever direto. `?assunto=ajudar` já escolhe o assunto (RN51) |
 | `/perdidos` | Perdidos e encontrados | Anúncios **aprovados** de animais perdidos/encontrados, filtro por tipo, botão WhatsApp para quem anunciou, aviso contra golpes |
 | `/perdidos/novo` | Anunciar | Formulário público com até 2 fotos, consentimento LGPD e Turnstile. Vai para análise, **não publica direto** |
 
@@ -202,12 +203,21 @@ Definido em 08/10/2026 (RN14, RN15, RN47–RN50). Perguntas e alertas em [formul
 | `bairro_cidade` | text | só bairro e cidade (máx. 100); **sem endereço completo** (fica no termo em papel) |
 | `versao_formulario` | text | ex.: `1.1`; as respostas são lidas com o schema dessa versão |
 | `respostas` | jsonb | demais respostas do formulário, validadas na API pelo schema da versão (textos longos: máx. 1000) |
-| `termo_ciente_em` | timestamptz | quando a pessoa marcou "Li o termo de adoção e estou ciente" (RN47) |
+| `termo_ciente_em` · `versao_termo` | timestamptz · text | a "assinatura" do termo no site: quando a pessoa marcou que leu e está ciente, e qual versão do termo ela viu (RN47) |
 | `consentimento_em` | timestamptz | quando autorizou o uso dos dados (LGPD) |
 | `ip_hash` | text | hash do IP (SHA-256 + segredo), só para o limite de envios (RN50); nunca o IP puro |
 | `observacao_equipe` | text | anotação interna de quem analisa (máx. 1000) |
 | `analisado_em` · `analisado_por` | timestamptz · uuid FK → `equipe.id` | preenchidos ao aprovar ou recusar |
 | `created_at` / `updated_at` / `updated_by` | | RN43 |
+
+### `contato_envios` (limite do "Fale com a ONG"; somente a API)
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `id` | uuid PK | |
+| `ip_hash` | text | hash do IP (SHA-256 + segredo), nunca o IP puro |
+| `created_at` | timestamptz | |
+
+Só conta mensagens por IP (RN51): **a mensagem não fica no banco**, vai por e-mail. A tarefa diária apaga as linhas com mais de 1 dia.
 
 ### `equipe` (usuárias da área da ONG)
 | Coluna | Tipo | Regra |
@@ -225,7 +235,8 @@ A linha é criada à mão (migration ou SQL) junto com a liberação do e-mail n
 |---|---|---|
 | `id` | smallint PK | `CHECK (id = 1)`: a tabela tem sempre uma única linha |
 | `nome_completo` | text | "Sociedade de Proteção aos Animais de Passos/MG" |
-| `whatsapp` | text | só dígitos, 10–11 com DDD; WhatsApp padrão da ONG |
+| `email` | text | **contato do site** (RN51), em minúsculas; seed: `sitesospatas@gmail.com` |
+| `whatsapp` | text null | só dígitos, 10–11 com DDD. **Vazio desde 09/10/2026** (a ONG ainda não tem um número próprio para o site); preenchido em T23, volta a aparecer no rodapé e no "Fale com a ONG" (RN51) |
 | `instagram` | text | usuário sem `@`, ex.: `sospatas.ong` |
 | `facebook` | text null | URL completa `https://facebook.com/...` |
 | `pix_tipo` | enum `cnpj` \| `cpf` \| `email` \| `telefone` \| `aleatoria` | rótulo exibido ao lado da chave |
@@ -292,7 +303,7 @@ Substitui a constante `ONG` do código (seção 7.1). Cabeçalho, rodapé, Iníc
 - **`updated_by`** vira nulo se a linha da equipe for apagada (o normal é desativar com `ativo = false`).
 - **Conferido pela API, não pelo banco:** quantidade de itens por lista (mínimo e máximo, RN36, RN38, RN46), fotos por anúncio (RN21), data do ocorrido no futuro e links na descrição.
 
-**Conteúdo inicial (seed):** o arquivo `db/seed/seed_conteudo.sql` cria `ong`, os textos e os itens com os textos atuais do protótipo (`prototipo/index.html`), para o site já estrear preenchido. História, marcos, números e fotos vêm das respostas da ONG de 07/10/2026 (PROJETO.md, Entrevista 3); as fotos estão em `prototipo/assets/historia-1.jpg` a `historia-5.jpg` (a ordem de exibição está em `FOTOS_HISTORIA`, no protótipo; a `historia-1`, da assembleia, é uma versão tratada).
+**Conteúdo inicial (seed):** o arquivo `db/seed/seed_conteudo.sql` cria `ong`, os textos e os itens com os textos atuais do protótipo (`prototipo/index.html`), para o site já estrear preenchido. História, marcos, números e fotos vêm das respostas da ONG de 07/10/2026 (PROJETO.md, Entrevista 3); as fotos estão em `prototipo/assets/historia-1.jpg` a `historia-5.jpg` (a ordem de exibição está na lista `inicio_fotos` do `db/seed/seed_conteudo.sql`, e a primeira é a da equipe em 2016, `historia-2`, desde 09/10/2026; a `historia-1`, da assembleia, é uma versão tratada; depois da entrega, a ONG troca fotos, legendas e ordem em T19, RN38). As formas de ajudar (mensalista, apadrinhamento, Empresa amiga, bazar, lar temporário, compartilhe) vêm da ONG em 09/10/2026; são só texto, sem imagem.
 
 ### Segurança e permissões (na API)
 A **API é a única porta para o banco e para os arquivos**: o navegador nunca fala direto com o Neon nem com o R2 (exceto para *ler* fotos públicas). Não há RLS; quem decide o que pode é a API ([ARQUITETURA.md](ARQUITETURA.md), seções 3 e 5).
@@ -345,13 +356,17 @@ A **API é a única porta para o banco e para os arquivos**: o navegador nunca f
   - **Perguntas do formulário:** [formulario/FORMULARIO_ADOCAO.md](formulario/FORMULARIO_ADOCAO.md), **versão 1.1 usada no site** (decisão do mantenedor em 08/10/2026; ajustes que a ONG pedir entram como nova versão, sem perder os pedidos antigos). Inclui os alertas automáticos para quem analisa. O PDF para o grupo é gerado com `python docs/formulario/gerar_pdf.py`.
   - **Telas:** formulário público T26 e confirmação T26b; lista de pedidos T27 e análise T28 na área da ONG ([TELAS.md](../prototipo/TELAS.md)).
 - **RN15 (alterada em 06/10/2026 e 08/10/2026):** o site **coleta e guarda os dados de quem quer adotar** (tabela `pedidos_adocao`). Por isso, o formulário segue as mesmas proteções dos envios públicos (validação na API, Turnstile e limite de envios, RN50), com **consentimento explícito** (LGPD), acesso só para a equipe logada e **prazo de guarda**, aplicado pela tarefa diária: pedidos **recusados** ou **não concluídos** são apagados 90 dias depois da decisão; pedidos **aprovados** são apagados 90 dias depois de o animal ser marcado como adotado (o nome e o WhatsApp de quem adotou ficam em `animais_privado`, RN30). _(Prazo de 90 dias a confirmar com a ONG.)_
+- **RN51 – Contato com a ONG pelo e-mail (09/10/2026):** enquanto a ONG não tem um WhatsApp próprio para o site, **todo contato do público com a ONG** é pelo e-mail `ong.email` (`sitesospatas@gmail.com`): rodapé, perguntas frequentes, Como ajudar, privacidade e confirmação do pedido de adoção. O número pessoal usado até aqui saiu do site (`ong.whatsapp` vazio). Quando a ONG tiver um número, a equipe preenche em T23 e ele volta a aparecer junto com o e-mail, sem mudar o código. Os textos editáveis dizem "Entre em contato com a ONG", sem citar o canal.
+  - **Formulário "Fale com a ONG"** (`/contato`, T29): nome, e-mail, WhatsApp ou telefone (opcional), assunto (adoção, quero ajudar, perdido ou encontrado, protetor, outro) e mensagem, com Turnstile. A API envia um e-mail para a ONG com "Responder para" o e-mail da pessoa: a equipe responde direto do Gmail. **A mensagem não fica guardada no site**; para evitar abuso, só o hash do IP fica 1 dia (`contato_envios`), com limite de **3 mensagens por dia por IP**. Se o envio falhar, o site avisa e mostra o e-mail da ONG.
+  - **Envio pelo Cloudflare Email Routing**, gratuito, que exige o domínio `sospatas.org.br` no Cloudflare: o formulário só funciona em produção, a partir da etapa 14 (ARQUITETURA.md, seção 9). No computador, o `wrangler dev` simula o envio.
+  - **Continua no WhatsApp:** o contato do **protetor parceiro** na ficha, o de quem **anuncia um perdido ou encontrado** (números das próprias pessoas) e a ONG falando com quem pediu para adotar, no WhatsApp que a pessoa informou (RN49).
 
 ### Pedidos de adoção (definido em 08/10/2026)
-- **RN47 – Termo de adoção no formulário:** antes de enviar, o formulário mostra o **termo de responsabilidade de adoção** (as cláusulas de [TERMO_ADOCAO.md](formulario/TERMO_ADOCAO.md)), para a pessoa saber o que vai assinar, e exige a confirmação "Li o termo de adoção e estou ciente dos compromissos" (guardada em `termo_ciente_em`). **O termo continua sendo assinado em papel** na entrega do animal; o site não coleta RG, CPF nem endereço completo. O texto do termo fica fixo no código (é o documento da ONG); se a ONG mudar o termo, muda o texto e a versão do formulário.
+- **RN47 – Termo de adoção aceito no site (alterada em 09/10/2026, definição da ONG de 08/10/2026):** a adoção é **toda pelo site**. Depois de responder ao formulário (passo 1), a pessoa lê o **Termo de Responsabilidade de Adoção** (passo 2, as cláusulas de [TERMO_ADOCAO.md](formulario/TERMO_ADOCAO.md)) e marca "Li o Termo de Responsabilidade de Adoção e estou ciente dos compromissos. Se a adoção for aprovada, assumo esses compromissos." Esse aceite é a **"assinatura" registrada no banco**: data e hora (`termo_ciente_em`), versão do termo (`versao_termo`), junto com o nome, o WhatsApp e o hash do IP do pedido. O termo em papel deixa de ser obrigatório _(se a ONG quiser também uma assinatura em papel na entrega, continua possível)_. O site **não coleta RG, CPF nem endereço completo**. O texto do termo fica fixo no código (`packages/compartilhado/src/adocao/termo.ts`, é o documento da ONG); se a ONG mudar o termo, muda o texto e a `VERSAO_TERMO`.
 - **RN48 – Pedido esconde o animal:** ao receber um pedido, o animal passa para `em_analise` na mesma transação e **sai do site**: não aparece na vitrine nem em "Esperando há mais tempo". Quem abrir a ficha por um link antigo vê "{nome} está em processo de adoção" e um convite para conhecer outros animais, sem o botão "Quero adotar" _(proposta; a confirmar)_. Só existe **um pedido pendente por animal**: se duas pessoas enviarem ao mesmo tempo, a segunda recebe "Outra pessoa acabou de pedir para adotar {nome}. Veja outros animais." Como a vitrine fica em cache por até 15 min (ARQUITETURA, seção 3), quem já estava com a página aberta ainda pode ver o animal nesse intervalo; a API recusa o envio.
 - **RN49 – Análise do pedido:** a equipe vê os pedidos na aba **Pedidos** (T27) e cada um em T28, com os **alertas automáticos** do formulário (só chamam atenção, não reprovam ninguém) e o botão de WhatsApp de quem pediu.
   - **Recusar** (com confirmação): pedido `recusado`; o animal **volta para `disponivel`** e reaparece no site.
-  - **Aprovar:** pedido `aprovado`; o animal **continua fora do site** (`em_analise`) até a entrega. Depois de assinado o termo, a equipe usa **"Marcar como adotado"** (RN07, RN08), com o nome e o WhatsApp de quem adotou já preenchidos a partir do pedido.
+  - **Aprovar:** pedido `aprovado`; o animal **continua fora do site** (`em_analise`). A ONG fala com a pessoa pelo WhatsApp para **combinar onde ela busca o animal**. Na entrega, a equipe usa **"Marcar como adotado"** (RN07, RN08), com o nome e o WhatsApp de quem adotou já preenchidos a partir do pedido.
   - **Adoção aprovada que não aconteceu** (a pessoa desistiu antes da entrega): "Voltar para disponível" no animal; o pedido vira `nao_concluido`.
   - Quem pediu **não recebe aviso automático** (o site não guarda e-mail): a equipe fala com a pessoa pelo WhatsApp, inclusive para avisar uma recusa.
   - Animal de **protetor parceiro**: o pedido também chega para a equipe, que repassa ao protetor pelo WhatsApp _(proposta; quem analisa esses pedidos ainda é pergunta para a ONG)_.
@@ -446,8 +461,9 @@ Onde fica cada regra:
 | `excluirAnimal` (RN05), adoção (RN07, RN08), aprovar/recusar anúncio (RN19, RN26) | `apps/api/src/servicos/*` |
 | Trocar ordem (RN35) | `apps/api/src/servicos/conteudo.ts` |
 | Limpezas diárias (RN15, RN25, RN27) | `apps/api/src/tarefas/*` |
-| Perguntas do formulário de adoção por versão, alertas automáticos (RN49) | `packages/compartilhado/src/schemas/` (formulário) e `src/alertas` (a criar na etapa 10b) |
-| Pedido esconde o animal, aprovar e recusar (RN48, RN49) | `apps/api/src/servicos/pedidos.ts` (etapa 10b) |
+| Formulário de adoção (perguntas, opções, declarações), termo e alertas automáticos (RN47, RN49) | `packages/compartilhado/src/adocao/` (formulario.ts, termo.ts, alertas.ts) e `src/schemas/pedido.ts` (validação) |
+| Pedido esconde o animal, limites, aprovar e recusar (RN48–RN50) | `apps/api/src/servicos/pedidos.ts`; Turnstile e hash do IP em `servicos/seguranca.ts`; limpeza de 90 dias em `tarefas/limpeza.ts` |
+| Fale com a ONG: limite por IP e envio por e-mail (RN51) | `apps/api/src/rotas/publico/contato.ts`, `servicos/contato.ts`, `servicos/email.ts` (mensagem MIME) e `email/cloudflare.ts` (Email Routing); `apps/web/src/pages/Contato.tsx` |
 | Validação do login (Access) | `apps/api/src/middleware/access.ts` |
 
 ## 7.1 Identidade visual
@@ -470,7 +486,8 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 - Nome: SOS Patas, Sociedade de Proteção aos Animais de Passos/MG
 - Instagram: @sospatas.ong (https://www.instagram.com/sospatas.ong/)
 - Facebook: https://www.facebook.com/sospatasmg
-- WhatsApp: (35) 9 8843-9614 _(confirmar)_
+- E-mail: sitesospatas@gmail.com (contato do site desde 09/10/2026, RN51)
+- WhatsApp: nenhum por enquanto; a ONG vai providenciar um número próprio para o site (RN51)
 - PIX (CNPJ): 26.515.895/0001-90
 
 ## 8. Padrões
@@ -566,3 +583,10 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 08/10/2026 | Etapa 6 (site público, páginas de conteúdo): Início, Como adotar, Perguntas frequentes, Como ajudar e Privacidade iguais ao protótipo, lendo tudo de `GET /site`; páginas da vitrine, ficha e perdidos mostram "Em breve" até as etapas 7 e 11; erro da API mostra mensagem amigável com "Tentar de novo"; `AnimalResumo` ganha `responsavel_tipo` (selo "Protetor parceiro" no card); idade abaixo de 1 mês aparece como "menos de 1 mês" (o protótipo dizia "cerca de 1 mês"); script `pnpm db:fotos-historia` (sharp + Wrangler) adiantado da etapa 14; `pnpm dev:celular` para testar no celular | Testar o site completo no computador e no celular antes da vitrine; não mostrar idade que o animal ainda não tem |
 | 08/10/2026 | **Pedidos de adoção entram no MVP:** "Quero adotar" abre o formulário de adoção (versão 1.1 do FORMULARIO_ADOCAO.md) com o **termo de adoção para leitura e ciência**; o pedido fica salvo (`pedidos_adocao`) e é avaliado na área da ONG (nova aba Pedidos, T27, T28); **ao receber um pedido o animal sai do site** (`status = em_analise`) até a equipe recusar (volta) ou aprovar e marcar como adotado (RN14, RN15, RN47–RN50). Propostas a confirmar: aviso na ficha por link direto, alerta de pedido parado em 3 dias, protetor recebe pelo WhatsApp | Pedido do mantenedor: a adoção passa pelo formulário e pela análise da equipe, e o animal não pode receber outros pedidos enquanto um está em análise |
 | 08/10/2026 | Etapa 7 (vitrine e ficha): filtros da vitrine na URL (um chip por grupo; valor inválido é ignorado); subtítulo com o total de disponíveis (RN46); ficha com galeria clicável, saúde e temperamento no masculino/feminino, aviso de protetor (RN31) e benefício (RN32); **"Quero adotar" verde com patinha** (sem o ícone do WhatsApp, porque leva ao formulário) e rota `/animais/:id/adotar` com "Em breve" até a etapa 10b; script `pnpm db:fotos-exemplo` (fotos do protótipo para os animais de exemplo, só local) adiantado da etapa 9 | Busca compartilhável; o botão não leva mais ao WhatsApp; testar a vitrine com fotos no computador |
+| 09/10/2026 | **Fluxo de adoção definido com a ONG (08/10/2026): tudo pelo site.** Formulário (passo 1) → termo para ler e marcar que está ciente, guardado no banco como "assinatura" com data, hora e versão do termo (passo 2) → análise na área da ONG → se aprovado, a ONG fala com a pessoa para combinar onde buscar o animal. Substitui a decisão de 06/10/2026 de manter o termo em papel (RN47, RN49). Implementado: banco (`pedidos_adocao`, status `em_analise`), API pública e da equipe, limpeza diária, formulário no site; as telas T27 e T28 entram com a área da ONG (etapa 10) | Decisão da ONG; o aceite no site evita depender de papel e fica registrado |
+| 09/10/2026 | **Protótipo congelado:** a partir de 09/10/2026 o protótipo (`prototipo/index.html`) não é mais atualizado; o próprio site (`apps/web`) passa a ser a referência visual, junto com a TELAS.md (RP01 alterada) | Pedido do mantenedor: manter dois lugares iguais custava tempo; o site já reproduz o protótipo |
+| 09/10/2026 | Sem cache das leituras públicas no computador (`AMBIENTE=local`): resposta com `Cache-Control: no-store` | O cache de 15 min fazia o site local mostrar dados antigos depois de `db:seed` ou de um teste, o que confundia os testes manuais |
+| 09/10/2026 | A história da página inicial passa a abrir com a foto da **equipe da SOS Patas em 2016** (antes: voluntários em feira de adoção); ordem trocada em `inicio_fotos` no `seed_conteudo.sql` | Pedido do mantenedor. A foto é pequena (720×540); pedido o original à ONG (TELAS, pergunta 23) |
+| 09/10/2026 | Como ajudar ganha **Seja mensalista**, **Apadrinhe um animal**, **Empresa amiga** e **Doe para o bazar** (seed `ajude_formas`, só texto), um botão "Falar com a ONG pelo WhatsApp" e a resposta "Como posso ajudar a ONG?" atualizada | Informação da ONG (09/10/2026). Detalhes de mensalista, apadrinhamento e bazar a confirmar (TELAS, perguntas 24 a 27) |
+| 09/10/2026 | Formas de ajudar **sem imagem**: o selo da Empresa amiga foi testado no card e retirado | Pedido do mantenedor: a imagem deixava os cards com tamanhos desiguais |
+| 09/10/2026 | **Contato da ONG pelo e-mail (RN51):** o WhatsApp sai do site (rodapé, perguntas frequentes, Como ajudar, privacidade); `ong.email` novo e `ong.whatsapp` opcional (migration 0003); nova página **Fale com a ONG** (`/contato`, T29) com formulário enviado pelo Cloudflare Email Routing, sem guardar a mensagem (tabela `contato_envios` só para o limite de 3 por dia por IP) | Pedido do mantenedor: a ONG ainda não tem WhatsApp próprio para o site e o número usado era pessoal. O formulário só funciona com o domínio no Cloudflare (etapa 14) |

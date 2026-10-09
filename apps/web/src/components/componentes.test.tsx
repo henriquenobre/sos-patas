@@ -42,7 +42,8 @@ describe('TextoSimples (RN34, RN24)', () => {
 describe('PIX', () => {
   const ong = {
     nome_completo: 'SOS Patas',
-    whatsapp: '35988439614',
+    email: 'sitesospatas@gmail.com',
+    whatsapp: null,
     instagram: 'sospatas.ong',
     facebook: null,
     pix_tipo: 'cnpj' as const,

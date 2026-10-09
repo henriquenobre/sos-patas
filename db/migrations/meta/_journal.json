@@ -15,6 +15,20 @@
       "when": 1791481065468,
       "tag": "0001_ordem_unica",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791550924349,
+      "tag": "0002_pedidos_adocao",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791554877766,
+      "tag": "0003_contato_por_email",
+      "breakpoints": true
     }
   ]
 }

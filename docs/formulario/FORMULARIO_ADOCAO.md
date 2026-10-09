@@ -1,6 +1,6 @@
 # Formulário de Interesse em Adoção: SOS Patas
 
-> **Versão 1.1 · rascunho para validação no grupo da ONG (06/10/2026)**, alinhado ao [Termo de Responsabilidade de Adoção](TERMO_ADOCAO.md)
+> **Versão 1.1 · aprovada pela ONG em 08/10/2026**, alinhada ao [Termo de Responsabilidade de Adoção](TERMO_ADOCAO.md). No site desde 09/10/2026 (`packages/compartilhado/src/adocao/formulario.ts`).
 > Preenchido pelo interessado ao tocar em "Quero adotar" na ficha do animal. O pedido fica salvo no sistema e a equipe analisa na área da ONG e entra em contato pelo WhatsApp.
 > **Esta versão (1.1) é a usada no site** (decisão de 08/10/2026). Ajustes pedidos pela ONG entram como nova versão. Regras: RN14, RN15 e RN47–RN50 no [DESENVOLVIMENTO.md](../DESENVOLVIMENTO.md).
 > Itens com **\*** são obrigatórios. Perguntas que surgiram do grupo estão marcadas com 🟦.
@@ -191,7 +191,8 @@ Os compromissos do formulário repetem, de forma resumida, as cláusulas do term
 
 ### Dados e LGPD
 - Envio seguro, como nos perdidos: validação na API (`POST /api/publico/animais/:id/pedidos`), Turnstile, 2 pedidos por dia por IP e 1 pendente por WhatsApp (RN50).
-- **Antes de enviar, a pessoa lê o termo de adoção** ([TERMO_ADOCAO.md](TERMO_ADOCAO.md)) e confirma que está ciente (RN47). O termo continua sendo assinado em papel.
+- **Depois do formulário, a pessoa lê o termo de adoção** ([TERMO_ADOCAO.md](TERMO_ADOCAO.md)) e marca que está ciente: esse aceite fica registrado no banco com data, hora e versão do termo (RN47). Definição da ONG de 08/10/2026: tudo pelo site.
+- **Se aprovado,** a ONG fala com a pessoa pelo WhatsApp para combinar onde ela busca o animal (RN49).
 - Tabela `pedidos_adocao` (só a equipe logada), com status `pendente` → `aprovado` / `recusado` (e `nao_concluido` se a adoção aprovada não acontecer). Nome, WhatsApp e bairro/cidade em colunas; as demais respostas em `respostas` (jsonb), com a versão do formulário.
 - **Enquanto o pedido está pendente ou aprovado, o animal sai do site** (`em_analise`, RN48). Recusar devolve o animal ao site.
 - Pedidos recusados ou não concluídos são apagados 90 dias depois; aprovados, 90 dias depois de o animal ser marcado como adotado. O nome e o WhatsApp de quem adotou seguem para `animais_privado` (RN15, RN30).

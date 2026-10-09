@@ -1,7 +1,8 @@
 import { Link } from 'react-router'
 import { ROTULOS, formatarWhatsapp, linkWhatsApp } from '@sospatas/compartilhado'
 import { useSite } from '../api/publico'
-import { IconeFacebook, IconeInstagram, IconeWhatsApp } from '../components/Icones'
+import { IconeEmail, IconeFacebook, IconeInstagram, IconeWhatsApp } from '../components/Icones'
+import { linkEmail } from '../lib/contato'
 
 const NAVEGUE = [
   { para: '/animais', texto: 'Adote' },
@@ -9,6 +10,7 @@ const NAVEGUE = [
   { para: '/perguntas-frequentes', texto: 'Dúvidas' },
   { para: '/ajude', texto: 'Como ajudar' },
   { para: '/perdidos', texto: 'Perdidos e encontrados' },
+  { para: '/contato', texto: 'Fale com a ONG' },
   { para: '/privacidade', texto: 'Privacidade' },
 ]
 
@@ -67,13 +69,22 @@ export function Rodape() {
               </a>
             )}
             <a
-              href={linkWhatsApp(ong.whatsapp)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 py-1 hover:underline"
+              href={linkEmail(ong.email)}
+              className="flex items-center gap-2 py-1 break-all hover:underline"
             >
-              <IconeWhatsApp /> {formatarWhatsapp(ong.whatsapp)}
+              <IconeEmail /> {ong.email}
             </a>
+            {/* Só quando a ONG tiver um WhatsApp próprio para o site (RN51) */}
+            {ong.whatsapp && (
+              <a
+                href={linkWhatsApp(ong.whatsapp)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 py-1 hover:underline"
+              >
+                <IconeWhatsApp /> {formatarWhatsapp(ong.whatsapp)}
+              </a>
+            )}
             <p className="rounded-xl bg-white/10 p-3">
               <span className="font-bold text-amarelo">
                 PIX ({ROTULOS.pix_tipo[ong.pix_tipo]}):

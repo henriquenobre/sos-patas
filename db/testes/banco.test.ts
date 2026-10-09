@@ -1,4 +1,6 @@
 // Testes das migrations, do seed e das regras garantidas pelo próprio banco (CHECK, FK, UNIQUE).
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import postgres from 'postgres'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { LIMITES, LISTAS, TEXTOS } from '@sospatas/compartilhado'
@@ -86,6 +88,17 @@ describe('seed', () => {
     const fotos = await sql<{ id: string; foto_path: string }[]>`
       SELECT id, foto_path FROM conteudo_itens WHERE lista = 'inicio_fotos'`
     for (const foto of fotos) expect(foto.foto_path).toBe(`site/historia/${foto.id}.webp`)
+  })
+
+  it('cada foto do seed está no mapa do pnpm db:fotos-historia, no mesmo caminho', async () => {
+    const mapa = JSON.parse(
+      readFileSync(join(import.meta.dirname, '..', 'seed', 'fotos_historia.json'), 'utf8'),
+    ) as { id: string; path: string }[]
+    const comFoto = await sql<{ id: string; foto_path: string }[]>`
+      SELECT id, foto_path FROM conteudo_itens WHERE foto_path IS NOT NULL ORDER BY id`
+    expect(comFoto.map((item) => ({ id: item.id, path: item.foto_path }))).toEqual(
+      mapa.map(({ id, path }) => ({ id, path })).sort((a, b) => a.id.localeCompare(b.id)),
+    )
   })
 
   it('cria os animais de exemplo, com o adotado e o do protetor coerentes', async () => {
@@ -247,17 +260,29 @@ describe('conteúdo', () => {
 describe('ong, equipe e perdidos', () => {
   it('a tabela ong tem uma linha só', async () => {
     await esperarFalha(
-      sql`INSERT INTO ong (id, nome_completo, whatsapp, instagram, pix_tipo, pix_chave)
-          VALUES (2, 'Outra', '35999999999', 'outra', 'cnpj', '1')`,
+      sql`INSERT INTO ong (id, nome_completo, email, instagram, pix_tipo, pix_chave)
+          VALUES (2, 'Outra', 'outra@exemplo.com', 'outra', 'cnpj', '1')`,
       'ong_linha_unica',
     )
   })
 
-  it('WhatsApp só com dígitos, 10 ou 11', async () => {
+  it('WhatsApp da ONG opcional, mas só com dígitos, 10 ou 11 (RN51)', async () => {
     await esperarFalha(
       sql`UPDATE ong SET whatsapp = '(35) 98843-9614' WHERE id = 1`,
       'ong_whatsapp_valido',
     )
+    const [linha] = await sql<{ whatsapp: string | null; email: string }[]>`
+      SELECT whatsapp, email FROM ong WHERE id = 1`
+    expect(linha).toEqual({ whatsapp: null, email: 'sitesospatas@gmail.com' })
+  })
+
+  it('e-mail da ONG válido e em minúsculas (RN51)', async () => {
+    await esperarFalha(
+      sql`UPDATE ong SET email = 'Site@Exemplo.com' WHERE id = 1`,
+      'ong_email_minusculo',
+    )
+    await esperarFalha(sql`UPDATE ong SET email = 'sem arroba' WHERE id = 1`, 'ong_email_valido')
+    await esperarFalha(sql`UPDATE ong SET email = 'a b@c.com' WHERE id = 1`, 'ong_email_valido')
   })
 
   it('e-mail da equipe sempre em minúsculas', async () => {
@@ -292,6 +317,58 @@ describe('ong, equipe e perdidos', () => {
     await esperarFalha(
       anuncio({ descricao: texto(LIMITES.perdidos.descricao + 1) }),
       'perdidos_descricao_limite',
+    )
+  })
+})
+
+describe('pedidos de adoção', () => {
+  const pedido = (animalId: string, extra: Record<string, unknown> = {}) =>
+    sql`INSERT INTO pedidos_adocao ${sql({
+      animal_id: animalId,
+      nome: 'Fernanda Souza',
+      whatsapp: '35999990000',
+      bairro_cidade: 'Centro, Passos',
+      versao_formulario: '1.1',
+      respostas: sql.json({ maior_idade: 'sim' }),
+      termo_ciente_em: new Date(),
+      versao_termo: '2026-10',
+      consentimento_em: new Date(),
+      ...extra,
+    })}`
+
+  it('aceita só um pedido pendente por animal (RN48)', async () => {
+    const id = await idAnimal('Apolo')
+    await pedido(id)
+    await esperarFalha(pedido(id), 'pedidos_adocao_um_pendente_por_animal')
+  })
+
+  it('pedidos já decididos não impedem um novo pedido', async () => {
+    const id = await idAnimal('Nina')
+    await pedido(id, { status: 'recusado', analisado_em: new Date() })
+    await pedido(id)
+  })
+
+  it('pedido decidido sempre tem a data da decisão; pendente, nunca', async () => {
+    const id = await idAnimal('Pipoca')
+    await esperarFalha(pedido(id, { status: 'aprovado' }), 'pedidos_adocao_analise')
+    await esperarFalha(pedido(id, { analisado_em: new Date() }), 'pedidos_adocao_analise')
+  })
+
+  it('excluir o animal apaga os pedidos dele', async () => {
+    const id = await idAnimal('Ruivo')
+    await pedido(id)
+    await sql`DELETE FROM animais WHERE id = ${id}`
+    const [resto] = await sql<{ n: number }[]>`
+      SELECT count(*)::int AS n FROM pedidos_adocao WHERE animal_id = ${id}`
+    expect(resto?.n).toBe(0)
+  })
+
+  it('animal pode ficar em análise, sem data de adoção', async () => {
+    const id = await idAnimal('Pelezinho')
+    await sql`UPDATE animais SET status = 'em_analise' WHERE id = ${id}`
+    await esperarFalha(
+      sql`UPDATE animais SET data_adocao = CURRENT_DATE WHERE id = ${id}`,
+      'animais_data_adocao',
     )
   })
 })

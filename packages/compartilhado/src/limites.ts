@@ -29,8 +29,25 @@ export const LIMITES = {
     nome: 40,
     email: 254,
   },
+  /** Formulário "Fale com a ONG" (RN51): vai por e-mail, não fica no banco */
+  contato: {
+    nome: 100,
+    email: 254,
+    telefone: 20,
+    mensagem: 2000,
+  },
+  pedidos_adocao: {
+    nome: 100,
+    bairro_cidade: 100,
+    observacao_equipe: 1000,
+    /** Respostas de texto curto do formulário */
+    texto_curto: 200,
+    /** Respostas de texto longo do formulário */
+    texto_longo: 1000,
+  },
   ong: {
     nome_completo: 120,
+    email: 254,
     instagram: 30,
     facebook: 200,
     pix_chave: 100,
@@ -65,7 +82,7 @@ export const DIAS_PUBLICACAO_PERDIDO = 30
 export const DIAS_MAX_PENDENTE = 7
 /** Período de adaptação depois da adoção (RN30). */
 export const DIAS_ADAPTACAO = 15
-/** Pedido de adoção recusado ou não concluído é apagado em até 90 dias (RN15, futuro). */
+/** Pedido de adoção é apagado 90 dias depois da recusa ou da adoção (RN15). */
 export const DIAS_GUARDA_PEDIDO_ADOCAO = 90
 
 // ---------------------------------------------------------------------------
@@ -77,3 +94,9 @@ export const MAX_DESTAQUES = 6
 /** Envios públicos de anúncio: 3 por dia por IP e 30 pendentes no total (RN23). */
 export const MAX_ENVIOS_POR_DIA_POR_IP = 3
 export const MAX_PERDIDOS_PENDENTES = 30
+/** Formulário "Fale com a ONG": 3 mensagens por dia por IP (RN51). */
+export const MAX_CONTATOS_POR_DIA_POR_IP = 3
+/** Pedidos de adoção: 2 por dia por IP e 1 pendente por WhatsApp (RN50). */
+export const MAX_PEDIDOS_POR_DIA_POR_IP = 2
+/** Pedido pendente há mais tempo que isso aparece em vermelho no painel (RN50, a confirmar). */
+export const DIAS_ALERTA_PEDIDO_PARADO = 3

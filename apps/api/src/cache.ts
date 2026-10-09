@@ -22,6 +22,11 @@ type OpcoesCache = {
   imutavel?: boolean
 }
 
+function ehAmbienteLocal(c: Context): boolean {
+  const env: unknown = c.env
+  return typeof env === 'object' && env !== null && Reflect.get(env, 'AMBIENTE') === 'local'
+}
+
 function cachePadrao(): Cache | null {
   return 'caches' in globalThis ? caches.default : null
 }
@@ -53,6 +58,13 @@ export async function comCache(
     segundosCloudflare = SEGUNDOS_CACHE_PUBLICO,
     imutavel = false,
   } = opcoes
+  // No computador (AMBIENTE=local), sem cache: o que muda no banco aparece na hora
+  if (ehAmbienteLocal(c)) {
+    const resposta = await gerar()
+    resposta.headers.set('Cache-Control', 'no-store')
+    return resposta
+  }
+
   const cache = cachePadrao()
   const requisicaoChave = new Request(chave, { method: 'GET' })
   if (cache) {

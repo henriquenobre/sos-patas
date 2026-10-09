@@ -6,7 +6,12 @@
 # AMBIENTE para "local" (sem ele, a API se comporta como produção).
 #
 # Ainda a preencher: id real do Hyperdrive e ACCESS_AUD (etapa 8 na prévia, etapa 14 na
-# produção), cron da limpeza diária (etapa 11) e rota sospatas.org.br/api/* (etapa 14).
+# produção) e rota sospatas.org.br/api/* (etapa 14). Segredos (wrangler secret put):
+# TURNSTILE_SECRET e IP_HASH_SECRET.
+#
+# E-mail do "Fale com a ONG" (RN51): binding EMAIL do Email Routing, só na produção, porque
+# exige o domínio sospatas.org.br no Cloudflare e o destino verificado (etapa 14). Na prévia
+# e no computador sem o binding, o formulário responde 503 e o site mostra o e-mail da ONG.
 
 name = "sospatas-api"
 main = "src/index.ts"
@@ -23,6 +28,13 @@ CORS_ORIGENS = ""
 # Endereço público das fotos (bucket FOTOS com cache). Vazio = a API serve as fotos em
 # /api/publico/fotos/* (computador e prévia, sem domínio próprio e sem r2.dev).
 FOTOS_URL_BASE = "https://fotos.sospatas.org.br"
+# Formulário "Fale com a ONG" (RN51): remetente do domínio e destino verificado no Email Routing
+EMAIL_REMETENTE = "site@sospatas.org.br"
+EMAIL_DESTINO = "sitesospatas@gmail.com"
+
+# Tarefa diária às 03:00 de Brasília (06:00 UTC): limpezas da RN15 (e da RN25 e RN27, etapa 11)
+[triggers]
+crons = ["0 6 * * *"]
 
 [[hyperdrive]]
 binding = "HYPERDRIVE"
@@ -37,6 +49,10 @@ bucket_name = "sospatas-fotos"
 binding = "QUARENTENA"
 bucket_name = "sospatas-quarentena"
 
+[[send_email]]
+name = "EMAIL"
+destination_address = "sitesospatas@gmail.com"
+
 [env.previa]
 name = "sospatas-api-previa"
 
@@ -46,6 +62,11 @@ ACCESS_TEAM_DOMAIN = "https://sospatas.cloudflareaccess.com"
 ACCESS_AUD = "preencher-na-etapa-8"
 CORS_ORIGENS = ""
 FOTOS_URL_BASE = ""
+EMAIL_REMETENTE = "site@sospatas.org.br"
+EMAIL_DESTINO = "sitesospatas@gmail.com"
+
+[env.previa.triggers]
+crons = ["0 6 * * *"]
 
 [[env.previa.hyperdrive]]
 binding = "HYPERDRIVE"

@@ -42,7 +42,8 @@ const item = (id: string, titulo: string | null, texto: string) => ({
 export const SITE_TESTE: SitePublico = {
   ong: {
     nome_completo: 'Sociedade de Proteção aos Animais de Passos/MG',
-    whatsapp: '35988439614',
+    email: 'sitesospatas@gmail.com',
+    whatsapp: null,
     instagram: 'sospatas.ong',
     facebook: 'https://www.facebook.com/sospatasmg',
     pix_tipo: 'cnpj',

@@ -40,6 +40,7 @@
 | Fotos | **Cloudflare R2** | Grátis: 10 GB, **tráfego de saída grátis** | O tráfego das fotos era o limite mais apertado (Supabase: 5 GB/mês) |
 | Login da equipe | **Cloudflare Access** (Zero Trust) | Grátis até 50 usuários | Sem senha para guardar (ver seção 4); cabe no limite de CPU |
 | Antirrobô | **Cloudflare Turnstile** | Grátis | Formulários públicos (RN22) |
+| E-mail do "Fale com a ONG" | **Cloudflare Email Routing** (binding `send_email`) | Grátis | Entrega a mensagem do formulário no Gmail da ONG (RN51); exige o domínio no Cloudflare |
 | Tarefas agendadas | **Workers Cron Triggers** | Grátis: 5 por conta | Limpezas diárias (RN25, RN27, RN15) |
 | Domínio | **Registro.br** (`sospatas.org.br`) | R$ 40/ano | Registrado no CNPJ da ONG |
 | Código, CI/CD e backup | **GitHub** + **GitHub Actions** | Grátis | Testes, deploy, migrations e backup |
@@ -57,32 +58,36 @@ sos-patas/
 │   │   └── src/
 │   │       ├── rotas.tsx        # rotas do site (docs/DESENVOLVIMENTO.md, seção 4)
 │   │       ├── layouts/         # LayoutPublico, Cabecalho (menu do celular), Rodape (contatos e PIX)
-│   │       ├── pages/           # públicas (T01–T07, T12, T13) e admin (T08–T24); Avisos (404, Em breve)
-│   │       ├── components/      # CardAnimal, FotoAnimal, Pata, Chapeu, TextoSimples, BlocoPix, Estados…
+│   │       ├── pages/           # públicas (T01–T07, T12, T13, T26, T29 Contato) e admin (T08–T28); Avisos (404, Em breve)
+│   │       ├── components/      # CardAnimal, FotoAnimal, Pata, Chapeu, TextoSimples, BlocoPix, Estados, Campos, Turnstile…
 │   │       │   └── admin/       # BarraAdmin, ListaEditavel, CampoTextoEditavel (RN33)
 │   │       ├── api/             # cliente HTTP + hooks TanStack Query (publico.ts: useSite, useDestaques, useVitrine)
-│   │       ├── lib/             # pix.ts, animal.ts, filtros.ts (filtros da vitrine na URL); fotos.ts (canvas, RN02/RN20, etapa 10)
+│   │       ├── lib/             # pix.ts, animal.ts, contato.ts (link mailto), filtros.ts (filtros da vitrine na URL);
+│   │       │                    #   fotos.ts (canvas, RN02/RN20, etapa 10)
 │   │       └── testes/          # renderizar.tsx: rotas reais com a API simulada
 │   └── api/                     # API: Hono + TypeScript
 │       ├── src/
 │       │   ├── app.ts           # criarApp(dependencias): rotas, erros, CORS, login
-│       │   ├── index.ts         # entrada Workers: dependências do Cloudflare (Hyperdrive, R2, Access)
+│       │   ├── index.ts         # entrada Workers: dependências do Cloudflare (Hyperdrive, R2, Access, Email Routing)
 │       │   ├── node.ts          # entrada Node (@hono/node-server), para VPS no futuro
 │       │   ├── dependencias.ts  # o que a API precisa do ambiente (banco, armazenamento, verificação do JWT)
 │       │   ├── db.ts            # conexão postgres.js + Drizzle (Hyperdrive)
 │       │   ├── erros.ts · validacao.ts · cache.ts
 │       │   ├── rotas/
-│       │   │   ├── publico/     # site, animais, perdidos (GET) e envio de anúncio (POST)
+│       │   │   ├── publico/     # site, animais, perdidos (GET); envios: pedidos.ts, contato.ts (RN51), anúncio (etapa 11)
 │       │   │   └── admin/       # tudo da área da ONG
-│       │   ├── servicos/        # regras de negócio: excluirAnimal (RN05), aprovarPerdido…
+│       │   ├── servicos/        # regras de negócio: publico.ts, pedidos.ts (RN47–RN50), contato.ts e email.ts (RN51),
+│       │   │                    #   seguranca.ts (Turnstile, hash do IP), equipe.ts, fotos.ts; excluirAnimal (RN05), aprovarPerdido… (etapas 9, 11)
 │       │   ├── middleware/      # access.ts (login: JWT do Access + equipe), conexoes.ts (banco por requisição)
 │       │   ├── armazenamento/   # interface Armazenamento, R2, memória (testes), webp.ts (RN21)
+│       │   ├── email/           # cloudflare.ts: envio pelo Email Routing (só no Workers)
 │       │   ├── testes/          # apoio aos testes: banco de teste, Access falso
-│       │   └── tarefas/         # limpezas do Cron (RN15, RN25, RN27)
-│       ├── wrangler.toml        # bindings: HYPERDRIVE, FOTOS, QUARENTENA, cron; nível de cima = produção, [env.previa]
+│       │   └── tarefas/         # limpeza.ts: tarefa diária do Cron (RN15 pronta; RN25, RN27 na etapa 11)
+│       ├── wrangler.toml        # bindings: HYPERDRIVE, FOTOS, QUARENTENA, EMAIL (só produção), cron; [env.previa]
 │       └── .dev.vars.example    # variáveis locais (copiar para .dev.vars, fora do Git)
 ├── packages/
 │   └── compartilhado/           # enums, limites, config. de textos/listas (lidos também pelo banco), schemas zod,
+│                                #   adocao/ (formulário 1.1, termo, alertas), api/ (tipos das respostas),
 │                                #   idade (RN11–RN13), datas no fuso de Brasília, WhatsApp
 ├── db/                          # pacote @sospatas/db
 │   ├── schema.ts                # schema Drizzle (fonte dos tipos)
@@ -118,7 +123,7 @@ sos-patas/
 - Entrada validada com os schemas zod de `packages/compartilhado` (os mesmos do formulário no front).
 - Erros: `{ "erro": "codigo_curto", "mensagem": "texto para a tela" }` com status HTTP adequado (400 validação, 401/403 acesso, 404, 409 conflito como protetor com animais, 429 limite). Em erro de validação, também `"campos": { "nome": "Preencha este campo" }`, para o formulário mostrar a mensagem embaixo de cada campo. Erro inesperado: 500 com mensagem genérica; o detalhe só vai para o log (`apps/api/src/erros.ts`).
 - Upload: `multipart/form-data`; a API confere tamanho e **assinatura WebP** (`RIFF....WEBP`) antes de gravar (RN21). Nada de URL pré-assinada: todo arquivo passa pela API.
-- Leituras públicas com cache (`apps/api/src/cache.ts`): o navegador guarda 60 s e o Cloudflare guarda 15 min (Cache API), para aguentar picos e deixar o Neon dormir (seção 11.2). Salvar na área da ONG apaga a cópia do datacenter que atendeu a voluntária (o "Ver no site" dela já mostra a mudança); nos outros datacenters, a cópia antiga vale até 15 min. Com o domínio próprio (etapa 14), somar a limpeza global pela API de purge do Cloudflare. A Cache API só funciona no domínio próprio; no `*.workers.dev` a API consulta sempre.
+- Leituras públicas com cache (`apps/api/src/cache.ts`; desligado no computador, `AMBIENTE=local`, para os testes verem o banco na hora): o navegador guarda 60 s e o Cloudflare guarda 15 min (Cache API), para aguentar picos e deixar o Neon dormir (seção 11.2). Salvar na área da ONG apaga a cópia do datacenter que atendeu a voluntária (o "Ver no site" dela já mostra a mudança); nos outros datacenters, a cópia antiga vale até 15 min. Com o domínio próprio (etapa 14), somar a limpeza global pela API de purge do Cloudflare. A Cache API só funciona no domínio próprio; no `*.workers.dev` a API consulta sempre.
 
 ### 3.1 Rotas públicas (`/api/publico`)
 
@@ -132,6 +137,7 @@ sos-patas/
 | `GET /fotos/*` | Foto do bucket **público** (`animais/`, `site/`, `perdidos/`), com cache de 1 ano. Usada quando não há domínio de fotos (`FOTOS_URL_BASE` vazio: computador e prévia). Nunca lê a quarentena | RN19 |
 | `POST /perdidos` | Envio público: Turnstile, limites, até 2 fotos WebP ≤ 500 KB → `pendente` + fotos na **quarentena** | RN19–RN23 |
 | `POST /animais/:id/pedidos` | Formulário de adoção: Turnstile, limites (2/dia por IP, 1 pendente por WhatsApp), validação pelo schema da versão do formulário. Numa transação: grava o pedido e passa o animal para `em_analise` (409 se ele não estiver mais disponível). Depois, limpa o cache da vitrine, dos destaques e da ficha | RN14, RN15, RN47, RN48, RN50 |
+| `POST /contato` | Formulário "Fale com a ONG": Turnstile, validação, limite de 3 por dia por IP (`contato_envios`, só o hash). Envia o e-mail para a ONG com `Reply-To` de quem escreveu; **não grava a mensagem**. 503 `email_indisponivel` se o envio falhar | RN51 |
 
 **Respostas:** tipos em `packages/compartilhado/src/api/publico.ts` (`SitePublico`, `ListaAnimais`, `AnimalFicha`, `ListaPerdidos`), usados pela API e pelo front. As fotos vêm como URL pronta. A idade é calculada no front com `textoIdade` (as datas vêm cruas). O cache usa como chave o caminho com os filtros válidos em ordem fixa: parâmetros extras não criam cópias novas nem acordam o banco.
 
@@ -197,13 +203,14 @@ sos-patas/
 
 ## 7. Tarefas agendadas (Cron Trigger do Worker)
 
-Um cron diário (03:00, horário de Brasília = `0 6 * * *` UTC) chama `scheduled()` na API, que executa:
+Um cron diário (03:00, horário de Brasília = `0 6 * * *` UTC; `[triggers]` no `wrangler.toml`, configurado desde 09/10/2026) chama `scheduled()` em `apps/api/src/index.ts`, que executa `tarefas/limpeza.ts`:
 
 | Tarefa | Regra |
 |---|---|
 | Apagar anúncios `publicado` com `expira_em` vencido (arquivos + registro) | RN25 |
 | Apagar anúncios `pendente` há mais de 7 dias (arquivos da quarentena + registro) | RN27 |
 | Apagar pedidos de adoção recusados ou não concluídos há mais de 90 dias, e aprovados 90 dias depois da adoção | RN15 |
+| Apagar o registro de envios do "Fale com a ONG" com mais de 1 dia (`contato_envios`) | RN51 |
 
 O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa projetos gratuitos.
 
@@ -242,6 +249,8 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 | `ACCESS_TEAM_DOMAIN` e `ACCESS_AUD` | Não são segredo: ficam em `[vars]` do `wrangler.toml`, por ambiente (o `aud` muda entre prévia e produção) |
 | Chaves S3 do R2 (só para o backup) | GitHub |
 | `CLOUDFLARE_API_TOKEN` (deploy) | GitHub |
+
+**E-mail do "Fale com a ONG" (RN51):** a API envia pelo **Cloudflare Email Routing** (binding `EMAIL` do tipo `send_email`, só no nível de produção do `wrangler.toml`). O remetente é `EMAIL_REMETENTE` (`site@sospatas.org.br`) e o destino é `EMAIL_DESTINO` (`sitesospatas@gmail.com`), ambos em `[vars]`; a mensagem é montada em texto puro com `Reply-To` de quem escreveu (`servicos/email.ts`). Na etapa 14: ativar o Email Routing em `sospatas.org.br` (o Cloudflare cria os registros MX/SPF), **verificar** `sitesospatas@gmail.com` como destino (chega um e-mail de confirmação nessa caixa) e conferir com um envio real. Na prévia não há binding (o Email Routing exige o domínio) e o formulário responde 503, com o e-mail da ONG na tela; no computador, o `wrangler dev` simula o envio e mostra o arquivo da mensagem no terminal. Se o e-mail da ONG mudar, é preciso verificar o novo destino e trocar `EMAIL_DESTINO` e `destination_address`.
 
 **Segurança do front:** arquivo `_headers` no Pages com `Content-Security-Policy` (fontes do Google, fotos de `fotos.sospatas.org.br`, Turnstile), `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy` (sem câmera/localização).
 
@@ -326,5 +335,6 @@ O código já nasce preparado:
 3. Fotos: manter o R2 (acessível de qualquer lugar pela API S3) ou trocar a implementação de `Armazenamento`.
 4. Login: manter o Access na frente da VPS (domínio continua no Cloudflare, via proxy ou Tunnel).
 5. Cron: trocar o Cron Trigger por um cron do sistema chamando as mesmas funções de `tarefas/`.
+6. E-mail do "Fale com a ONG": o Email Routing só existe no Workers; em `node.ts`, trocar `enviarEmail` por SMTP ou um serviço de envio (a mensagem já sai pronta de `servicos/email.ts`).
 
 Custo de referência (out/2026): Contabo Cloud VPS 10 ≈ R$ 30–36/mês; Hostinger KVM 1 ≈ R$ 28–48/mês.

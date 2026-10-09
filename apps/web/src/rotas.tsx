@@ -1,8 +1,10 @@
 import { Navigate, createBrowserRouter } from 'react-router'
 import { LayoutPublico } from './layouts/LayoutPublico'
 import { EmBreve, PaginaNaoEncontrada } from './pages/Avisos'
+import { Adotar } from './pages/Adotar'
 import { ComoAdotar } from './pages/ComoAdotar'
 import { ComoAjudar } from './pages/ComoAjudar'
+import { Contato } from './pages/Contato'
 import { Ficha } from './pages/Ficha'
 import { Inicio } from './pages/Inicio'
 import { PerguntasFrequentes } from './pages/PerguntasFrequentes'
@@ -21,10 +23,11 @@ export const rotas = createBrowserRouter([
       // A antiga "Sobre" virou "Como ajudar" (no Pages, também em public/_redirects)
       { path: '/sobre', element: <Navigate to="/ajude" replace /> },
       { path: '/privacidade', element: <Privacidade /> },
+      { path: '/contato', element: <Contato /> },
       { path: '/animais', element: <Vitrine /> },
       { path: '/animais/:id', element: <Ficha /> },
-      // Etapa 10b: formulário de adoção; etapa 11: perdidos e encontrados
-      { path: '/animais/:id/adotar', element: <EmBreve /> },
+      { path: '/animais/:id/adotar', element: <Adotar /> },
+      // Etapa 11: perdidos e encontrados
       { path: '/perdidos', element: <EmBreve /> },
       { path: '/perdidos/novo', element: <EmBreve /> },
       { path: '*', element: <PaginaNaoEncontrada /> },

@@ -134,7 +134,7 @@ describe('Ficha (T03)', () => {
     const botao = await screen.findByRole('link', { name: /Quero adotar Mel/ })
     expect(botao).toHaveAttribute('href', '/animais/a2/adotar')
     await userEvent.click(botao)
-    expect(await screen.findByRole('heading', { name: 'Em breve' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Pedido de adoção' })).toBeInTheDocument()
   })
 
   it('animal adotado abre a ficha, com o selo e sem o botão de adotar', async () => {

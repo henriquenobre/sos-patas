@@ -1,0 +1,1403 @@
+{
+  "id": "80b391a2-a8f2-4da6-91dc-fff6d5991c14",
+  "prevId": "f9f60e1d-7bbe-417f-bf1c-a40ade710b21",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.animais": {
+      "name": "animais",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "especie": {
+          "name": "especie",
+          "type": "especie",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sexo": {
+          "name": "sexo",
+          "type": "sexo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nascimento_aprox": {
+          "name": "nascimento_aprox",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "porte": {
+          "name": "porte",
+          "type": "porte",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "raca": {
+          "name": "raca",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "raca_tipo": {
+          "name": "raca_tipo",
+          "type": "raca_tipo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cor_pelagem": {
+          "name": "cor_pelagem",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "castrado": {
+          "name": "castrado",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vacinado": {
+          "name": "vacinado",
+          "type": "sim_nao_sem_informacao",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vacinas": {
+          "name": "vacinas",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vermifugado": {
+          "name": "vermifugado",
+          "type": "sim_nao_sem_informacao",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "problema_saude": {
+          "name": "problema_saude",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "docil": {
+          "name": "docil",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "convive_animais": {
+          "name": "convive_animais",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "status": {
+          "name": "status",
+          "type": "status_animal",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'disponivel'"
+        },
+        "data_entrada": {
+          "name": "data_entrada",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_DATE"
+        },
+        "data_adocao": {
+          "name": "data_adocao",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "responsavel_tipo": {
+          "name": "responsavel_tipo",
+          "type": "responsavel_tipo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ong'"
+        },
+        "protetor_id": {
+          "name": "protetor_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "animais_vitrine_idx": {
+          "name": "animais_vitrine_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "data_entrada",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "animais_protetor_id_protetores_id_fk": {
+          "name": "animais_protetor_id_protetores_id_fk",
+          "tableFrom": "animais",
+          "tableTo": "protetores",
+          "columnsFrom": ["protetor_id"],
+          "columnsTo": ["id"],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "animais_updated_by_equipe_id_fk": {
+          "name": "animais_updated_by_equipe_id_fk",
+          "tableFrom": "animais",
+          "tableTo": "equipe",
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "animais_nome_limite": {
+          "name": "animais_nome_limite",
+          "value": "char_length(\"animais\".\"nome\") <= 40"
+        },
+        "animais_nome_preenchido": {
+          "name": "animais_nome_preenchido",
+          "value": "btrim(\"animais\".\"nome\") <> ''"
+        },
+        "animais_raca_limite": {
+          "name": "animais_raca_limite",
+          "value": "char_length(\"animais\".\"raca\") <= 60"
+        },
+        "animais_cor_pelagem_limite": {
+          "name": "animais_cor_pelagem_limite",
+          "value": "char_length(\"animais\".\"cor_pelagem\") <= 60"
+        },
+        "animais_vacinas_limite": {
+          "name": "animais_vacinas_limite",
+          "value": "char_length(\"animais\".\"vacinas\") <= 120"
+        },
+        "animais_problema_saude_limite": {
+          "name": "animais_problema_saude_limite",
+          "value": "char_length(\"animais\".\"problema_saude\") <= 300"
+        },
+        "animais_descricao_limite": {
+          "name": "animais_descricao_limite",
+          "value": "char_length(\"animais\".\"descricao\") <= 500"
+        },
+        "animais_responsavel_protetor": {
+          "name": "animais_responsavel_protetor",
+          "value": "(\"animais\".\"responsavel_tipo\" = 'ong' AND \"animais\".\"protetor_id\" IS NULL) OR (\"animais\".\"responsavel_tipo\" = 'protetor' AND \"animais\".\"protetor_id\" IS NOT NULL)"
+        },
+        "animais_data_adocao": {
+          "name": "animais_data_adocao",
+          "value": "(\"animais\".\"status\" = 'adotado') = (\"animais\".\"data_adocao\" IS NOT NULL)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.animais_privado": {
+      "name": "animais_privado",
+      "schema": "",
+      "columns": {
+        "animal_id": {
+          "name": "animal_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "lar_nome": {
+          "name": "lar_nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lar_tipo": {
+          "name": "lar_tipo",
+          "type": "lar_tipo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "observacoes": {
+          "name": "observacoes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "adotante_nome": {
+          "name": "adotante_nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "adotante_whatsapp": {
+          "name": "adotante_whatsapp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "animais_privado_animal_id_animais_id_fk": {
+          "name": "animais_privado_animal_id_animais_id_fk",
+          "tableFrom": "animais_privado",
+          "tableTo": "animais",
+          "columnsFrom": ["animal_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "animais_privado_lar_nome_limite": {
+          "name": "animais_privado_lar_nome_limite",
+          "value": "char_length(\"animais_privado\".\"lar_nome\") <= 80"
+        },
+        "animais_privado_observacoes_limite": {
+          "name": "animais_privado_observacoes_limite",
+          "value": "char_length(\"animais_privado\".\"observacoes\") <= 1000"
+        },
+        "animais_privado_adotante_nome_limite": {
+          "name": "animais_privado_adotante_nome_limite",
+          "value": "char_length(\"animais_privado\".\"adotante_nome\") <= 80"
+        },
+        "animais_privado_adotante_whatsapp_valido": {
+          "name": "animais_privado_adotante_whatsapp_valido",
+          "value": "\"animais_privado\".\"adotante_whatsapp\" IS NULL OR \"animais_privado\".\"adotante_whatsapp\" ~ '^[0-9]{10,11}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.conteudo_itens": {
+      "name": "conteudo_itens",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "lista": {
+          "name": "lista",
+          "type": "conteudo_lista",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titulo": {
+          "name": "titulo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "texto": {
+          "name": "texto",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "foto_path": {
+          "name": "foto_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ordem": {
+          "name": "ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "conteudo_itens_updated_by_equipe_id_fk": {
+          "name": "conteudo_itens_updated_by_equipe_id_fk",
+          "tableFrom": "conteudo_itens",
+          "tableTo": "equipe",
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "conteudo_itens_ordem_valida": {
+          "name": "conteudo_itens_ordem_valida",
+          "value": "\"conteudo_itens\".\"ordem\" >= 0"
+        },
+        "conteudo_itens_sem_titulo": {
+          "name": "conteudo_itens_sem_titulo",
+          "value": "\"conteudo_itens\".\"lista\" NOT IN ('como_adotar_antes', 'inicio_fotos') OR \"conteudo_itens\".\"titulo\" IS NULL"
+        },
+        "conteudo_itens_titulo_obrigatorio": {
+          "name": "conteudo_itens_titulo_obrigatorio",
+          "value": "\"conteudo_itens\".\"lista\" NOT IN ('perguntas', 'como_adotar_passos', 'inicio_marcos', 'inicio_numeros', 'inicio_como_funcionamos', 'ajude_formas') OR (\"conteudo_itens\".\"titulo\" IS NOT NULL AND btrim(\"conteudo_itens\".\"titulo\") <> '')"
+        },
+        "conteudo_itens_titulo_limite": {
+          "name": "conteudo_itens_titulo_limite",
+          "value": "\"conteudo_itens\".\"titulo\" IS NULL OR char_length(\"conteudo_itens\".\"titulo\") <= CASE lista WHEN 'perguntas' THEN 150 WHEN 'como_adotar_passos' THEN 60 WHEN 'como_adotar_vantagens' THEN 60 WHEN 'inicio_marcos' THEN 20 WHEN 'inicio_numeros' THEN 20 WHEN 'inicio_como_funcionamos' THEN 40 WHEN 'ajude_formas' THEN 40 ELSE 0 END"
+        },
+        "conteudo_itens_texto_preenchido": {
+          "name": "conteudo_itens_texto_preenchido",
+          "value": "btrim(\"conteudo_itens\".\"texto\") <> ''"
+        },
+        "conteudo_itens_texto_limite": {
+          "name": "conteudo_itens_texto_limite",
+          "value": "char_length(\"conteudo_itens\".\"texto\") <= CASE lista WHEN 'perguntas' THEN 1000 WHEN 'como_adotar_passos' THEN 600 WHEN 'como_adotar_antes' THEN 200 WHEN 'como_adotar_vantagens' THEN 200 WHEN 'inicio_marcos' THEN 300 WHEN 'inicio_numeros' THEN 80 WHEN 'inicio_fotos' THEN 120 WHEN 'inicio_como_funcionamos' THEN 150 WHEN 'ajude_formas' THEN 300 END"
+        },
+        "conteudo_itens_foto": {
+          "name": "conteudo_itens_foto",
+          "value": "(\"conteudo_itens\".\"lista\" IN ('inicio_fotos')) = (\"conteudo_itens\".\"foto_path\" IS NOT NULL)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.conteudo_textos": {
+      "name": "conteudo_textos",
+      "schema": "",
+      "columns": {
+        "chave": {
+          "name": "chave",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "valor": {
+          "name": "valor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "conteudo_textos_updated_by_equipe_id_fk": {
+          "name": "conteudo_textos_updated_by_equipe_id_fk",
+          "tableFrom": "conteudo_textos",
+          "tableTo": "equipe",
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "conteudo_textos_chave_valida": {
+          "name": "conteudo_textos_chave_valida",
+          "value": "\"conteudo_textos\".\"chave\" IN ('inicio.chamada_titulo', 'inicio.chamada_texto', 'inicio.historia', 'inicio.missao', 'inicio.esperando_texto', 'como_adotar.subtitulo', 'como_adotar.aviso_protetor', 'como_adotar.vantagens_rodape', 'ajude.introducao')"
+        },
+        "conteudo_textos_valor_limite": {
+          "name": "conteudo_textos_valor_limite",
+          "value": "char_length(\"conteudo_textos\".\"valor\") <= CASE chave WHEN 'inicio.chamada_titulo' THEN 60 WHEN 'inicio.chamada_texto' THEN 200 WHEN 'inicio.historia' THEN 2000 WHEN 'inicio.missao' THEN 400 WHEN 'inicio.esperando_texto' THEN 200 WHEN 'como_adotar.subtitulo' THEN 100 WHEN 'como_adotar.aviso_protetor' THEN 500 WHEN 'como_adotar.vantagens_rodape' THEN 200 WHEN 'ajude.introducao' THEN 300 END"
+        },
+        "conteudo_textos_obrigatorio": {
+          "name": "conteudo_textos_obrigatorio",
+          "value": "\"conteudo_textos\".\"chave\" NOT IN ('inicio.chamada_titulo', 'inicio.chamada_texto', 'inicio.historia', 'inicio.missao', 'inicio.esperando_texto', 'como_adotar.subtitulo', 'como_adotar.aviso_protetor') OR btrim(\"conteudo_textos\".\"valor\") <> ''"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.equipe": {
+      "name": "equipe",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ativo": {
+          "name": "ativo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "equipe_email_unique": {
+          "name": "equipe_email_unique",
+          "nullsNotDistinct": false,
+          "columns": ["email"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "equipe_email_minusculo": {
+          "name": "equipe_email_minusculo",
+          "value": "\"equipe\".\"email\" = lower(\"equipe\".\"email\")"
+        },
+        "equipe_email_limite": {
+          "name": "equipe_email_limite",
+          "value": "char_length(\"equipe\".\"email\") <= 254"
+        },
+        "equipe_nome_limite": {
+          "name": "equipe_nome_limite",
+          "value": "char_length(\"equipe\".\"nome\") <= 40"
+        },
+        "equipe_nome_preenchido": {
+          "name": "equipe_nome_preenchido",
+          "value": "btrim(\"equipe\".\"nome\") <> ''"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.fotos": {
+      "name": "fotos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "animal_id": {
+          "name": "animal_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ordem": {
+          "name": "ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "path_miniatura": {
+          "name": "path_miniatura",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "path_completa": {
+          "name": "path_completa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "fotos_animal_id_animais_id_fk": {
+          "name": "fotos_animal_id_animais_id_fk",
+          "tableFrom": "fotos",
+          "tableTo": "animais",
+          "columnsFrom": ["animal_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "fotos_ordem_valida": {
+          "name": "fotos_ordem_valida",
+          "value": "\"fotos\".\"ordem\" BETWEEN 0 AND 2"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.ong": {
+      "name": "ong",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "smallint",
+          "primaryKey": true,
+          "notNull": true,
+          "default": 1
+        },
+        "nome_completo": {
+          "name": "nome_completo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "whatsapp": {
+          "name": "whatsapp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "instagram": {
+          "name": "instagram",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "facebook": {
+          "name": "facebook",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_tipo": {
+          "name": "pix_tipo",
+          "type": "pix_tipo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pix_chave": {
+          "name": "pix_chave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ong_updated_by_equipe_id_fk": {
+          "name": "ong_updated_by_equipe_id_fk",
+          "tableFrom": "ong",
+          "tableTo": "equipe",
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "ong_linha_unica": {
+          "name": "ong_linha_unica",
+          "value": "\"ong\".\"id\" = 1"
+        },
+        "ong_whatsapp_valido": {
+          "name": "ong_whatsapp_valido",
+          "value": "\"ong\".\"whatsapp\" ~ '^[0-9]{10,11}$'"
+        },
+        "ong_nome_completo_limite": {
+          "name": "ong_nome_completo_limite",
+          "value": "char_length(\"ong\".\"nome_completo\") <= 120"
+        },
+        "ong_instagram_limite": {
+          "name": "ong_instagram_limite",
+          "value": "char_length(\"ong\".\"instagram\") <= 30"
+        },
+        "ong_instagram_sem_arroba": {
+          "name": "ong_instagram_sem_arroba",
+          "value": "position('@' in \"ong\".\"instagram\") = 0"
+        },
+        "ong_facebook_url": {
+          "name": "ong_facebook_url",
+          "value": "\"ong\".\"facebook\" IS NULL OR (char_length(\"ong\".\"facebook\") <= 200 AND \"ong\".\"facebook\" LIKE 'https://%')"
+        },
+        "ong_pix_chave_limite": {
+          "name": "ong_pix_chave_limite",
+          "value": "char_length(\"ong\".\"pix_chave\") <= 100"
+        },
+        "ong_pix_chave_preenchida": {
+          "name": "ong_pix_chave_preenchida",
+          "value": "btrim(\"ong\".\"pix_chave\") <> ''"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.pedidos_adocao": {
+      "name": "pedidos_adocao",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "animal_id": {
+          "name": "animal_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "pedido_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pendente'"
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "whatsapp": {
+          "name": "whatsapp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bairro_cidade": {
+          "name": "bairro_cidade",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "versao_formulario": {
+          "name": "versao_formulario",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "respostas": {
+          "name": "respostas",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "termo_ciente_em": {
+          "name": "termo_ciente_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "versao_termo": {
+          "name": "versao_termo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "consentimento_em": {
+          "name": "consentimento_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ip_hash": {
+          "name": "ip_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "observacao_equipe": {
+          "name": "observacao_equipe",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "analisado_em": {
+          "name": "analisado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "analisado_por": {
+          "name": "analisado_por",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "pedidos_adocao_um_pendente_por_animal": {
+          "name": "pedidos_adocao_um_pendente_por_animal",
+          "columns": [
+            {
+              "expression": "animal_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"pedidos_adocao\".\"status\" = 'pendente'",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "pedidos_adocao_status_idx": {
+          "name": "pedidos_adocao_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "pedidos_adocao_whatsapp_idx": {
+          "name": "pedidos_adocao_whatsapp_idx",
+          "columns": [
+            {
+              "expression": "whatsapp",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pedidos_adocao_animal_id_animais_id_fk": {
+          "name": "pedidos_adocao_animal_id_animais_id_fk",
+          "tableFrom": "pedidos_adocao",
+          "tableTo": "animais",
+          "columnsFrom": ["animal_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "pedidos_adocao_analisado_por_equipe_id_fk": {
+          "name": "pedidos_adocao_analisado_por_equipe_id_fk",
+          "tableFrom": "pedidos_adocao",
+          "tableTo": "equipe",
+          "columnsFrom": ["analisado_por"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "pedidos_adocao_updated_by_equipe_id_fk": {
+          "name": "pedidos_adocao_updated_by_equipe_id_fk",
+          "tableFrom": "pedidos_adocao",
+          "tableTo": "equipe",
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "pedidos_adocao_nome_limite": {
+          "name": "pedidos_adocao_nome_limite",
+          "value": "char_length(\"pedidos_adocao\".\"nome\") <= 100"
+        },
+        "pedidos_adocao_nome_preenchido": {
+          "name": "pedidos_adocao_nome_preenchido",
+          "value": "btrim(\"pedidos_adocao\".\"nome\") <> ''"
+        },
+        "pedidos_adocao_whatsapp_valido": {
+          "name": "pedidos_adocao_whatsapp_valido",
+          "value": "\"pedidos_adocao\".\"whatsapp\" ~ '^[0-9]{10,11}$'"
+        },
+        "pedidos_adocao_bairro_cidade_limite": {
+          "name": "pedidos_adocao_bairro_cidade_limite",
+          "value": "char_length(\"pedidos_adocao\".\"bairro_cidade\") <= 100"
+        },
+        "pedidos_adocao_bairro_cidade_preenchido": {
+          "name": "pedidos_adocao_bairro_cidade_preenchido",
+          "value": "btrim(\"pedidos_adocao\".\"bairro_cidade\") <> ''"
+        },
+        "pedidos_adocao_observacao_limite": {
+          "name": "pedidos_adocao_observacao_limite",
+          "value": "char_length(\"pedidos_adocao\".\"observacao_equipe\") <= 1000"
+        },
+        "pedidos_adocao_analise": {
+          "name": "pedidos_adocao_analise",
+          "value": "(\"pedidos_adocao\".\"status\" = 'pendente') = (\"pedidos_adocao\".\"analisado_em\" IS NULL)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.perdidos": {
+      "name": "perdidos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "perdido_tipo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "especie": {
+          "name": "especie",
+          "type": "especie",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bairro": {
+          "name": "bairro",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_ocorrido": {
+          "name": "data_ocorrido",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "contato_nome": {
+          "name": "contato_nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "contato_whatsapp": {
+          "name": "contato_whatsapp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "consentimento_em": {
+          "name": "consentimento_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "origem": {
+          "name": "origem",
+          "type": "perdido_origem",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'site'"
+        },
+        "status": {
+          "name": "status",
+          "type": "perdido_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pendente'"
+        },
+        "publicado_em": {
+          "name": "publicado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expira_em": {
+          "name": "expira_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ip_hash": {
+          "name": "ip_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "perdidos_status_expira_idx": {
+          "name": "perdidos_status_expira_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "expira_em",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "perdidos_updated_by_equipe_id_fk": {
+          "name": "perdidos_updated_by_equipe_id_fk",
+          "tableFrom": "perdidos",
+          "tableTo": "equipe",
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "perdidos_nome_limite": {
+          "name": "perdidos_nome_limite",
+          "value": "char_length(\"perdidos\".\"nome\") <= 40"
+        },
+        "perdidos_bairro_limite": {
+          "name": "perdidos_bairro_limite",
+          "value": "char_length(\"perdidos\".\"bairro\") <= 60"
+        },
+        "perdidos_bairro_preenchido": {
+          "name": "perdidos_bairro_preenchido",
+          "value": "btrim(\"perdidos\".\"bairro\") <> ''"
+        },
+        "perdidos_descricao_limite": {
+          "name": "perdidos_descricao_limite",
+          "value": "char_length(\"perdidos\".\"descricao\") <= 300"
+        },
+        "perdidos_descricao_preenchida": {
+          "name": "perdidos_descricao_preenchida",
+          "value": "btrim(\"perdidos\".\"descricao\") <> ''"
+        },
+        "perdidos_contato_nome_limite": {
+          "name": "perdidos_contato_nome_limite",
+          "value": "char_length(\"perdidos\".\"contato_nome\") <= 30"
+        },
+        "perdidos_contato_nome_preenchido": {
+          "name": "perdidos_contato_nome_preenchido",
+          "value": "btrim(\"perdidos\".\"contato_nome\") <> ''"
+        },
+        "perdidos_contato_whatsapp_valido": {
+          "name": "perdidos_contato_whatsapp_valido",
+          "value": "\"perdidos\".\"contato_whatsapp\" ~ '^[0-9]{10,11}$'"
+        },
+        "perdidos_datas_publicacao": {
+          "name": "perdidos_datas_publicacao",
+          "value": "(\"perdidos\".\"status\" = 'publicado') = (\"perdidos\".\"publicado_em\" IS NOT NULL AND \"perdidos\".\"expira_em\" IS NOT NULL)"
+        },
+        "perdidos_ip_hash_so_site": {
+          "name": "perdidos_ip_hash_so_site",
+          "value": "\"perdidos\".\"origem\" = 'site' OR \"perdidos\".\"ip_hash\" IS NULL"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.perdidos_fotos": {
+      "name": "perdidos_fotos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "perdido_id": {
+          "name": "perdido_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "path": {
+          "name": "path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "perdidos_fotos_perdido_id_perdidos_id_fk": {
+          "name": "perdidos_fotos_perdido_id_perdidos_id_fk",
+          "tableFrom": "perdidos_fotos",
+          "tableTo": "perdidos",
+          "columnsFrom": ["perdido_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.protetores": {
+      "name": "protetores",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "whatsapp": {
+          "name": "whatsapp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "protetores_updated_by_equipe_id_fk": {
+          "name": "protetores_updated_by_equipe_id_fk",
+          "tableFrom": "protetores",
+          "tableTo": "equipe",
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "protetores_nome_limite": {
+          "name": "protetores_nome_limite",
+          "value": "char_length(\"protetores\".\"nome\") <= 60"
+        },
+        "protetores_nome_preenchido": {
+          "name": "protetores_nome_preenchido",
+          "value": "btrim(\"protetores\".\"nome\") <> ''"
+        },
+        "protetores_whatsapp_valido": {
+          "name": "protetores_whatsapp_valido",
+          "value": "\"protetores\".\"whatsapp\" ~ '^[0-9]{10,11}$'"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.conteudo_lista": {
+      "name": "conteudo_lista",
+      "schema": "public",
+      "values": [
+        "perguntas",
+        "como_adotar_passos",
+        "como_adotar_antes",
+        "como_adotar_vantagens",
+        "inicio_marcos",
+        "inicio_numeros",
+        "inicio_fotos",
+        "inicio_como_funcionamos",
+        "ajude_formas"
+      ]
+    },
+    "public.especie": {
+      "name": "especie",
+      "schema": "public",
+      "values": ["cao", "gato"]
+    },
+    "public.lar_tipo": {
+      "name": "lar_tipo",
+      "schema": "public",
+      "values": ["provisorio", "remunerado"]
+    },
+    "public.pedido_status": {
+      "name": "pedido_status",
+      "schema": "public",
+      "values": ["pendente", "aprovado", "recusado", "nao_concluido"]
+    },
+    "public.perdido_origem": {
+      "name": "perdido_origem",
+      "schema": "public",
+      "values": ["site", "equipe"]
+    },
+    "public.perdido_status": {
+      "name": "perdido_status",
+      "schema": "public",
+      "values": ["pendente", "publicado"]
+    },
+    "public.perdido_tipo": {
+      "name": "perdido_tipo",
+      "schema": "public",
+      "values": ["perdido", "encontrado"]
+    },
+    "public.pix_tipo": {
+      "name": "pix_tipo",
+      "schema": "public",
+      "values": ["cnpj", "cpf", "email", "telefone", "aleatoria"]
+    },
+    "public.porte": {
+      "name": "porte",
+      "schema": "public",
+      "values": ["mini", "pequeno", "medio", "grande", "gigante"]
+    },
+    "public.raca_tipo": {
+      "name": "raca_tipo",
+      "schema": "public",
+      "values": ["puro", "mestico"]
+    },
+    "public.responsavel_tipo": {
+      "name": "responsavel_tipo",
+      "schema": "public",
+      "values": ["ong", "protetor"]
+    },
+    "public.sexo": {
+      "name": "sexo",
+      "schema": "public",
+      "values": ["macho", "femea"]
+    },
+    "public.sim_nao_sem_informacao": {
+      "name": "sim_nao_sem_informacao",
+      "schema": "public",
+      "values": ["sim", "nao", "sem_informacao"]
+    },
+    "public.status_animal": {
+      "name": "status_animal",
+      "schema": "public",
+      "values": ["disponivel", "em_analise", "adotado"]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

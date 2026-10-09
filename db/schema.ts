@@ -11,11 +11,13 @@ import {
   date,
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   smallint,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
   type AnyPgColumn,
 } from 'drizzle-orm/pg-core'
@@ -27,6 +29,7 @@ import {
   LISTAS,
   MAX_FOTOS_ANIMAL,
   NOMES_LISTA,
+  PEDIDO_STATUS,
   PERDIDO_ORIGENS,
   PERDIDO_STATUS,
   PERDIDO_TIPOS,
@@ -40,6 +43,7 @@ import {
   STATUS_ANIMAL,
   TEXTOS,
   type NomeLista,
+  type RespostasAdocao,
 } from '@sospatas/compartilhado'
 
 // ---------------------------------------------------------------------------
@@ -57,6 +61,7 @@ export const perdidoTipo = pgEnum('perdido_tipo', PERDIDO_TIPOS)
 export const perdidoOrigem = pgEnum('perdido_origem', PERDIDO_ORIGENS)
 export const perdidoStatus = pgEnum('perdido_status', PERDIDO_STATUS)
 export const pixTipo = pgEnum('pix_tipo', PIX_TIPOS)
+export const pedidoStatus = pgEnum('pedido_status', PEDIDO_STATUS)
 export const conteudoLista = pgEnum('conteudo_lista', NOMES_LISTA)
 
 // ---------------------------------------------------------------------------
@@ -110,14 +115,16 @@ export const equipe = pgTable(
 )
 
 // ---------------------------------------------------------------------------
-// ong: dados de contato, uma linha só (id = 1)
+// ong: dados de contato, uma linha só (id = 1). Sem WhatsApp próprio, o contato do site é o
+// e-mail (RN51); quando a ONG tiver um número, a equipe preenche o whatsapp em T23.
 // ---------------------------------------------------------------------------
 export const ong = pgTable(
   'ong',
   {
     id: smallint().primaryKey().default(1),
     nome_completo: text().notNull(),
-    whatsapp: text().notNull(),
+    email: text().notNull(),
+    whatsapp: text(),
     instagram: text().notNull(),
     facebook: text(),
     pix_tipo: pixTipo().notNull(),
@@ -126,7 +133,10 @@ export const ong = pgTable(
   },
   (t) => [
     check('ong_linha_unica', sql`${t.id} = 1`),
-    check('ong_whatsapp_valido', whatsappValido(t.whatsapp)),
+    check('ong_whatsapp_valido', sql`${t.whatsapp} IS NULL OR ${whatsappValido(t.whatsapp)}`),
+    check('ong_email_minusculo', sql`${t.email} = lower(${t.email})`),
+    check('ong_email_valido', sql`${t.email} ~ '^[^@[:space:]]+@[^@[:space:]]+[.][^@[:space:]]+$'`),
+    check('ong_email_limite', maximo(t.email, LIMITES.ong.email)),
     check('ong_nome_completo_limite', maximo(t.nome_completo, LIMITES.ong.nome_completo)),
     check('ong_instagram_limite', maximo(t.instagram, LIMITES.ong.instagram)),
     check('ong_instagram_sem_arroba', sql`position('@' in ${t.instagram}) = 0`),
@@ -325,6 +335,59 @@ export const perdidosFotos = pgTable('perdidos_fotos', {
 })
 
 // ---------------------------------------------------------------------------
+// pedidos_adocao: formulário de adoção + ciência do termo (RN14, RN15, RN47–RN50). Só a equipe lê.
+// ---------------------------------------------------------------------------
+export const pedidosAdocao = pgTable(
+  'pedidos_adocao',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    animal_id: uuid()
+      .notNull()
+      .references(() => animais.id, { onDelete: 'cascade' }),
+    status: pedidoStatus().notNull().default('pendente'),
+    nome: text().notNull(),
+    whatsapp: text().notNull(),
+    bairro_cidade: text().notNull(),
+    versao_formulario: text().notNull(),
+    /** Perguntas 2 e 5 a 24 (o formato é o da versao_formulario) */
+    respostas: jsonb().$type<RespostasAdocao>().notNull(),
+    /** A "assinatura" do termo no site: quando marcou que leu e está ciente, e qual versão (RN47) */
+    termo_ciente_em: timestamp({ withTimezone: true }).notNull(),
+    versao_termo: text().notNull(),
+    /** Declaração de autorização do uso dos dados (LGPD) */
+    consentimento_em: timestamp({ withTimezone: true }).notNull(),
+    ip_hash: text(),
+    observacao_equipe: text().notNull().default(''),
+    analisado_em: timestamp({ withTimezone: true }),
+    analisado_por: uuid().references(() => equipe.id, { onDelete: 'set null' }),
+    ...criadoEm,
+    ...auditoria,
+  },
+  (t) => [
+    // RN48: no máximo um pedido aguardando análise por animal
+    uniqueIndex('pedidos_adocao_um_pendente_por_animal')
+      .on(t.animal_id)
+      .where(sql`${t.status} = 'pendente'`),
+    index('pedidos_adocao_status_idx').on(t.status, t.created_at),
+    index('pedidos_adocao_whatsapp_idx').on(t.whatsapp),
+    check('pedidos_adocao_nome_limite', maximo(t.nome, LIMITES.pedidos_adocao.nome)),
+    check('pedidos_adocao_nome_preenchido', preenchido(t.nome)),
+    check('pedidos_adocao_whatsapp_valido', whatsappValido(t.whatsapp)),
+    check(
+      'pedidos_adocao_bairro_cidade_limite',
+      maximo(t.bairro_cidade, LIMITES.pedidos_adocao.bairro_cidade),
+    ),
+    check('pedidos_adocao_bairro_cidade_preenchido', preenchido(t.bairro_cidade)),
+    check(
+      'pedidos_adocao_observacao_limite',
+      maximo(t.observacao_equipe, LIMITES.pedidos_adocao.observacao_equipe),
+    ),
+    // Pedido decidido sempre tem a data da decisão; pendente, nunca
+    check('pedidos_adocao_analise', sql`(${t.status} = 'pendente') = (${t.analisado_em} IS NULL)`),
+  ],
+)
+
+// ---------------------------------------------------------------------------
 // conteudo_textos: textos únicos das páginas (RN33, RN34)
 // ---------------------------------------------------------------------------
 const chavesObrigatorias = CHAVES_TEXTO.filter((chave) => TEXTOS[chave].obrigatorio)
@@ -400,4 +463,19 @@ export const conteudoItens = pgTable(
       sql`(${t.lista} IN ${literais(listasComFoto)}) = (${t.foto_path} IS NOT NULL)`,
     ),
   ],
+)
+
+// ---------------------------------------------------------------------------
+// contato_envios: só para o limite do formulário "Fale com a ONG" (RN51). A mensagem vai por
+// e-mail e não fica aqui; a linha guarda o hash do IP e a hora, e a tarefa diária apaga
+// depois de 1 dia.
+// ---------------------------------------------------------------------------
+export const contatoEnvios = pgTable(
+  'contato_envios',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    ip_hash: text().notNull(),
+    ...criadoEm,
+  },
+  (t) => [index('contato_envios_ip_hash_idx').on(t.ip_hash, t.created_at)],
 )

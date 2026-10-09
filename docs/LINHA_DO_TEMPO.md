@@ -39,7 +39,7 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | 8 | Deploy de prévia no Cloudflare | | | | |
 | 9 | API da ONG: animais, fotos, adoção, protetores | | | | |
 | 10 | Área da ONG: estrutura e animais | | | | |
-| 10b | Pedidos de adoção | | | | Entrou no MVP em 08/10/2026 |
+| 10b | Pedidos de adoção | 09/10/2026 | | | Entrou no MVP em 08/10/2026. Banco, API e formulário prontos em 09/10; telas da área da ONG com a etapa 10 |
 | 11 | Perdidos e encontrados | | | | |
 | 12 | Editor de textos | | | | |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores | | | | |
@@ -80,3 +80,7 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 08/10/2026 | 17:15 | 7 | **Etapa 6 concluída:** primeiras páginas do site funcionando no computador, com os dados do banco local | doc (verificação local) |
 | 08/10/2026 | | 7 | Decisão: pedidos de adoção entram no MVP (formulário com o termo, análise pela equipe, animal fora do site durante a análise); nova etapa 10b no plano | relato |
 | 08/10/2026 | 18:40 | 7 | **Etapa 7 concluída:** vitrine e ficha do animal funcionando no computador, com fotos de exemplo | doc (verificação local) |
+| 08/10/2026 | | 4 | **A ONG definiu o fluxo de adoção:** tudo pelo site; formulário combinado → termo para ler e marcar que está ciente (registrado no banco) → análise na área da ONG → se aprovado, a ONG combina com a pessoa onde buscar o animal | relato (09/10) |
+| 09/10/2026 | | 7 | Etapa 10b adiantada: pedidos de adoção no banco, na API e no site (formulário + termo), testados de ponta a ponta no navegador; protótipo congelado | doc (verificação local) |
+| 09/10/2026 | | 7 | A ONG enviou novas formas de ajudar (mensalistas, apadrinhamento, bazar, Empresa amiga); página Como ajudar atualizada (só texto). A história da página inicial passa a abrir com a foto da equipe em 2016 | relato (09/10) |
+| 09/10/2026 | | 7 | Contato da ONG no site passa a ser o e-mail `sitesospatas@gmail.com` (a ONG ainda vai providenciar um WhatsApp próprio); nova página "Fale com a ONG" com formulário, que só funciona em produção (etapa 14) | relato (09/10) |

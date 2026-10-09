@@ -4,6 +4,7 @@ import { Link } from 'react-router'
 import { useSite } from '../api/publico'
 import { BlocoPix } from '../components/BlocoPix'
 import { Carregando, ErroAoCarregar, TituloPagina } from '../components/Estados'
+import { IconeEmail } from '../components/Icones'
 import { TextoSimples } from '../components/TextoSimples'
 
 export function ComoAjudar() {
@@ -31,9 +32,18 @@ export function ComoAjudar() {
             </div>
           ))}
         </div>
-        <Link to="/#historia" className="mt-6 inline-block font-bold text-azul hover:underline">
-          Conheça a história da SOS Patas →
+        {/* Contato pelo formulário enquanto a ONG não tem WhatsApp próprio (RN51) */}
+        <Link
+          to="/contato?assunto=ajudar"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-azul px-5 py-3 font-bold text-white hover:bg-azul-escuro"
+        >
+          <IconeEmail /> Fale com a ONG
         </Link>
+        <div>
+          <Link to="/#historia" className="mt-6 inline-block font-bold text-azul hover:underline">
+            Conheça a história da SOS Patas →
+          </Link>
+        </div>
       </section>
     </>
   )

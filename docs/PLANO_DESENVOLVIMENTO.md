@@ -39,7 +39,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ⬜ |
 | 9 | API da ONG: animais, fotos, adoção, protetores | 4 | 16–17/10 | ⬜ |
 | 10 | Área da ONG: estrutura e animais (T09–T11) | 9 | 17–19/10 | ⬜ |
-| 10b | Pedidos de adoção: formulário com o termo, análise e animal fora do site (RN47–RN50) | 10 | 19–20/10 | ⬜ |
+| 10b | Pedidos de adoção: formulário com o termo, análise e animal fora do site (RN47–RN50) | 10 | 19–20/10 | 🔄 banco, API e formulário prontos em 09/10; faltam as telas T27/T28 (com a etapa 10) |
 | 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 20–21/10 | ⬜ |
 | 12 | Editor de textos (T15–T20) | 10 | 21–23/10 | ⬜ |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores, "Alterado por" | 11, 12 | 23–24/10 | ⬜ |
@@ -226,7 +226,9 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 ## Etapa 10b · Pedidos de adoção
 
-**Objetivo:** quem quer adotar preenche o formulário e conhece o termo; o pedido fica salvo, o animal sai do site e a equipe avalia (RN14, RN15, RN47–RN50). Entrou no MVP em 08/10/2026.
+**Objetivo:** quem quer adotar preenche o formulário e aceita o termo no site; o pedido fica salvo, o animal sai do site e a equipe avalia (RN14, RN15, RN47–RN50). Entrou no MVP em 08/10/2026; fluxo fechado com a ONG no mesmo dia.
+
+**Feito em 09/10/2026 (adiantado):** migration, pacote compartilhado (formulário 1.1, termo, alertas), API pública e da equipe, limpeza diária com o cron, telas T26 e T26b, ficha em análise, texto da Privacidade e dos passos de "Como adotar". **Falta:** telas T27 e T28 e a aba Pedidos, que dependem da estrutura da área da ONG (etapa 10), e "Marcar como adotado" com `pedido_id` (etapa 9).
 
 **Entregas:**
 - Migration: valor `em_analise` no enum `status_animal` e tabela `pedidos_adocao` (com índice único parcial: um `pendente` por animal) (DESENVOLVIMENTO.md, seção 5)
@@ -235,7 +237,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 - API da ONG: listar, ver (com alertas), anotar, aprovar e recusar; "Marcar como adotado" com `pedido_id`
 - Limpeza diária do RN15 (com as tarefas da etapa 11, no mesmo cron)
 - Telas **T26** (formulário com o termo) e **T26b** (confirmação); **T27** e **T28** na área da ONG; aba **Pedidos** na `BarraAdmin`; aba **Em análise** no T09
-- Texto de Privacidade atualizado (TELAS.md, T07) no site e no protótipo; T26–T28 desenhadas no protótipo
+- Texto de Privacidade atualizado (TELAS.md, T07) no site (o protótipo está congelado desde 09/10/2026)
 
 **Pronto quando:** testes cobrem: o pedido esconde o animal da vitrine e dos destaques; o segundo pedido do mesmo animal recebe 409; recusar devolve o animal ao site; aprovar mantém o animal fora até "Marcar como adotado"; os limites de envio; os alertas da tabela do formulário; nenhum dado do pedido aparece em rota pública.
 
@@ -285,12 +287,13 @@ Na ordem de prioridade:
 - Neon `production` com migrations e `seed_conteudo.sql`; fotos da história enviadas ao R2 em `site/historia/{id}.webp` com os ids do seed (script pronto desde a etapa 6: `pnpm db:fotos-historia -- --remoto`)
 - **Cloudflare Access:** aplicação protegendo `/admin/*` e `/api/admin/*`, política com os e-mails da equipe, código por e-mail, sessão de 30 dias, página de login com logo e cores (T08); linhas em `equipe`
 - Turnstile (site key no front, segredo na API) e Web Analytics
+- **Email Routing** em `sospatas.org.br` com `sitesospatas@gmail.com` verificado como destino; testar o "Fale com a ONG" (`/contato`, RN51) com um envio real (formulário pronto desde 09/10/2026; ARQUITETURA.md, seção 9)
 - `deploy.yml` (migrations → `wrangler deploy` → Pages) e `backup.yml` (dump diário → `sospatas-backups`, 30 dias)
 - `apps/web/public/_headers` com CSP e cabeçalhos de segurança (ARQUITETURA.md, seção 9)
 - Usuário do banco só com DML para a API e outro para migrations (ARQUITETURA.md, seção 5)
 - **Teste de restauração** do backup num banco vazio, documentado no README
 
-**Pronto quando:** login funciona com um e-mail da equipe e é recusado para um e-mail de fora; um merge na `main` publica sozinho; existe ao menos um backup restaurado com sucesso.
+**Pronto quando:** login funciona com um e-mail da equipe e é recusado para um e-mail de fora; um merge na `main` publica sozinho; existe ao menos um backup restaurado com sucesso; uma mensagem do "Fale com a ONG" chega no Gmail da ONG e a resposta volta para quem escreveu.
 
 ## Etapa 15 · Dados reais, teste com a ONG e ajustes finais
 
