@@ -38,8 +38,8 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 7 | Site público: vitrine e ficha do animal | 6 | 15/10 | ✅ 08/10 |
 | 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ✅ 09/10 · ⚠️ CPU perto do teto (ver etapa 8) |
 | 9 | API da ONG: animais, fotos, adoção, protetores | 4 | 16–17/10 | ✅ 09/10 |
-| 10 | Área da ONG: estrutura e animais (T09–T11) | 9 | 17–19/10 | ⬜ |
-| 10b | Pedidos de adoção: formulário com o termo, análise e animal fora do site (RN47–RN50) | 10 | 19–20/10 | 🔄 banco, API e formulário prontos em 09/10; faltam as telas T27/T28 (com a etapa 10) |
+| 10 | Área da ONG: estrutura e animais (T09–T11) | 9 | 17–19/10 | 🔄 telas prontas em 13/10; falta o teste pelo celular com a API local |
+| 10b | Pedidos de adoção: formulário com o termo, análise e animal fora do site (RN47–RN50) | 10 | 19–20/10 | 🔄 banco, API e formulário em 09/10; T27/T28 e aba Pedidos em 13/10; falta o teste de ponta a ponta com a API local |
 | 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 20–21/10 | ⬜ |
 | 12 | Editor de textos (T15–T20) | 10 | 21–23/10 | ⬜ |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores, "Alterado por" | 11, 12 | 23–24/10 | ⬜ |
@@ -231,11 +231,15 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Pronto quando:** dá para cadastrar um animal com 3 fotos **pelo celular** (testar no aparelho, na rede local), editar, adotar e excluir, e o resultado aparece certo no site público.
 
+**Andamento (13/10/2026):** branch `etapa-10-area-ong`. Rotas `/admin/*` com `LayoutAdmin` (sessão do Access, "Olá, {nome}", abas no rodapé e no cabeçalho, aviso "Salvo e publicado ✓" com "Ver no site"), T09, T10 e T11 completos, `lib/fotos.ts` (canvas → WebP 400 e 1200 px) e `lib/fotos-animal.ts` (envio das fotos ao salvar), modais de adoção, devolução, exclusão e novo protetor; abas Perdidos, Textos e Mais com "Em breve". A área da ONG é carregada só ao abrir `/admin`. 26 testes novos do front (72 no total), com a API simulada: sessão vencida (401 e redirecionamento do Access), cadastro com 3 fotos, validação, protetor novo, edição sem mudar a data de nascimento, remover e reordenar fotos, falha nas fotos, adoção com pedido aprovado, devolução e exclusão (com falha do armazenamento). Decisões no Registro do DESENVOLVIMENTO.md (13/10/2026). **Falta:** o teste do "Pronto quando" no celular com a API e o banco locais (Docker desligado nesta sessão) e conferir no aparelho o redesenho em canvas, que o jsdom não roda (atenção ao Safari do iPhone: se não gerar WebP, a tela pede outro navegador).
+
 ## Etapa 10b · Pedidos de adoção
 
 **Objetivo:** quem quer adotar preenche o formulário e aceita o termo no site; o pedido fica salvo, o animal sai do site e a equipe avalia (RN14, RN15, RN47–RN50). Entrou no MVP em 08/10/2026; fluxo fechado com a ONG no mesmo dia.
 
-**Feito em 09/10/2026 (adiantado):** migration, pacote compartilhado (formulário 1.1, termo, alertas), API pública e da equipe, limpeza diária com o cron, telas T26 e T26b, ficha em análise, texto da Privacidade e dos passos de "Como adotar". **Falta:** telas T27 e T28 e a aba Pedidos, que dependem da estrutura da área da ONG (etapa 10), e "Marcar como adotado" com `pedido_id` (etapa 9).
+**Feito em 09/10/2026 (adiantado):** migration, pacote compartilhado (formulário 1.1, termo, alertas), API pública e da equipe, limpeza diária com o cron, telas T26 e T26b, ficha em análise, texto da Privacidade e dos passos de "Como adotar". "Marcar como adotado" com o pedido aprovado ficou resolvido na etapa 9 com `pedido_aprovado` no `GET /animais/:id` (sem `pedido_id` na rota).
+
+**Feito em 13/10/2026 (com a etapa 10):** T27 (abas Pendentes/Aprovados/Recusados, "há N dias", alertas, vermelho com mais de 3 dias), T28 (alertas, respostas por bloco e por extenso, WhatsApp com mensagem pronta, termo, observação interna, aprovar e recusar com confirmação), aba Pedidos com o número de pendentes, aba Em análise no T09 e o modal "Marcar como adotado" já preenchido. 8 testes novos do front. **Falta:** o teste de ponta a ponta com a API local (pedido → análise → aprovar → marcar como adotado).
 
 **Entregas:**
 - Migration: valor `em_analise` no enum `status_animal` e tabela `pedidos_adocao` (com índice único parcial: um `pendente` por animal) (DESENVOLVIMENTO.md, seção 5)

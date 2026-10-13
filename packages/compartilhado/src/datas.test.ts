@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { diasEntre, ehDataValida, hojeNoBrasil, somarDias, subtrairMeses } from './datas'
+import {
+  diasEntre,
+  ehDataValida,
+  formatarData,
+  hojeNoBrasil,
+  somarDias,
+  subtrairMeses,
+} from './datas'
 
 describe('hojeNoBrasil', () => {
   it('usa o fuso de Brasília: 22h de 08/10 em Passos ainda é 08/10 (em UTC já é 09/10)', () => {
@@ -35,5 +42,11 @@ describe('contas com datas', () => {
     expect(subtrairMeses('2026-03-31', 1)).toBe('2026-02-28')
     expect(subtrairMeses('2026-10-08', 24)).toBe('2024-10-08')
     expect(subtrairMeses('2026-01-15', 3)).toBe('2025-10-15')
+  })
+})
+
+describe('formatarData', () => {
+  it('mostra no formato brasileiro', () => {
+    expect(formatarData('2026-03-05')).toBe('05/03/2026')
   })
 })

@@ -50,3 +50,44 @@ export async function enviarJson<T>(caminho: string, dados: unknown): Promise<T>
   if (!resposta.ok) throw await erroDaResposta(resposta)
   return (await resposta.json()) as T
 }
+
+// ---------------------------------------------------------------------------
+// Área da ONG (/api/admin, atrás do Cloudflare Access)
+// ---------------------------------------------------------------------------
+const MENSAGEM_SESSAO = 'Sua sessão terminou. Entre de novo na área da ONG.'
+
+/** 401: o login do Access venceu (ou não existe). A tela pede para entrar de novo. */
+export const ehSessaoExpirada = (erro: unknown): boolean =>
+  erro instanceof ErroApi && erro.status === 401
+
+/**
+ * Chamada da área da ONG. Com a sessão vencida, o Access responde com um redirecionamento para
+ * a página de login (em outro domínio), que o fetch não consegue seguir: `redirect: 'manual'`
+ * transforma isso numa resposta "opaqueredirect", tratada como 401.
+ * `corpo` FormData vai como multipart (fotos); qualquer outro valor, como JSON.
+ */
+export async function chamarAdmin<T = void>(
+  metodo: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  caminho: string,
+  corpo?: unknown,
+): Promise<T> {
+  const init: RequestInit = { method: metodo, redirect: 'manual' }
+  if (corpo instanceof FormData) {
+    init.body = corpo
+  } else if (corpo !== undefined) {
+    init.headers = { 'Content-Type': 'application/json' }
+    init.body = JSON.stringify(corpo)
+  }
+  let resposta: Response
+  try {
+    resposta = await fetch(`${BASE}/api/admin${caminho}`, init)
+  } catch {
+    throw new ErroApi(0, 'Sem conexão com a internet. Confira e tente de novo.')
+  }
+  if (resposta.type === 'opaqueredirect') {
+    throw new ErroApi(401, MENSAGEM_SESSAO, 'nao_autenticado')
+  }
+  if (!resposta.ok) throw await erroDaResposta(resposta)
+  if (resposta.status === 204) return undefined as T
+  return (await resposta.json()) as T
+}

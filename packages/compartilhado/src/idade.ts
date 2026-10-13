@@ -1,6 +1,6 @@
 // Idade dos animais (RN11, RN13) e destaque "Esperando há mais tempo" (RN12).
-import { diasEntre, partesDaData, subtrairMeses } from './datas'
-import { DIAS_PARA_DESTAQUE } from './limites'
+import { diasEntre, partesDaData, somarDias, subtrairMeses } from './datas'
+import { DIAS_ADAPTACAO, DIAS_PARA_DESTAQUE } from './limites'
 import type { StatusAnimal } from './dominio'
 
 /** Meses completos entre o nascimento aproximado e hoje (nunca negativo). */
@@ -37,6 +37,17 @@ export function nascimentoAproximado(
   return subtrairMeses(hoje, unidade === 'anos' ? quantidade * 12 : quantidade)
 }
 
+/** T11: o contrário, para preencher "N anos/meses" na edição a partir da data guardada. */
+export function idadeParaFormulario(
+  nascimento: string,
+  hoje: string,
+): { quantidade: number; unidade: UnidadeIdade } {
+  const meses = idadeEmMeses(nascimento, hoje)
+  return meses >= 12
+    ? { quantidade: Math.floor(meses / 12), unidade: 'anos' }
+    : { quantidade: meses, unidade: 'meses' }
+}
+
 /** Dias desde a entrada do animal na ONG. */
 export function diasEsperando(dataEntrada: string, hoje: string): number {
   return Math.max(0, diasEntre(dataEntrada, hoje))
@@ -62,4 +73,16 @@ export function esperandoHaMaisTempo(
     ehAdulto(animal.nascimento_aprox, hoje) &&
     diasEsperando(animal.data_entrada, hoje) > DIAS_PARA_DESTAQUE
   )
+}
+
+/** RN30: último dia do período de adaptação (15 dias a partir da adoção). */
+export function fimDaAdaptacao(dataAdocao: string): string {
+  return somarDias(dataAdocao, DIAS_ADAPTACAO)
+}
+
+/** RN30, aba "Adotados" do painel: "Em adaptação: faltam N dias" ou "Adoção concluída". */
+export function textoAdaptacao(dataAdocao: string, hoje: string): string {
+  const faltam = diasEntre(hoje, fimDaAdaptacao(dataAdocao))
+  if (faltam <= 0) return 'Adoção concluída'
+  return faltam === 1 ? 'Em adaptação: falta 1 dia' : `Em adaptação: faltam ${String(faltam)} dias`
 }

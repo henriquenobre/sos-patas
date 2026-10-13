@@ -51,19 +51,25 @@ export function CampoTexto({
   limite,
   multilinha = false,
   autoComplete,
+  placeholder,
+  max,
 }: PropsBase & {
   valor: string
   aoMudar: (valor: string) => void
-  tipo?: 'text' | 'tel' | 'email'
+  /** numero: teclado numérico, sem as setinhas do type="number" */
+  tipo?: 'text' | 'tel' | 'email' | 'date' | 'numero'
   limite?: number
   multilinha?: boolean
   autoComplete?: string
+  placeholder?: string
+  max?: string
 }) {
   const id = useId()
   const comum = {
     id,
     value: valor,
     maxLength: limite,
+    placeholder,
     'aria-invalid': Boolean(erro),
     'aria-describedby': erro ? `${id}-erro` : undefined,
     className: classeCaixaTexto,
@@ -85,8 +91,11 @@ export function CampoTexto({
       ) : (
         <input
           {...comum}
-          type={tipo}
-          inputMode={tipo === 'text' ? undefined : tipo}
+          type={tipo === 'numero' ? 'text' : tipo}
+          inputMode={
+            tipo === 'numero' ? 'numeric' : tipo === 'tel' || tipo === 'email' ? tipo : undefined
+          }
+          max={max}
           autoComplete={autoComplete}
           onChange={(evento) => {
             aoMudar(evento.target.value)
@@ -107,21 +116,26 @@ export function Escolha({
   opcoes,
   valor,
   aoMudar,
+  compacto = false,
 }: PropsBase & {
   opcoes: Record<string, string>
   valor: string | undefined
   aoMudar: (valor: string) => void
+  /** Opções curtas lado a lado, também no celular (Sim/Não, Macho/Fêmea…) */
+  compacto?: boolean
 }) {
   const nome = useId()
   return (
     <fieldset aria-invalid={Boolean(erro)} aria-describedby={erro ? `${nome}-erro` : undefined}>
       <Rotulo rotulo={rotulo} obrigatorio={obrigatorio} como="legend" />
       {dica && <p className="text-sm text-slate-500">{dica}</p>}
-      <div className="mt-1.5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+      <div
+        className={`mt-1.5 flex gap-2 ${compacto ? 'flex-wrap' : 'flex-col sm:flex-row sm:flex-wrap'}`}
+      >
         {Object.entries(opcoes).map(([chave, texto]) => (
           <label
             key={chave}
-            className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border-2 px-4 py-2.5 font-bold ${
+            className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border-2 px-4 py-2.5 font-bold ${compacto ? 'min-w-[28%] flex-1 justify-center' : ''} ${
               valor === chave
                 ? 'border-azul bg-azul-claro text-azul-escuro'
                 : 'border-slate-200 bg-white text-slate-700'

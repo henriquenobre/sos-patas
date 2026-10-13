@@ -79,3 +79,23 @@ export function IconeMenu({ className = 'h-6 w-6' }: PropsIcone) {
     </svg>
   )
 }
+
+export function IconeVoltar({ className = 'h-5 w-5' }: PropsIcone) {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" className={className} aria-hidden="true">
+      <path
+        fillRule="evenodd"
+        d="M12.7 4.3a1 1 0 0 1 0 1.4L8.4 10l4.3 4.3a1 1 0 0 1-1.4 1.4l-5-5a1 1 0 0 1 0-1.4l5-5a1 1 0 0 1 1.4 0z"
+        clipRule="evenodd"
+      />
+    </svg>
+  )
+}
+
+export function IconeX({ className = 'h-4 w-4' }: PropsIcone) {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M6.3 5 5 6.3 8.7 10 5 13.7 6.3 15 10 11.3 13.7 15 15 13.7 11.3 10 15 6.3 13.7 5 10 8.7z" />
+    </svg>
+  )
+}
