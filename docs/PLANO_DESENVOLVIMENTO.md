@@ -239,7 +239,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Feito em 09/10/2026 (adiantado):** migration, pacote compartilhado (formulário 1.1, termo, alertas), API pública e da equipe, limpeza diária com o cron, telas T26 e T26b, ficha em análise, texto da Privacidade e dos passos de "Como adotar". "Marcar como adotado" com o pedido aprovado ficou resolvido na etapa 9 com `pedido_aprovado` no `GET /animais/:id` (sem `pedido_id` na rota).
 
-**Feito em 13/10/2026 (com a etapa 10):** T27 (abas Pendentes/Aprovados/Recusados, "há N dias", alertas, vermelho com mais de 3 dias), T28 (alertas, respostas por bloco e por extenso, WhatsApp com mensagem pronta, termo, observação interna, aprovar e recusar com confirmação), aba Pedidos com o número de pendentes, aba Em análise no T09 e o modal "Marcar como adotado" já preenchido. 8 testes novos do front. **Falta:** o teste de ponta a ponta com a API local (pedido → análise → aprovar → marcar como adotado).
+**Feito em 13/10/2026 (com a etapa 10):** T27 (abas Pendentes/Aprovados/Recusados, "há N dias", alertas, vermelho com mais de 3 dias), T28 (alertas, respostas por bloco e por extenso, WhatsApp com mensagem pronta, termo, observação interna, aprovar e recusar com confirmação, **imprimir o formulário preenchido**, pedido da ONG), aba Pedidos com o número de pendentes, aba Em análise no T09 e o modal "Marcar como adotado" já preenchido. 9 testes novos do front. **Falta:** o teste de ponta a ponta com a API local (pedido → análise → aprovar → marcar como adotado).
 
 **Entregas:**
 - Migration: valor `em_analise` no enum `status_animal` e tabela `pedidos_adocao` (com índice único parcial: um `pendente` por animal) (DESENVOLVIMENTO.md, seção 5)

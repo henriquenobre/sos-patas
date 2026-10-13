@@ -2,7 +2,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { PedidoDetalhe, PedidoResumo } from '@sospatas/compartilhado'
+import {
+  DECLARACOES,
+  VERSAO_TERMO,
+  type PedidoDetalhe,
+  type PedidoResumo,
+} from '@sospatas/compartilhado'
 import { API_ADMIN } from '../../testes/admin'
 import { chamadas, renderizarEm, respostaDeErro, simularApi } from '../../testes/renderizar'
 
@@ -190,6 +195,21 @@ describe('Análise do pedido (T28)', () => {
     const modal = screen.getByRole('dialog')
     await userEvent.click(within(modal).getByRole('button', { name: 'Aprovar' }))
     expect(await within(modal).findByText('Este pedido já foi analisado.')).toBeInTheDocument()
+  })
+
+  it('"Imprimir formulário" abre a impressão, com as declarações e o termo só no papel', async () => {
+    const imprimir = vi.fn()
+    vi.stubGlobal('print', imprimir)
+    simularApi({ ...API_ADMIN, '/admin/pedidos/p1': { ...DETALHE, versao_termo: VERSAO_TERMO } })
+    renderizarEm('/admin/pedidos/p1')
+    await userEvent.click(await screen.findByRole('button', { name: '🖨️ Imprimir formulário' }))
+    expect(imprimir).toHaveBeenCalledOnce()
+    expect(screen.getByText(`☑ ${DECLARACOES[0]}`).closest('div.hidden')).toHaveClass('print:block')
+    expect(screen.getByText(/Assinatura de quem adota \(Fernanda Lima\)/)).toBeInTheDocument()
+    // O que é só da equipe não vai para o papel
+    expect(screen.getByText('⚠️ Pontos para conversar').closest('section')).toHaveClass(
+      'print:hidden',
+    )
   })
 
   it('salva a observação interna', async () => {

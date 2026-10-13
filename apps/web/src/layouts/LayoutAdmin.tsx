@@ -86,7 +86,7 @@ function AvisoRapido({ aviso }: { aviso: Aviso | null }) {
   return (
     <div
       role="status"
-      className="pointer-events-none fixed inset-x-0 bottom-20 z-40 flex justify-center px-4 md:bottom-6"
+      className="pointer-events-none fixed inset-x-0 bottom-20 z-40 flex justify-center px-4 md:bottom-6 print:hidden"
     >
       {aviso && (
         <p
@@ -185,14 +185,14 @@ export function LayoutAdmin() {
   return (
     <ContextoAdmin.Provider value={area}>
       {meta}
-      <div className="min-h-dvh bg-fundo">
+      <div className="min-h-dvh bg-fundo print:bg-white">
         <CabecalhoAdmin
           nome={eu.data.nome}
           aba={moldura.aba}
           voltar={moldura.voltar}
           pendencias={pendencias}
         />
-        <main className="mx-auto max-w-3xl px-4 pb-32 pt-4 md:pb-16">
+        <main className="mx-auto max-w-3xl px-4 pb-32 pt-4 md:pb-16 print:max-w-none print:p-0">
           <Outlet />
         </main>
         {moldura.aba && <BarraAdmin aba={moldura.aba} pendencias={pendencias} />}
