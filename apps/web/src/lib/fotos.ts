@@ -1,5 +1,6 @@
 // Preparo das fotos no navegador (RN02, RN20): a foto escolhida é redesenhada num <canvas> e
-// exportada em duas versões WebP, miniatura (400 px) e completa (1200 px). Redesenhar descarta
+// exportada em WebP: miniatura (400 px) e completa (1200 px) para os animais, só a completa
+// para os anúncios de perdidos e encontrados. Redesenhar descarta
 // os metadados do arquivo original (EXIF, inclusive a localização GPS); o original nunca é enviado.
 import {
   LADO_COMPLETA_PX,
@@ -75,6 +76,17 @@ export async function prepararFoto(arquivo: File): Promise<FotoPreparada> {
       miniatura: await versao(imagem, LADO_MINIATURA_PX),
       completa: await versao(imagem, LADO_COMPLETA_PX),
     }
+  } finally {
+    imagem.close()
+  }
+}
+
+/** Arquivo escolhido → uma versão WebP de até 1200 px (anúncio de perdido, RN20). */
+export async function prepararFotoCompleta(arquivo: File): Promise<Blob> {
+  conferirArquivo(arquivo)
+  const imagem = await abrirImagem(arquivo)
+  try {
+    return await versao(imagem, LADO_COMPLETA_PX)
   } finally {
     imagem.close()
   }

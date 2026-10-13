@@ -51,6 +51,24 @@ export async function enviarJson<T>(caminho: string, dados: unknown): Promise<T>
   return (await resposta.json()) as T
 }
 
+/** POST multipart (dados e fotos, como o anúncio de perdido). Erros viram ErroApi. */
+export async function enviarFormulario<T>(caminho: string, corpo: FormData): Promise<T> {
+  let resposta: Response
+  try {
+    resposta = await fetch(`${BASE}/api${caminho}`, { method: 'POST', body: corpo })
+  } catch {
+    throw new ErroApi(0, 'Sem conexão com a internet. Confira e tente de novo.')
+  }
+  if (!resposta.ok) throw await erroDaResposta(resposta)
+  return (await resposta.json()) as T
+}
+
+/**
+ * Endereço completo de um caminho da API, para usar em <img> (fotos da quarentena, que a API
+ * transmite só para a equipe).
+ */
+export const urlDaApi = (caminho: string): string => `${BASE}${caminho}`
+
 // ---------------------------------------------------------------------------
 // Área da ONG (/api/admin, atrás do Cloudflare Access)
 // ---------------------------------------------------------------------------

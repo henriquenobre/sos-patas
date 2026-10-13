@@ -188,23 +188,23 @@ Contato com a ONG enquanto ela não tem WhatsApp próprio (RN51). Sem print: o p
 - **"Prefere escrever direto?"** (sempre visível): o e-mail da ONG com link que abre o aplicativo de e-mail; o WhatsApp aparece aqui também quando a ONG cadastrar um em T23.
 - **Rodapé do site** (todas as páginas): o contato da ONG passa a ser o **e-mail**, e "Fale com a ONG" entra em "Navegue". O WhatsApp só aparece se estiver preenchido em T23.
 
-### T12 · Perdidos e encontrados · `/perdidos` · ⏳
+### T12 · Perdidos e encontrados · `/perdidos` · ✅ no site (13/10/2026)
 ![T12](telas/T12-perdidos-celular.png)
 
 **Objetivo:** ajudar a comunidade a reencontrar animais. Só aparecem anúncios **aprovados** pela equipe (RN18).
 
 - **"Como funciona"** + botão vermelho "＋ Anunciar animal perdido ou encontrado".
-- **Filtro:** Perdidos / Encontrados.
+- **Filtro:** Perdidos / Encontrados (tocar de novo tira o filtro; fica na URL, `?tipo=`).
 - **Card:** foto, selo PERDIDO (vermelho) ou ENCONTRADO (verde), nome ou "Cachorro/Gato encontrado", bairro, há quanto tempo, descrição, botão WhatsApp ("Vi este animal" / "É meu animal") com mensagem pronta, dias até sair do ar (RN25).
 - **Aviso fixo contra golpes** (RN28).
 - **Atalho na página inicial:** card "Perdeu ou encontrou um animal?".
 
-### T13 · Anunciar animal · `/perdidos/novo` · ⏳
+### T13 · Anunciar animal · `/perdidos/novo` · ✅ no site (13/10/2026)
 ![T13](telas/T13-anunciar-perdido-celular.png)
 
 **Formulário público, com segurança em camadas (RN19–RN23):**
 1. **O que aconteceu:** perdi / encontrei; espécie; nome (opcional); **bairro ou região** (com aviso "não coloque o endereço completo"); data; características (até 300, sem links).
-2. **Fotos:** até 2; JPG, PNG ou WebP de até 10 MB na escolha; redesenhadas no celular como WebP sem localização (RN20).
+2. **Fotos (opcionais):** até 2; JPG, PNG ou WebP de até 10 MB na escolha; redesenhadas no celular como WebP sem localização (RN20).
 3. **Contato:** primeiro nome + WhatsApp; **checkbox obrigatório de consentimento** para publicar por 30 dias.
 4. **Verificação de segurança** (Cloudflare Turnstile).
 5. **Botão "Enviar para análise":** deixa claro que o anúncio não é publicado na hora.
@@ -308,13 +308,13 @@ Igual a T10, preenchido, com a linha "Alterado por… em…" (RN43) no topo e **
 - **Animal em análise:** com pedido aguardando análise, só o aviso e o link para os pedidos (sem adotar nem devolver); com pedido aprovado, "Marcar como adotado" (já preenchido) e "A adoção não aconteceu: voltar para disponível" (RN49).
 - **Animal adotado:** mostra a adaptação (RN30), quem adotou e, se a adoção veio de um pedido do site, o link "📋 Ver o formulário de adoção (para imprimir)" (T28); só um espaço de foto (RN07).
 
-### T14 · Moderar perdidos e encontrados · `/admin/perdidos` · ⏳
+### T14 · Moderar perdidos e encontrados · `/admin/perdidos` · ✅ no site (13/10/2026), sem "Editar" e "＋ Novo anúncio" (etapa 13)
 ![T14](telas/T14-moderar-perdidos-celular.png)
 
 - **Acesso:** pelo card amarelo no painel (T09), que mostra quantos anúncios estão aguardando aprovação.
-- **Abas:** Aguardando / No ar.
+- **Abas:** Aguardando (N) / No ar (N).
 - **Aguardando:** foto (da quarentena privada, servida pela API só para a equipe), tipo, nome, bairro, contato e descrição; botões **Recusar** (apaga tudo, RN26) e **Aprovar e publicar** (copia as fotos para o bucket público).
-- **No ar:** "Sai do ar em N dias", **"Renovar por mais 30 dias"** (RN41), **"Voltou para casa 🎉"** e **"Tirar do ar"** (esses dois apagam o anúncio e as fotos).
+- **No ar:** "Sai do ar em N dias", **"Renovar por mais 30 dias"** (RN41), **"Voltou para casa 🎉"** e **"Tirar do ar"** (esses dois apagam o anúncio e as fotos). Recusar, Voltou para casa e Tirar do ar pedem confirmação; Aprovar e Renovar não.
 - **Em todos os cards:** botão **"Editar"** → T21 (RN40). Anúncios criados pela equipe têm o selo "Criado pela equipe".
 - **Botão "＋ Novo anúncio"** no topo → T21 (RN39).
 - **Checklist de moderação:** é um animal, sem conteúdo impróprio, sem link, sem pedido de dinheiro e sem endereço completo.

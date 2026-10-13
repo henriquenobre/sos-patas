@@ -4,6 +4,9 @@ import type {
   Especie,
   LarTipo,
   PedidoStatus,
+  PerdidoOrigem,
+  PerdidoStatus,
+  PerdidoTipo,
   Porte,
   RacaTipo,
   ResponsavelTipo,
@@ -170,3 +173,39 @@ export type PedidoDetalhe = Omit<PedidoResumo, 'quantidade_alertas'> & {
   analisado_por: string | null
   alertas: Alerta[]
 }
+
+/** Foto de um anúncio na moderação (T14). */
+export type FotoPerdidoAdmin = {
+  id: string
+  /**
+   * Pendente: caminho da rota da API que lê a quarentena (/api/admin/perdidos/:id/fotos/:fotoId,
+   * só a equipe vê, RN19). Publicado: URL pública da foto.
+   */
+  url: string
+}
+
+/** Anúncio na moderação (T14): aguardando aprovação ou no ar. */
+export type PerdidoAdmin = {
+  id: string
+  tipo: PerdidoTipo
+  especie: Especie
+  nome: string | null
+  bairro: string
+  data_ocorrido: string
+  descricao: string
+  contato_nome: string
+  contato_whatsapp: string
+  /** "site" (formulário público) ou "equipe" (T21, etapa 13) */
+  origem: PerdidoOrigem
+  status: PerdidoStatus
+  /** ISO 8601: quando o anúncio chegou */
+  created_at: string
+  /** ISO 8601; null enquanto pendente */
+  publicado_em: string | null
+  /** ISO 8601: "Sai do ar em N dias" (RN25); null enquanto pendente */
+  expira_em: string | null
+  fotos: FotoPerdidoAdmin[]
+}
+
+/** GET /api/admin/perdidos?status=pendente|publicado */
+export type ListaPerdidosAdmin = { perdidos: PerdidoAdmin[] }

@@ -2,13 +2,15 @@ import { Navigate, createBrowserRouter } from 'react-router'
 import { Carregando } from './components/Estados'
 import type { MolduraAdmin } from './layouts/LayoutAdmin'
 import { LayoutPublico } from './layouts/LayoutPublico'
-import { EmBreve, PaginaNaoEncontrada } from './pages/Avisos'
+import { PaginaNaoEncontrada } from './pages/Avisos'
 import { Adotar } from './pages/Adotar'
+import { AnunciarPerdido } from './pages/AnunciarPerdido'
 import { ComoAdotar } from './pages/ComoAdotar'
 import { ComoAjudar } from './pages/ComoAjudar'
 import { Contato } from './pages/Contato'
 import { Ficha } from './pages/Ficha'
 import { Inicio } from './pages/Inicio'
+import { Perdidos } from './pages/Perdidos'
 import { PerguntasFrequentes } from './pages/PerguntasFrequentes'
 import { Privacidade } from './pages/Privacidade'
 import { Vitrine } from './pages/Vitrine'
@@ -23,6 +25,8 @@ const admin = {
     import('./pages/admin/FormularioAnimal').then((m) => ({ Component: m.EditarAnimal })),
   pedidos: () => import('./pages/admin/Pedidos').then((m) => ({ Component: m.Pedidos })),
   pedido: () => import('./pages/admin/Pedido').then((m) => ({ Component: m.Pedido })),
+  perdidos: () =>
+    import('./pages/admin/PerdidosAdmin').then((m) => ({ Component: m.PerdidosAdmin })),
   emBreve: (titulo: string, texto?: string) => () =>
     import('./pages/admin/EmBreveAdmin').then((m) => ({
       Component: () => <m.EmBreveAdmin titulo={titulo} texto={texto} />,
@@ -45,9 +49,8 @@ export const rotas = createBrowserRouter([
       { path: '/animais', element: <Vitrine /> },
       { path: '/animais/:id', element: <Ficha /> },
       { path: '/animais/:id/adotar', element: <Adotar /> },
-      // Etapa 11: perdidos e encontrados
-      { path: '/perdidos', element: <EmBreve /> },
-      { path: '/perdidos/novo', element: <EmBreve /> },
+      { path: '/perdidos', element: <Perdidos /> },
+      { path: '/perdidos/novo', element: <AnunciarPerdido /> },
       { path: '*', element: <PaginaNaoEncontrada /> },
     ],
   },
@@ -74,12 +77,12 @@ export const rotas = createBrowserRouter([
         lazy: admin.pedido,
         handle: { voltar: '/admin/pedidos' } satisfies MolduraAdmin,
       },
-      // Etapas 11 (perdidos), 12 (textos) e 13 (mais)
       {
-        path: 'perdidos/*',
-        lazy: admin.emBreve('Perdidos e encontrados'),
+        path: 'perdidos',
+        lazy: admin.perdidos,
         handle: { aba: 'perdidos' } satisfies MolduraAdmin,
       },
+      // Etapas 12 (textos) e 13 (mais, e o anúncio pela equipe em perdidos/novo e perdidos/:id)
       {
         path: 'textos/*',
         lazy: admin.emBreve('Textos do site'),

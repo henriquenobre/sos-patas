@@ -1,4 +1,4 @@
-// Página não encontrada (404) e páginas que ainda vão ser construídas.
+// Página não encontrada (404).
 import { Link } from 'react-router'
 import { Pata } from '../components/Pata'
 
@@ -26,16 +26,6 @@ export function PaginaNaoEncontrada() {
         titulo="Página não encontrada"
         texto="O endereço pode estar errado ou a página mudou de lugar."
       />
-    </>
-  )
-}
-
-/** Vitrine, ficha e perdidos ainda em construção (etapas 7 e 11 do PLANO_DESENVOLVIMENTO.md). */
-export function EmBreve() {
-  return (
-    <>
-      <title>Em breve · SOS Patas</title>
-      <Aviso titulo="Em breve" texto="Esta parte do site ainda está sendo construída." />
     </>
   )
 }

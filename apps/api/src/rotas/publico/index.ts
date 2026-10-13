@@ -1,6 +1,6 @@
 // Rotas públicas (/api/publico/*), sem login. Leituras com cache (cache.ts); envios do
-// formulário de adoção (pedidos.ts) e do "Fale com a ONG" (contato.ts); o envio de anúncio de
-// perdido (POST /perdidos) entra na etapa 11.
+// formulário de adoção (pedidos.ts), do "Fale com a ONG" (contato.ts) e do anúncio de perdido
+// ou encontrado (perdidos.ts).
 import { Hono } from 'hono'
 import {
   filtroPerdidos,
@@ -24,6 +24,7 @@ import {
 import { validar } from '../../validacao'
 import { rotasContato } from './contato'
 import { rotasPedidosPublicos } from './pedidos'
+import { rotasPerdidosPublicos } from './perdidos'
 
 export const rotasPublicas = new Hono<ConfigApp>()
 
@@ -105,3 +106,5 @@ rotasPublicas.get('/fotos/*', (c) => {
 // Formulário de adoção (POST /animais/:id/pedidos)
 rotasPublicas.route('/', rotasPedidosPublicos)
 rotasPublicas.route('/', rotasContato)
+// Anúncio de perdido ou encontrado (POST /perdidos)
+rotasPublicas.route('/', rotasPerdidosPublicos)

@@ -9,6 +9,8 @@ import type {
   ListaProtetores,
   PedidoDetalhe,
   PedidoStatus,
+  ListaPerdidosAdmin,
+  PerdidoStatus,
   ResumoAdmin,
   UsuariaLogada,
 } from '@sospatas/compartilhado'
@@ -90,11 +92,21 @@ export function usePedido(id: string | undefined) {
   })
 }
 
+/** Anúncios aguardando aprovação ou no ar (T14). */
+export function usePerdidosAdmin(status: PerdidoStatus) {
+  return useQuery({
+    queryKey: ['admin', 'perdidos', status],
+    queryFn: () => chamarAdmin<ListaPerdidosAdmin>('GET', `/perdidos?status=${status}`),
+    retry: tentarDeNovo,
+  })
+}
+
 /**
  * Depois de salvar: recarrega a área da ONG e esquece a cópia das páginas públicas (vitrine,
  * ficha), para "Ver no site" mostrar a versão nova.
  */
 export async function atualizarAdmin(queryClient: QueryClient): Promise<void> {
   queryClient.removeQueries({ queryKey: ['animais'] })
+  queryClient.removeQueries({ queryKey: ['perdidos'] })
   await queryClient.invalidateQueries({ queryKey: ['admin'] })
 }

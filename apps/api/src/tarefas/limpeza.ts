@@ -1,10 +1,11 @@
 // Tarefa diária (Cron Trigger, 03:00 de Brasília; docs/ARQUITETURA.md, seção 7, RN16).
-// As limpezas de perdidos e encontrados (RN25, RN27) entram aqui na etapa 11.
-// Também apaga o registro de envios do "Fale com a ONG" com mais de 1 dia (RN51).
+// Apaga pedidos de adoção vencidos (RN15), anúncios de perdidos vencidos ou esquecidos, com as
+// fotos (RN25, RN27), e o registro de envios do "Fale com a ONG" com mais de 1 dia (RN51).
 import { sql } from 'drizzle-orm'
 import { DIAS_GUARDA_PEDIDO_ADOCAO } from '@sospatas/compartilhado'
 import type { Db } from '../db'
 import { apagarEnviosContatoAntigos } from '../servicos/contato'
+import { apagarPerdidosVencidos, type BucketsPerdidos } from '../servicos/perdidos'
 
 /**
  * RN15: apaga pedidos de adoção 90 dias depois da decisão (recusados e não concluídos) ou
@@ -25,8 +26,17 @@ export async function apagarPedidosVencidos(db: Db): Promise<number> {
   return apagados.length
 }
 
-export async function executarTarefasDiarias(db: Db): Promise<Record<string, number>> {
+export async function executarTarefasDiarias(
+  db: Db,
+  buckets: BucketsPerdidos,
+): Promise<Record<string, number>> {
   const pedidosApagados = await apagarPedidosVencidos(db)
+  const perdidos = await apagarPerdidosVencidos(db, buckets)
   const enviosContatoApagados = await apagarEnviosContatoAntigos(db)
-  return { pedidosApagados, enviosContatoApagados }
+  return {
+    pedidosApagados,
+    perdidosVencidosApagados: perdidos.publicados,
+    perdidosPendentesApagados: perdidos.pendentes,
+    enviosContatoApagados,
+  }
 }

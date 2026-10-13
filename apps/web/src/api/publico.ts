@@ -1,6 +1,13 @@
 // Dados públicos do site (rotas /api/publico, docs/ARQUITETURA.md, seção 3.1).
 import { useQuery } from '@tanstack/react-query'
-import type { AnimalFicha, FiltroVitrine, ListaAnimais, SitePublico } from '@sospatas/compartilhado'
+import type {
+  AnimalFicha,
+  FiltroVitrine,
+  ListaAnimais,
+  ListaPerdidos,
+  PerdidoTipo,
+  SitePublico,
+} from '@sospatas/compartilhado'
 import { ErroApi, buscarJson } from './cliente'
 
 /** Textos, listas e dados da ONG: carregados uma vez e usados por todas as páginas. */
@@ -41,5 +48,13 @@ export function useFicha(id: string) {
     queryFn: () => buscarJson<AnimalFicha>(`/publico/animais/${encodeURIComponent(id)}`),
     retry: (tentativas, erro) =>
       !(erro instanceof ErroApi && erro.status === 404) && tentativas < 1,
+  })
+}
+
+/** Perdidos e encontrados aprovados e no ar (RN18, RN25). */
+export function usePerdidos(tipo?: PerdidoTipo) {
+  return useQuery({
+    queryKey: ['perdidos', tipo ?? 'todos'],
+    queryFn: () => buscarJson<ListaPerdidos>(`/publico/perdidos${tipo ? `?tipo=${tipo}` : ''}`),
   })
 }
