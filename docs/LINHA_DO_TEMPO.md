@@ -91,4 +91,5 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 09/10/2026 | | 7 | Prévia: migrations e dados de exemplo no Neon `sospatas-previa`, Hyperdrive e buckets `-previa` criados, fotos enviadas ao R2 de verdade pela primeira vez | doc (verificação) |
 | 09/10/2026 | | 7 | **Etapa 8 concluída:** site no ar pela primeira vez, em https://sospatas.pages.dev, com a API da prévia, dados de exemplo e fotos; Neon frio 0,87 s; CPU perto do teto em instância nova | doc (verificação no navegador e `wrangler tail`) |
 | 09/10/2026 | | 7 | **Etapa 9 concluída:** API da área da ONG para animais, adoção e devolução, fotos e protetores, com testes do "Pronto quando" e conferência no `wrangler dev` | doc (verificação local) |
+| 13/10/2026 | | 4 | Pedido da ONG registrado: imprimir o formulário de adoção já preenchido; atendido no mesmo dia na T28 (data do pedido da ONG _(a confirmar)_) | relato |
 | ter 13/10/2026 | | 7 | **Etapa 10 iniciada** (com o restante da 10b): telas da área da ONG para animais (T09–T11) e pedidos de adoção (T27, T28), testadas com a API simulada; falta o teste pelo celular | doc (testes do front) |

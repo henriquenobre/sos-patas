@@ -2,15 +2,23 @@
 // atenção, nunca reprovam sozinhos), respostas pelos blocos do formulário, ciência do termo
 // (RN47), observação interna e as decisões (RN49): aprovar (o animal continua fora do site até
 // "Marcar como adotado") ou recusar (o animal volta para o site na hora).
+// "Imprimir formulário" gera a versão em papel (ou PDF) do que a pessoa preencheu, com as
+// declarações e o termo; alertas, observação e botões ficam de fora (são da equipe).
 import { useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import {
+  AVISO_TERMO,
   BLOCOS,
+  CLAUSULAS_TERMO,
+  DECLARACOES,
   LIMITES,
   OPCOES,
   PERGUNTAS,
   ROTULOS,
+  TEXTO_CIENCIA_TERMO,
+  TITULO_TERMO,
+  VERSAO_TERMO,
   formatarWhatsapp,
   hojeNoBrasil,
   linkWhatsApp,
@@ -46,7 +54,7 @@ function resposta(pedido: PedidoDetalhe, pergunta: Pergunta): string | null {
 
 function Cartao({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
-    <section className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+    <section className="break-inside-avoid rounded-2xl bg-white p-4 ring-1 ring-slate-200 print:rounded-none print:p-0 print:py-2 print:ring-0">
       <h2 className="font-titulo text-xl font-bold text-azul-escuro">{titulo}</h2>
       <div className="mt-2">{children}</div>
     </section>
@@ -235,13 +243,25 @@ function Analise({ pedido }: { pedido: PedidoDetalhe }) {
   const mensagem = `Olá, ${primeiroNome}! Aqui é da SOS Patas, sobre o seu pedido para adotar ${animal.nome}.`
 
   return (
-    <div className="mx-auto max-w-xl space-y-4">
+    <div className="mx-auto max-w-xl space-y-4 print:max-w-none print:space-y-2 print:text-sm">
       <title>{`Pedido de ${pedido.nome} · Área da ONG · SOS Patas`}</title>
-      <h1 className="sr-only">Pedido de adoção</h1>
+      <h1 className="sr-only print:not-sr-only print:font-titulo print:text-2xl print:font-extrabold">
+        SOS Patas · Formulário de interesse em adoção
+      </h1>
+
+      <button
+        type="button"
+        onClick={() => {
+          window.print()
+        }}
+        className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-white py-3 font-extrabold text-azul ring-2 ring-azul-claro print:hidden"
+      >
+        🖨️ Imprimir formulário
+      </button>
 
       <Link
         to={`/admin/animais/${animal.id}`}
-        className="flex items-center gap-3 rounded-2xl bg-white p-3 ring-1 ring-slate-200"
+        className="flex items-center gap-3 rounded-2xl bg-white p-3 ring-1 ring-slate-200 print:p-0 print:ring-0"
       >
         <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl">
           <FotoAnimal url={animal.foto} alt={textoAlternativo(animal)} />
@@ -257,7 +277,7 @@ function Analise({ pedido }: { pedido: PedidoDetalhe }) {
         </div>
       </Link>
 
-      <section className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+      <section className="rounded-2xl bg-white p-4 ring-1 ring-slate-200 print:p-0 print:ring-0">
         <p className="text-sm font-bold text-slate-500">Quem pediu</p>
         <p className="font-titulo text-2xl font-bold text-azul-escuro">{pedido.nome}</p>
         <p className="text-slate-600">{pedido.bairro_cidade}</p>
@@ -269,12 +289,12 @@ function Analise({ pedido }: { pedido: PedidoDetalhe }) {
           href={linkWhatsApp(pedido.whatsapp, mensagem)}
           target="_blank"
           rel="noreferrer"
-          className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 font-extrabold text-white"
+          className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 font-extrabold text-white print:hidden"
         >
           <IconeWhatsApp /> Conversar no WhatsApp · {formatarWhatsapp(pedido.whatsapp)}
         </a>
         {pedido.analisado_em && (
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-slate-500 print:hidden">
             {ROTULOS.pedido_status[pedido.status]}
             {pedido.analisado_por && ` por ${pedido.analisado_por}`} em{' '}
             {dataEHora(pedido.analisado_em)}
@@ -283,7 +303,7 @@ function Analise({ pedido }: { pedido: PedidoDetalhe }) {
       </section>
 
       {pedido.alertas.length > 0 ? (
-        <section className="rounded-2xl bg-amarelo-claro p-4 ring-2 ring-amarelo">
+        <section className="rounded-2xl bg-amarelo-claro p-4 ring-2 ring-amarelo print:hidden">
           <h2 className="font-extrabold text-[#7A4A00]">⚠️ Pontos para conversar</h2>
           <ul className="mt-2 flex flex-wrap gap-2">
             {pedido.alertas.map((alerta) => (
@@ -300,12 +320,14 @@ function Analise({ pedido }: { pedido: PedidoDetalhe }) {
           </p>
         </section>
       ) : (
-        <p className="rounded-2xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">
+        <p className="rounded-2xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800 print:hidden">
           Nenhum alerta automático nas respostas.
         </p>
       )}
 
-      <Decisao pedido={pedido} />
+      <div className="print:hidden">
+        <Decisao pedido={pedido} />
+      </div>
 
       {BLOCOS.map((bloco) => (
         <Cartao key={bloco.titulo} titulo={bloco.titulo}>
@@ -324,6 +346,28 @@ function Analise({ pedido }: { pedido: PedidoDetalhe }) {
         </Cartao>
       ))}
 
+      {/* Só no papel: as declarações marcadas e o termo que a pessoa leu no site (RN47) */}
+      <div className="hidden print:block">
+        <Cartao titulo="25. Declarações">
+          <ul className="space-y-1">
+            {DECLARACOES.map((declaracao) => (
+              <li key={declaracao}>☑ {declaracao}</li>
+            ))}
+          </ul>
+        </Cartao>
+        {pedido.versao_termo === VERSAO_TERMO && (
+          <Cartao titulo={TITULO_TERMO}>
+            <ol className="list-decimal space-y-1 pl-5">
+              {CLAUSULAS_TERMO.map((clausula) => (
+                <li key={clausula}>{clausula}</li>
+              ))}
+            </ol>
+            <p className="mt-2 font-bold">{AVISO_TERMO}</p>
+            <p className="mt-2">☑ {TEXTO_CIENCIA_TERMO}</p>
+          </Cartao>
+        )}
+      </div>
+
       <Cartao titulo="Termo de adoção">
         <p className="text-slate-700">
           ✓ Ciente do termo em {dataEHora(pedido.termo_ciente_em)} (termo versão{' '}
@@ -334,7 +378,14 @@ function Analise({ pedido }: { pedido: PedidoDetalhe }) {
         </p>
       </Cartao>
 
-      <Observacao pedido={pedido} />
+      <div className="print:hidden">
+        <Observacao pedido={pedido} />
+      </div>
+
+      <div className="hidden pt-10 print:block">
+        <p>Passos/MG, ____ de ______________ de ______</p>
+        <p className="mt-12 border-t border-black pt-1">Assinatura de quem adota ({pedido.nome})</p>
+      </div>
     </div>
   )
 }

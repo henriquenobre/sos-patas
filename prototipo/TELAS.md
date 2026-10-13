@@ -282,6 +282,7 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 - **Observação interna** (só a equipe vê).
 - **Ações** (só em pedido pendente): **Aprovar** (modal de confirmação; o animal continua fora do site até "Marcar como adotado", que já vem com nome e WhatsApp preenchidos) e **Recusar** (modal: "O animal volta para o site. Avise a pessoa pelo WhatsApp."). Pedido aprovado mostra o próximo passo e o botão **"Abrir {animal}"** (T11). Linha "Aprovado por… em…" (RN43).
 - **Pedido que não existe mais** (apagado depois de 90 dias, RN15): "Não encontramos este pedido".
+- **🖨️ Imprimir formulário** (pedido da ONG, 13/10/2026): abre a impressão do navegador (papel ou "Salvar como PDF") com o formulário já preenchido: animal, quem pediu, respostas pelos blocos, as declarações marcadas, o termo que a pessoa leu (se for a versão atual), a data da ciência e linhas para data e assinatura de quem adota. Ficam fora do papel o que é só da equipe: alertas, observação interna, botões e o cabeçalho da área da ONG.
 
 ### T10 · Cadastrar animal · `/admin/animais/novo` · ⏳
 ![T10](telas/T10-cadastrar-animal-celular.png)

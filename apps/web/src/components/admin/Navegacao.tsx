@@ -47,7 +47,7 @@ export function CabecalhoAdmin({
 }) {
   return (
     <header
-      className="sticky top-0 z-30 bg-azul-escuro text-white"
+      className="sticky top-0 z-30 bg-azul-escuro text-white print:hidden"
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
@@ -93,7 +93,7 @@ export function BarraAdmin({ aba, pendencias }: { aba: Aba; pendencias: Pendenci
   return (
     <nav
       aria-label="Área da ONG"
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white shadow-[0_-4px_12px_rgba(0,0,0,.05)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white shadow-[0_-4px_12px_rgba(0,0,0,.05)] md:hidden print:hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <div className="mx-auto grid max-w-3xl grid-cols-5">
@@ -135,7 +135,7 @@ export function BarraSalvar({
 }) {
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white p-3"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white p-3 print:hidden"
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
     >
       <div className="mx-auto flex max-w-xl gap-2">
