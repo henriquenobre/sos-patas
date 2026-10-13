@@ -22,6 +22,7 @@ const ANIMAL = {
   nome: 'Mel',
   especie: 'gato',
   sexo: 'femea',
+  status: 'em_analise',
   foto: null,
   responsavel_tipo: 'protetor',
   protetor_nome: 'Protetora Ana Paula',
@@ -182,6 +183,26 @@ describe('Análise do pedido (T28)', () => {
     )
     expect(screen.queryByRole('button', { name: 'Recusar' })).not.toBeInTheDocument()
     expect(chamadas(fetchFalso, 'POST', '/admin/pedidos/p1/aprovar')).toHaveLength(1)
+  })
+
+  it('pedido de animal já adotado: "Adoção concluída", ainda com a impressão', async () => {
+    simularApi({
+      ...API_ADMIN,
+      '/admin/pedidos/p1': {
+        ...DETALHE,
+        status: 'aprovado',
+        animal: { ...ANIMAL, status: 'adotado' },
+      },
+      '/admin/pedidos?status=aprovado': {
+        pedidos: [{ ...RECENTE, status: 'aprovado', animal: { ...ANIMAL, status: 'adotado' } }],
+      },
+    })
+    renderizarEm('/admin/pedidos?aba=aprovado')
+    expect(await screen.findByText(/adotado/)).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('link', { name: /Fernanda Lima/ }))
+    expect(await screen.findByText('🎉 Adoção concluída')).toBeInTheDocument()
+    expect(screen.queryByText(/Combine com Fernanda/)).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '🖨️ Imprimir formulário' })).toBeInTheDocument()
   })
 
   it('conflito na decisão aparece no modal', async () => {

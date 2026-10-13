@@ -151,17 +151,11 @@ export async function buscarAnimalAdmin(db: Db, env: Env, id: string): Promise<A
       .from(fotos)
       .where(eq(fotos.animal_id, id))
       .orderBy(asc(fotos.ordem)),
+    // Pedido aprovado mais recente: em análise, falta a entrega; adotado, é o da adoção
     db
       .select({ id: pedidosAdocao.id, nome: pedidosAdocao.nome, whatsapp: pedidosAdocao.whatsapp })
       .from(pedidosAdocao)
-      .innerJoin(animais, eq(animais.id, pedidosAdocao.animal_id))
-      .where(
-        and(
-          eq(pedidosAdocao.animal_id, id),
-          eq(pedidosAdocao.status, 'aprovado'),
-          eq(animais.status, 'em_analise'),
-        ),
-      )
+      .where(and(eq(pedidosAdocao.animal_id, id), eq(pedidosAdocao.status, 'aprovado')))
       .orderBy(desc(pedidosAdocao.created_at))
       .limit(1),
   ])
@@ -207,7 +201,9 @@ export async function buscarAnimalAdmin(db: Db, env: Env, id: string): Promise<A
       adotante_nome: privado?.adotante_nome ?? null,
       adotante_whatsapp: privado?.adotante_whatsapp ?? null,
     },
-    pedido_aprovado: pedidoAprovado ?? null,
+    pedido_aprovado: animal.status === 'em_analise' ? (pedidoAprovado ?? null) : null,
+    pedido_da_adocao:
+      animal.status === 'adotado' && pedidoAprovado ? { id: pedidoAprovado.id } : null,
     alteracao: { em: animal.updated_at.toISOString(), por: alterado_por },
   }
 }

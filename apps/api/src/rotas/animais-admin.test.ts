@@ -13,6 +13,7 @@ import {
   type FotoAdmin,
   type ListaAnimaisAdmin,
   type ListaProtetores,
+  type PedidoDetalhe,
   type ProtetorAdmin,
   type ResumoAdmin,
 } from '@sospatas/compartilhado'
@@ -311,6 +312,7 @@ describe('cadastro e edição (T10, T11)', () => {
       },
       fotos: [],
       pedido_aprovado: null,
+      pedido_da_adocao: null,
       alteracao: { por: 'Gracia' },
     })
   })
@@ -412,6 +414,13 @@ describe('marcar como adotado (RN07, RN08, RN30)', () => {
     })
     expect(resposta.status).toBe(204)
     expect((await animalNoBanco(ID.pipoca))?.status).toBe('adotado')
+
+    // Depois da adoção, a ficha aponta o pedido (para imprimir o formulário) e não pede mais a entrega
+    const adotado = await json<AnimalAdmin>(await admin(`/animais/${ID.pipoca}`))
+    expect(adotado.pedido_aprovado).toBeNull()
+    expect(adotado.pedido_da_adocao).toEqual({ id: ID.pedidoPipoca })
+    const pedido = await json<PedidoDetalhe>(await admin(`/pedidos/${ID.pedidoPipoca}`))
+    expect(pedido.animal.status).toBe('adotado')
   })
 
   it('com pedido aguardando análise: 409, nada muda', async () => {

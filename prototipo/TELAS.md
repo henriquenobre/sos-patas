@@ -50,7 +50,7 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 | `BlocoPix` | T01, T06, rodapé | Chave CNPJ + botão "Copiar chave PIX" |
 | `Modal` | Adotado, devolver, excluir, novo protetor, aprovar e recusar pedido | Confirmações sempre com "Cancelar"; no celular, sobe do rodapé |
 | `OpcoesBotao` | Formulário | Escolha em botões grandes (melhor que select no celular) |
-| `CabecalhoAdmin` | T08–T24 | Fundo azul-escuro, para diferenciar do site público; "Olá, {nome}" vem de `equipe` |
+| `CabecalhoAdmin` | T08–T24 | Fundo azul-escuro, para diferenciar do site público; "Olá, {nome}" vem de `equipe` (só a partir do tablet); à direita, "Ver o site ↗" (abre o site público em nova aba) e "Sair" |
 | `BarraAdmin` | T09, T14, T15, T22, T27 | Barra fixa no rodapé: 🐾 Animais · 📋 Pedidos (com número de pendentes) · 🔎 Perdidos (com número de pendentes) · 📝 Textos · ☰ Mais. No computador, vira abas no cabeçalho. Some nas telas de formulário |
 | `ListaEditavel` | T16, T18–T20 | Cards com título, começo do texto e miniatura (se tiver foto); botões ↑ ↓ (RN35), **Editar** e **Excluir** (RN36); "＋ Adicionar" no fim. Configurada por `lista` (DESENVOLVIMENTO.md, `conteudo_itens`) |
 | `CampoTextoEditavel` | T18–T20 | Rótulo, onde aparece no site, caixa de texto com contador "120/400" e botão **Salvar** próprio |
@@ -220,7 +220,7 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 
 ```
 ┌───────────────────────────────────┐
-│ ▓ Área da ONG         Olá, Gracia │  ← CabecalhoAdmin
+│ ▓ Área da ONG   Ver o site ↗ Sair │  ← CabecalhoAdmin
 │                                   │
 │          (conteúdo da aba)        │
 │                                   │
@@ -274,6 +274,7 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 - **Abas:** Pendentes (padrão) / Aprovados / Recusados.
 - **Item:** miniatura e nome do animal, nome de quem pediu, bairro, "há N dias", número de alertas (amarelo); **vermelho se pendente há mais de 3 dias** (RN50, prazo a confirmar).
 - Animal de protetor parceiro: selo "Protetor: {nome}".
+- Aba Aprovados: pedido de animal já adotado leva "🎉 adotado"; ele continua na lista (e pode ser impresso) até ser apagado, 90 dias depois da adoção (RN15).
 
 ### T28 · Análise do pedido · `/admin/pedidos/:id` · 🆕 só no site (13/10/2026)
 - **Topo:** animal (com link para T11), quem pediu, WhatsApp com botão para conversar, data do pedido.
@@ -282,7 +283,7 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 - **Observação interna** (só a equipe vê).
 - **Ações** (só em pedido pendente): **Aprovar** (modal de confirmação; o animal continua fora do site até "Marcar como adotado", que já vem com nome e WhatsApp preenchidos) e **Recusar** (modal: "O animal volta para o site. Avise a pessoa pelo WhatsApp."). Pedido aprovado mostra o próximo passo e o botão **"Abrir {animal}"** (T11). Linha "Aprovado por… em…" (RN43).
 - **Pedido que não existe mais** (apagado depois de 90 dias, RN15): "Não encontramos este pedido".
-- **🖨️ Imprimir formulário** (pedido da ONG, 13/10/2026): abre a impressão do navegador (papel ou "Salvar como PDF") com o formulário já preenchido: animal, quem pediu, respostas pelos blocos, as declarações marcadas, o termo que a pessoa leu (se for a versão atual), a data da ciência e linhas para data e assinatura de quem adota. Ficam fora do papel o que é só da equipe: alertas, observação interna, botões e o cabeçalho da área da ONG.
+- **🖨️ Imprimir formulário** (pedido da ONG, 13/10/2026): abre a impressão do navegador (papel ou "Salvar como PDF") com o formulário já preenchido: animal, quem pediu, respostas pelos blocos, as declarações marcadas, o termo que a pessoa leu (se for a versão atual), a data da ciência e linhas para data e assinatura de quem adota. Ficam fora do papel o que é só da equipe: alertas, observação interna, botões e o cabeçalho da área da ONG. Vale para pedidos em análise, aprovados e de animais já adotados; neste último caso, a tela mostra "🎉 Adoção concluída" no lugar de "combine a entrega".
 
 ### T10 · Cadastrar animal · `/admin/animais/novo` · ⏳
 ![T10](telas/T10-cadastrar-animal-celular.png)
@@ -305,7 +306,7 @@ Igual a T10, preenchido, com a linha "Alterado por… em…" (RN43) no topo e **
 - **Voltar para disponível** (aparece se o animal estiver adotado).
 - **Excluir animal:** modal vermelho avisando que apaga o cadastro e **todas as fotos** (RN05, RN09), sugerindo "Marcar como adotado" quando for o caso.
 - **Animal em análise:** com pedido aguardando análise, só o aviso e o link para os pedidos (sem adotar nem devolver); com pedido aprovado, "Marcar como adotado" (já preenchido) e "A adoção não aconteceu: voltar para disponível" (RN49).
-- **Animal adotado:** mostra a adaptação (RN30) e quem adotou; só um espaço de foto (RN07).
+- **Animal adotado:** mostra a adaptação (RN30), quem adotou e, se a adoção veio de um pedido do site, o link "📋 Ver o formulário de adoção (para imprimir)" (T28); só um espaço de foto (RN07).
 
 ### T14 · Moderar perdidos e encontrados · `/admin/perdidos` · ⏳
 ![T14](telas/T14-moderar-perdidos-celular.png)

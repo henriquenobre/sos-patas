@@ -302,6 +302,14 @@ function OutrasAcoes({ animal }: { animal: AnimalAdmin }) {
                 ` · ${formatarWhatsapp(animal.privado.adotante_whatsapp)}`}
             </p>
           )}
+          {animal.pedido_da_adocao && (
+            <Link
+              to={`/admin/pedidos/${animal.pedido_da_adocao.id}`}
+              className="mt-1 inline-block font-extrabold underline"
+            >
+              📋 Ver o formulário de adoção (para imprimir)
+            </Link>
+          )}
         </Faixa>
       )}
       {pedidoPendente && (

@@ -80,6 +80,9 @@ export function CabecalhoAdmin({
         )}
         <div className="flex items-center gap-3 text-sm">
           {nome && <span className="hidden text-white/70 sm:inline">Olá, {nome}</span>}
+          <a href="/" target="_blank" rel="noreferrer" className="py-2 font-bold text-white/80">
+            Ver o site ↗
+          </a>
           <a href={ENDERECO_SAIR} className="rounded-lg bg-white/10 px-3 py-2 font-bold">
             Sair
           </a>

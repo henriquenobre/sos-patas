@@ -444,6 +444,7 @@ describe('Editar animal (T11)', () => {
           adotante_nome: 'Fernanda',
           adotante_whatsapp: '35988887777',
         },
+        pedido_da_adocao: { id: 'p1' },
       },
       [`POST ${caminho}/devolucao`]: undefined,
       '/admin/animais?status=disponivel': LISTA,
@@ -451,6 +452,9 @@ describe('Editar animal (T11)', () => {
     renderizarEm(caminho)
     expect(await screen.findByText('Adoção concluída')).toBeInTheDocument()
     expect(screen.getByText('Adotado por Fernanda · (35) 9 8888-7777')).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: '📋 Ver o formulário de adoção (para imprimir)' }),
+    ).toHaveAttribute('href', '/admin/pedidos/p1')
     expect(screen.getByText('Animal adotado guarda só a foto principal.')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Voltar para disponível' }))
     const modal = screen.getByRole('dialog', { name: 'Apolo volta para o site?' })

@@ -87,6 +87,7 @@ export const ANIMAL_COMPLETO: AnimalAdmin = {
     adotante_whatsapp: null,
   },
   pedido_aprovado: null,
+  pedido_da_adocao: null,
   alteracao: { em: '2026-10-07T15:00:00Z', por: 'Claudia' },
 }
 

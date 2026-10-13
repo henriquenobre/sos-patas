@@ -50,6 +50,9 @@ function ItemPedido({ pedido, hoje }: { pedido: PedidoResumo; hoje: string }) {
           <p className={`text-xs font-bold ${parado ? 'text-vermelho' : 'text-slate-500'}`}>
             Pedido {textoHaDias(dias)}
             {parado && ' · esperando análise'}
+            {pedido.status === 'aprovado' && pedido.animal.status === 'adotado' && (
+              <span className="text-emerald-700"> · 🎉 adotado</span>
+            )}
           </p>
         </div>
         {pedido.quantidade_alertas > 0 && (

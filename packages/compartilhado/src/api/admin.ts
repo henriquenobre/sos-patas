@@ -101,6 +101,11 @@ export type AnimalAdmin = Omit<AnimalAdminResumo, 'foto' | 'pedido' | 'protetor'
    * WhatsApp de quem pediu (RN49)
    */
   pedido_aprovado: { id: string; nome: string; whatsapp: string } | null
+  /**
+   * Só de adotado: o pedido aprovado que levou à adoção, enquanto ele é guardado (90 dias depois
+   * da adoção, RN15), para abrir e imprimir o formulário
+   */
+  pedido_da_adocao: { id: string } | null
   alteracao: Alteracao
 }
 
@@ -125,6 +130,8 @@ export type AnimalDoPedidoAdmin = {
   nome: string
   especie: Especie
   sexo: Sexo
+  /** Situação do animal hoje: pedido aprovado com animal adotado = adoção concluída */
+  status: StatusAnimal
   /** URL da miniatura da foto principal */
   foto: string | null
   responsavel_tipo: ResponsavelTipo

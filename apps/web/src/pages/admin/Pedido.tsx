@@ -153,6 +153,22 @@ function Decisao({ pedido }: { pedido: PedidoDetalhe }) {
     </p>
   )
 
+  if (pedido.status === 'aprovado' && animal.status === 'adotado') {
+    return (
+      <Cartao titulo="🎉 Adoção concluída">
+        <p className="text-slate-700">
+          {animal.nome} já foi marcado como adotado. Este pedido fica guardado por 90 dias depois da
+          adoção (LGPD): se quiser uma cópia, use "Imprimir formulário".
+        </p>
+        <Link
+          to={`/admin/animais/${animal.id}`}
+          className="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-azul-claro py-3 font-extrabold text-azul"
+        >
+          Abrir {animal.nome}
+        </Link>
+      </Cartao>
+    )
+  }
   if (pedido.status === 'aprovado') {
     return (
       <Cartao titulo="✅ Pedido aprovado">
