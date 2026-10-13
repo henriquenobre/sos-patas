@@ -305,9 +305,15 @@ function Analise({ pedido }: { pedido: PedidoDetalhe }) {
           href={linkWhatsApp(pedido.whatsapp, mensagem)}
           target="_blank"
           rel="noreferrer"
-          className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 font-extrabold text-white print:hidden"
+          className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-center font-extrabold leading-tight text-white print:hidden [&>svg]:shrink-0"
         >
-          <IconeWhatsApp /> Conversar no WhatsApp · {formatarWhatsapp(pedido.whatsapp)}
+          <IconeWhatsApp />
+          <span>
+            Conversar no WhatsApp
+            <span className="block whitespace-nowrap text-sm font-bold">
+              {formatarWhatsapp(pedido.whatsapp)}
+            </span>
+          </span>
         </a>
         {pedido.analisado_em && (
           <p className="mt-2 text-sm text-slate-500 print:hidden">

@@ -205,8 +205,8 @@ export function Painel() {
           to="/admin/perdidos"
           className="mt-3 flex items-center justify-between gap-2 rounded-2xl bg-amarelo-claro p-3 ring-2 ring-amarelo"
         >
-          <span className="font-bold text-[#7A4A00]">🔎 Perdidos e encontrados</span>
-          <span className="rounded-full bg-vermelho px-2.5 py-1 text-xs font-extrabold text-white">
+          <span className="min-w-0 font-bold text-[#7A4A00]">🔎 Perdidos e encontrados</span>
+          <span className="shrink-0 whitespace-nowrap rounded-full bg-vermelho px-2.5 py-1 text-xs font-extrabold text-white">
             {perdidos} aguardando aprovação
           </span>
         </Link>
@@ -250,8 +250,8 @@ export function Painel() {
         />
       </label>
 
-      <div className="mt-2 flex items-center gap-2 overflow-x-auto pb-1">
-        <span className="shrink-0 text-xs font-bold text-slate-500">Responsável:</span>
+      <p className="mt-3 text-xs font-bold text-slate-500">Responsável:</p>
+      <div className="mt-1 flex flex-wrap items-center gap-2">
         <Chip
           ativo={responsavel === ''}
           aoTocar={() => {
@@ -278,7 +278,7 @@ export function Painel() {
         </Chip>
       </div>
       {protetorEscolhido && (protetores.data?.protetores.length ?? 0) > 0 && (
-        <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+        <div className="mt-2 flex flex-wrap gap-2">
           {protetores.data?.protetores.map((protetor) => (
             <Chip
               key={protetor.id}

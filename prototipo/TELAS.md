@@ -264,7 +264,7 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 - **Busca** pelo nome.
 - **Item da lista:** miniatura, nome, espécie, idade, **lar temporário** (privado), tempo de espera (vermelho se adulto há mais de 90 dias); botões **Editar** e **Adotado ✓**.
 - **Aba Adotados:** "Em adaptação: faltam N dias" ou "Adoção concluída" (RN30).
-- **Filtro por responsável** (abaixo da busca): "Todos · SOS Patas · Protetores", e ao tocar em "Protetores" aparece a lista para escolher um. O nome do protetor aparece no item da lista.
+- **Filtro por responsável** (abaixo da busca, com o rótulo "Responsável:" em cima): "Todos · SOS Patas · Protetores", em chips que quebram linha (sem rolagem lateral), e ao tocar em "Protetores" aparece a lista para escolher um. O nome do protetor aparece no item da lista.
 - **Card amarelo de perdidos:** só aparece quando há anúncios aguardando aprovação (o número também fica na aba 🔎).
 - **Botão flutuante:** "＋ Cadastrar animal", acima da `BarraAdmin`.
 
@@ -277,7 +277,7 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 - Aba Aprovados: pedido de animal já adotado leva "🎉 adotado"; ele continua na lista (e pode ser impresso) até ser apagado, 90 dias depois da adoção (RN15).
 
 ### T28 · Análise do pedido · `/admin/pedidos/:id` · 🆕 só no site (13/10/2026)
-- **Topo:** animal (com link para T11), quem pediu, WhatsApp com botão para conversar, data do pedido.
+- **Topo:** animal (com link para T11), quem pediu, WhatsApp com botão para conversar ("Conversar no WhatsApp" e o número na linha de baixo), data do pedido.
 - **Alertas automáticos** em amarelo no topo (tabela do FORMULARIO_ADOCAO.md), sem reprovar sozinhos.
 - **Respostas** agrupadas pelos blocos do formulário; "Ciente do termo em {data}".
 - **Observação interna** (só a equipe vê).

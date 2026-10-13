@@ -137,7 +137,9 @@ describe('Análise do pedido (T28)', () => {
     expect(screen.getByText('Não sei')).toBeInTheDocument()
     expect(screen.getByText('Machos e Fêmeas')).toBeInTheDocument()
     expect(screen.getByText('De 4 a 8 horas')).toBeInTheDocument()
-    expect(screen.getByText('(35) 9 8888-7777')).toBeInTheDocument()
+    // No botão do WhatsApp e nas respostas do bloco 1
+    expect(whatsapp).toHaveTextContent('(35) 9 8888-7777')
+    expect(screen.getAllByText('(35) 9 8888-7777')).toHaveLength(2)
     // Pergunta sem resposta (opcional) não aparece
     expect(screen.queryByText('5. Instagram ou Facebook')).not.toBeInTheDocument()
     expect(screen.getByText(/Ciente do termo em 10\/10\/2026 às 14:05/)).toBeInTheDocument()

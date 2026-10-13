@@ -77,7 +77,7 @@ export function BotoesModal({
         type="button"
         onClick={aoCancelar}
         disabled={enviando}
-        className="min-h-11 flex-1 rounded-xl py-3 font-bold text-slate-700 ring-2 ring-slate-200 disabled:opacity-50"
+        className="min-h-11 flex-1 rounded-xl px-3 py-3 font-bold text-slate-700 ring-2 ring-slate-200 disabled:opacity-50"
       >
         Cancelar
       </button>
@@ -85,7 +85,7 @@ export function BotoesModal({
         type="button"
         onClick={aoConfirmar}
         disabled={enviando}
-        className={`min-h-11 flex-1 rounded-xl py-3 font-extrabold text-white disabled:opacity-60 ${cor}`}
+        className={`min-h-11 flex-1 rounded-xl px-3 py-3 font-extrabold leading-tight text-white disabled:opacity-60 ${cor}`}
       >
         {enviando ? 'Enviando…' : rotulo}
       </button>

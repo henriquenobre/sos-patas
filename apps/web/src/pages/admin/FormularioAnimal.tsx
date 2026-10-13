@@ -588,31 +588,36 @@ function Formulario({ animal }: { animal?: AnimalAdmin }) {
             aoMudar={mudar('sexo')}
             erro={erros.sexo}
           />
-          <div className="grid grid-cols-[1fr_auto] items-start gap-2">
-            <CampoTexto
-              rotulo="Idade aproximada"
-              tipo="numero"
-              valor={campos.idade}
-              aoMudar={mudar('idade')}
-              erro={erros.idade}
-              limite={2}
-              placeholder="Ex.: 4"
-              dica="O site calcula a idade sozinho com o passar do tempo."
-            />
-            <select
-              aria-label="Idade em anos ou meses"
-              value={campos.unidade}
-              onChange={(evento) => {
-                mudar('unidade')(evento.target.value)
-              }}
-              className="mt-8 min-h-[52px] rounded-xl border-2 border-slate-200 bg-white px-3 font-bold focus:border-azul focus:outline-none"
-            >
-              {Object.entries(UNIDADES).map(([valor, texto]) => (
-                <option key={valor} value={valor}>
-                  {texto}
-                </option>
-              ))}
-            </select>
+          {/* Dica fora do CampoTexto: dentro dele, quebrava em linhas e desalinhava o select */}
+          <div>
+            <div className="grid grid-cols-[1fr_auto] items-start gap-2">
+              <CampoTexto
+                rotulo="Idade aproximada"
+                tipo="numero"
+                valor={campos.idade}
+                aoMudar={mudar('idade')}
+                erro={erros.idade}
+                limite={2}
+                placeholder="Ex.: 4"
+              />
+              <select
+                aria-label="Idade em anos ou meses"
+                value={campos.unidade}
+                onChange={(evento) => {
+                  mudar('unidade')(evento.target.value)
+                }}
+                className="mt-7.5 min-h-[52px] rounded-xl border-2 border-slate-200 bg-white px-3 font-bold focus:border-azul focus:outline-none"
+              >
+                {Object.entries(UNIDADES).map(([valor, texto]) => (
+                  <option key={valor} value={valor}>
+                    {texto}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <p className="mt-1.5 text-sm text-slate-500">
+              O site calcula a idade sozinho com o passar do tempo.
+            </p>
           </div>
           <Escolha
             rotulo="Porte"

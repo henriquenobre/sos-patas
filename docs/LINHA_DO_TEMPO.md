@@ -38,8 +38,8 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | 7 | Site público: vitrine e ficha do animal | 08/10/2026 | 08/10/2026 | 1 dia | Filtros na URL, ficha completa, fotos de exemplo no computador; 11 testes novos do front |
 | 8 | Deploy de prévia no Cloudflare | 09/10/2026 | 09/10/2026 | 1 dia | sospatas.pages.dev + Worker de prévia; CPU de 12 a 41 ms em instância nova (teto de 10 ms) |
 | 9 | API da ONG: animais, fotos, adoção, protetores | 09/10/2026 | 09/10/2026 | 1 dia | 44 testes novos (139 na API); trocar foto e devolução definidas |
-| 10 | Área da ONG: estrutura e animais | 13/10/2026 | | | Telas T09–T11 prontas em 13/10 com testes do front; falta o teste pelo celular |
-| 10b | Pedidos de adoção | 09/10/2026 | | | Entrou no MVP em 08/10/2026. Banco, API e formulário prontos em 09/10; T27/T28 em 13/10; falta o teste de ponta a ponta |
+| 10 | Área da ONG: estrutura e animais | 13/10/2026 | 13/10/2026 | 1 dia | Telas T09–T11 com testes do front; testada pelo celular na rede local, com 6 ajustes visuais |
+| 10b | Pedidos de adoção | 09/10/2026 | 13/10/2026 | 5 dias | Entrou no MVP em 08/10/2026. Banco, API e formulário em 09/10; T27/T28 em 13/10; teste de ponta a ponta pelo celular |
 | 11 | Perdidos e encontrados | | | | |
 | 12 | Editor de textos | | | | |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores | | | | |
@@ -92,4 +92,6 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 09/10/2026 | | 7 | **Etapa 8 concluída:** site no ar pela primeira vez, em https://sospatas.pages.dev, com a API da prévia, dados de exemplo e fotos; Neon frio 0,87 s; CPU perto do teto em instância nova | doc (verificação no navegador e `wrangler tail`) |
 | 09/10/2026 | | 7 | **Etapa 9 concluída:** API da área da ONG para animais, adoção e devolução, fotos e protetores, com testes do "Pronto quando" e conferência no `wrangler dev` | doc (verificação local) |
 | 13/10/2026 | | 4 | Pedido da ONG registrado: imprimir o formulário de adoção já preenchido; atendido no mesmo dia na T28 (data do pedido da ONG _(a confirmar)_) | relato |
+| 13/10/2026 | | 6 | Registro.br pediu documentos para o `.org.br`; cartão CNPJ e estatuto enviados para `doc@registro.br` (ticket 32358834); análise em cerca de 2 dias úteis | relato |
 | ter 13/10/2026 | | 7 | **Etapa 10 iniciada** (com o restante da 10b): telas da área da ONG para animais (T09–T11) e pedidos de adoção (T27, T28), testadas com a API simulada; falta o teste pelo celular | doc (testes do front) |
+| 13/10/2026 | | 7 | **Etapas 10 e 10b concluídas:** teste pelo celular na rede local (cadastro com 3 fotos, edição, adoção, devolução, exclusão e pedido de ponta a ponta); 6 ajustes visuais corrigidos na `develop` | relato + doc (prints em 384 px) |

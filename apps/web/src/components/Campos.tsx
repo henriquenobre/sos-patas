@@ -135,7 +135,7 @@ export function Escolha({
         {Object.entries(opcoes).map(([chave, texto]) => (
           <label
             key={chave}
-            className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border-2 px-4 py-2.5 font-bold ${compacto ? 'min-w-[28%] flex-1 justify-center' : ''} ${
+            className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border-2 px-4 py-2.5 font-bold ${compacto ? 'min-w-[28%] flex-auto justify-center whitespace-nowrap' : ''} ${
               valor === chave
                 ? 'border-azul bg-azul-claro text-azul-escuro'
                 : 'border-slate-200 bg-white text-slate-700'
@@ -149,7 +149,7 @@ export function Escolha({
               onChange={() => {
                 aoMudar(chave)
               }}
-              className="h-5 w-5 accent-azul"
+              className="h-5 w-5 shrink-0 accent-azul"
             />
             {texto}
           </label>
@@ -195,7 +195,7 @@ export function MultiEscolha({
                 onChange={() => {
                   aoMudar(marcado ? valor.filter((v) => v !== chave) : [...valor, chave])
                 }}
-                className="h-5 w-5 accent-azul"
+                className="h-5 w-5 shrink-0 accent-azul"
               />
               {texto}
             </label>
