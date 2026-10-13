@@ -14,6 +14,9 @@ import type {
 import type { RespostasAdocao } from '../schemas/pedido'
 import type { FotoPublica } from './publico'
 
+/** GET /api/admin/eu: quem está logada ("Olá, Gracia" no cabeçalho, RN43). */
+export type UsuariaLogada = { id: string; nome: string; email: string }
+
 /** Resposta de criação: o id do registro novo. */
 export type Criado = { id: string }
 

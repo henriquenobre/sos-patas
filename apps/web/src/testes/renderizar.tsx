@@ -6,20 +6,46 @@ import { vi } from 'vitest'
 import type { ListaAnimais, SitePublico } from '@sospatas/compartilhado'
 import { rotas } from '../rotas'
 
-/** Respostas da API por caminho; caminho ausente responde 404, e `null` simula a API fora do ar. */
+/**
+ * Respostas da API por caminho ("/publico/site", só GET) ou por método e caminho
+ * ("POST /admin/animais"). Caminho ausente responde 404; `null` simula a API fora do ar;
+ * `undefined` responde 204 (sem corpo); uma função monta a resposta (status, erro…).
+ */
 export type RespostasApi = Record<string, unknown>
 
+export type FetchFalso = ReturnType<typeof simularApi>
+
 export function simularApi(respostas: RespostasApi) {
-  const fetchFalso = vi.fn((url: string) => {
+  const fetchFalso = vi.fn((url: string, init?: RequestInit) => {
     const caminho = url.replace(/^.*\/api/, '')
-    if (!(caminho in respostas)) return Promise.resolve(new Response(null, { status: 404 }))
-    const corpo = respostas[caminho]
+    const metodo = init?.method ?? 'GET'
+    const chave = `${metodo} ${caminho}` in respostas ? `${metodo} ${caminho}` : caminho
+    if (!(chave in respostas) || (chave === caminho && metodo !== 'GET')) {
+      return Promise.resolve(new Response(null, { status: 404 }))
+    }
+    const corpo = respostas[chave]
+    if (typeof corpo === 'function') return Promise.resolve((corpo as () => Response)())
     if (corpo === null) return Promise.resolve(new Response(null, { status: 503 }))
-    return Promise.resolve(Response.json(corpo))
+    if (corpo === undefined) return Promise.resolve(new Response(null, { status: 204 }))
+    return Promise.resolve(Response.json(corpo, { status: metodo === 'POST' ? 201 : 200 }))
   })
   vi.stubGlobal('fetch', fetchFalso)
   return fetchFalso
 }
+
+/** Chamadas feitas a um método e caminho, com o corpo já lido (JSON ou FormData). */
+export function chamadas(fetchFalso: FetchFalso, metodo: string, caminho: string): unknown[] {
+  return fetchFalso.mock.calls
+    .filter(([url, init]) => url.endsWith(`/api${caminho}`) && (init?.method ?? 'GET') === metodo)
+    .map(([, init]) =>
+      typeof init?.body === 'string' ? (JSON.parse(init.body) as unknown) : init?.body,
+    )
+}
+
+/** Resposta de erro no formato da API. */
+export const respostaDeErro =
+  (status: number, mensagem: string, campos?: Record<string, string>) => () =>
+    Response.json({ erro: 'erro', mensagem, campos }, { status })
 
 /** Renderiza o site inteiro (rotas reais) começando no endereço indicado. */
 export function renderizarEm(endereco: string) {

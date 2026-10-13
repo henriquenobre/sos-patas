@@ -48,7 +48,7 @@ Resumo. O detalhamento (diagrama, API, login, deploy, backup e limites) está no
 | Fotos | **Cloudflare R2** (bucket público + quarentena privada) | 10 GB, **tráfego grátis** |
 | Login da equipe | **Cloudflare Access** (código por e-mail, sem senha) | 50 usuários |
 | Validação compartilhada | **zod** (`packages/compartilhado`), usada no front e na API | – |
-| Compressão de imagem | `browser-image-compression` + canvas (no navegador) | – |
+| Compressão de imagem | canvas do navegador (`createImageBitmap` + `toBlob` em WebP), sem biblioteca | – |
 | Antirrobô | Cloudflare Turnstile | Grátis |
 | Tarefas agendadas | Workers Cron Triggers | 5 por conta |
 | Estatísticas | Cloudflare Web Analytics | Grátis, sem cookies |
@@ -452,6 +452,9 @@ Onde fica cada regra:
 | Regra | Arquivo |
 |---|---|
 | Compressão e redesenho das fotos (RN02, RN20) | `apps/web/src/lib/fotos.ts` |
+| Envio das fotos do animal ao salvar: remover, enviar e acertar a ordem (RN01, RN06) | `apps/web/src/lib/fotos-animal.ts` |
+| Adaptação de 15 dias: "Em adaptação: faltam N dias" / "Adoção concluída" (RN30) | `packages/compartilhado/src/idade.ts` (`textoAdaptacao`, `fimDaAdaptacao`) |
+| Sessão vencida na área da ONG (tela "Entre de novo") | `apps/web/src/api/cliente.ts` (`chamarAdmin`) e `apps/web/src/layouts/LayoutAdmin.tsx` |
 | Idade, adulto/filhote e "Esperando há mais tempo" (RN11–RN13) | `packages/compartilhado/src/idade.ts` (usado no front e na API) |
 | Datas no fuso de Brasília | `packages/compartilhado/src/datas.ts` (`hojeNoBrasil`): o Worker roda em UTC |
 | WhatsApp (normalizar, validar, formatar, link wa.me) e detecção de links (RN21) | `packages/compartilhado/src/whatsapp.ts` e `texto.ts` |
@@ -602,3 +605,4 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 09/10/2026 | **Branch só para etapa nova:** cada etapa do plano continua numa branch `etapa-NN-nome-curto`; correções e ajustes fora de uma etapa são feitos direto na `develop`, sem branch nova (RP05 no CLAUDE.md). Commit e push continuam só quando o mantenedor pedir | Pedido do mantenedor. O CI também roda no push para a `develop`, então as correções continuam verificadas |
 | 09/10/2026 | **Formulário de adoção 1.2:** a pergunta 19 ("Já teve animais antes? O que aconteceu com eles?") passa a ser **obrigatória**; o campo tem a dica "Se nunca teve, escreva 'Nunca tive'". Pedidos da 1.1 podem ter essa resposta vazia | A ONG sempre faz essa pergunta, por causa de doenças, fugas e outros problemas com animais anteriores |
 | 09/10/2026 | **Postgres do CI pelo espelho da AWS:** o serviço do workflow usa `public.ecr.aws/docker/library/postgres:18` (a mesma imagem oficial) em vez de `postgres:18` do Docker Hub. O `docker-compose.yml` local continua no Docker Hub ([ARQUITETURA.md](ARQUITETURA.md), seção 5) | O CI falhou, também no re-run, com `toomanyrequests`: o Docker Hub limita downloads anônimos por IP, e os IPs dos runners do GitHub são compartilhados. O espelho não tem esse limite e dispensa criar secret de login |
+| 13/10/2026 | **Etapas 10 e 10b, decisões das telas da área da ONG:** (1) As fotos do animal (T10, T11) são preparadas no aparelho assim que escolhidas, mas **só vão para o site ao tocar em "Salvar"**: o front remove as que saíram, envia as novas e manda a ordem final; ◀ ▶ mudam a posição e a primeira é a principal. Se os dados salvarem e as fotos falharem, a tela avisa e mostra as fotos que ficaram. (2) **Compressão só com o canvas do navegador**, sem a biblioteca `browser-image-compression`; navegador que não gera WebP recebe a mensagem "tente pelo Google Chrome". (3) Animal adotado tem **um espaço de foto** na edição (RN07). (4) **Aprovar** um pedido (T28) também pede confirmação, como o Recusar. (5) As abas do T09 não mostram contagem (só "N animais" abaixo da busca): o resumo da API só conta os disponíveis. (6) Sessão vencida: tela "Sua sessão terminou" com "Entrar de novo" ([ARQUITETURA.md](ARQUITETURA.md), seção 4). (7) Abas Perdidos, Textos e Mais mostram "Em breve" até as etapas 11 a 13. (8) A área da ONG é carregada só ao abrir `/admin` (quem visita o site não baixa esse código). (9) A aba "Recusados" do T27 mostra só `recusado`; pedidos `nao_concluido` ficam fora das três abas | (1) evita mexer no site antes da voluntária confirmar e mantém "Cancelar" de verdade. (2) o canvas já faz o que a RN02/RN20 pede (redimensionar, WebP, sem EXIF) e a biblioteca só somaria peso. (3) só a principal fica no histórico. (4) aprovar não devolve o animal e não tem "desfazer" na tela. (8) menos dados no celular de quem visita |
