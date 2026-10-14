@@ -1,5 +1,6 @@
 // Respostas das rotas da área da ONG (/api/admin, docs/ARQUITETURA.md, seção 3.2).
 import type { Alerta } from '../adocao/alertas'
+import type { ChaveTexto, NomeLista } from '../conteudo'
 import type {
   Especie,
   LarTipo,
@@ -209,3 +210,27 @@ export type PerdidoAdmin = {
 
 /** GET /api/admin/perdidos?status=pendente|publicado */
 export type ListaPerdidosAdmin = { perdidos: PerdidoAdmin[] }
+
+/** Texto único de uma página (T18–T20). */
+export type TextoAdmin = {
+  valor: string
+  /** null se o texto ainda não existe no banco (aparece vazio) */
+  alteracao: Alteracao | null
+}
+
+/** Item de uma lista (ListaEditavel e T17). */
+export type ItemAdmin = {
+  id: string
+  titulo: string | null
+  texto: string
+  /** Só na lista inicio_fotos (RN38) */
+  foto: FotoPublica | null
+  alteracao: Alteracao
+}
+
+/** GET /api/admin/conteudo: todos os textos e listas das páginas (T15–T20), sem cache. */
+export type ConteudoAdmin = {
+  textos: Record<ChaveTexto, TextoAdmin>
+  /** Na ordem definida pela equipe (RN35) */
+  listas: Record<NomeLista, ItemAdmin[]>
+}

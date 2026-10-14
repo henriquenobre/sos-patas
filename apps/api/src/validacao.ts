@@ -16,8 +16,11 @@ export function validar<S extends z.ZodType>(schema: S, dados: unknown): z.outpu
   throw erros.validacao(campos)
 }
 
-/** Lê o corpo JSON da requisição (Content-Type application/json) e valida. */
-export async function lerJson<S extends z.ZodType>(c: Context, schema: S): Promise<z.output<S>> {
+/**
+ * Lê o corpo JSON da requisição (Content-Type application/json), sem validar. Para quando o
+ * schema depende de outro dado (ex.: a lista do item de conteúdo).
+ */
+export async function lerCorpoJson(c: Context): Promise<unknown> {
   // Só JSON declarado como JSON: um formulário de outro site consegue mandar text/plain com
   // conteúdo de JSON sem o navegador pedir permissão antes (CSRF), mas não application/json
   if (!(c.req.header('Content-Type') ?? '').toLowerCase().startsWith('application/json')) {
@@ -29,7 +32,12 @@ export async function lerJson<S extends z.ZodType>(c: Context, schema: S): Promi
   } catch {
     throw erros.requisicaoInvalida('Não foi possível ler os dados enviados.')
   }
-  return validar(schema, dados)
+  return dados
+}
+
+/** Lê o corpo JSON da requisição (Content-Type application/json) e valida. */
+export async function lerJson<S extends z.ZodType>(c: Context, schema: S): Promise<z.output<S>> {
+  return validar(schema, await lerCorpoJson(c))
 }
 
 /** Id no formato uuid (ids de rota: um id malformado é "não encontrado", não erro do banco). */

@@ -3,6 +3,7 @@
 import { keepPreviousData, useQuery, type QueryClient } from '@tanstack/react-query'
 import type {
   AnimalAdmin,
+  ConteudoAdmin,
   FiltroAnimaisAdmin,
   ListaAnimaisAdmin,
   ListaPedidos,
@@ -15,6 +16,7 @@ import type {
   UsuariaLogada,
 } from '@sospatas/compartilhado'
 import { ErroApi, chamarAdmin } from './cliente'
+import { marcarConteudoAlterado } from './publico'
 
 /** 401 e 403 não melhoram tentando de novo; 404 também não. */
 const tentarDeNovo = (tentativas: number, erro: unknown) =>
@@ -99,6 +101,22 @@ export function usePerdidosAdmin(status: PerdidoStatus) {
     queryFn: () => chamarAdmin<ListaPerdidosAdmin>('GET', `/perdidos?status=${status}`),
     retry: tentarDeNovo,
   })
+}
+
+/** Textos e listas das páginas (T15–T20). */
+export function useConteudo() {
+  return useQuery({
+    queryKey: ['admin', 'conteudo'],
+    queryFn: () => chamarAdmin<ConteudoAdmin>('GET', '/conteudo'),
+    retry: tentarDeNovo,
+  })
+}
+
+/** Depois de salvar um texto ou item: o "Ver no site" já mostra a versão nova (RN37). */
+export async function atualizarConteudo(queryClient: QueryClient): Promise<void> {
+  marcarConteudoAlterado()
+  queryClient.removeQueries({ queryKey: ['site'] })
+  await atualizarAdmin(queryClient)
 }
 
 /**

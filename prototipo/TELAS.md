@@ -330,7 +330,7 @@ Igual a T10, preenchido, com a linha "Alterado por… em…" (RN43) no topo e **
 - **Editar:** formulário preenchido, com o status ("Aguardando aprovação" ou "No ar, sai em N dias"); fotos com ✕ para remover e espaço para adicionar (RN40); botão **"Salvar alterações"**. Se o anúncio estiver pendente, aparecem também "Recusar" e "Aprovar e publicar".
 - **Aviso:** "Quem anunciou não é avisado das alterações."
 
-### T15 · Textos do site · `/admin/textos` · ⏳
+### T15 · Textos do site · `/admin/textos` · ✅ no site (14/10/2026)
 ![T15](telas/T15-textos-do-site-celular.png)
 
 **Objetivo:** ponto de entrada para alterar o conteúdo das páginas públicas.
@@ -345,7 +345,9 @@ Lista de cards grandes, um por página, com ícone, nome, o que dá para mudar e
 
 Abaixo, uma nota: "Contatos e PIX ficam em ☰ Mais → Dados da ONG."
 
-### T16 · Perguntas frequentes · `/admin/textos/perguntas` · ⏳
+- **No site (14/10/2026):** o "Alterado em…" de cada card é a alteração mais recente entre os textos e itens da página, com o nome de quem alterou (RN43); o card de Perguntas frequentes mostra "N perguntas".
+
+### T16 · Perguntas frequentes · `/admin/textos/perguntas` · ✅ no site (14/10/2026)
 ![T16](telas/T16-perguntas-frequentes-admin-celular.png)
 
 **Objetivo:** adicionar, alterar, reordenar e excluir perguntas.
@@ -355,8 +357,9 @@ Abaixo, uma nota: "Contatos e PIX ficam em ☰ Mais → Dados da ONG."
 - **Excluir:** modal "Excluir a pergunta '…'? Ela some do site e não pode ser recuperada." [Cancelar] [Excluir]. Com só 1 pergunta, o Excluir fica desativado.
 - **Botão "＋ Nova pergunta"** (fixo embaixo) → T17.
 - Sem categorias e sem "ocultar" (decisão de 07/10).
+- **No site (14/10/2026):** as setas mudam a ordem na hora, sem botão de salvar (RN35). As listas de T18–T20 usam o mesmo card; lista vazia mostra "Nenhum item. Enquanto a lista estiver vazia, este bloco não aparece no site."
 
-### T17 · Item de lista (novo / editar) · `/admin/textos/:lista/novo` e `/admin/textos/:lista/:id` · ⏳
+### T17 · Item de lista (novo / editar) · `/admin/textos/:lista/novo` e `/admin/textos/:lista/:id` · ✅ no site (14/10/2026)
 ![T17](telas/T17-editar-item-celular.png)
 
 **Objetivo:** um único formulário para qualquer item de lista, com rótulos conforme a lista (DESENVOLVIMENTO.md, `conteudo_itens`).
@@ -380,8 +383,9 @@ Abaixo, uma nota: "Contatos e PIX ficam em ☰ Mais → Dados da ONG."
 - **Dica abaixo do texto:** "Para pular linha, use Enter. Links começando com https:// viram clicáveis." (RN34)
 - **Prévia** logo abaixo, com o visual do site (ex.: o acordeão da pergunta aberto).
 - Barra fixa: "Cancelar" e "Salvar". Ao editar, também "Excluir" (com o modal da RN36).
+- **No site (14/10/2026):** o "Excluir" fica no fim do formulário, fora da barra fixa, para não ser tocado sem querer ao lado do "Salvar". Ao salvar, a tela volta para a página da lista (T16, T18, T19 ou T20) com o aviso "Salvo e publicado ✓". Na foto da história, "Escolher foto" / "Trocar foto" mostra a foto grande; a troca só vai para o site ao tocar em "Salvar". Abrir "novo" numa lista cheia mostra "Limite atingido".
 
-### T18 · Editar Como adotar · `/admin/textos/como-adotar` · ⏳
+### T18 · Editar Como adotar · `/admin/textos/como-adotar` · ✅ no site (14/10/2026)
 ![T18](telas/T18-editar-como-adotar-celular.png)
 
 Uma tela com blocos na ordem em que aparecem no site:
@@ -393,7 +397,9 @@ Uma tela com blocos na ordem em que aparecem no site:
 
 Cada campo de texto tem o próprio botão "Salvar"; listas salvam item a item (T17).
 
-### T19 · Editar Página inicial · `/admin/textos/inicio` · ⏳
+- **No site (14/10/2026), em T18–T20:** o "Salvar" de cada campo fica desativado até o texto mudar; com o texto mudado, aparece também "Desfazer" (volta ao que está no site). Cada campo mostra onde aparece no site e o "Alterado por… em…".
+
+### T19 · Editar Página inicial · `/admin/textos/inicio` · ✅ no site (14/10/2026)
 ![T19](telas/T19-editar-pagina-inicial-celular.png)
 
 1. **Chamada:** título (60) e texto (200).
@@ -406,7 +412,7 @@ Cada campo de texto tem o próprio botão "Salvar"; listas salvam item a item (T
 8. **Esperando há mais tempo:** só o texto (200); os animais entram automaticamente.
 - Nota fixa no topo: "Automáticos: animais em destaque, resumo de 'Como adotar' e PIX."
 
-### T20 · Editar Como ajudar · `/admin/textos/ajude` · ⏳
+### T20 · Editar Como ajudar · `/admin/textos/ajude` · ✅ no site (14/10/2026)
 ![T20](telas/T20-editar-como-ajudar-celular.png)
 
 1. **Introdução** (300, opcional).

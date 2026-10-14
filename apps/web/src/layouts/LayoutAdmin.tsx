@@ -3,7 +3,7 @@
 // no meio do uso (qualquer resposta 401), a tela troca por "Entre de novo", que recarrega a
 // página e cai no login do Access.
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { Outlet, ScrollRestoration, useMatches } from 'react-router'
+import { Outlet, ScrollRestoration, useMatches, type Params } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEu, useResumo } from '../api/admin'
 import { ErroApi, ehSessaoExpirada } from '../api/cliente'
@@ -21,8 +21,11 @@ import { Carregando, ErroAoCarregar } from '../components/Estados'
 export type MolduraAdmin = {
   /** Tela de aba: mostra a BarraAdmin com esta aba marcada */
   aba?: Aba
-  /** Tela interna (formulário): botão "Voltar" para este endereço, sem as abas */
-  voltar?: string
+  /**
+   * Tela interna (formulário): botão "Voltar" para este endereço, sem as abas. Função quando
+   * depende do endereço (o item de lista volta para a página da lista, T17)
+   */
+  voltar?: string | ((params: Params) => string)
 }
 
 const MENSAGEM_PADRAO = 'Algo deu errado. Tente de novo em alguns minutos.'
@@ -115,7 +118,10 @@ export function LayoutAdmin() {
   const eu = useEu()
   const resumo = useResumo()
   const matches = useMatches()
-  const moldura = (matches.at(-1)?.handle ?? {}) as MolduraAdmin
+  const rotaAtual = matches.at(-1)
+  const moldura = (rotaAtual?.handle ?? {}) as MolduraAdmin
+  const voltar =
+    typeof moldura.voltar === 'function' ? moldura.voltar(rotaAtual?.params ?? {}) : moldura.voltar
   const [sessaoVencida, setSessaoVencida] = useState(false)
   const [aviso, setAviso] = useState<Aviso | null>(null)
   const contador = useRef(0)
@@ -189,7 +195,7 @@ export function LayoutAdmin() {
         <CabecalhoAdmin
           nome={eu.data.nome}
           aba={moldura.aba}
-          voltar={moldura.voltar}
+          voltar={voltar}
           pendencias={pendencias}
         />
         <main className="mx-auto max-w-3xl px-4 pb-32 pt-4 md:pb-16 print:max-w-none print:p-0">

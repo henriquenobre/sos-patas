@@ -61,16 +61,17 @@ sos-patas/
 │   │       │                    #   LayoutAdmin (sessão do Access, "Olá, {nome}", abas, aviso "Salvo ✓")
 │   │       ├── pages/           # públicas (T01–T07, T12, T13, T26, T29 Contato); Avisos (404, Em breve)
 │   │       │   └── admin/       # área da ONG: Painel (T09), FormularioAnimal (T10, T11), Pedidos (T27),
-│   │       │                    #   Pedido (T28), EmBreveAdmin; carregadas só ao abrir /admin
+│   │       │                    #   Pedido (T28), PerdidosAdmin (T14), Textos (T15, T16, T18–T20),
+│   │       │                    #   ItemConteudo (T17), EmBreveAdmin; carregadas só ao abrir /admin
 │   │       ├── components/      # CardAnimal, FotoAnimal, Pata, Chapeu, TextoSimples, BlocoPix, Estados, Campos,
 │   │       │   │                #   Modal, Turnstile…
 │   │       │   └── admin/       # Navegacao (CabecalhoAdmin, BarraAdmin, BarraSalvar, AlteradoPor), FotosAnimal,
-│   │       │                    #   ModalAdocao, ModalProtetor; ListaEditavel e CampoTextoEditavel (etapa 12)
+│   │       │                    #   ModalAdocao, ModalProtetor; ListaEditavel, CampoTextoEditavel e CaixaTexto
 │   │       ├── api/             # cliente HTTP + hooks TanStack Query (publico.ts: useSite, useDestaques, useVitrine;
 │   │       │                    #   admin.ts: useEu, useResumo, useAnimaisAdmin, usePedidos…)
 │   │       ├── lib/             # pix.ts, animal.ts, contato.ts (link mailto), filtros.ts (filtros da vitrine na URL);
 │   │       │                    #   fotos.ts (canvas, RN02/RN20), fotos-animal.ts (envio das fotos ao salvar),
-│   │       │                    #   pedidos.ts (datas dos pedidos)
+│   │       │                    #   pedidos.ts (datas dos pedidos), conteudo.ts (páginas editáveis em Textos)
 │   │       └── testes/          # renderizar.tsx: rotas reais com a API simulada; admin.ts: dados da área da ONG
 │   └── api/                     # API: Hono + TypeScript
 │       ├── src/
@@ -82,12 +83,14 @@ sos-patas/
 │       │   ├── erros.ts · validacao.ts · cache.ts
 │       │   ├── rotas/
 │       │   │   ├── publico/     # site, animais, perdidos (GET); envios: pedidos.ts, contato.ts (RN51), perdidos.ts (anúncio, multipart)
-│       │   │   └── admin/       # tudo da área da ONG: animais.ts (com resumo e fotos), protetores.ts, pedidos.ts, perdidos.ts
+│       │   │   └── admin/       # tudo da área da ONG: animais.ts (com resumo e fotos), protetores.ts, pedidos.ts, perdidos.ts,
+│       │   │                    #   conteudo.ts (textos e listas das páginas)
 │       │   ├── servicos/        # regras de negócio: publico.ts, pedidos.ts (RN47–RN50), contato.ts e email.ts (RN51),
 │       │   │                    #   seguranca.ts (Turnstile, hash do IP), equipe.ts, fotos.ts (URLs),
 │       │   │                    #   animais.ts (excluirAnimal RN05, marcarAdotado RN07, devolver RN30),
 │       │   │                    #   fotos-animal.ts (enviar, trocarFoto, remover, reordenar), protetores.ts (RN42),
-│       │   │                    #   perdidos.ts (envio, aprovar, renovar, apagar, limpeza RN25/RN27)
+│       │   │                    #   perdidos.ts (envio, aprovar, renovar, apagar, limpeza RN25/RN27),
+│       │   │                    #   conteudo.ts (textos, itens, trocar ordem RN35, fotos da história RN38)
 │       │   ├── middleware/      # access.ts (login: JWT do Access + equipe), conexoes.ts (banco por requisição)
 │       │   ├── armazenamento/   # interface Armazenamento, R2, memória (testes), webp.ts (RN21)
 │       │   ├── email/           # cloudflare.ts: envio pelo Email Routing (só no Workers)
@@ -165,7 +168,7 @@ sos-patas/
 | Protetores          | `GET/POST /protetores` (com quantos animais cada um tem) · `PUT/DELETE /protetores/:id` (409 se houver animais)                                                                                                                                                                                                                                                                                                                                                                                                  | RN42                         |
 | Perdidos            | `GET /perdidos?status` · `POST /perdidos` (equipe) · `PUT /perdidos/:id` · `POST /perdidos/:id/aprovar` · `POST /perdidos/:id/renovar` · `DELETE /perdidos/:id` · `GET /perdidos/:id/fotos/:fotoId` (lê a quarentena)                                                                                                                                                                                                                                                                            | RN18, RN25, RN26, RN39–RN41 |
 | Textos              | `GET /conteudo` · `PUT /conteudo/textos/:chave`                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | RN33, RN34, RN37             |
-| Itens de lista      | `POST /conteudo/itens` · `PUT/DELETE /conteudo/itens/:id` · `POST /conteudo/itens/trocar-ordem` · `POST /conteudo/itens/:id/foto`                                                                                                                                                                                                                                                                                                                                                                          | RN35, RN36, RN38             |
+| Itens de lista      | `POST /conteudo/itens` (JSON `{ lista, titulo, texto }`; na lista `inicio_fotos`, multipart com `dados` + `miniatura` + `completa`; 409 no máximo) · `PUT/DELETE /conteudo/itens/:id` (409 no último item de lista com mínimo) · `POST /conteudo/itens/trocar-ordem` (`{ ids: [a, b] }`, vizinhos da mesma lista) · `POST /conteudo/itens/:id/foto` (troca a foto da história)                                                                                                                                                                                                                                                                                                                                                                          | RN35, RN36, RN38             |
 | Dados da ONG        | `GET/PUT /ong`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | T23                          |
 | Pedidos de adoção | `GET /pedidos?status` · `GET /pedidos/:id` (com os alertas calculados) · `PUT /pedidos/:id/observacao` · `POST /pedidos/:id/aprovar` · `POST /pedidos/:id/recusar` (animal volta a `disponivel`). "Marcar como adotado" abre com o nome e o WhatsApp de quem pediu, que vêm em `pedido_aprovado` no `GET /animais/:id`                                                                                                                                                                           | RN48, RN49                   |
 

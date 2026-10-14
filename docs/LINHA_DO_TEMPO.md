@@ -40,8 +40,8 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | 9 | API da ONG: animais, fotos, adoção, protetores | 09/10/2026 | 09/10/2026 | 1 dia | 44 testes novos (139 na API); trocar foto e devolução definidas |
 | 10 | Área da ONG: estrutura e animais | 13/10/2026 | 13/10/2026 | 1 dia | Telas T09–T11 com testes do front; testada pelo celular na rede local, com 6 ajustes visuais |
 | 10b | Pedidos de adoção | 09/10/2026 | 13/10/2026 | 5 dias | Entrou no MVP em 08/10/2026. Banco, API e formulário em 09/10; T27/T28 em 13/10; teste de ponta a ponta pelo celular |
-| 11 | Perdidos e encontrados | 13/10/2026 | | | API, telas T12–T14 e limpeza diária com testes em 13/10; falta conferir pelo celular |
-| 12 | Editor de textos | | | | |
+| 11 | Perdidos e encontrados | 13/10/2026 | 14/10/2026 | 2 dias | API, telas T12–T14 e limpeza diária com testes em 13/10; ajustes e merge na `develop` em 14/10 |
+| 12 | Editor de textos | 14/10/2026 | | | |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores | | | | |
 | 14 | Produção | | | | |
 | 15 | Dados reais, teste com a ONG e ajustes finais | | | | |
@@ -97,6 +97,9 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 13/10/2026 | | 7 | **Etapas 10 e 10b concluídas:** teste pelo celular na rede local (cadastro com 3 fotos, edição, adoção, devolução, exclusão e pedido de ponta a ponta); 6 ajustes visuais corrigidos na `develop` | relato + doc (prints em 384 px) |
 | 13/10/2026 | | 7 | **Etapa 11 iniciada** (branch `etapa-11-perdidos`): envio público com fotos na quarentena, moderação, renovação e limpeza diária; telas T12, T13, T13b e T14, testadas e conferidas no navegador com a API local | doc (testes e verificação local) |
 | qua 14/10/2026 | | 6 | **Domínio `sospatas.org.br` registrado:** Registro.br aceitou os documentos, anuidade paga, status "Publicado", vence em 14/10/2027 (7 dias desde o pedido de 08/10) | relato (print do painel) |
+| 14/10/2026 | 10:38 | 7 | **Etapa 11 concluída:** perdidos e encontrados na `develop` (PR #11; correções no PR #12 às 11:14), com o campo de data em dd/mm/aaaa e a folga de tempo nos testes do CI | Git |
 | 14/10/2026 | 11:09 | 6 | Zona `sospatas.org.br` criada no Cloudflare (plano Free) e servidores DNS trocados no Registro.br para `jimmy.ns.cloudflare.com` e `melina.ns.cloudflare.com`; o Registro.br avisa que a troca pode levar algumas horas | relato (e-mail do Registro.br) |
 | 14/10/2026 | | 6 | E-mail pessoal do mantenedor convidado no Neon e verificação em duas etapas configurada (informado em 14/10; data exata _(a confirmar)_) | relato |
 | 14/10/2026 | | 7 | Decisão: os acessos da equipe à área da ONG são criados no treinamento, na etapa 15; até lá o Access de produção só tem o e-mail do mantenedor | relato |
+| 14/10/2026 | | 7 | **Etapa 12 iniciada** (branch `etapa-12-editor-textos`): editor de textos da área da ONG (T15–T20) | Git |
+| 14/10/2026 | | 7 | Etapa 12: API do editor (textos, itens, ordem e fotos da história) e telas T15–T20 com testes, conferida no `wrangler dev`; falta conferir pelo celular | doc (testes e verificação local) |
