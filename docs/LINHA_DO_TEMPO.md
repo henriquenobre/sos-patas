@@ -28,7 +28,7 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 
 | # | Etapa | Início | Conclusão | Duração | Observações |
 |---|---|---|---|---|---|
-| 0 | Contas e serviços | 08/10/2026 | | | Domínio pendente no Registro.br; R2 a ativar |
+| 0 | Contas e serviços | 08/10/2026 | | | Domínio registrado em 14/10/2026 (7 dias desde o pedido); falta adicionar ao Cloudflare e a recuperação das contas pelo e-mail da ONG. E-mails da equipe passaram para a etapa 15 |
 | 1 | Fundação do monorepo | 08/10/2026 | 08/10/2026 | 1 dia | CI verde no GitHub depois de corrigir os tipos do Worker (`--strict-vars=false`) |
 | 2 | Banco: schema, migrations e seed | 08/10/2026 | 08/10/2026 | 1 dia | 10 tabelas, 2 migrations, seed e 25 testes de banco |
 | 3 | Pacote compartilhado | 08/10/2026 | 08/10/2026 | 1 dia | Schemas zod, funções de idade, datas e WhatsApp; 61 testes |
@@ -96,3 +96,7 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | ter 13/10/2026 | | 7 | **Etapa 10 iniciada** (com o restante da 10b): telas da área da ONG para animais (T09–T11) e pedidos de adoção (T27, T28), testadas com a API simulada; falta o teste pelo celular | doc (testes do front) |
 | 13/10/2026 | | 7 | **Etapas 10 e 10b concluídas:** teste pelo celular na rede local (cadastro com 3 fotos, edição, adoção, devolução, exclusão e pedido de ponta a ponta); 6 ajustes visuais corrigidos na `develop` | relato + doc (prints em 384 px) |
 | 13/10/2026 | | 7 | **Etapa 11 iniciada** (branch `etapa-11-perdidos`): envio público com fotos na quarentena, moderação, renovação e limpeza diária; telas T12, T13, T13b e T14, testadas e conferidas no navegador com a API local | doc (testes e verificação local) |
+| qua 14/10/2026 | | 6 | **Domínio `sospatas.org.br` registrado:** Registro.br aceitou os documentos, anuidade paga, status "Publicado", vence em 14/10/2027 (7 dias desde o pedido de 08/10) | relato (print do painel) |
+| 14/10/2026 | 11:09 | 6 | Zona `sospatas.org.br` criada no Cloudflare (plano Free) e servidores DNS trocados no Registro.br para `jimmy.ns.cloudflare.com` e `melina.ns.cloudflare.com`; o Registro.br avisa que a troca pode levar algumas horas | relato (e-mail do Registro.br) |
+| 14/10/2026 | | 6 | E-mail pessoal do mantenedor convidado no Neon e verificação em duas etapas configurada (informado em 14/10; data exata _(a confirmar)_) | relato |
+| 14/10/2026 | | 7 | Decisão: os acessos da equipe à área da ONG são criados no treinamento, na etapa 15; até lá o Access de produção só tem o e-mail do mantenedor | relato |
