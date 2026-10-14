@@ -31,7 +31,10 @@ export default {
   async scheduled(_evento, env, ctx) {
     const { db, encerrar } = dbDoEnv(env)
     ctx.waitUntil(
-      executarTarefasDiarias(db)
+      executarTarefasDiarias(db, {
+        fotos: new ArmazenamentoR2(env.FOTOS),
+        quarentena: new ArmazenamentoR2(env.QUARENTENA),
+      })
         .then((resultado) => {
           console.log('Tarefa diária concluída', resultado)
         })

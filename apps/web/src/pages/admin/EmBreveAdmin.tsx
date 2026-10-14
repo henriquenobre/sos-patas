@@ -1,5 +1,5 @@
-// Abas da área da ONG que chegam nas próximas etapas: Perdidos (etapa 11), Textos (etapa 12)
-// e Mais (etapa 13, PLANO_DESENVOLVIMENTO.md).
+// Abas da área da ONG que chegam nas próximas etapas: Textos (etapa 12) e Mais (etapa 13,
+// PLANO_DESENVOLVIMENTO.md).
 import { Link } from 'react-router'
 import { Pata } from '../../components/Pata'
 

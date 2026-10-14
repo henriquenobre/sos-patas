@@ -81,17 +81,18 @@ sos-patas/
 │       │   ├── db.ts            # conexão postgres.js + Drizzle (Hyperdrive)
 │       │   ├── erros.ts · validacao.ts · cache.ts
 │       │   ├── rotas/
-│       │   │   ├── publico/     # site, animais, perdidos (GET); envios: pedidos.ts, contato.ts (RN51), anúncio (etapa 11)
-│       │   │   └── admin/       # tudo da área da ONG: animais.ts (com resumo e fotos), protetores.ts, pedidos.ts
+│       │   │   ├── publico/     # site, animais, perdidos (GET); envios: pedidos.ts, contato.ts (RN51), perdidos.ts (anúncio, multipart)
+│       │   │   └── admin/       # tudo da área da ONG: animais.ts (com resumo e fotos), protetores.ts, pedidos.ts, perdidos.ts
 │       │   ├── servicos/        # regras de negócio: publico.ts, pedidos.ts (RN47–RN50), contato.ts e email.ts (RN51),
 │       │   │                    #   seguranca.ts (Turnstile, hash do IP), equipe.ts, fotos.ts (URLs),
 │       │   │                    #   animais.ts (excluirAnimal RN05, marcarAdotado RN07, devolver RN30),
-│       │   │                    #   fotos-animal.ts (enviar, trocarFoto, remover, reordenar), protetores.ts (RN42); aprovarPerdido… (etapa 11)
+│       │   │                    #   fotos-animal.ts (enviar, trocarFoto, remover, reordenar), protetores.ts (RN42),
+│       │   │                    #   perdidos.ts (envio, aprovar, renovar, apagar, limpeza RN25/RN27)
 │       │   ├── middleware/      # access.ts (login: JWT do Access + equipe), conexoes.ts (banco por requisição)
 │       │   ├── armazenamento/   # interface Armazenamento, R2, memória (testes), webp.ts (RN21)
 │       │   ├── email/           # cloudflare.ts: envio pelo Email Routing (só no Workers)
 │       │   ├── testes/          # apoio aos testes: banco de teste, Access falso
-│       │   └── tarefas/         # limpeza.ts: tarefa diária do Cron (RN15 pronta; RN25, RN27 na etapa 11)
+│       │   └── tarefas/         # limpeza.ts: tarefa diária do Cron (RN15, RN25, RN27, RN51)
 │       ├── wrangler.toml        # bindings: HYPERDRIVE, FOTOS, QUARENTENA, EMAIL (só produção), cron; [env.previa]
 │       └── .dev.vars.example    # variáveis locais (copiar para .dev.vars, fora do Git)
 ├── packages/

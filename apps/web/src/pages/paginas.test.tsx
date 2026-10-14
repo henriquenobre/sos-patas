@@ -113,10 +113,4 @@ describe('Privacidade (T07) e páginas especiais', () => {
       await screen.findByRole('heading', { name: 'Página não encontrada' }),
     ).toBeInTheDocument()
   })
-
-  it('perdidos ainda em construção mostra "Em breve" (etapa 11)', async () => {
-    simularApi(API_PADRAO)
-    renderizarEm('/perdidos')
-    expect(await screen.findByRole('heading', { name: 'Em breve' })).toBeInTheDocument()
-  })
 })

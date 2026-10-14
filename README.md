@@ -52,11 +52,11 @@ pnpm db:fotos-exemplo                          # fotos ilustrativas dos animais 
 pnpm dev                                       # site em http://localhost:5173 e API em http://localhost:8787
 ```
 
-Sem o `.dev.vars`, a API roda como se fosse produção. Páginas prontas: Início, vitrine (com filtros na URL), ficha do animal, formulário de adoção ("Quero adotar"), Como adotar, Perguntas frequentes, Como ajudar, Fale com a ONG e Privacidade. Os perdidos mostram "Em breve" até a etapa 11.
+Sem o `.dev.vars`, a API roda como se fosse produção. Páginas prontas: Início, vitrine (com filtros na URL), ficha do animal, formulário de adoção ("Quero adotar"), Como adotar, Perguntas frequentes, Como ajudar, Fale com a ONG, Privacidade e Perdidos e encontrados (lista e anúncio).
 
 **Testar no celular:** com o computador e o celular na mesma rede Wi-Fi, rode `pnpm dev:celular` em vez de `pnpm dev`. O Vite mostra um endereço como `http://192.168.0.10:5173` ("Network"): abra esse endereço no celular. Na primeira vez, o Windows pode pedir para liberar o Node no firewall (permitir só em redes privadas).
 
-**Área da ONG no computador:** abra `http://localhost:5173/admin` (animais e pedidos de adoção; as abas Perdidos, Textos e Mais mostram "Em breve" até as etapas 11 a 13). Sem Cloudflare Access, a API trata as chamadas de `/api/admin` como vindas de `teste@sospatas.local` (modo local do `.dev.vars`, usuária criada pelo `pnpm db:seed`); "Sair" só funciona com o Access (etapa 14). Para conferir a API sozinha: `http://localhost:8787/api/admin/eu`.
+**Área da ONG no computador:** abra `http://localhost:5173/admin` (animais, pedidos de adoção e moderação de perdidos e encontrados; as abas Textos e Mais mostram "Em breve" até as etapas 12 e 13). Sem Cloudflare Access, a API trata as chamadas de `/api/admin` como vindas de `teste@sospatas.local` (modo local do `.dev.vars`, usuária criada pelo `pnpm db:seed`); "Sair" só funciona com o Access (etapa 14). Para conferir a API sozinha: `http://localhost:8787/api/admin/eu`.
 
 **Variável nova na API:** acrescentar em `apps/api/.dev.vars.example` (os tipos do `env` são gerados dele) e no `.dev.vars`.
 

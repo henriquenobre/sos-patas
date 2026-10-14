@@ -40,7 +40,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 9 | API da ONG: animais, fotos, adoção, protetores | 4 | 16–17/10 | ✅ 09/10 |
 | 10 | Área da ONG: estrutura e animais (T09–T11) | 9 | 17–19/10 | ✅ 13/10 |
 | 10b | Pedidos de adoção: formulário com o termo, análise e animal fora do site (RN47–RN50) | 10 | 19–20/10 | ✅ 13/10 |
-| 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 20–21/10 | ⬜ |
+| 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 20–21/10 | 🔄 API, telas e testes em 13/10; falta conferir pelo celular |
 | 12 | Editor de textos (T15–T20) | 10 | 21–23/10 | ⬜ |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores, "Alterado por" | 11, 12 | 23–24/10 | ⬜ |
 | 14 | Produção: domínio, Access, CI/CD, backup e segurança | 8, 13 | 24–27/10 | ⬜ |
@@ -266,6 +266,8 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 **Pronto quando:** testes cobrem token inválido, 3ª foto, foto acima de 500 KB, arquivo falso com extensão `.webp`, descrição com link, 4º envio do mesmo IP no dia, aprovação movendo os arquivos e limpeza diária apagando arquivos e registro.
 
 **Fora desta etapa:** anúncio criado pela equipe (T21, etapa 13).
+
+**Andamento (13/10/2026):** branch `etapa-11-perdidos`. API: `POST /api/publico/perdidos` em multipart (campo `dados` com o JSON e até 2 campos `fotos`), com Turnstile, limites da RN23, conferência dos bytes WebP e fotos gravadas na quarentena (`rotas/publico/perdidos.ts`, `servicos/perdidos.ts`); área da ONG com `GET /perdidos?status`, `POST /perdidos/:id/aprovar` (copia para o bucket público, põe no ar por 30 dias e apaga da quarentena), `POST /perdidos/:id/renovar`, `DELETE /perdidos/:id` (recusar, tirar do ar e "voltou para casa": arquivos dos dois buckets e depois o registro) e `GET /perdidos/:id/fotos/:fotoId` (lê a quarentena; `Cache-Control: private`). Tarefa diária com RN25 e RN27 (`apagarPerdidosVencidos`, arquivos por prefixo; se o armazenamento falhar, o anúncio fica para a noite seguinte). Front: T12 (`/perdidos`, filtro `?tipo=` na URL), T13 e T13b (`/perdidos/novo`, foto redesenhada só na versão de 1200 px com `prepararFotoCompleta`) e T14 (`/admin/perdidos`, abas Aguardando e No ar com contagem, modais de confirmação para apagar). 23 testes novos na API (173 no total), cobrindo todos os itens do "Pronto quando" e mais: anúncio sem foto, sem consentimento, 30 pendentes, falha do armazenamento no envio, na aprovação e ao apagar, rota da foto só com login e a rota pública que não lê a quarentena; 13 testes novos no front (86 no total). Conferido no navegador com a API e o banco locais: envio com foto real (WebP de 40 KB), foto na quarentena, aprovação, anúncio no site e tirar do ar. Decisões no Registro do DESENVOLVIMENTO.md (13/10/2026). **Falta:** conferir pelo celular (`pnpm dev:celular`), principalmente a foto tirada na hora pela câmera.
 
 ## Etapa 12 · Editor de textos
 

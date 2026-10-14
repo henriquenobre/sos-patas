@@ -40,7 +40,7 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | 9 | API da ONG: animais, fotos, adoção, protetores | 09/10/2026 | 09/10/2026 | 1 dia | 44 testes novos (139 na API); trocar foto e devolução definidas |
 | 10 | Área da ONG: estrutura e animais | 13/10/2026 | 13/10/2026 | 1 dia | Telas T09–T11 com testes do front; testada pelo celular na rede local, com 6 ajustes visuais |
 | 10b | Pedidos de adoção | 09/10/2026 | 13/10/2026 | 5 dias | Entrou no MVP em 08/10/2026. Banco, API e formulário em 09/10; T27/T28 em 13/10; teste de ponta a ponta pelo celular |
-| 11 | Perdidos e encontrados | | | | |
+| 11 | Perdidos e encontrados | 13/10/2026 | | | API, telas T12–T14 e limpeza diária com testes em 13/10; falta conferir pelo celular |
 | 12 | Editor de textos | | | | |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores | | | | |
 | 14 | Produção | | | | |
@@ -95,3 +95,4 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 13/10/2026 | | 6 | Registro.br pediu documentos para o `.org.br`; cartão CNPJ e estatuto enviados para `doc@registro.br` (ticket 32358834); análise em cerca de 2 dias úteis | relato |
 | ter 13/10/2026 | | 7 | **Etapa 10 iniciada** (com o restante da 10b): telas da área da ONG para animais (T09–T11) e pedidos de adoção (T27, T28), testadas com a API simulada; falta o teste pelo celular | doc (testes do front) |
 | 13/10/2026 | | 7 | **Etapas 10 e 10b concluídas:** teste pelo celular na rede local (cadastro com 3 fotos, edição, adoção, devolução, exclusão e pedido de ponta a ponta); 6 ajustes visuais corrigidos na `develop` | relato + doc (prints em 384 px) |
+| 13/10/2026 | | 7 | **Etapa 11 iniciada** (branch `etapa-11-perdidos`): envio público com fotos na quarentena, moderação, renovação e limpeza diária; telas T12, T13, T13b e T14, testadas e conferidas no navegador com a API local | doc (testes e verificação local) |
