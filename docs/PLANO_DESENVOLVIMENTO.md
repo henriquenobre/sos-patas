@@ -63,12 +63,12 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
   - pagar a anuidade (boleto, PIX ou cartão); se o Registro.br pedir documentos, enviar o cartão CNPJ e o estatuto (separar o PDF do estatuto já, para não atrasar)
   - depois de criar o site no Cloudflare, trocar os servidores DNS no Registro.br pelos 2 que o Cloudflare indicar
 - [x] **GitHub:** o site fica neste repositório, `henriquenobre/sos-patas` (decidido em 08/10/2026). Transferir para uma organização da ONG antes de deixar a manutenção (ARQUITETURA.md, seção 10)
-- [ ] **Cloudflare:** conta criada com `sitesospatas@gmail.com` (08/10/2026)
+- [x] **Cloudflare:** conta criada com `sitesospatas@gmail.com` (08/10/2026)
   - [x] verificação em duas etapas e seu e-mail pessoal como membro administrador (Manage account → Members)
   - [x] Zero Trust ativado no plano gratuito, com o nome do time `sospatas`
   - [x] R2 ativado com o cartão pessoal do mantenedor (08/10/2026); os buckets só são criados nas etapas 8 e 14
   - [x] Alerta de orçamento em US$ 1 (Billing → Budget alerts) para o Gmail do site (ARQUITETURA.md, seção 11.1) (09/10/2026)
-  - [ ] adicionar `sospatas.org.br` só depois que o Registro.br concluir o registro (concluído em 14/10/2026: já pode adicionar). No Cloudflare: **+ Add → Connect a domain**, plano **Free**, sem registros de DNS por enquanto (a etapa 14 cria os do Pages, do Worker e das fotos). Depois, no Registro.br: domínio → **DNS → Alterar servidores DNS**, trocar pelos 2 servidores que o Cloudflare mostrar. O domínio fica **Active** quando o Cloudflare enxergar a troca (minutos a algumas horas; chega um e-mail)
+  - [x] `sospatas.org.br` adicionado (plano Free) e servidores DNS trocados no Registro.br para `jimmy.ns.cloudflare.com` e `melina.ns.cloudflare.com`: **Active em 14/10/2026**. Mantidos os registros que o Registro.br criou para domínio sem e-mail (MX nulo, `v=spf1 -all` e `_dmarc` com `p=reject`), que impedem e-mail falso em nome da ONG. Robôs de IA: busca e agentes liberados, treinamento bloqueado (ARQUITETURA.md, seção 10)
 - [x] **Neon:** projeto `sospatas` em São Paulo, PostgreSQL 18, branch padrão `production` (08/10/2026). Seu e-mail pessoal convidado (informado em 14/10/2026). A prévia usa um projeto separado, `sospatas-previa` (criado em 09/10/2026, etapa 8)
   - [x] Compute da branch `production` fixo em **0,25 CU** (mínimo e máximo), para não gastar as 100 CU-horas do mês num pico (ARQUITETURA.md, seção 11.2) (09/10/2026; o `sospatas-previa` também)
 - [x] ~~Lista de e-mails da equipe~~: **passou para a etapa 15** (decidido em 14/10/2026). Os acessos são criados no treinamento com a equipe
@@ -304,7 +304,7 @@ Na ordem de prioridade:
 - Neon `production` com migrations e `seed_conteudo.sql`; fotos da história enviadas ao R2 em `site/historia/{id}.webp` com os ids do seed (script pronto desde a etapa 6: `pnpm db:fotos-historia -- --remoto`)
 - **Cloudflare Access:** aplicação protegendo `/admin/*` e `/api/admin/*`, política começando só com o seu e-mail (os da equipe entram no treinamento, etapa 15), código por e-mail, sessão de 30 dias, página de login com logo e cores (T08); linhas em `equipe`; cookie com **`SameSite=Lax`** (camada extra contra CSRF, além do `middleware/origem.ts`) e conferir no navegador que salvar na área da ONG continua funcionando
 - Turnstile (site key no front, segredo na API) e Web Analytics
-- **Email Routing** em `sospatas.org.br` com `sitesospatas@gmail.com` verificado como destino; testar o "Fale com a ONG" (`/contato`, RN51) com um envio real (formulário pronto desde 09/10/2026; ARQUITETURA.md, seção 9)
+- **Email Routing** em `sospatas.org.br` com `sitesospatas@gmail.com` verificado como destino (o Cloudflare troca o MX nulo e o `v=spf1 -all` pelos dele; conferir se o `_dmarc` com `p=reject` deixa passar as mensagens do formulário); testar o "Fale com a ONG" (`/contato`, RN51) com um envio real (formulário pronto desde 09/10/2026; ARQUITETURA.md, seção 9)
 - `deploy.yml` (migrations → `wrangler deploy` → Pages) e `backup.yml` (dump diário → `sospatas-backups`, 30 dias)
 - `apps/web/public/_headers` com CSP e cabeçalhos de segurança (ARQUITETURA.md, seção 9)
 - Usuário do banco só com DML para a API e outro para migrations (ARQUITETURA.md, seção 5)
