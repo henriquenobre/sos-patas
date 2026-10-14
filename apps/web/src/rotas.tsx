@@ -34,6 +34,13 @@ const admin = {
   inicio: () => import('./pages/admin/Textos').then((m) => ({ Component: m.EditarInicio })),
   ajude: () => import('./pages/admin/Textos').then((m) => ({ Component: m.EditarComoAjudar })),
   item: () => import('./pages/admin/ItemConteudo').then((m) => ({ Component: m.ItemConteudo })),
+  novoAnuncio: () =>
+    import('./pages/admin/AnuncioEquipe').then((m) => ({ Component: m.NovoAnuncio })),
+  editarAnuncio: () =>
+    import('./pages/admin/AnuncioEquipe').then((m) => ({ Component: m.EditarAnuncio })),
+  mais: () => import('./pages/admin/Mais').then((m) => ({ Component: m.Mais })),
+  ong: () => import('./pages/admin/Mais').then((m) => ({ Component: m.DadosDaOng })),
+  protetores: () => import('./pages/admin/Mais').then((m) => ({ Component: m.Protetores })),
   emBreve: (titulo: string, texto?: string) => () =>
     import('./pages/admin/EmBreveAdmin').then((m) => ({
       Component: () => <m.EmBreveAdmin titulo={titulo} texto={texto} />,
@@ -93,6 +100,16 @@ export const rotas = createBrowserRouter([
         lazy: admin.perdidos,
         handle: { aba: 'perdidos' } satisfies MolduraAdmin,
       },
+      {
+        path: 'perdidos/novo',
+        lazy: admin.novoAnuncio,
+        handle: { voltar: '/admin/perdidos' } satisfies MolduraAdmin,
+      },
+      {
+        path: 'perdidos/:id',
+        lazy: admin.editarAnuncio,
+        handle: { voltar: '/admin/perdidos' } satisfies MolduraAdmin,
+      },
       // Textos do site (T15–T20)
       { path: 'textos', lazy: admin.textos, handle: { aba: 'textos' } satisfies MolduraAdmin },
       ...(
@@ -117,11 +134,13 @@ export const rotas = createBrowserRouter([
         lazy: admin.item,
         handle: { voltar: voltarDoItem } satisfies MolduraAdmin,
       },
-      // Etapa 13: Mais (e o anúncio pela equipe em perdidos/novo e perdidos/:id)
+      // Mais (T22–T24)
+      { path: 'mais', lazy: admin.mais, handle: { aba: 'mais' } satisfies MolduraAdmin },
+      { path: 'ong', lazy: admin.ong, handle: { voltar: '/admin/mais' } satisfies MolduraAdmin },
       {
-        path: 'mais/*',
-        lazy: admin.emBreve('Mais'),
-        handle: { aba: 'mais' } satisfies MolduraAdmin,
+        path: 'protetores',
+        lazy: admin.protetores,
+        handle: { voltar: '/admin/mais' } satisfies MolduraAdmin,
       },
       {
         path: '*',

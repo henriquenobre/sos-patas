@@ -16,7 +16,7 @@ import type {
   StatusAnimal,
 } from '../dominio'
 import type { RespostasAdocao } from '../schemas/pedido'
-import type { FotoPublica } from './publico'
+import type { FotoPublica, OngPublica } from './publico'
 
 /** GET /api/admin/eu: quem está logada ("Olá, Gracia" no cabeçalho, RN43). */
 export type UsuariaLogada = { id: string; nome: string; email: string }
@@ -206,6 +206,8 @@ export type PerdidoAdmin = {
   /** ISO 8601: "Sai do ar em N dias" (RN25); null enquanto pendente */
   expira_em: string | null
   fotos: FotoPerdidoAdmin[]
+  /** Quem aprovou, renovou ou corrigiu por último (RN43) */
+  alteracao: Alteracao
 }
 
 /** GET /api/admin/perdidos?status=pendente|publicado */
@@ -234,3 +236,6 @@ export type ConteudoAdmin = {
   /** Na ordem definida pela equipe (RN35) */
   listas: Record<NomeLista, ItemAdmin[]>
 }
+
+/** GET /api/admin/ong: dados de contato e PIX (T23), com "Alterado por" (RN43). */
+export type OngAdmin = OngPublica & { alteracao: Alteracao }

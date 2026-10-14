@@ -80,6 +80,7 @@ const facebook = z
 
 /** Dados da ONG (T23). Sem WhatsApp próprio, o contato do site é o e-mail (RN51). */
 export const ongEntrada = z.object({
+  nome_completo: textoObrigatorio(L.nome_completo),
   email: email(L.email),
   whatsapp: z
     .string()

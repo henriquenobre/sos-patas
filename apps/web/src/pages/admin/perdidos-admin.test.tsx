@@ -28,6 +28,7 @@ const LUNA: PerdidoAdmin = {
   publicado_em: null,
   expira_em: null,
   fotos: [{ id: 'f1', url: '/api/admin/perdidos/l1/fotos/f1' }],
+  alteracao: { em: isoDiasAtras(1), por: null },
 }
 
 const BOB: PerdidoAdmin = {

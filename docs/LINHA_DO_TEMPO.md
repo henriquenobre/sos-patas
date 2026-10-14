@@ -14,7 +14,7 @@
 | 3 | Protótipo e especificação das telas | 06/10/2026 | 07/10/2026 | 2 dias | ✅ |
 | 4 | Validação do protótipo com a ONG | 07/10/2026 | 08/10/2026 | 2 dias | ✅ |
 | 5 | Arquitetura e plano de desenvolvimento | 07/10/2026 | 08/10/2026 | 2 dias | ✅ |
-| 6 | Preparação do ambiente (contas, domínio, ferramentas): etapa 0 do plano | 08/10/2026 | – | – | 🔄 |
+| 6 | Preparação do ambiente (contas, domínio, ferramentas): etapa 0 do plano | 08/10/2026 | 14/10/2026 | 7 dias | ✅ |
 | 7 | Desenvolvimento do site: etapas 1 a 13 do plano | 08/10/2026 | – | – | 🔄 |
 | 8 | Produção, testes com a ONG e ajustes: etapas 14 e 15 do plano | – | – | – | ⬜ |
 | 9 | Treinamento, divulgação e avaliação (roteiro do PROJETO.md) | – | – | – | ⬜ |
@@ -28,7 +28,7 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 
 | # | Etapa | Início | Conclusão | Duração | Observações |
 |---|---|---|---|---|---|
-| 0 | Contas e serviços | 08/10/2026 | | | Domínio registrado em 14/10/2026 (7 dias desde o pedido); falta adicionar ao Cloudflare e a recuperação das contas pelo e-mail da ONG. E-mails da equipe passaram para a etapa 15 |
+| 0 | Contas e serviços | 08/10/2026 | 14/10/2026 | 7 dias | O domínio definiu a duração: registrado e ativo no Cloudflare em 14/10/2026 (7 dias desde o pedido). Recuperação das contas pelo e-mail da ONG configurada (informado em 14/10). E-mails da equipe passaram para a etapa 15 |
 | 1 | Fundação do monorepo | 08/10/2026 | 08/10/2026 | 1 dia | CI verde no GitHub depois de corrigir os tipos do Worker (`--strict-vars=false`) |
 | 2 | Banco: schema, migrations e seed | 08/10/2026 | 08/10/2026 | 1 dia | 10 tabelas, 2 migrations, seed e 25 testes de banco |
 | 3 | Pacote compartilhado | 08/10/2026 | 08/10/2026 | 1 dia | Schemas zod, funções de idade, datas e WhatsApp; 61 testes |
@@ -42,7 +42,7 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | 10b | Pedidos de adoção | 09/10/2026 | 13/10/2026 | 5 dias | Entrou no MVP em 08/10/2026. Banco, API e formulário em 09/10; T27/T28 em 13/10; teste de ponta a ponta pelo celular |
 | 11 | Perdidos e encontrados | 13/10/2026 | 14/10/2026 | 2 dias | API, telas T12–T14 e limpeza diária com testes em 13/10; ajustes e merge na `develop` em 14/10 |
 | 12 | Editor de textos | 14/10/2026 | 14/10/2026 | 1 dia | API, telas T15–T20 e testes; conferida pelo celular |
-| 13 | Mais: dados da ONG, anúncio pela equipe, protetores | | | | |
+| 13 | Mais: dados da ONG, anúncio pela equipe, protetores | 14/10/2026 | | | |
 | 14 | Produção | | | | |
 | 15 | Dados reais, teste com a ONG e ajustes finais | | | | |
 
@@ -104,3 +104,6 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 14/10/2026 | | 7 | **Etapa 12 iniciada** (branch `etapa-12-editor-textos`): editor de textos da área da ONG (T15–T20) | Git |
 | 14/10/2026 | | 7 | Etapa 12: API do editor (textos, itens, ordem e fotos da história) e telas T15–T20 com testes, conferida no `wrangler dev`; falta conferir pelo celular | doc (testes e verificação local) |
 | 14/10/2026 | 11:42 | 7 | **Etapa 12 concluída:** editor de textos testado pelo celular e na `develop` (PR #13) | relato + Git |
+| 14/10/2026 | | 7 | **Etapa 13 iniciada** (branch `etapa-13-mais`): Dados da ONG (T22, T23), anúncio pela equipe (T21), protetores (T24) e "Alterado por", com testes e conferidos no `wrangler dev`; falta conferir pelo celular | doc (testes e verificação local) |
+| 14/10/2026 | | 6 | **Domínio ativo no Cloudflare:** `sospatas.org.br` com status Active; o DNS do `.br` já responde com os servidores do Cloudflare | relato (print do painel) + doc (consulta de DNS) |
+| 14/10/2026 | | 6 | **Etapa 0 concluída** (fase 6, preparação do ambiente): contas, domínio ativo no Cloudflare e ferramentas | relato |

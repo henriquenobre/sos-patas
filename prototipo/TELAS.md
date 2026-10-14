@@ -309,7 +309,7 @@ Igual a T10, preenchido, com a linha "Alterado por… em…" (RN43) no topo e **
 - **Animal em análise:** com pedido aguardando análise, só o aviso e o link para os pedidos (sem adotar nem devolver); com pedido aprovado, "Marcar como adotado" (já preenchido) e "A adoção não aconteceu: voltar para disponível" (RN49).
 - **Animal adotado:** mostra a adaptação (RN30), quem adotou e, se a adoção veio de um pedido do site, o link "📋 Ver o formulário de adoção (para imprimir)" (T28); só um espaço de foto (RN07).
 
-### T14 · Moderar perdidos e encontrados · `/admin/perdidos` · ✅ no site (13/10/2026), sem "Editar" e "＋ Novo anúncio" (etapa 13)
+### T14 · Moderar perdidos e encontrados · `/admin/perdidos` · ✅ no site (13/10/2026; "Editar" e "＋ Novo anúncio" em 14/10/2026)
 ![T14](telas/T14-moderar-perdidos-celular.png)
 
 - **Acesso:** pelo card amarelo no painel (T09), que mostra quantos anúncios estão aguardando aprovação.
@@ -320,7 +320,7 @@ Igual a T10, preenchido, com a linha "Alterado por… em…" (RN43) no topo e **
 - **Botão "＋ Novo anúncio"** no topo → T21 (RN39).
 - **Checklist de moderação:** é um animal, sem conteúdo impróprio, sem link, sem pedido de dinheiro e sem endereço completo.
 
-### T21 · Anúncio pela equipe · `/admin/perdidos/novo` e `/admin/perdidos/:id` · ⏳
+### T21 · Anúncio pela equipe · `/admin/perdidos/novo` e `/admin/perdidos/:id` · ✅ no site (14/10/2026)
 ![T21](telas/T21-anuncio-equipe-celular.png)
 
 **Objetivo:** publicar o anúncio de quem pediu pelo WhatsApp e corrigir anúncios recebidos.
@@ -329,6 +329,7 @@ Igual a T10, preenchido, com a linha "Alterado por… em…" (RN43) no topo e **
 - **Novo:** checkbox obrigatório **"A pessoa autorizou publicar o primeiro nome, o WhatsApp e as fotos por 30 dias"**. Botão **"Publicar"**: entra direto no ar (RN39).
 - **Editar:** formulário preenchido, com o status ("Aguardando aprovação" ou "No ar, sai em N dias"); fotos com ✕ para remover e espaço para adicionar (RN40); botão **"Salvar alterações"**. Se o anúncio estiver pendente, aparecem também "Recusar" e "Aprovar e publicar".
 - **Aviso:** "Quem anunciou não é avisado das alterações."
+- **No site (14/10/2026):** o novo anúncio usa o botão "Publicar" na barra fixa; a edição, "Salvar alterações". As fotos removidas e as novas só vão para o site ao salvar. No pendente, "Aprovar e publicar" salva as correções antes de aprovar. Linha "Alterado por… em…" (RN43) no topo da edição.
 
 ### T15 · Textos do site · `/admin/textos` · ✅ no site (14/10/2026)
 ![T15](telas/T15-textos-do-site-celular.png)
@@ -419,7 +420,7 @@ Cada campo de texto tem o próprio botão "Salvar"; listas salvam item a item (T
 2. **Formas de ajudar** (`ListaEditavel` de `ajude_formas`).
 - Nota: "O card do PIX usa a chave de ☰ Mais → Dados da ONG."
 
-### T22 · Mais · `/admin/mais` · ⏳
+### T22 · Mais · `/admin/mais` · ✅ no site (14/10/2026)
 ![T22](telas/T22-mais-celular.png)
 
 Lista simples, com botões grandes:
@@ -429,7 +430,7 @@ Lista simples, com botões grandes:
 - 🚪 **Sair**
 - Rodapé: "Precisa liberar o acesso de outra pessoa? Fale com o administrador do site."
 
-### T23 · Dados da ONG · `/admin/ong` · ⏳
+### T23 · Dados da ONG · `/admin/ong` · ✅ no site (14/10/2026)
 ![T23](telas/T23-dados-da-ong-celular.png)
 
 Formulário com os dados da tabela `ong`:
@@ -441,12 +442,13 @@ Formulário com os dados da tabela `ong`:
 - Nome completo da ONG (pouco usado, no fim).
 - Barra fixa "Cancelar / Salvar"; `AlteradoPor`.
 
-### T24 · Protetores parceiros · `/admin/protetores` · ⏳
+### T24 · Protetores parceiros · `/admin/protetores` · ✅ no site (14/10/2026)
 ![T24](telas/T24-protetores-celular.png)
 
 - Lista: nome, WhatsApp formatado e "N animais disponíveis".
 - Tocar em um protetor abre um modal com nome e WhatsApp: **Salvar** e **Excluir**. Se o protetor tiver animais, o excluir mostra o aviso da RN42 com o link "Ver animais dele" (T09 filtrado).
 - Botão "＋ Novo protetor".
+- **No site (14/10/2026):** o mesmo modal do cadastro do animal serve para cadastrar, editar e excluir. Protetor com animais não mostra o botão "Excluir": o modal já traz o aviso e o link "Ver animais dele". Excluir pede confirmação. Cada protetor mostra "Alterado por… em…".
 
 ~~T25 · Clínicas parceiras~~: **removida em 07/10/2026**. A ONG não quer citar clínicas nem valores (RN32).
 

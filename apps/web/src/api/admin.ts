@@ -11,6 +11,8 @@ import type {
   PedidoDetalhe,
   PedidoStatus,
   ListaPerdidosAdmin,
+  OngAdmin,
+  PerdidoAdmin,
   PerdidoStatus,
   ResumoAdmin,
   UsuariaLogada,
@@ -99,6 +101,30 @@ export function usePerdidosAdmin(status: PerdidoStatus) {
   return useQuery({
     queryKey: ['admin', 'perdidos', status],
     queryFn: () => chamarAdmin<ListaPerdidosAdmin>('GET', `/perdidos?status=${status}`),
+    retry: tentarDeNovo,
+  })
+}
+
+/** Um anúncio, para a correção pela equipe (T21). */
+export function usePerdidoAdmin(id: string | undefined) {
+  return useQuery({
+    queryKey: ['admin', 'perdidos', 'um', id],
+    queryFn: () => chamarAdmin<PerdidoAdmin>('GET', `/perdidos/${encodeURIComponent(id ?? '')}`),
+    enabled: Boolean(id),
+    // Formulário aberto: não recarregar sozinho por cima do que a pessoa está digitando
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    retry: tentarDeNovo,
+  })
+}
+
+/** Dados da ONG (T23). */
+export function useOng() {
+  return useQuery({
+    queryKey: ['admin', 'ong'],
+    queryFn: () => chamarAdmin<OngAdmin>('GET', '/ong'),
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
     retry: tentarDeNovo,
   })
 }

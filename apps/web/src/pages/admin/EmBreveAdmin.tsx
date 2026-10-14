@@ -1,5 +1,5 @@
-// Abas da área da ONG que chegam na próxima etapa: Mais (etapa 13,
-// PLANO_DESENVOLVIMENTO.md).
+// Aviso da área da ONG para o que ainda não existe: hoje, só o endereço que não corresponde a
+// nenhuma tela ("Página não encontrada").
 import { Link } from 'react-router'
 import { Pata } from '../../components/Pata'
 

@@ -1,5 +1,5 @@
-// Perdidos e encontrados, etapa 11: envio pelo site (RN18–RN23, RN28), moderação pela equipe
-// (RN19, RN25, RN26, RN41) e limpeza diária (RN25, RN27). Armazenamentos em memória do apoio.
+// Perdidos e encontrados, etapas 11 e 13: envio pelo site (RN18–RN23, RN28), moderação pela
+// equipe (RN19, RN25, RN26, RN41), anúncio pela equipe (RN39, RN40) e limpeza diária (RN25, RN27). Armazenamentos em memória do apoio.
 import { eq, sql } from 'drizzle-orm'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
@@ -8,6 +8,7 @@ import {
   hojeNoBrasil,
   type ListaPerdidos,
   type ListaPerdidosAdmin,
+  type PerdidoAdmin,
   type PerdidoPublicoEntrada,
 } from '@sospatas/compartilhado'
 import { equipe, perdidos, perdidosFotos } from '@sospatas/db'
@@ -381,5 +382,131 @@ describe('limpeza diária (RN25, RN27)', () => {
     })
     expect(resultado.perdidosPendentesApagados).toBe(0)
     expect((await teste.db.select({ id: perdidos.id }).from(perdidos))[0]?.id).toBe(esquecido)
+  })
+})
+
+describe('anúncio pela equipe (T21; RN39, RN40)', () => {
+  const doFormulario = ({
+    consentimento: _consentimento,
+    turnstile_token: _token,
+    ...campos
+  }: PerdidoPublicoEntrada) => campos
+
+  function enviarEquipe(corpo: unknown, fotos: Uint8Array[] = [webp(64, 1)]) {
+    const formulario = new FormData()
+    formulario.append('dados', JSON.stringify(corpo))
+    for (const foto of fotos) {
+      formulario.append('fotos', new Blob([foto], { type: 'image/webp' }), 'foto.webp')
+    }
+    return teste.app.request(
+      '/api/admin/perdidos',
+      { method: 'POST', body: formulario, headers: { [CABECALHO_JWT_ACCESS]: tokenEquipe } },
+      envTeste(),
+    )
+  }
+
+  function editar(id: string, corpo: unknown) {
+    return teste.app.request(
+      `/api/admin/perdidos/${id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(corpo),
+        headers: { [CABECALHO_JWT_ACCESS]: tokenEquipe, 'Content-Type': 'application/json' },
+      },
+      envTeste(),
+    )
+  }
+
+  function adicionarFoto(id: string, foto = webp(64, 3)) {
+    const formulario = new FormData()
+    formulario.append('foto', new Blob([foto], { type: 'image/webp' }), 'foto.webp')
+    return teste.app.request(
+      `/api/admin/perdidos/${id}/fotos`,
+      { method: 'POST', body: formulario, headers: { [CABECALHO_JWT_ACCESS]: tokenEquipe } },
+      envTeste(),
+    )
+  }
+
+  it('já nasce no ar, com as fotos no bucket público, sem Turnstile nem IP (RN39)', async () => {
+    const resposta = await enviarEquipe({ ...doFormulario(dados()), autorizacao: true })
+    expect(resposta.status).toBe(201)
+    const { id } = await json<{ id: string }>(resposta)
+
+    const [anuncio] = await teste.db.select().from(perdidos).where(eq(perdidos.id, id))
+    expect(anuncio).toMatchObject({ status: 'publicado', origem: 'equipe', ip_hash: null })
+    expect(anuncio?.expira_em).toBeInstanceOf(Date)
+    expect(chavesQuarentena()).toEqual([])
+    expect(chavesPublicas()).toHaveLength(1)
+    const [publico] = await listaPublica()
+    expect(publico?.id).toBe(id)
+
+    const detalhe = await json<PerdidoAdmin>(await admin(`/perdidos/${id}`))
+    expect(detalhe.alteracao.por).toBe('Gracia')
+    expect(detalhe.fotos[0]?.url).toMatch(/^\/api\/publico\/fotos\/perdidos\//)
+  })
+
+  it('sem a autorização da pessoa: 400, nada gravado', async () => {
+    const resposta = await enviarEquipe(doFormulario(dados()))
+    expect(resposta.status).toBe(400)
+    expect((await json<CorpoErro>(resposta)).campos?.autorizacao).toMatch(/autorizou/)
+    expect(await teste.db.select().from(perdidos)).toHaveLength(0)
+    expect(chavesPublicas()).toEqual([])
+  })
+
+  it('não passa pelo limite de anúncios por IP do site (RN23)', async () => {
+    for (let n = 0; n < 4; n += 1) {
+      const resposta = await enviarEquipe({ ...doFormulario(dados()), autorizacao: true }, [])
+      expect(resposta.status).toBe(201)
+    }
+  })
+
+  it('corrige os campos de um anúncio (RN40), com as mesmas regras do formulário', async () => {
+    const id = await enviarERetornarId()
+    const resposta = await editar(id, { ...doFormulario(dados()), descricao: 'Coleira vermelha.' })
+    expect(resposta.status).toBe(204)
+    const [anuncio] = await teste.db.select().from(perdidos).where(eq(perdidos.id, id))
+    expect(anuncio).toMatchObject({ descricao: 'Coleira vermelha.', status: 'pendente' })
+
+    const comLink = await editar(id, { ...doFormulario(dados()), descricao: 'veja www.golpe.net' })
+    expect(comLink.status).toBe(400)
+    const outro = '00000000-0000-4000-8000-000000000999'
+    expect((await editar(outro, doFormulario(dados()))).status).toBe(404)
+  })
+
+  it('foto nova vai para o bucket do status: quarentena no pendente, público no ar', async () => {
+    const pendente = await enviarERetornarId(dados(), [])
+    expect((await adicionarFoto(pendente)).status).toBe(201)
+    expect(chavesQuarentena()).toHaveLength(1)
+    expect(chavesPublicas()).toEqual([])
+
+    const resposta = await enviarEquipe({ ...doFormulario(dados()), autorizacao: true }, [])
+    const { id: noAr } = await json<{ id: string }>(resposta)
+    expect((await adicionarFoto(noAr)).status).toBe(201)
+    expect(chavesPublicas()).toHaveLength(1)
+  })
+
+  it('no máximo 2 fotos; a 3ª é recusada e não deixa arquivo; arquivo falso é recusado', async () => {
+    const id = await enviarERetornarId(dados(), [webp(64, 1), webp(64, 2)])
+    const resposta = await adicionarFoto(id)
+    expect(resposta.status).toBe(409)
+    expect(chavesQuarentena()).toHaveLength(2)
+
+    const falsa = await adicionarFoto(id, new Uint8Array(64))
+    expect(falsa.status).toBe(400)
+  })
+
+  it('remover foto apaga o arquivo e o registro; se o armazenamento falhar, nada muda', async () => {
+    const id = await enviarERetornarId(dados(), [webp(64, 1)])
+    const [foto] = await teste.db.select().from(perdidosFotos)
+
+    vi.spyOn(teste.quarentena, 'apagar').mockRejectedValueOnce(new Error('R2 fora do ar'))
+    const falhou = await admin(`/perdidos/${id}/fotos/${foto?.id ?? ''}`, 'DELETE')
+    expect(falhou.status).toBe(503)
+    expect(await teste.db.select().from(perdidosFotos)).toHaveLength(1)
+
+    const resposta = await admin(`/perdidos/${id}/fotos/${foto?.id ?? ''}`, 'DELETE')
+    expect(resposta.status).toBe(204)
+    expect(await teste.db.select().from(perdidosFotos)).toHaveLength(0)
+    expect(chavesQuarentena()).toEqual([])
   })
 })

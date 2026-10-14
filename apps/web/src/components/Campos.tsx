@@ -54,6 +54,7 @@ export function CampoTexto({
   autoComplete,
   placeholder,
   max,
+  prefixo,
 }: PropsBase & {
   valor: string
   aoMudar: (valor: string) => void
@@ -64,6 +65,8 @@ export function CampoTexto({
   autoComplete?: string
   placeholder?: string
   max?: string
+  /** Texto fixo à esquerda, dentro da caixa (ex.: o @ do Instagram) */
+  prefixo?: string
 }) {
   const id = useId()
   const comum = {
@@ -98,6 +101,24 @@ export function CampoTexto({
             aoMudar(evento.target.value)
           }}
         />
+      ) : prefixo ? (
+        <div className="relative">
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-1/2 mt-[3px] -translate-y-1/2 font-bold text-slate-500"
+          >
+            {prefixo}
+          </span>
+          <input
+            {...comum}
+            className={`${classeCaixaTexto} pl-9`}
+            type="text"
+            autoComplete={autoComplete}
+            onChange={(evento) => {
+              aoMudar(evento.target.value)
+            }}
+          />
+        </div>
       ) : (
         <input
           {...comum}
