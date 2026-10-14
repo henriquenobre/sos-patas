@@ -1,19 +1,22 @@
-// Até 2 fotos do anúncio de perdido (T13, RN20, RN21): cada foto escolhida é redesenhada no
+// Até 2 fotos do anúncio de perdido (T13, T21; RN20, RN21): cada foto escolhida é redesenhada no
 // aparelho em WebP de até 1200 px, sem os dados de localização; o original nunca é enviado.
 import { useEffect, useId, useMemo, useState } from 'react'
 import { MAX_FOTOS_PERDIDO, TIPOS_FOTO_ACEITOS } from '@sospatas/compartilhado'
 import { ErroFoto, prepararFotoCompleta } from '../lib/fotos'
 
-export type FotoDoAnuncio = { id: string; arquivo: Blob }
+/** Foto nova (escolhida agora, ainda no aparelho) ou já salva no anúncio (correção pela equipe, T21). */
+export type FotoDoAnuncio = { id: string; arquivo: Blob } | { id: string; url: string }
 
 function Miniatura({ foto, aoRemover }: { foto: FotoDoAnuncio; aoRemover: () => void }) {
-  const url = useMemo(() => URL.createObjectURL(foto.arquivo), [foto.arquivo])
+  const arquivo = 'arquivo' in foto ? foto.arquivo : null
+  const urlLocal = useMemo(() => (arquivo ? URL.createObjectURL(arquivo) : null), [arquivo])
   useEffect(
     () => () => {
-      URL.revokeObjectURL(url)
+      if (urlLocal) URL.revokeObjectURL(urlLocal)
     },
-    [url],
+    [urlLocal],
   )
+  const url = 'url' in foto ? foto.url : (urlLocal ?? '')
   return (
     <div className="relative aspect-square overflow-hidden rounded-xl bg-slate-200">
       <img src={url} alt="Foto escolhida" className="h-full w-full object-cover" />

@@ -129,7 +129,9 @@ function Formulario({ aoEnviar }: { aoEnviar: () => void }) {
       'dados',
       JSON.stringify({ ...campos, consentimento: true, turnstile_token: token }),
     )
-    for (const foto of fotos) corpo.append('fotos', foto.arquivo, 'foto.webp')
+    for (const foto of fotos) {
+      if ('arquivo' in foto) corpo.append('fotos', foto.arquivo, 'foto.webp')
+    }
 
     setEnviando(true)
     try {

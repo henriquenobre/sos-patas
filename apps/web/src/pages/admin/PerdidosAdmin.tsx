@@ -1,9 +1,9 @@
 // T14 · Moderar perdidos e encontrados (/admin/perdidos). Aguardando: a equipe confere cada
 // anúncio (lista da RN28) e aprova (as fotos saem da quarentena para o site, RN19) ou recusa
 // (apaga tudo, RN26). No ar: "Sai do ar em N dias" (RN25), renovar (RN41), "Voltou para casa"
-// e "Tirar do ar" (apagam tudo, RN26). Criar e editar anúncio pela equipe (T21) é da etapa 13.
+// e "Tirar do ar" (apagam tudo, RN26). "Editar" e "＋ Novo anúncio" levam à T21 (RN39, RN40).
 import { useState } from 'react'
-import { useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import {
   ROTULOS,
@@ -124,7 +124,9 @@ function CardModeracao({ anuncio, hoje }: { anuncio: PerdidoAdmin; hoje: string 
           </p>
           <p className="mt-1 whitespace-pre-line text-sm text-slate-700">{anuncio.descricao}</p>
           {anuncio.origem === 'equipe' && (
-            <p className="mt-1 text-xs font-bold text-azul">Criado pela equipe</p>
+            <p className="mt-1.5 inline-block rounded-full bg-azul-claro px-2 py-0.5 text-xs font-bold text-azul-escuro">
+              Criado pela equipe
+            </p>
           )}
         </div>
       </div>
@@ -193,6 +195,13 @@ function CardModeracao({ anuncio, hoje }: { anuncio: PerdidoAdmin; hoje: string 
             </button>
           </>
         )}
+        <Link
+          to={`/admin/perdidos/${anuncio.id}`}
+          aria-label={`Editar o anúncio de ${titulo}`}
+          className="col-span-2 flex min-h-11 items-center justify-center rounded-xl font-bold text-azul ring-2 ring-azul/30"
+        >
+          Editar
+        </Link>
         {falha && !acao && (
           <p role="alert" className="col-span-2 text-sm font-bold text-vermelho">
             {falha}
@@ -254,10 +263,18 @@ export function PerdidosAdmin() {
   return (
     <>
       <title>Perdidos e encontrados · Área da ONG · SOS Patas</title>
-      <TituloAdmin
-        titulo="Perdidos e encontrados"
-        subtitulo="Confira cada anúncio antes de publicar. Recusados são apagados na hora, com as fotos."
-      />
+      <div className="flex items-start justify-between gap-3">
+        <TituloAdmin
+          titulo="Perdidos e encontrados"
+          subtitulo="Confira cada anúncio antes de publicar. Recusados são apagados na hora, com as fotos."
+        />
+        <Link
+          to="/admin/perdidos/novo"
+          className="shrink-0 rounded-xl bg-azul px-3 py-2.5 text-sm font-extrabold text-white"
+        >
+          ＋ Novo anúncio
+        </Link>
+      </div>
       <div
         role="tablist"
         aria-label="Situação"

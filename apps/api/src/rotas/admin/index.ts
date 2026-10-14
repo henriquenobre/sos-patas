@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import type { ConfigApp, Usuaria } from '../../dependencias'
 import { rotasAnimaisAdmin } from './animais'
 import { rotasConteudoAdmin } from './conteudo'
+import { rotasOngAdmin } from './ong'
 import { rotasPedidosAdmin } from './pedidos'
 import { rotasPerdidosAdmin } from './perdidos'
 import { rotasProtetoresAdmin } from './protetores'
@@ -17,3 +18,4 @@ rotasAdmin.route('/', rotasProtetoresAdmin)
 rotasAdmin.route('/', rotasPedidosAdmin)
 rotasAdmin.route('/', rotasPerdidosAdmin)
 rotasAdmin.route('/', rotasConteudoAdmin)
+rotasAdmin.route('/', rotasOngAdmin)

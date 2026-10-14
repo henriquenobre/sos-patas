@@ -42,7 +42,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 10b | Pedidos de adoção: formulário com o termo, análise e animal fora do site (RN47–RN50) | 10 | 19–20/10 | ✅ 13/10 |
 | 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 20–21/10 | ✅ 14/10 |
 | 12 | Editor de textos (T15–T20) | 10 | 21–23/10 | ✅ 14/10 |
-| 13 | Mais: dados da ONG, anúncio pela equipe, protetores, "Alterado por" | 11, 12 | 23–24/10 | ⬜ |
+| 13 | Mais: dados da ONG, anúncio pela equipe, protetores, "Alterado por" | 11, 12 | 23–24/10 | 🔄 iniciada em 14/10 |
 | 14 | Produção: domínio, Access, CI/CD, backup e segurança | 8, 13 | 24–27/10 | ⬜ |
 | 15 | Dados reais, teste com a ONG e ajustes finais | 14 | 27–30/10 | ⬜ |
 
@@ -292,6 +292,8 @@ Na ordem de prioridade:
 4. "Alterado por {nome} em {data}" nas telas de edição (RN43) e filtro por responsável no T09
 
 **Pronto quando:** os itens entregues seguem a Definição de pronto; o que não coube fica anotado no Painel como "depois da entrega".
+
+**Andamento (14/10/2026):** branch `etapa-13-mais`, com os quatro itens. (1) `GET/PUT /ong` (`servicos/ong.ts`): salvar apaga a cópia do `GET /site` e das fichas dos animais da ONG (o WhatsApp da ONG aparece nelas); o schema `ongEntrada` ganhou o nome completo. Telas T22 e T23, com a prévia do card do PIX e o "@" fixo no Instagram (`CampoTexto` com `prefixo`). (2) `POST /perdidos` da equipe (multipart como o do site, com a autorização no lugar do Turnstile; já no ar e com as fotos no bucket público), `GET/PUT /perdidos/:id`, `POST /perdidos/:id/fotos` e `DELETE /perdidos/:id/fotos/:fotoId` (bucket do status atual; até 2 fotos, conferido com o anúncio travado). Tela T21 e, na T14, "Editar" em cada card e "＋ Novo anúncio". (3) T24 com o `ModalProtetor` para cadastrar, editar e excluir. (4) "Alterado por" na T21, T23 e T24 (`PerdidoAdmin.alteracao`); o filtro por responsável no T09 já existia desde a etapa 10. 12 testes novos na API (207 no total) e 12 no front (113 no total). Conferido também no `wrangler dev` (dados da ONG no site, anúncio da equipe com foto no ar, correção, foto nova e removida). **Falta:** conferir pelo celular (`pnpm dev:celular`).
 
 ## Etapa 14 · Produção
 

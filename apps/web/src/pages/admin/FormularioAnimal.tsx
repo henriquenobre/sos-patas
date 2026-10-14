@@ -859,8 +859,9 @@ function Formulario({ animal }: { animal?: AnimalAdmin }) {
           aoFechar={() => {
             setNovoProtetor(false)
           }}
-          aoCriar={(protetor) => {
+          aoSalvar={(protetor) => {
             setNovoProtetor(false)
+            if (!protetor) return
             setCampos((atual) => ({ ...atual, protetor_id: protetor.id }))
             setErros(({ protetor_id: _resolvido, ...resto }) => resto)
           }}

@@ -2,7 +2,7 @@
 // diária. As fotos ficam em perdidos/{perdido_id}/{foto_id}.webp, com a mesma chave nos dois
 // buckets: na quarentena (privada) enquanto o anúncio está pendente e no bucket público depois
 // da aprovação (RN19; docs/ARQUITETURA.md, seção 6).
-import { and, asc, count, eq, gt, inArray, sql } from 'drizzle-orm'
+import { and, asc, count, eq, gt, inArray, sql, type SQL } from 'drizzle-orm'
 import {
   DIAS_MAX_PENDENTE,
   DIAS_PUBLICACAO_PERDIDO,
@@ -11,9 +11,11 @@ import {
   MAX_PERDIDOS_PENDENTES,
   type PerdidoAdmin,
   type PerdidoStatus,
+  type perdidoEdicaoEntrada,
+  type perdidoEquipeEntrada,
   type perdidoPublicoEntrada,
 } from '@sospatas/compartilhado'
-import { perdidos, perdidosFotos } from '@sospatas/db'
+import { equipe, perdidos, perdidosFotos } from '@sospatas/db'
 import type { z } from 'zod'
 import { TIPO_WEBP, conferirFotoWebp } from '../armazenamento/webp'
 import type { Armazenamento } from '../armazenamento/tipos'
@@ -24,6 +26,8 @@ import { ehUuid } from '../validacao'
 import { urlFoto } from './fotos'
 
 type PerdidoPublicoDados = z.output<typeof perdidoPublicoEntrada>
+type PerdidoEquipeDados = z.output<typeof perdidoEquipeEntrada>
+type PerdidoEdicaoDados = z.output<typeof perdidoEdicaoEntrada>
 
 /** Rota pública afetada quando um anúncio entra ou sai do ar (para limpar o cache). */
 export const CAMINHO_PUBLICO_PERDIDOS = '/api/publico/perdidos'
@@ -88,16 +92,31 @@ export async function conferirLimitesPerdido(db: Db, ipHash: string | null): Pro
   }
 }
 
+/** Campos do anúncio que vêm do formulário (T13, T21). */
+const camposDoFormulario = (dados: PerdidoEdicaoDados) => ({
+  tipo: dados.tipo,
+  especie: dados.especie,
+  nome: dados.nome,
+  bairro: dados.bairro,
+  data_ocorrido: dados.data_ocorrido,
+  descricao: dados.descricao,
+  contato_nome: dados.contato_nome,
+  contato_whatsapp: dados.contato_whatsapp,
+})
+
 /**
- * Grava as fotos na quarentena e depois o anúncio como pendente (RN18, RN19). Se o banco
- * falhar, apaga as fotos gravadas.
+ * Grava as fotos no bucket e depois o anúncio. Se o banco falhar, apaga as fotos gravadas.
+ * `extra` diz de onde veio: do site (pendente, com o hash do IP) ou da equipe (já no ar).
  */
-export async function criarPerdidoPublico(
+async function criarPerdido(
   db: Db,
-  quarentena: Armazenamento,
-  dados: PerdidoPublicoDados,
+  bucket: Armazenamento,
+  dados: PerdidoEdicaoDados,
+  extra: Omit<
+    typeof perdidos.$inferInsert,
+    keyof ReturnType<typeof camposDoFormulario> | 'consentimento_em'
+  >,
   arquivos: Uint8Array[],
-  ipHash: string | null,
 ): Promise<string> {
   const id = crypto.randomUUID()
   const fotosDoAnuncio = arquivos.map((dadosFoto) => ({
@@ -109,12 +128,12 @@ export async function criarPerdidoPublico(
   const gravadas: string[] = []
   try {
     for (const foto of fotosDoAnuncio) {
-      await quarentena.colocar(caminho(foto.id), foto.dados, TIPO_WEBP)
+      await bucket.colocar(caminho(foto.id), foto.dados, TIPO_WEBP)
       gravadas.push(caminho(foto.id))
     }
   } catch (erro) {
     console.error('Falha ao gravar as fotos do anúncio:', erro)
-    await apagarSemFalhar(quarentena, gravadas)
+    await apagarSemFalhar(bucket, gravadas)
     throw erros.armazenamento(
       'Não conseguimos guardar as fotos agora. Tente de novo em alguns minutos.',
     )
@@ -123,18 +142,10 @@ export async function criarPerdidoPublico(
   try {
     await db.transaction(async (tx) => {
       await tx.insert(perdidos).values({
+        ...extra,
+        ...camposDoFormulario(dados),
         id,
-        tipo: dados.tipo,
-        especie: dados.especie,
-        nome: dados.nome,
-        bairro: dados.bairro,
-        data_ocorrido: dados.data_ocorrido,
-        descricao: dados.descricao,
-        contato_nome: dados.contato_nome,
-        contato_whatsapp: dados.contato_whatsapp,
         consentimento_em: new Date(),
-        origem: 'site',
-        ip_hash: ipHash,
       })
       if (fotosDoAnuncio.length > 0) {
         await tx
@@ -145,10 +156,48 @@ export async function criarPerdidoPublico(
       }
     })
   } catch (erro) {
-    await apagarSemFalhar(quarentena, gravadas)
+    await apagarSemFalhar(bucket, gravadas)
     throw erro
   }
   return id
+}
+
+/** Envio pelo site: fotos na quarentena e anúncio pendente, à espera da equipe (RN18, RN19). */
+export function criarPerdidoPublico(
+  db: Db,
+  quarentena: Armazenamento,
+  dados: PerdidoPublicoDados,
+  arquivos: Uint8Array[],
+  ipHash: string | null,
+): Promise<string> {
+  return criarPerdido(db, quarentena, dados, { origem: 'site', ip_hash: ipHash }, arquivos)
+}
+
+/**
+ * Anúncio criado pela equipe para quem pediu pelo WhatsApp (T21, RN39): já nasce no ar por 30
+ * dias, com as fotos direto no bucket público, sem Turnstile nem limite por IP.
+ */
+export function criarPerdidoEquipe(
+  db: Db,
+  fotosPublicas: Armazenamento,
+  dados: PerdidoEquipeDados,
+  arquivos: Uint8Array[],
+  usuaria: Usuaria,
+): Promise<string> {
+  const agora = new Date()
+  return criarPerdido(
+    db,
+    fotosPublicas,
+    dados,
+    {
+      origem: 'equipe',
+      status: 'publicado',
+      publicado_em: agora,
+      expira_em: novaExpiracao(agora),
+      updated_by: usuaria.id,
+    },
+    arquivos,
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -162,10 +211,30 @@ const rotaFotoQuarentena = (perdidoId: string, fotoId: string) =>
  * Aguardando: mais antigos primeiro (quem chegou antes é conferido antes). No ar: os que saem
  * do ar mais cedo primeiro, inclusive os vencidos que a tarefa diária ainda não apagou.
  */
-export async function listarPerdidosAdmin(
+export function listarPerdidosAdmin(
   db: Db,
   env: Env,
   status: PerdidoStatus,
+): Promise<PerdidoAdmin[]> {
+  return consultarPerdidosAdmin(db, env, eq(perdidos.status, status), [
+    status === 'pendente' ? asc(perdidos.created_at) : asc(perdidos.expira_em),
+    asc(perdidos.id),
+  ])
+}
+
+/** Um anúncio, para o formulário de correção (T21). */
+export async function buscarPerdidoAdmin(db: Db, env: Env, id: string): Promise<PerdidoAdmin> {
+  if (!ehUuid(id)) throw anuncioNaoEncontrado()
+  const [anuncio] = await consultarPerdidosAdmin(db, env, eq(perdidos.id, id), [])
+  if (!anuncio) throw anuncioNaoEncontrado()
+  return anuncio
+}
+
+async function consultarPerdidosAdmin(
+  db: Db,
+  env: Env,
+  filtro: SQL,
+  ordem: SQL[],
 ): Promise<PerdidoAdmin[]> {
   const anuncios = await db
     .select({
@@ -183,13 +252,13 @@ export async function listarPerdidosAdmin(
       created_at: perdidos.created_at,
       publicado_em: perdidos.publicado_em,
       expira_em: perdidos.expira_em,
+      updated_at: perdidos.updated_at,
+      alterado_por: equipe.nome,
     })
     .from(perdidos)
-    .where(eq(perdidos.status, status))
-    .orderBy(
-      status === 'pendente' ? asc(perdidos.created_at) : asc(perdidos.expira_em),
-      asc(perdidos.id),
-    )
+    .leftJoin(equipe, eq(equipe.id, perdidos.updated_by))
+    .where(filtro)
+    .orderBy(...ordem)
   if (anuncios.length === 0) return []
 
   const listaFotos = await db
@@ -207,8 +276,9 @@ export async function listarPerdidosAdmin(
     )
     .orderBy(asc(perdidosFotos.path))
 
-  return anuncios.map((anuncio) => ({
+  return anuncios.map(({ updated_at, alterado_por, ...anuncio }) => ({
     ...anuncio,
+    alteracao: { em: updated_at.toISOString(), por: alterado_por },
     created_at: anuncio.created_at.toISOString(),
     publicado_em: anuncio.publicado_em?.toISOString() ?? null,
     expira_em: anuncio.expira_em?.toISOString() ?? null,
@@ -368,6 +438,127 @@ export async function apagarPerdido(
     )
   }
   await db.delete(perdidos).where(eq(perdidos.id, id))
+  return anuncio.status
+}
+
+// ---------------------------------------------------------------------------
+// Correção pela equipe (T21, RN40)
+// ---------------------------------------------------------------------------
+/** Corrige os campos do anúncio pendente ou no ar. Devolve o status (publicado = o site muda). */
+export async function editarPerdido(
+  db: Db,
+  id: string,
+  dados: PerdidoEdicaoDados,
+  usuaria: Usuaria,
+): Promise<PerdidoStatus> {
+  if (!ehUuid(id)) throw anuncioNaoEncontrado()
+  const [alterado] = await db
+    .update(perdidos)
+    .set({ ...camposDoFormulario(dados), updated_by: usuaria.id })
+    .where(eq(perdidos.id, id))
+    .returning({ status: perdidos.status })
+  if (!alterado) throw anuncioNaoEncontrado()
+  return alterado.status
+}
+
+const bucketDoStatus = (buckets: BucketsPerdidos, status: PerdidoStatus) =>
+  status === 'pendente' ? buckets.quarentena : buckets.fotos
+
+/**
+ * Nova foto num anúncio (RN40): até 2, no bucket do status atual (quarentena se pendente,
+ * público se no ar). A conferência e o registro rodam com o anúncio travado; se ele foi
+ * aprovado enquanto a foto subia, a foto é copiada também para o bucket público.
+ */
+export async function adicionarFotoPerdido(
+  db: Db,
+  buckets: BucketsPerdidos,
+  id: string,
+  arquivo: Uint8Array,
+  usuaria: Usuaria,
+): Promise<PerdidoStatus> {
+  conferirFotoWebp(arquivo)
+  const anuncio = await buscarAnuncio(db, id)
+  const fotosDemais = () =>
+    erros.conflito(
+      `Cada anúncio pode ter até ${String(MAX_FOTOS_PERDIDO)} fotos. Remova uma antes de adicionar outra.`,
+    )
+  if ((await caminhosDasFotos(db, id)).length >= MAX_FOTOS_PERDIDO) throw fotosDemais()
+
+  const fotoId = crypto.randomUUID()
+  const caminho = `${prefixoFotosPerdido(id)}${fotoId}.webp`
+  const bucket = bucketDoStatus(buckets, anuncio.status)
+  try {
+    await bucket.colocar(caminho, arquivo, TIPO_WEBP)
+  } catch (erro) {
+    console.error('Falha ao gravar a foto do anúncio:', erro)
+    throw erros.armazenamento(
+      'Não conseguimos guardar a foto agora. Tente de novo em alguns minutos.',
+    )
+  }
+
+  let statusAtual: PerdidoStatus
+  try {
+    statusAtual = await db.transaction(async (tx) => {
+      const [travado] = await tx
+        .select({ status: perdidos.status })
+        .from(perdidos)
+        .where(eq(perdidos.id, id))
+        .for('update')
+      if (!travado) throw anuncioNaoEncontrado()
+      const [fotosAgora] = await tx
+        .select({ n: count() })
+        .from(perdidosFotos)
+        .where(eq(perdidosFotos.perdido_id, id))
+      if ((fotosAgora?.n ?? 0) >= MAX_FOTOS_PERDIDO) throw fotosDemais()
+      await tx.insert(perdidosFotos).values({ id: fotoId, perdido_id: id, path: caminho })
+      await tx.update(perdidos).set({ updated_by: usuaria.id }).where(eq(perdidos.id, id))
+      return travado.status
+    })
+  } catch (erro) {
+    await apagarSemFalhar(bucket, [caminho])
+    throw erro
+  }
+  if (statusAtual !== anuncio.status) {
+    try {
+      await buckets.quarentena.copiar(caminho, buckets.fotos)
+    } catch (erro) {
+      console.error('Foto adicionada durante a aprovação não chegou ao site:', caminho, erro)
+    }
+  }
+  return statusAtual
+}
+
+/**
+ * Remove uma foto do anúncio (RN40): primeiro o arquivo (nos dois buckets), depois o registro.
+ * Se o armazenamento falhar, nada muda.
+ */
+export async function removerFotoPerdido(
+  db: Db,
+  buckets: BucketsPerdidos,
+  id: string,
+  fotoId: string,
+  usuaria: Usuaria,
+): Promise<PerdidoStatus> {
+  const anuncio = await buscarAnuncio(db, id)
+  if (!ehUuid(fotoId)) throw erros.naoEncontrado('Foto não encontrada.')
+  const [foto] = await db
+    .select({ path: perdidosFotos.path })
+    .from(perdidosFotos)
+    .where(and(eq(perdidosFotos.id, fotoId), eq(perdidosFotos.perdido_id, id)))
+  if (!foto) throw erros.naoEncontrado('Foto não encontrada.')
+  try {
+    await buckets.quarentena.apagar([foto.path])
+    await buckets.fotos.apagar([foto.path])
+  } catch (erro) {
+    console.error('Falha ao apagar a foto do anúncio:', erro)
+    throw erros.armazenamento(
+      'Não conseguimos apagar a foto agora. Nada foi alterado. Tente de novo em alguns minutos.',
+    )
+  }
+  await db.transaction(async (tx) => {
+    await tx.delete(perdidosFotos).where(eq(perdidosFotos.id, fotoId))
+    await tx.update(perdidos).set({ updated_by: usuaria.id }).where(eq(perdidos.id, id))
+  })
   return anuncio.status
 }
 

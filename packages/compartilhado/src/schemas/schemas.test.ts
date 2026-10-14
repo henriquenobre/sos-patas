@@ -193,6 +193,7 @@ describe('textos e itens das páginas', () => {
 
 describe('dados da ONG', () => {
   const ong = {
+    nome_completo: 'Associação SOS Patas',
     email: ' SiteSOSPatas@gmail.com ',
     whatsapp: '(35) 9 8843-9614',
     instagram: '@sospatas.ong',
@@ -222,6 +223,12 @@ describe('dados da ONG', () => {
     expect(ongEntrada.parse({ ...ong, whatsapp: null }).whatsapp).toBeNull()
     expect(erros(ongEntrada.safeParse({ ...ong, whatsapp: '123' }))).toHaveProperty('whatsapp')
     expect(erros(ongEntrada.safeParse({ ...ong, email: 'sospatas' }))).toHaveProperty('email')
+  })
+
+  it('nome completo é obrigatório', () => {
+    expect(erros(ongEntrada.safeParse({ ...ong, nome_completo: ' ' }))).toHaveProperty(
+      'nome_completo',
+    )
   })
 })
 

@@ -4,7 +4,7 @@
 import { Hono } from 'hono'
 import { perdidoPublicoEntrada } from '@sospatas/compartilhado'
 import type { ConfigApp } from '../../dependencias'
-import { ErroApi, erros } from '../../erros'
+import { ErroApi } from '../../erros'
 import {
   conferirFotosPerdido,
   conferirLimitesPerdido,
@@ -12,33 +12,13 @@ import {
 } from '../../servicos/perdidos'
 import { hashDoIp, ipDaRequisicao } from '../../servicos/seguranca'
 import { validar } from '../../validacao'
+import { lerDadosEFotos } from '../multipart'
 
 export const rotasPerdidosPublicos = new Hono<ConfigApp>()
 
 rotasPerdidosPublicos.post('/perdidos', async (c) => {
-  let corpo: Record<string, unknown>
-  try {
-    corpo = await c.req.parseBody({ all: true })
-  } catch {
-    throw erros.requisicaoInvalida('Não foi possível ler os dados enviados.')
-  }
-
-  let json: unknown
-  try {
-    json = typeof corpo.dados === 'string' ? JSON.parse(corpo.dados) : undefined
-  } catch {
-    json = undefined
-  }
-  if (json === undefined) throw erros.requisicaoInvalida('Não foi possível ler os dados enviados.')
+  const { json, arquivos } = await lerDadosEFotos(c)
   const dados = validar(perdidoPublicoEntrada, json)
-
-  const campoFotos = corpo.fotos === undefined ? [] : [corpo.fotos].flat()
-  if (!campoFotos.every((foto) => foto instanceof File)) {
-    throw erros.requisicaoInvalida('Não foi possível ler as fotos enviadas.')
-  }
-  const arquivos = await Promise.all(
-    campoFotos.map(async (foto) => new Uint8Array(await foto.arrayBuffer())),
-  )
   conferirFotosPerdido(arquivos)
 
   const ip = ipDaRequisicao(c.req)

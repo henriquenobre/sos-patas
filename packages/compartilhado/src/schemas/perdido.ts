@@ -44,3 +44,8 @@ export const perdidoEquipeEntrada = perdidoEntrada.extend({
 
 export type PerdidoPublicoEntrada = z.input<typeof perdidoPublicoEntrada>
 export type PerdidoEquipeEntrada = z.input<typeof perdidoEquipeEntrada>
+
+/** Correção de um anúncio pela equipe (T21, RN40): os mesmos campos, sem a autorização. */
+export const perdidoEdicaoEntrada = perdidoEntrada
+
+export type PerdidoEdicaoEntrada = z.input<typeof perdidoEdicaoEntrada>
