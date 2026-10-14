@@ -41,7 +41,7 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | 10 | Área da ONG: estrutura e animais | 13/10/2026 | 13/10/2026 | 1 dia | Telas T09–T11 com testes do front; testada pelo celular na rede local, com 6 ajustes visuais |
 | 10b | Pedidos de adoção | 09/10/2026 | 13/10/2026 | 5 dias | Entrou no MVP em 08/10/2026. Banco, API e formulário em 09/10; T27/T28 em 13/10; teste de ponta a ponta pelo celular |
 | 11 | Perdidos e encontrados | 13/10/2026 | 14/10/2026 | 2 dias | API, telas T12–T14 e limpeza diária com testes em 13/10; ajustes e merge na `develop` em 14/10 |
-| 12 | Editor de textos | 14/10/2026 | | | |
+| 12 | Editor de textos | 14/10/2026 | 14/10/2026 | 1 dia | API, telas T15–T20 e testes; conferida pelo celular |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores | | | | |
 | 14 | Produção | | | | |
 | 15 | Dados reais, teste com a ONG e ajustes finais | | | | |
@@ -103,3 +103,4 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 14/10/2026 | | 7 | Decisão: os acessos da equipe à área da ONG são criados no treinamento, na etapa 15; até lá o Access de produção só tem o e-mail do mantenedor | relato |
 | 14/10/2026 | | 7 | **Etapa 12 iniciada** (branch `etapa-12-editor-textos`): editor de textos da área da ONG (T15–T20) | Git |
 | 14/10/2026 | | 7 | Etapa 12: API do editor (textos, itens, ordem e fotos da história) e telas T15–T20 com testes, conferida no `wrangler dev`; falta conferir pelo celular | doc (testes e verificação local) |
+| 14/10/2026 | 11:42 | 7 | **Etapa 12 concluída:** editor de textos testado pelo celular e na `develop` (PR #13) | relato + Git |
