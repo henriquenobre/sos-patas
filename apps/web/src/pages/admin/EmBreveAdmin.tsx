@@ -1,4 +1,4 @@
-// Abas da área da ONG que chegam nas próximas etapas: Textos (etapa 12) e Mais (etapa 13,
+// Abas da área da ONG que chegam na próxima etapa: Mais (etapa 13,
 // PLANO_DESENVOLVIMENTO.md).
 import { Link } from 'react-router'
 import { Pata } from '../../components/Pata'

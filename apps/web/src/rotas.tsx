@@ -1,7 +1,8 @@
-import { Navigate, createBrowserRouter } from 'react-router'
+import { Navigate, createBrowserRouter, type Params } from 'react-router'
 import { Carregando } from './components/Estados'
 import type { MolduraAdmin } from './layouts/LayoutAdmin'
 import { LayoutPublico } from './layouts/LayoutPublico'
+import { ehNomeLista, paginaDaLista, telaDaPagina } from './lib/conteudo'
 import { PaginaNaoEncontrada } from './pages/Avisos'
 import { Adotar } from './pages/Adotar'
 import { AnunciarPerdido } from './pages/AnunciarPerdido'
@@ -27,11 +28,21 @@ const admin = {
   pedido: () => import('./pages/admin/Pedido').then((m) => ({ Component: m.Pedido })),
   perdidos: () =>
     import('./pages/admin/PerdidosAdmin').then((m) => ({ Component: m.PerdidosAdmin })),
+  textos: () => import('./pages/admin/Textos').then((m) => ({ Component: m.TextosDoSite })),
+  perguntas: () => import('./pages/admin/Textos').then((m) => ({ Component: m.EditarPerguntas })),
+  comoAdotar: () => import('./pages/admin/Textos').then((m) => ({ Component: m.EditarComoAdotar })),
+  inicio: () => import('./pages/admin/Textos').then((m) => ({ Component: m.EditarInicio })),
+  ajude: () => import('./pages/admin/Textos').then((m) => ({ Component: m.EditarComoAjudar })),
+  item: () => import('./pages/admin/ItemConteudo').then((m) => ({ Component: m.ItemConteudo })),
   emBreve: (titulo: string, texto?: string) => () =>
     import('./pages/admin/EmBreveAdmin').then((m) => ({
       Component: () => <m.EmBreveAdmin titulo={titulo} texto={texto} />,
     })),
 }
+
+/** O item de uma lista (T17) volta para a página onde a lista aparece. */
+const voltarDoItem = ({ lista }: Params): string =>
+  ehNomeLista(lista) ? telaDaPagina(paginaDaLista(lista)) : '/admin/textos'
 
 // Rotas do site (docs/DESENVOLVIMENTO.md, seção 4).
 export const rotas = createBrowserRouter([
@@ -82,12 +93,31 @@ export const rotas = createBrowserRouter([
         lazy: admin.perdidos,
         handle: { aba: 'perdidos' } satisfies MolduraAdmin,
       },
-      // Etapas 12 (textos) e 13 (mais, e o anúncio pela equipe em perdidos/novo e perdidos/:id)
+      // Textos do site (T15–T20)
+      { path: 'textos', lazy: admin.textos, handle: { aba: 'textos' } satisfies MolduraAdmin },
+      ...(
+        [
+          ['perguntas', admin.perguntas],
+          ['como-adotar', admin.comoAdotar],
+          ['inicio', admin.inicio],
+          ['ajude', admin.ajude],
+        ] as const
+      ).map(([pagina, lazy]) => ({
+        path: `textos/${pagina}`,
+        lazy,
+        handle: { voltar: '/admin/textos' } satisfies MolduraAdmin,
+      })),
       {
-        path: 'textos/*',
-        lazy: admin.emBreve('Textos do site'),
-        handle: { aba: 'textos' } satisfies MolduraAdmin,
+        path: 'textos/:lista/novo',
+        lazy: admin.item,
+        handle: { voltar: voltarDoItem } satisfies MolduraAdmin,
       },
+      {
+        path: 'textos/:lista/:id',
+        lazy: admin.item,
+        handle: { voltar: voltarDoItem } satisfies MolduraAdmin,
+      },
+      // Etapa 13: Mais (e o anúncio pela equipe em perdidos/novo e perdidos/:id)
       {
         path: 'mais/*',
         lazy: admin.emBreve('Mais'),
