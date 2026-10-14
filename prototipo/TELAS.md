@@ -50,6 +50,7 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 | `BlocoPix` | T01, T06, rodapé | Chave CNPJ + botão "Copiar chave PIX" |
 | `Modal` | Adotado, devolver, excluir, novo protetor, aprovar e recusar pedido | Confirmações sempre com "Cancelar"; no celular, sobe do rodapé |
 | `OpcoesBotao` | Formulário | Escolha em botões grandes (melhor que select no celular) |
+| Campo de data | T13 e cadastro de animal | Sempre **dd/mm/aaaa**: a pessoa digita só os números (as barras entram sozinhas, teclado numérico) ou abre o calendário pelo botão 📅. Não usa o campo de data do navegador, que mostra mês/dia/ano quando o navegador está em inglês (14/10/2026) |
 | `CabecalhoAdmin` | T08–T24 | Fundo azul-escuro, para diferenciar do site público; "Olá, {nome}" vem de `equipe` (só a partir do tablet); à direita, "Ver o site ↗" (abre o site público em nova aba) e "Sair" |
 | `BarraAdmin` | T09, T14, T15, T22, T27 | Barra fixa no rodapé: 🐾 Animais · 📋 Pedidos (com número de pendentes) · 🔎 Perdidos (com número de pendentes) · 📝 Textos · ☰ Mais. No computador, vira abas no cabeçalho. Some nas telas de formulário |
 | `ListaEditavel` | T16, T18–T20 | Cards com título, começo do texto e miniatura (se tiver foto); botões ↑ ↓ (RN35), **Editar** e **Excluir** (RN36); "＋ Adicionar" no fim. Configurada por `lista` (DESENVOLVIMENTO.md, `conteudo_itens`) |

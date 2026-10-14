@@ -1,6 +1,7 @@
 // Campos de formulário pensados para o celular: opções em botões grandes (área de toque de
 // 44 px), mensagem de erro embaixo de cada campo e ligação rótulo/campo para leitores de tela.
-import { useId, type ReactNode } from 'react'
+import { useId, useRef, useState, type ReactNode } from 'react'
+import { ehDataValida, formatarData } from '@sospatas/compartilhado'
 
 const classeCaixaTexto =
   'mt-1.5 w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-base focus:border-azul focus:outline-none aria-[invalid=true]:border-vermelho'
@@ -80,7 +81,16 @@ export function CampoTexto({
         <Rotulo rotulo={rotulo} obrigatorio={obrigatorio} />
       </label>
       {dica && <p className="text-sm text-slate-500">{dica}</p>}
-      {multilinha ? (
+      {tipo === 'date' ? (
+        <CaixaData
+          id={id}
+          valor={valor}
+          aoMudar={aoMudar}
+          max={max}
+          invalido={Boolean(erro)}
+          descricao={erro ? `${id}-erro` : undefined}
+        />
+      ) : multilinha ? (
         <textarea
           {...comum}
           rows={3}
@@ -103,6 +113,98 @@ export function CampoTexto({
         />
       )}
       <Erro id={`${id}-erro`} mensagem={erro} />
+    </div>
+  )
+}
+
+/** '13102026' ou '13/10/2026' → '13/10/2026', pondo as barras conforme a pessoa digita. */
+function mascaraData(texto: string): string {
+  const digitos = texto.replace(/\D/g, '').slice(0, 8)
+  return [digitos.slice(0, 2), digitos.slice(2, 4), digitos.slice(4)].filter(Boolean).join('/')
+}
+
+/** '13/10/2026' → '2026-10-13'. Data incompleta volta como digitada, e o schema acusa "Data inválida". */
+function dataParaIso(texto: string): string {
+  const partes = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(texto)
+  return partes ? `${partes[3]}-${partes[2]}-${partes[1]}` : texto
+}
+
+/**
+ * Data sempre em dd/mm/aaaa. O <input type="date"> segue o idioma do navegador (em inglês vira
+ * mm/dd/aaaa), então a pessoa digita num campo de texto e o calendário nativo fica no botão ao
+ * lado. O valor que sai continua 'AAAA-MM-DD'.
+ */
+function CaixaData({
+  id,
+  valor,
+  aoMudar,
+  max,
+  invalido,
+  descricao,
+}: {
+  id: string
+  valor: string
+  aoMudar: (valor: string) => void
+  max?: string
+  invalido: boolean
+  descricao?: string
+}) {
+  const paraTexto = (iso: string) => (ehDataValida(iso) ? formatarData(iso) : mascaraData(iso))
+  const [texto, setTexto] = useState(() => paraTexto(valor))
+  const [valorAnterior, setValorAnterior] = useState(valor)
+  const calendario = useRef<HTMLInputElement>(null)
+
+  // Valor trocado por fora (calendário, formulário recarregado): atualiza o que aparece
+  if (valor !== valorAnterior) {
+    setValorAnterior(valor)
+    if (valor !== dataParaIso(texto)) setTexto(paraTexto(valor))
+  }
+
+  return (
+    <div className="relative">
+      <input
+        id={id}
+        type="text"
+        inputMode="numeric"
+        autoComplete="off"
+        placeholder="dd/mm/aaaa"
+        maxLength={10}
+        value={texto}
+        aria-invalid={invalido}
+        aria-describedby={descricao}
+        className={`${classeCaixaTexto} pr-14`}
+        onChange={(evento) => {
+          const novo = mascaraData(evento.target.value)
+          setTexto(novo)
+          aoMudar(dataParaIso(novo))
+        }}
+      />
+      <button
+        type="button"
+        aria-label="Abrir calendário"
+        className="absolute right-1.5 bottom-1.5 flex h-11 w-11 items-center justify-center rounded-lg text-xl"
+        onClick={() => {
+          try {
+            calendario.current?.showPicker()
+          } catch {
+            // Navegador sem showPicker: a pessoa digita a data
+          }
+        }}
+      >
+        📅
+      </button>
+      <input
+        ref={calendario}
+        type="date"
+        tabIndex={-1}
+        aria-hidden="true"
+        max={max}
+        value={ehDataValida(valor) ? valor : ''}
+        className="pointer-events-none absolute right-1.5 bottom-1.5 h-11 w-11 opacity-0"
+        onChange={(evento) => {
+          if (evento.target.value) aoMudar(evento.target.value)
+        }}
+      />
     </div>
   )
 }

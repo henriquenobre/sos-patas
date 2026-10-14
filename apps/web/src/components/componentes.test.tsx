@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { chaveParaCopiar } from '../lib/pix'
 import { BlocoPix } from './BlocoPix'
+import { CampoTexto } from './Campos'
 import { TextoSimples } from './TextoSimples'
 
 afterEach(() => {
@@ -65,5 +67,36 @@ describe('PIX', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Copiar chave PIX' }))
     expect(writeText).toHaveBeenCalledWith('26515895000190')
     expect(await screen.findByText('Chave copiada ✓')).toBeInTheDocument()
+  })
+})
+
+describe('CampoTexto de data', () => {
+  function CampoDeTeste({ inicial, aoMudar }: { inicial: string; aoMudar: (v: string) => void }) {
+    const [valor, setValor] = useState(inicial)
+    return (
+      <CampoTexto
+        rotulo="Quando aconteceu?"
+        tipo="date"
+        valor={valor}
+        aoMudar={(novo) => {
+          setValor(novo)
+          aoMudar(novo)
+        }}
+      />
+    )
+  }
+
+  it('mostra a data em dd/mm/aaaa, qualquer que seja o idioma do navegador', () => {
+    render(<CampoDeTeste inicial="2026-10-13" aoMudar={vi.fn()} />)
+    expect(screen.getByLabelText(/Quando aconteceu/)).toHaveValue('13/10/2026')
+  })
+
+  it('põe as barras ao digitar e entrega AAAA-MM-DD', async () => {
+    const aoMudar = vi.fn()
+    render(<CampoDeTeste inicial="" aoMudar={aoMudar} />)
+    const campo = screen.getByLabelText(/Quando aconteceu/)
+    await userEvent.type(campo, '05092026')
+    expect(campo).toHaveValue('05/09/2026')
+    expect(aoMudar).toHaveBeenLastCalledWith('2026-09-05')
   })
 })
