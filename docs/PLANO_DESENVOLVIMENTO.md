@@ -28,7 +28,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 
 | # | Etapa | Depende de | Sugestão de data | Status |
 |---|---|---|---|---|
-| 0 | Contas e serviços (manual) | – | 08–12/10 | 🔄 |
+| 0 | Contas e serviços (manual) | – | 08–12/10 | ✅ 14/10 |
 | 1 | Fundação do monorepo | – | 09–10/10 | ✅ 08/10 |
 | 2 | Banco: schema, migrations e seed | 1 | 10–11/10 | ✅ 08/10 |
 | 3 | Pacote compartilhado (zod, limites, idade) | 1 | 11/10 | ✅ 08/10 |
@@ -56,7 +56,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Feita por você, fora do código.** Comece já: o domínio `.org.br` depende de documentos da ONG e pode levar dias.
 
-- [x] E-mail das contas: `sitesospatas@gmail.com` (08/10/2026). Verificação em duas etapas e seu e-mail pessoal como administrador no Cloudflare e no Neon feitos (informado em 14/10/2026). Falta: recuperação por `sospatas@hotmail.com` (ARQUITETURA.md, seção 10)
+- [x] E-mail das contas: `sitesospatas@gmail.com` (08/10/2026). Verificação em duas etapas e seu e-mail pessoal como administrador no Cloudflare e no Neon feitos (informado em 14/10/2026). Recuperação por `sospatas@hotmail.com` configurada (informado em 14/10/2026; ARQUITETURA.md, seção 10)
 - [x] **Registro.br:** registrar `sospatas.org.br` no CNPJ da ONG (26.515.895/0001-90; livre e com CNPJ ativo de associação privada em 08/10/2026). **08/10/2026: pedido feito, ticket 32358834, "Registro pendente", prazo para concluir até 07/11/2026**. **13/10/2026: o Registro.br pediu documentos; cartão CNPJ e estatuto enviados para `doc@registro.br`**. **14/10/2026: documentos aceitos, anuidade paga, domínio "Publicado", vence em 14/10/2027**
   - conta no Registro.br de uma pessoa física (CPF) e, a partir dela, a conta da ONG como **titular**, com a presidente ou alguém autorizado por ela de acordo
   - você como **contato técnico**, para poder mudar o DNS
