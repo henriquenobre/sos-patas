@@ -3,8 +3,11 @@ import {
   diasEsperando,
   ehAdulto,
   esperandoHaMaisTempo,
+  fimDaAdaptacao,
   idadeEmMeses,
+  idadeParaFormulario,
   nascimentoAproximado,
+  textoAdaptacao,
   textoEspera,
   textoIdade,
 } from './idade'
@@ -89,5 +92,29 @@ describe('esperandoHaMaisTempo (RN12)', () => {
     expect(esperandoHaMaisTempo({ ...adulto, status: 'adotado', data_entrada: antigo }, HOJE)).toBe(
       false,
     )
+  })
+})
+
+describe('idadeParaFormulario (T11)', () => {
+  it('a partir de 1 ano, em anos completos; antes, em meses', () => {
+    expect(idadeParaFormulario('2023-04-08', HOJE)).toEqual({ quantidade: 3, unidade: 'anos' })
+    expect(idadeParaFormulario('2026-05-08', HOJE)).toEqual({ quantidade: 5, unidade: 'meses' })
+  })
+
+  it('volta ao mesmo número informado no cadastro', () => {
+    const nascimento = nascimentoAproximado(4, 'anos', HOJE)
+    expect(idadeParaFormulario(nascimento, HOJE)).toEqual({ quantidade: 4, unidade: 'anos' })
+  })
+})
+
+describe('adaptação (RN30)', () => {
+  it('termina 15 dias depois da adoção', () => {
+    expect(fimDaAdaptacao('2026-10-01')).toBe('2026-10-16')
+  })
+
+  it('conta os dias que faltam e depois mostra "Adoção concluída"', () => {
+    expect(textoAdaptacao('2026-10-08', HOJE)).toBe('Em adaptação: faltam 15 dias')
+    expect(textoAdaptacao('2026-09-24', HOJE)).toBe('Em adaptação: falta 1 dia')
+    expect(textoAdaptacao('2026-09-23', HOJE)).toBe('Adoção concluída')
   })
 })

@@ -2,7 +2,10 @@
 import { Hono } from 'hono'
 import type { ConfigApp, Usuaria } from '../../dependencias'
 import { rotasAnimaisAdmin } from './animais'
+import { rotasConteudoAdmin } from './conteudo'
+import { rotasOngAdmin } from './ong'
 import { rotasPedidosAdmin } from './pedidos'
+import { rotasPerdidosAdmin } from './perdidos'
 import { rotasProtetoresAdmin } from './protetores'
 
 export const rotasAdmin = new Hono<ConfigApp>()
@@ -13,3 +16,6 @@ rotasAdmin.get('/eu', (c) => c.json<Usuaria>(c.var.usuaria))
 rotasAdmin.route('/', rotasAnimaisAdmin)
 rotasAdmin.route('/', rotasProtetoresAdmin)
 rotasAdmin.route('/', rotasPedidosAdmin)
+rotasAdmin.route('/', rotasPerdidosAdmin)
+rotasAdmin.route('/', rotasConteudoAdmin)
+rotasAdmin.route('/', rotasOngAdmin)

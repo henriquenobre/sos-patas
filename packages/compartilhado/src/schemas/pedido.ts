@@ -46,7 +46,7 @@ const camposFormulario = {
     .nullish()
     .transform((valor) => (valor?.length ? [...new Set(valor)] : null)),
   animais_castrados_vacinados: opcaoOuNulo(valoresDe('animais_castrados_vacinados')),
-  historico_animais: textoOuNulo(L.texto_longo),
+  historico_animais: textoObrigatorio(L.texto_longo),
   vacinar_vermifugar: escolha('vacinar_vermifugar'),
   castrar: escolha('castrar'),
   arcar_custos: escolha('arcar_custos'),

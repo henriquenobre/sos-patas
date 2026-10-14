@@ -1,9 +1,13 @@
 // Respostas das rotas da área da ONG (/api/admin, docs/ARQUITETURA.md, seção 3.2).
 import type { Alerta } from '../adocao/alertas'
+import type { ChaveTexto, NomeLista } from '../conteudo'
 import type {
   Especie,
   LarTipo,
   PedidoStatus,
+  PerdidoOrigem,
+  PerdidoStatus,
+  PerdidoTipo,
   Porte,
   RacaTipo,
   ResponsavelTipo,
@@ -12,7 +16,10 @@ import type {
   StatusAnimal,
 } from '../dominio'
 import type { RespostasAdocao } from '../schemas/pedido'
-import type { FotoPublica } from './publico'
+import type { FotoPublica, OngPublica } from './publico'
+
+/** GET /api/admin/eu: quem está logada ("Olá, Gracia" no cabeçalho, RN43). */
+export type UsuariaLogada = { id: string; nome: string; email: string }
 
 /** Resposta de criação: o id do registro novo. */
 export type Criado = { id: string }
@@ -98,6 +105,11 @@ export type AnimalAdmin = Omit<AnimalAdminResumo, 'foto' | 'pedido' | 'protetor'
    * WhatsApp de quem pediu (RN49)
    */
   pedido_aprovado: { id: string; nome: string; whatsapp: string } | null
+  /**
+   * Só de adotado: o pedido aprovado que levou à adoção, enquanto ele é guardado (90 dias depois
+   * da adoção, RN15), para abrir e imprimir o formulário
+   */
+  pedido_da_adocao: { id: string } | null
   alteracao: Alteracao
 }
 
@@ -122,6 +134,8 @@ export type AnimalDoPedidoAdmin = {
   nome: string
   especie: Especie
   sexo: Sexo
+  /** Situação do animal hoje: pedido aprovado com animal adotado = adoção concluída */
+  status: StatusAnimal
   /** URL da miniatura da foto principal */
   foto: string | null
   responsavel_tipo: ResponsavelTipo
@@ -160,3 +174,68 @@ export type PedidoDetalhe = Omit<PedidoResumo, 'quantidade_alertas'> & {
   analisado_por: string | null
   alertas: Alerta[]
 }
+
+/** Foto de um anúncio na moderação (T14). */
+export type FotoPerdidoAdmin = {
+  id: string
+  /**
+   * Pendente: caminho da rota da API que lê a quarentena (/api/admin/perdidos/:id/fotos/:fotoId,
+   * só a equipe vê, RN19). Publicado: URL pública da foto.
+   */
+  url: string
+}
+
+/** Anúncio na moderação (T14): aguardando aprovação ou no ar. */
+export type PerdidoAdmin = {
+  id: string
+  tipo: PerdidoTipo
+  especie: Especie
+  nome: string | null
+  bairro: string
+  data_ocorrido: string
+  descricao: string
+  contato_nome: string
+  contato_whatsapp: string
+  /** "site" (formulário público) ou "equipe" (T21, etapa 13) */
+  origem: PerdidoOrigem
+  status: PerdidoStatus
+  /** ISO 8601: quando o anúncio chegou */
+  created_at: string
+  /** ISO 8601; null enquanto pendente */
+  publicado_em: string | null
+  /** ISO 8601: "Sai do ar em N dias" (RN25); null enquanto pendente */
+  expira_em: string | null
+  fotos: FotoPerdidoAdmin[]
+  /** Quem aprovou, renovou ou corrigiu por último (RN43) */
+  alteracao: Alteracao
+}
+
+/** GET /api/admin/perdidos?status=pendente|publicado */
+export type ListaPerdidosAdmin = { perdidos: PerdidoAdmin[] }
+
+/** Texto único de uma página (T18–T20). */
+export type TextoAdmin = {
+  valor: string
+  /** null se o texto ainda não existe no banco (aparece vazio) */
+  alteracao: Alteracao | null
+}
+
+/** Item de uma lista (ListaEditavel e T17). */
+export type ItemAdmin = {
+  id: string
+  titulo: string | null
+  texto: string
+  /** Só na lista inicio_fotos (RN38) */
+  foto: FotoPublica | null
+  alteracao: Alteracao
+}
+
+/** GET /api/admin/conteudo: todos os textos e listas das páginas (T15–T20), sem cache. */
+export type ConteudoAdmin = {
+  textos: Record<ChaveTexto, TextoAdmin>
+  /** Na ordem definida pela equipe (RN35) */
+  listas: Record<NomeLista, ItemAdmin[]>
+}
+
+/** GET /api/admin/ong: dados de contato e PIX (T23), com "Alterado por" (RN43). */
+export type OngAdmin = OngPublica & { alteracao: Alteracao }

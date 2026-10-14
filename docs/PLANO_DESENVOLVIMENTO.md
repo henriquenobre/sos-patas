@@ -28,7 +28,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 
 | # | Etapa | Depende de | Sugestão de data | Status |
 |---|---|---|---|---|
-| 0 | Contas e serviços (manual) | – | 08–12/10 | 🔄 |
+| 0 | Contas e serviços (manual) | – | 08–12/10 | ✅ 14/10 |
 | 1 | Fundação do monorepo | – | 09–10/10 | ✅ 08/10 |
 | 2 | Banco: schema, migrations e seed | 1 | 10–11/10 | ✅ 08/10 |
 | 3 | Pacote compartilhado (zod, limites, idade) | 1 | 11/10 | ✅ 08/10 |
@@ -38,11 +38,11 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 7 | Site público: vitrine e ficha do animal | 6 | 15/10 | ✅ 08/10 |
 | 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ✅ 09/10 · ⚠️ CPU perto do teto (ver etapa 8) |
 | 9 | API da ONG: animais, fotos, adoção, protetores | 4 | 16–17/10 | ✅ 09/10 |
-| 10 | Área da ONG: estrutura e animais (T09–T11) | 9 | 17–19/10 | ⬜ |
-| 10b | Pedidos de adoção: formulário com o termo, análise e animal fora do site (RN47–RN50) | 10 | 19–20/10 | 🔄 banco, API e formulário prontos em 09/10; faltam as telas T27/T28 (com a etapa 10) |
-| 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 20–21/10 | ⬜ |
-| 12 | Editor de textos (T15–T20) | 10 | 21–23/10 | ⬜ |
-| 13 | Mais: dados da ONG, anúncio pela equipe, protetores, "Alterado por" | 11, 12 | 23–24/10 | ⬜ |
+| 10 | Área da ONG: estrutura e animais (T09–T11) | 9 | 17–19/10 | ✅ 13/10 |
+| 10b | Pedidos de adoção: formulário com o termo, análise e animal fora do site (RN47–RN50) | 10 | 19–20/10 | ✅ 13/10 |
+| 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 20–21/10 | ✅ 14/10 |
+| 12 | Editor de textos (T15–T20) | 10 | 21–23/10 | ✅ 14/10 |
+| 13 | Mais: dados da ONG, anúncio pela equipe, protetores, "Alterado por" | 11, 12 | 23–24/10 | ✅ 14/10 |
 | 14 | Produção: domínio, Access, CI/CD, backup e segurança | 8, 13 | 24–27/10 | ⬜ |
 | 15 | Dados reais, teste com a ONG e ajustes finais | 14 | 27–30/10 | ⬜ |
 
@@ -56,22 +56,22 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Feita por você, fora do código.** Comece já: o domínio `.org.br` depende de documentos da ONG e pode levar dias.
 
-- [x] E-mail das contas: `sitesospatas@gmail.com` (08/10/2026). Falta: recuperação por `sospatas@hotmail.com`, verificação em duas etapas por aplicativo e seu e-mail pessoal como administrador em cada serviço (ARQUITETURA.md, seção 10)
-- [ ] **Registro.br:** registrar `sospatas.org.br` no CNPJ da ONG (26.515.895/0001-90; livre e com CNPJ ativo de associação privada em 08/10/2026). **08/10/2026: pedido feito, ticket 32358834, "Registro pendente", prazo para concluir até 07/11/2026**
+- [x] E-mail das contas: `sitesospatas@gmail.com` (08/10/2026). Verificação em duas etapas e seu e-mail pessoal como administrador no Cloudflare e no Neon feitos (informado em 14/10/2026). Recuperação por `sospatas@hotmail.com` configurada (informado em 14/10/2026; ARQUITETURA.md, seção 10)
+- [x] **Registro.br:** registrar `sospatas.org.br` no CNPJ da ONG (26.515.895/0001-90; livre e com CNPJ ativo de associação privada em 08/10/2026). **08/10/2026: pedido feito, ticket 32358834, "Registro pendente", prazo para concluir até 07/11/2026**. **13/10/2026: o Registro.br pediu documentos; cartão CNPJ e estatuto enviados para `doc@registro.br`**. **14/10/2026: documentos aceitos, anuidade paga, domínio "Publicado", vence em 14/10/2027**
   - conta no Registro.br de uma pessoa física (CPF) e, a partir dela, a conta da ONG como **titular**, com a presidente ou alguém autorizado por ela de acordo
   - você como **contato técnico**, para poder mudar o DNS
   - pagar a anuidade (boleto, PIX ou cartão); se o Registro.br pedir documentos, enviar o cartão CNPJ e o estatuto (separar o PDF do estatuto já, para não atrasar)
   - depois de criar o site no Cloudflare, trocar os servidores DNS no Registro.br pelos 2 que o Cloudflare indicar
 - [x] **GitHub:** o site fica neste repositório, `henriquenobre/sos-patas` (decidido em 08/10/2026). Transferir para uma organização da ONG antes de deixar a manutenção (ARQUITETURA.md, seção 10)
-- [ ] **Cloudflare:** conta criada com `sitesospatas@gmail.com` (08/10/2026)
+- [x] **Cloudflare:** conta criada com `sitesospatas@gmail.com` (08/10/2026)
   - [x] verificação em duas etapas e seu e-mail pessoal como membro administrador (Manage account → Members)
   - [x] Zero Trust ativado no plano gratuito, com o nome do time `sospatas`
   - [x] R2 ativado com o cartão pessoal do mantenedor (08/10/2026); os buckets só são criados nas etapas 8 e 14
   - [x] Alerta de orçamento em US$ 1 (Billing → Budget alerts) para o Gmail do site (ARQUITETURA.md, seção 11.1) (09/10/2026)
-  - [ ] adicionar `sospatas.org.br` só depois que o Registro.br concluir o registro
-- [x] **Neon:** projeto `sospatas` em São Paulo, PostgreSQL 18, branch padrão `production` (08/10/2026). Falta: convidar seu e-mail pessoal. A prévia usa um projeto separado, `sospatas-previa` (criado em 09/10/2026, etapa 8)
+  - [x] `sospatas.org.br` adicionado (plano Free) e servidores DNS trocados no Registro.br para `jimmy.ns.cloudflare.com` e `melina.ns.cloudflare.com`: **Active em 14/10/2026**. Mantidos os registros que o Registro.br criou para domínio sem e-mail (MX nulo, `v=spf1 -all` e `_dmarc` com `p=reject`), que impedem e-mail falso em nome da ONG. Robôs de IA: busca e agentes liberados, treinamento bloqueado (ARQUITETURA.md, seção 10)
+- [x] **Neon:** projeto `sospatas` em São Paulo, PostgreSQL 18, branch padrão `production` (08/10/2026). Seu e-mail pessoal convidado (informado em 14/10/2026). A prévia usa um projeto separado, `sospatas-previa` (criado em 09/10/2026, etapa 8)
   - [x] Compute da branch `production` fixo em **0,25 CU** (mínimo e máximo), para não gastar as 100 CU-horas do mês num pico (ARQUITETURA.md, seção 11.2) (09/10/2026; o `sospatas-previa` também)
-- [ ] Lista de e-mails da equipe (Gracia, Claudia e quem mais a ONG indicar, TELAS.md pergunta 13)
+- [x] ~~Lista de e-mails da equipe~~: **passou para a etapa 15** (decidido em 14/10/2026). Os acessos são criados no treinamento com a equipe
 - [x] Ferramentas locais (08/10/2026): Node 24.21 (pelo nvm-windows), pnpm 12.10 (pelo Corepack) e Docker Desktop 29. O Wrangler é dependência do `apps/api` (etapa 1): `pnpm -C apps/api exec wrangler login` com o seu e-mail pessoal (na raiz, `pnpm wrangler` não encontra o comando)
 
 **Pronto quando:** contas criadas e acessos guardados num gerenciador de senhas; domínio pedido (pode ainda não estar ativo).
@@ -231,11 +231,15 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Pronto quando:** dá para cadastrar um animal com 3 fotos **pelo celular** (testar no aparelho, na rede local), editar, adotar e excluir, e o resultado aparece certo no site público.
 
+**Andamento (13/10/2026):** branch `etapa-10-area-ong`. Rotas `/admin/*` com `LayoutAdmin` (sessão do Access, "Olá, {nome}", abas no rodapé e no cabeçalho, aviso "Salvo e publicado ✓" com "Ver no site"), T09, T10 e T11 completos, `lib/fotos.ts` (canvas → WebP 400 e 1200 px) e `lib/fotos-animal.ts` (envio das fotos ao salvar), modais de adoção, devolução, exclusão e novo protetor; abas Perdidos, Textos e Mais com "Em breve". A área da ONG é carregada só ao abrir `/admin`. 26 testes novos do front (72 no total), com a API simulada: sessão vencida (401 e redirecionamento do Access), cadastro com 3 fotos, validação, protetor novo, edição sem mudar a data de nascimento, remover e reordenar fotos, falha nas fotos, adoção com pedido aprovado, devolução e exclusão (com falha do armazenamento). Decisões no Registro do DESENVOLVIMENTO.md (13/10/2026). **Resultado (13/10/2026):** "Pronto quando" testado pelo celular na rede local (`pnpm dev:celular`), com a API e o banco locais: cadastro com 3 fotos (redesenho em canvas no aparelho), edição, adoção, devolução e exclusão, conferidos no site público. Ajustes visuais do teste, na `develop`: select da idade alinhado ao campo (dica abaixo da linha), opções compactas que não cabem quebram para a linha de baixo (radio de "Sem informação"), selo "aguardando aprovação" sem quebra, filtro "Responsável" sem barra de rolagem (chips quebram linha), botões dos modais com margem interna e "Ver o site ↗" no cabeçalho.
+
 ## Etapa 10b · Pedidos de adoção
 
 **Objetivo:** quem quer adotar preenche o formulário e aceita o termo no site; o pedido fica salvo, o animal sai do site e a equipe avalia (RN14, RN15, RN47–RN50). Entrou no MVP em 08/10/2026; fluxo fechado com a ONG no mesmo dia.
 
-**Feito em 09/10/2026 (adiantado):** migration, pacote compartilhado (formulário 1.1, termo, alertas), API pública e da equipe, limpeza diária com o cron, telas T26 e T26b, ficha em análise, texto da Privacidade e dos passos de "Como adotar". **Falta:** telas T27 e T28 e a aba Pedidos, que dependem da estrutura da área da ONG (etapa 10), e "Marcar como adotado" com `pedido_id` (etapa 9).
+**Feito em 09/10/2026 (adiantado):** migration, pacote compartilhado (formulário 1.1, termo, alertas), API pública e da equipe, limpeza diária com o cron, telas T26 e T26b, ficha em análise, texto da Privacidade e dos passos de "Como adotar". "Marcar como adotado" com o pedido aprovado ficou resolvido na etapa 9 com `pedido_aprovado` no `GET /animais/:id` (sem `pedido_id` na rota).
+
+**Feito em 13/10/2026 (com a etapa 10):** T27 (abas Pendentes/Aprovados/Recusados, "há N dias", alertas, vermelho com mais de 3 dias), T28 (alertas, respostas por bloco e por extenso, WhatsApp com mensagem pronta, termo, observação interna, aprovar e recusar com confirmação, **imprimir o formulário preenchido**, pedido da ONG, também de animais já adotados), aba Pedidos com o número de pendentes, aba Em análise no T09 e o modal "Marcar como adotado" já preenchido. 10 testes novos do front e 1 na API (`pedido_da_adocao`). **Resultado (13/10/2026):** teste de ponta a ponta pelo celular com a API local (pedido → análise → aprovar → marcar como adotado). Ajuste do teste: botão "Conversar no WhatsApp" com margem interna e o número na segunda linha.
 
 **Entregas:**
 - Migration: valor `em_analise` no enum `status_animal` e tabela `pedidos_adocao` (com índice único parcial: um `pendente` por animal) (DESENVOLVIMENTO.md, seção 5)
@@ -263,6 +267,8 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Fora desta etapa:** anúncio criado pela equipe (T21, etapa 13).
 
+**Andamento (13/10/2026):** branch `etapa-11-perdidos`. API: `POST /api/publico/perdidos` em multipart (campo `dados` com o JSON e até 2 campos `fotos`), com Turnstile, limites da RN23, conferência dos bytes WebP e fotos gravadas na quarentena (`rotas/publico/perdidos.ts`, `servicos/perdidos.ts`); área da ONG com `GET /perdidos?status`, `POST /perdidos/:id/aprovar` (copia para o bucket público, põe no ar por 30 dias e apaga da quarentena), `POST /perdidos/:id/renovar`, `DELETE /perdidos/:id` (recusar, tirar do ar e "voltou para casa": arquivos dos dois buckets e depois o registro) e `GET /perdidos/:id/fotos/:fotoId` (lê a quarentena; `Cache-Control: private`). Tarefa diária com RN25 e RN27 (`apagarPerdidosVencidos`, arquivos por prefixo; se o armazenamento falhar, o anúncio fica para a noite seguinte). Front: T12 (`/perdidos`, filtro `?tipo=` na URL), T13 e T13b (`/perdidos/novo`, foto redesenhada só na versão de 1200 px com `prepararFotoCompleta`) e T14 (`/admin/perdidos`, abas Aguardando e No ar com contagem, modais de confirmação para apagar). 23 testes novos na API (173 no total), cobrindo todos os itens do "Pronto quando" e mais: anúncio sem foto, sem consentimento, 30 pendentes, falha do armazenamento no envio, na aprovação e ao apagar, rota da foto só com login e a rota pública que não lê a quarentena; 13 testes novos no front (86 no total). Conferido no navegador com a API e o banco locais: envio com foto real (WebP de 40 KB), foto na quarentena, aprovação, anúncio no site e tirar do ar. Decisões no Registro do DESENVOLVIMENTO.md (13/10/2026). **Resultado (14/10/2026):** na `develop` pelos PRs #11 e #12. Ajustes depois do teste: campo de data sempre em dd/mm/aaaa, com calendário no botão 📅 (o `<input type="date">` seguia o idioma do navegador), e os testes do formulário de adoção com mais folga de tempo no CI. Conferência pelo celular (foto tirada na hora pela câmera): _(a confirmar)_.
+
 ## Etapa 12 · Editor de textos
 
 **Entregas:**
@@ -275,6 +281,8 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Pronto quando:** cada texto e lista das páginas públicas pode ser alterado pelo celular e aparece no site; não é possível apagar a última pergunta nem passar de 4 números ou 8 fotos.
 
+**Andamento (14/10/2026):** branch `etapa-12-editor-textos`. API em `rotas/admin/conteudo.ts` e `servicos/conteudo.ts`: `GET /conteudo` (textos e listas com "Alterado por"), `PUT /conteudo/textos/:chave`, `POST /conteudo/itens` (JSON; na lista de fotos, multipart com `dados` + `miniatura` + `completa`), `PUT/DELETE /conteudo/itens/:id`, `POST /conteudo/itens/trocar-ordem` (`{ ids: [a, b] }`, vizinhos da mesma lista, numa transação) e `POST /conteudo/itens/:id/foto`. Mínimo e máximo conferidos com a lista travada na transação (duas pessoas adicionando ao mesmo tempo não passam de 4 números). Toda escrita apaga a cópia do `GET /site`. Front: `CampoTextoEditavel`, `ListaEditavel` e `CaixaTexto` (contador e caixa que cresce com o texto), telas T15–T20 (`pages/admin/Textos.tsx` e `ItemConteudo.tsx`), mapa das páginas em `lib/conteudo.ts`. Para o cache do navegador não esconder a alteração de quem salvou, o front guarda a hora do último salvamento e, por 15 min, pede o `/site` com `?v=` (o Cloudflare ignora a query). 22 testes novos na API (195 no total), cobrindo todos os itens do "Pronto quando" e mais: adições simultâneas, troca de ordem inválida, foto falsa, troca e exclusão de foto com o armazenamento fora do ar; 13 testes novos no front (101 no total). Conferido também no `wrangler dev` (texto, item, ordem e foto da história em multipart, com os arquivos no R2 local). **Resultado (14/10/2026):** "Pronto quando" testado pelo celular na rede local e na `develop` pelo PR #13.
+
 ## Etapa 13 · Mais: dados da ONG, anúncio pela equipe, protetores e "Alterado por"
 
 Na ordem de prioridade:
@@ -285,6 +293,8 @@ Na ordem de prioridade:
 
 **Pronto quando:** os itens entregues seguem a Definição de pronto; o que não coube fica anotado no Painel como "depois da entrega".
 
+**Andamento (14/10/2026):** branch `etapa-13-mais`, com os quatro itens. (1) `GET/PUT /ong` (`servicos/ong.ts`): salvar apaga a cópia do `GET /site` e das fichas dos animais da ONG (o WhatsApp da ONG aparece nelas); o schema `ongEntrada` ganhou o nome completo. Telas T22 e T23, com a prévia do card do PIX e o "@" fixo no Instagram (`CampoTexto` com `prefixo`). (2) `POST /perdidos` da equipe (multipart como o do site, com a autorização no lugar do Turnstile; já no ar e com as fotos no bucket público), `GET/PUT /perdidos/:id`, `POST /perdidos/:id/fotos` e `DELETE /perdidos/:id/fotos/:fotoId` (bucket do status atual; até 2 fotos, conferido com o anúncio travado). Tela T21 e, na T14, "Editar" em cada card e "＋ Novo anúncio". (3) T24 com o `ModalProtetor` para cadastrar, editar e excluir. (4) "Alterado por" na T21, T23 e T24 (`PerdidoAdmin.alteracao`); o filtro por responsável no T09 já existia desde a etapa 10. 12 testes novos na API (207 no total) e 12 no front (113 no total). Conferido também no `wrangler dev` (dados da ONG no site, anúncio da equipe com foto no ar, correção, foto nova e removida). **Resultado (14/10/2026):** na `develop` pelo PR #14. Conferência pelo celular: _(a confirmar)_.
+
 ## Etapa 14 · Produção
 
 **Objetivo:** o site no endereço definitivo, com login, deploy automático e backup.
@@ -292,19 +302,20 @@ Na ordem de prioridade:
 **Entregas:**
 - DNS de `sospatas.org.br` no Cloudflare; Pages em `sospatas.org.br`; Worker na rota `sospatas.org.br/api/*`; bucket público em `fotos.sospatas.org.br`
 - Neon `production` com migrations e `seed_conteudo.sql`; fotos da história enviadas ao R2 em `site/historia/{id}.webp` com os ids do seed (script pronto desde a etapa 6: `pnpm db:fotos-historia -- --remoto`)
-- **Cloudflare Access:** aplicação protegendo `/admin/*` e `/api/admin/*`, política com os e-mails da equipe, código por e-mail, sessão de 30 dias, página de login com logo e cores (T08); linhas em `equipe`; cookie com **`SameSite=Lax`** (camada extra contra CSRF, além do `middleware/origem.ts`) e conferir no navegador que salvar na área da ONG continua funcionando
+- **Cloudflare Access:** aplicação protegendo `/admin/*` e `/api/admin/*`, política começando só com o seu e-mail (os da equipe entram no treinamento, etapa 15), código por e-mail, sessão de 30 dias, página de login com logo e cores (T08); linhas em `equipe`; cookie com **`SameSite=Lax`** (camada extra contra CSRF, além do `middleware/origem.ts`) e conferir no navegador que salvar na área da ONG continua funcionando
 - Turnstile (site key no front, segredo na API) e Web Analytics
-- **Email Routing** em `sospatas.org.br` com `sitesospatas@gmail.com` verificado como destino; testar o "Fale com a ONG" (`/contato`, RN51) com um envio real (formulário pronto desde 09/10/2026; ARQUITETURA.md, seção 9)
+- **Email Routing** em `sospatas.org.br` com `sitesospatas@gmail.com` verificado como destino (o Cloudflare troca o MX nulo e o `v=spf1 -all` pelos dele; conferir se o `_dmarc` com `p=reject` deixa passar as mensagens do formulário); testar o "Fale com a ONG" (`/contato`, RN51) com um envio real (formulário pronto desde 09/10/2026; ARQUITETURA.md, seção 9)
 - `deploy.yml` (migrations → `wrangler deploy` → Pages) e `backup.yml` (dump diário → `sospatas-backups`, 30 dias)
 - `apps/web/public/_headers` com CSP e cabeçalhos de segurança (ARQUITETURA.md, seção 9)
 - Usuário do banco só com DML para a API e outro para migrations (ARQUITETURA.md, seção 5)
 - **Teste de restauração** do backup num banco vazio, documentado no README
 
-**Pronto quando:** login funciona com um e-mail da equipe e é recusado para um e-mail de fora; um merge na `main` publica sozinho; existe ao menos um backup restaurado com sucesso; uma mensagem do "Fale com a ONG" chega no Gmail da ONG e a resposta volta para quem escreveu.
+**Pronto quando:** login funciona com o seu e-mail e é recusado para um e-mail de fora; um merge na `main` publica sozinho; existe ao menos um backup restaurado com sucesso; uma mensagem do "Fale com a ONG" chega no Gmail da ONG e a resposta volta para quem escreveu.
 
 ## Etapa 15 · Dados reais, teste com a ONG e ajustes finais
 
 **Entregas:**
+- **Treinamento com a equipe e criação dos acessos** (decidido em 14/10/2026): no encontro, pegar o e-mail de cada pessoa (Gracia, Claudia e quem a ONG indicar, TELAS.md pergunta 13), incluir na política do Access e na tabela `equipe`, e cada uma faz o primeiro login no próprio celular
 - Conferir que a produção não tem dados de exemplo (só o `seed_conteudo.sql` vai para lá); Gracia ou Claudia cadastram os primeiros animais reais pelo celular (tarefa 7 do roteiro)
 - Revisão em 360 px de todas as telas, acessibilidade básica (contraste, `alt`, toque ≥ 44 px), Lighthouse do Início e da vitrine
 - Correções do teste com a ONG, registradas em TELAS.md ("Registro da validação")

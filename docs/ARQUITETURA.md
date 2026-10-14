@@ -31,20 +31,20 @@
    GitHub Actions: testes, migrations, deploy e backup diário do banco → R2
 ```
 
-| Camada | Serviço | Plano | Por quê |
-|---|---|---|---|
-| Front | **Cloudflare Pages** (React + Vite) | Grátis, banda ilimitada | Site estático; servidores no Brasil |
-| API | **Cloudflare Workers** + **Hono** | Grátis: 100 mil req/dia, 10 ms de CPU por requisição | Não "dorme"; responde do Brasil; Hono roda igual em Node (portável) |
-| Banco | **Neon** (PostgreSQL 18, São Paulo) | Grátis: 0,5 GB por projeto | Postgres padrão (portável); sem pausa de projeto |
-| Ligação API ↔ banco | **Cloudflare Hyperdrive** | Grátis: 100 mil consultas/dia | Pool de conexões e cache de leitura; Workers não mantêm conexão aberta |
-| Fotos | **Cloudflare R2** | Grátis: 10 GB, **tráfego de saída grátis** | O tráfego das fotos era o limite mais apertado (Supabase: 5 GB/mês) |
-| Login da equipe | **Cloudflare Access** (Zero Trust) | Grátis até 50 usuários | Sem senha para guardar (ver seção 4); cabe no limite de CPU |
-| Antirrobô | **Cloudflare Turnstile** | Grátis | Formulários públicos (RN22) |
-| E-mail do "Fale com a ONG" | **Cloudflare Email Routing** (binding `send_email`) | Grátis | Entrega a mensagem do formulário no Gmail da ONG (RN51); exige o domínio no Cloudflare |
-| Tarefas agendadas | **Workers Cron Triggers** | Grátis: 5 por conta | Limpezas diárias (RN25, RN27, RN15) |
-| Domínio | **Registro.br** (`sospatas.org.br`) | R$ 40/ano | Registrado no CNPJ da ONG |
-| Código, CI/CD e backup | **GitHub** + **GitHub Actions** | Grátis | Testes, deploy, migrations e backup |
-| Estatísticas | **Cloudflare Web Analytics** | Grátis, sem cookies | Indicador de acessos (tarefa 12) |
+| Camada                     | Serviço                                                    | Plano                                                   | Por quê                                                                                 |
+| -------------------------- | ----------------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Front                      | **Cloudflare Pages** (React + Vite)                   | Grátis, banda ilimitada                                | Site estático; servidores no Brasil                                                     |
+| API                        | **Cloudflare Workers** + **Hono**               | Grátis: 100 mil req/dia, 10 ms de CPU por requisição | Não "dorme"; responde do Brasil; Hono roda igual em Node (portável)                    |
+| Banco                      | **Neon** (PostgreSQL 18, São Paulo)                  | Grátis: 0,5 GB por projeto                             | Postgres padrão (portável); sem pausa de projeto                                       |
+| Ligação API ↔ banco     | **Cloudflare Hyperdrive**                             | Grátis: 100 mil consultas/dia                          | Pool de conexões e cache de leitura; Workers não mantêm conexão aberta               |
+| Fotos                      | **Cloudflare R2**                                     | Grátis: 10 GB,**tráfego de saída grátis**     | O tráfego das fotos era o limite mais apertado (Supabase: 5 GB/mês)                    |
+| Login da equipe            | **Cloudflare Access** (Zero Trust)                    | Grátis até 50 usuários                               | Sem senha para guardar (ver seção 4); cabe no limite de CPU                            |
+| Antirrobô                 | **Cloudflare Turnstile**                              | Grátis                                                 | Formulários públicos (RN22)                                                            |
+| E-mail do "Fale com a ONG" | **Cloudflare Email Routing** (binding `send_email`) | Grátis                                                 | Entrega a mensagem do formulário no Gmail da ONG (RN51); exige o domínio no Cloudflare |
+| Tarefas agendadas          | **Workers Cron Triggers**                             | Grátis: 5 por conta                                    | Limpezas diárias (RN25, RN27, RN15)                                                     |
+| Domínio                   | **Registro.br** (`sospatas.org.br`)                 | R$ 40/ano                                               | Registrado no CNPJ da ONG                                                                |
+| Código, CI/CD e backup    | **GitHub** + **GitHub Actions**                 | Grátis                                                 | Testes, deploy, migrations e backup                                                      |
+| Estatísticas              | **Cloudflare Web Analytics**                          | Grátis, sem cookies                                    | Indicador de acessos (tarefa 12)                                                         |
 
 **Custo total: R$ 0/mês + R$ 40/ano.**
 
@@ -57,14 +57,23 @@ sos-patas/
 │   │   ├── public/              # logo.png, favicon, _headers (segurança), _redirects (/sobre → /ajude)
 │   │   └── src/
 │   │       ├── rotas.tsx        # rotas do site (docs/DESENVOLVIMENTO.md, seção 4)
-│   │       ├── layouts/         # LayoutPublico, Cabecalho (menu do celular), Rodape (contatos e PIX)
-│   │       ├── pages/           # públicas (T01–T07, T12, T13, T26, T29 Contato) e admin (T08–T28); Avisos (404, Em breve)
-│   │       ├── components/      # CardAnimal, FotoAnimal, Pata, Chapeu, TextoSimples, BlocoPix, Estados, Campos, Turnstile…
-│   │       │   └── admin/       # BarraAdmin, ListaEditavel, CampoTextoEditavel (RN33)
-│   │       ├── api/             # cliente HTTP + hooks TanStack Query (publico.ts: useSite, useDestaques, useVitrine)
+│   │       ├── layouts/         # LayoutPublico, Cabecalho (menu do celular), Rodape (contatos e PIX);
+│   │       │                    #   LayoutAdmin (sessão do Access, "Olá, {nome}", abas, aviso "Salvo ✓")
+│   │       ├── pages/           # públicas (T01–T07, T12, T13, T26, T29 Contato); Avisos (404, Em breve)
+│   │       │   └── admin/       # área da ONG: Painel (T09), FormularioAnimal (T10, T11), Pedidos (T27),
+│   │       │                    #   Pedido (T28), PerdidosAdmin (T14), Textos (T15, T16, T18–T20),
+│   │       │                    #   ItemConteudo (T17), AnuncioEquipe (T21), Mais (T22–T24), EmBreveAdmin (404);
+│   │       │                    #   carregadas só ao abrir /admin
+│   │       ├── components/      # CardAnimal, FotoAnimal, Pata, Chapeu, TextoSimples, BlocoPix, Estados, Campos,
+│   │       │   │                #   Modal, Turnstile…
+│   │       │   └── admin/       # Navegacao (CabecalhoAdmin, BarraAdmin, BarraSalvar, AlteradoPor), FotosAnimal,
+│   │       │                    #   ModalAdocao, ModalProtetor; ListaEditavel, CampoTextoEditavel e CaixaTexto
+│   │       ├── api/             # cliente HTTP + hooks TanStack Query (publico.ts: useSite, useDestaques, useVitrine;
+│   │       │                    #   admin.ts: useEu, useResumo, useAnimaisAdmin, usePedidos…)
 │   │       ├── lib/             # pix.ts, animal.ts, contato.ts (link mailto), filtros.ts (filtros da vitrine na URL);
-│   │       │                    #   fotos.ts (canvas, RN02/RN20, etapa 10)
-│   │       └── testes/          # renderizar.tsx: rotas reais com a API simulada
+│   │       │                    #   fotos.ts (canvas, RN02/RN20), fotos-animal.ts (envio das fotos ao salvar),
+│   │       │                    #   pedidos.ts (datas dos pedidos), conteudo.ts (páginas editáveis em Textos)
+│   │       └── testes/          # renderizar.tsx: rotas reais com a API simulada; admin.ts: dados da área da ONG
 │   └── api/                     # API: Hono + TypeScript
 │       ├── src/
 │       │   ├── app.ts           # criarApp(dependencias): rotas, erros, CORS, login
@@ -74,22 +83,25 @@ sos-patas/
 │       │   ├── db.ts            # conexão postgres.js + Drizzle (Hyperdrive)
 │       │   ├── erros.ts · validacao.ts · cache.ts
 │       │   ├── rotas/
-│       │   │   ├── publico/     # site, animais, perdidos (GET); envios: pedidos.ts, contato.ts (RN51), anúncio (etapa 11)
-│       │   │   └── admin/       # tudo da área da ONG: animais.ts (com resumo e fotos), protetores.ts, pedidos.ts
+│       │   │   ├── publico/     # site, animais, perdidos (GET); envios: pedidos.ts, contato.ts (RN51), perdidos.ts (anúncio, multipart)
+│       │   │   └── admin/       # tudo da área da ONG: animais.ts (com resumo e fotos), protetores.ts, pedidos.ts, perdidos.ts,
+│       │   │                    #   conteudo.ts (textos e listas das páginas), ong.ts (dados da ONG)
 │       │   ├── servicos/        # regras de negócio: publico.ts, pedidos.ts (RN47–RN50), contato.ts e email.ts (RN51),
 │       │   │                    #   seguranca.ts (Turnstile, hash do IP), equipe.ts, fotos.ts (URLs),
 │       │   │                    #   animais.ts (excluirAnimal RN05, marcarAdotado RN07, devolver RN30),
-│       │   │                    #   fotos-animal.ts (enviar, trocarFoto, remover, reordenar), protetores.ts (RN42); aprovarPerdido… (etapa 11)
+│       │   │                    #   fotos-animal.ts (enviar, trocarFoto, remover, reordenar), protetores.ts (RN42),
+│       │   │                    #   perdidos.ts (envio, aprovar, renovar, apagar, limpeza RN25/RN27),
+│       │   │                    #   conteudo.ts (textos, itens, trocar ordem RN35, fotos da história RN38), ong.ts
 │       │   ├── middleware/      # access.ts (login: JWT do Access + equipe), conexoes.ts (banco por requisição)
 │       │   ├── armazenamento/   # interface Armazenamento, R2, memória (testes), webp.ts (RN21)
 │       │   ├── email/           # cloudflare.ts: envio pelo Email Routing (só no Workers)
 │       │   ├── testes/          # apoio aos testes: banco de teste, Access falso
-│       │   └── tarefas/         # limpeza.ts: tarefa diária do Cron (RN15 pronta; RN25, RN27 na etapa 11)
+│       │   └── tarefas/         # limpeza.ts: tarefa diária do Cron (RN15, RN25, RN27, RN51)
 │       ├── wrangler.toml        # bindings: HYPERDRIVE, FOTOS, QUARENTENA, EMAIL (só produção), cron; [env.previa]
 │       └── .dev.vars.example    # variáveis locais (copiar para .dev.vars, fora do Git)
 ├── packages/
 │   └── compartilhado/           # enums, limites, config. de textos/listas (lidos também pelo banco), schemas zod,
-│                                #   adocao/ (formulário 1.1, termo, alertas), api/ (tipos das respostas),
+│                                #   adocao/ (formulário 1.2, termo, alertas), api/ (tipos das respostas),
 │                                #   idade (RN11–RN13), datas no fuso de Brasília, WhatsApp
 ├── db/                          # pacote @sospatas/db
 │   ├── schema.ts                # schema Drizzle (fonte dos tipos)
@@ -121,6 +133,7 @@ sos-patas/
 **Base:** mesmo domínio do site, `https://sospatas.org.br/api/...` (rota do Worker na zona). Mesma origem = sem CORS em produção. Antes do domínio próprio: `*.pages.dev` + `*.workers.dev` com CORS restrito à origem do Pages.
 
 **Padrões:**
+
 - JSON; datas em ISO 8601; IDs `uuid`.
 - Entrada validada com os schemas zod de `packages/compartilhado` (os mesmos do formulário no front).
 - Erros: `{ "erro": "codigo_curto", "mensagem": "texto para a tela" }` com status HTTP adequado (400 validação, 401/403 acesso, 404, 409 conflito como protetor com animais, 429 limite, 503 quando o armazenamento de fotos falha e nada foi alterado). Em erro de validação, também `"campos": { "nome": "Preencha este campo" }`, para o formulário mostrar a mensagem embaixo de cada campo. Erro inesperado: 500 com mensagem genérica; o detalhe só vai para o log (`apps/api/src/erros.ts`).
@@ -130,35 +143,35 @@ sos-patas/
 
 ### 3.1 Rotas públicas (`/api/publico`)
 
-| Método e rota | Função | Regras |
-|---|---|---|
-| `GET /site` | Dados da ONG + todos os textos e itens de conteúdo, numa chamada e **numa consulta** ao banco | RN33 |
-| `GET /animais?especie&porte&idade&convive` | Vitrine: só `disponivel`, mais antigos primeiro, **sem** `animais_privado`. Um valor por filtro: `especie=cao\|gato`, `porte=mini…gigante`, `idade=filhote\|adulto`, `convive=sim`; vazio = desligado; valor inválido = 400 | RN10, RN11 |
-| `GET /animais/destaques` | "Esperando há mais tempo" | RN12 |
-| `GET /animais/:id` | Ficha (disponível ou adotado, sem dados privados) | RN31 |
-| `GET /perdidos?tipo` | Só anúncios `publicado` e não expirados, mais recentes primeiro; `tipo=perdido\|encontrado` | RN18, RN25 |
-| `GET /fotos/*` | Foto do bucket **público** (`animais/`, `site/`, `perdidos/`), com cache de 1 ano. Usada quando não há domínio de fotos (computador e prévia). Nunca lê a quarentena | RN19 |
-| `POST /perdidos` | Envio público: Turnstile, limites, até 2 fotos WebP ≤ 500 KB → `pendente` + fotos na **quarentena** | RN19–RN23 |
-| `POST /animais/:id/pedidos` | Formulário de adoção: Turnstile, limites (2/dia por IP, 1 pendente por WhatsApp), validação pelo schema da versão do formulário. Numa transação: grava o pedido e passa o animal para `em_analise` (409 se ele não estiver mais disponível). Depois, limpa o cache da vitrine, dos destaques e da ficha | RN14, RN15, RN47, RN48, RN50 |
-| `POST /contato` | Formulário "Fale com a ONG": Turnstile, validação, limite de 3 por dia por IP (`contato_envios`, só o hash). Envia o e-mail para a ONG com `Reply-To` de quem escreveu; **não grava a mensagem**. 503 `email_indisponivel` se o envio falhar | RN51 |
+| Método e rota                               | Função                                                                                                                                                                                                                                                                                                            | Regras                       |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `GET /site`                                | Dados da ONG + todos os textos e itens de conteúdo, numa chamada e**numa consulta** ao banco                                                                                                                                                                                                                 | RN33                         |
+| `GET /animais?especie&porte&idade&convive` | Vitrine: só`disponivel`, mais antigos primeiro, **sem** `animais_privado`. Um valor por filtro: `especie=cao\|gato`, `porte=mini…gigante`, `idade=filhote\|adulto`, `convive=sim`; vazio = desligado; valor inválido = 400                                                                       | RN10, RN11                   |
+| `GET /animais/destaques`                   | "Esperando há mais tempo"                                                                                                                                                                                                                                                                                          | RN12                         |
+| `GET /animais/:id`                         | Ficha (disponível ou adotado, sem dados privados)                                                                                                                                                                                                                                                                  | RN31                         |
+| `GET /perdidos?tipo`                       | Só anúncios`publicado` e não expirados, mais recentes primeiro; `tipo=perdido\|encontrado`                                                                                                                                                                                                                    | RN18, RN25                   |
+| `GET /fotos/*`                             | Foto do bucket**público** (`animais/`, `site/`, `perdidos/`), com cache de 1 ano. Usada quando não há domínio de fotos (computador e prévia). Nunca lê a quarentena                                                                                                                               | RN19                         |
+| `POST /perdidos`                           | Envio público: Turnstile, limites, até 2 fotos WebP ≤ 500 KB →`pendente` + fotos na **quarentena**                                                                                                                                                                                                      | RN19–RN23                   |
+| `POST /animais/:id/pedidos`                | Formulário de adoção: Turnstile, limites (2/dia por IP, 1 pendente por WhatsApp), validação pelo schema da versão do formulário. Numa transação: grava o pedido e passa o animal para`em_analise` (409 se ele não estiver mais disponível). Depois, limpa o cache da vitrine, dos destaques e da ficha | RN14, RN15, RN47, RN48, RN50 |
+| `POST /contato`                            | Formulário "Fale com a ONG": Turnstile, validação, limite de 3 por dia por IP (`contato_envios`, só o hash). Envia o e-mail para a ONG com `Reply-To` de quem escreveu; **não grava a mensagem**. 503 `email_indisponivel` se o envio falhar                                                       | RN51                         |
 
 **Respostas:** tipos em `packages/compartilhado/src/api/publico.ts` (`SitePublico`, `ListaAnimais`, `AnimalFicha`, `ListaPerdidos`), usados pela API e pelo front. As fotos vêm como URL pronta. A idade é calculada no front com `textoIdade` (as datas vêm cruas). O cache usa como chave o caminho com os filtros válidos em ordem fixa: parâmetros extras não criam cópias novas nem acordam o banco.
 
 ### 3.2 Rotas da área da ONG (`/api/admin`, exigem Cloudflare Access)
 
-| Recurso | Rotas | Regras |
-|---|---|---|
-| Sessão | `GET /eu` (nome da usuária) | RN43 |
-| Resumo | `GET /resumo` (disponíveis, adultos +90 dias, adotados no mês, perdidos pendentes, pedidos pendentes) | T09 |
-| Animais | `GET /animais?status&responsavel&busca` (`status` padrão `disponivel`; `responsavel` = `ong`, `protetor` ou o id de um protetor; `busca` = parte do nome) · `POST /animais` · `GET/PUT/DELETE /animais/:id`. O `GET` traz o bloco privado, as fotos com id e posição, "Alterado por" e, se houver pedido aprovado, quem pediu (`pedido_aprovado`), para preencher o "Marcar como adotado". Excluir apaga os arquivos antes do registro; se o armazenamento falhar, 503 e nada é excluído | RN05, RN09, RN43 |
-| Adoção | `POST /animais/:id/adocao` (nome e WhatsApp do adotante; 409 se houver pedido aguardando análise) · `POST /animais/:id/devolucao` (adotado: volta sem os dados do adotante; em análise com pedido aprovado: o pedido vira `nao_concluido`) | RN07, RN08, RN30, RN49 |
-| Fotos do animal | `POST /animais/:id/fotos` (multipart `miniatura` + `completa`, próxima posição livre) · `PUT /animais/:id/fotos/:fotoId` (trocar a foto, mesma posição) · `DELETE /animais/:id/fotos/:fotoId` (as seguintes sobem uma posição) · `PUT /animais/:id/fotos/ordem` (`{ fotos: [ids] }`, todas as fotos atuais) | RN01–RN06 |
-| Protetores | `GET/POST /protetores` (com quantos animais cada um tem) · `PUT/DELETE /protetores/:id` (409 se houver animais) | RN42 |
-| Perdidos | `GET /perdidos?status` · `POST /perdidos` (equipe) · `PUT /perdidos/:id` · `POST /perdidos/:id/aprovar` · `POST /perdidos/:id/renovar` · `DELETE /perdidos/:id` · `GET /perdidos/:id/fotos/:fotoId` (lê a quarentena) | RN18, RN25, RN26, RN39–RN41 |
-| Textos | `GET /conteudo` · `PUT /conteudo/textos/:chave` | RN33, RN34, RN37 |
-| Itens de lista | `POST /conteudo/itens` · `PUT/DELETE /conteudo/itens/:id` · `POST /conteudo/itens/trocar-ordem` · `POST /conteudo/itens/:id/foto` | RN35, RN36, RN38 |
-| Dados da ONG | `GET/PUT /ong` | T23 |
-| Pedidos de adoção | `GET /pedidos?status` · `GET /pedidos/:id` (com os alertas calculados) · `PUT /pedidos/:id/observacao` · `POST /pedidos/:id/aprovar` · `POST /pedidos/:id/recusar` (animal volta a `disponivel`). "Marcar como adotado" abre com o nome e o WhatsApp de quem pediu, que vêm em `pedido_aprovado` no `GET /animais/:id` | RN48, RN49 |
+| Recurso             | Rotas                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Regras                       |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| Sessão             | `GET /eu` (nome da usuária)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | RN43                         |
+| Resumo              | `GET /resumo` (disponíveis, adultos +90 dias, adotados no mês, perdidos pendentes, pedidos pendentes)                                                                                                                                                                                                                                                                                                                                                                                                             | T09                          |
+| Animais             | `GET /animais?status&responsavel&busca` (`status` padrão `disponivel`; `responsavel` = `ong`, `protetor` ou o id de um protetor; `busca` = parte do nome) · `POST /animais` · `GET/PUT/DELETE /animais/:id`. O `GET` traz o bloco privado, as fotos com id e posição, "Alterado por" e, se houver pedido aprovado, quem pediu (`pedido_aprovado`), para preencher o "Marcar como adotado"; no animal adotado, o pedido da adoção (`pedido_da_adocao`), para abrir e imprimir o formulário enquanto ele é guardado (RN15). Excluir apaga os arquivos antes do registro; se o armazenamento falhar, 503 e nada é excluído | RN05, RN09, RN43             |
+| Adoção            | `POST /animais/:id/adocao` (nome e WhatsApp do adotante; 409 se houver pedido aguardando análise) · `POST /animais/:id/devolucao` (adotado: volta sem os dados do adotante; em análise com pedido aprovado: o pedido vira `nao_concluido`)                                                                                                                                                                                                                                                                   | RN07, RN08, RN30, RN49       |
+| Fotos do animal     | `POST /animais/:id/fotos` (multipart `miniatura` + `completa`, próxima posição livre) · `PUT /animais/:id/fotos/:fotoId` (trocar a foto, mesma posição) · `DELETE /animais/:id/fotos/:fotoId` (as seguintes sobem uma posição) · `PUT /animais/:id/fotos/ordem` (`{ fotos: [ids] }`, todas as fotos atuais)                                                                                                                                                                                   | RN01–RN06                   |
+| Protetores          | `GET/POST /protetores` (com quantos animais cada um tem) · `PUT/DELETE /protetores/:id` (409 se houver animais)                                                                                                                                                                                                                                                                                                                                                                                                  | RN42                         |
+| Perdidos            | `GET /perdidos?status` · `POST /perdidos` (equipe: multipart `dados` + até 2 `fotos`, já no ar, RN39) · `GET/PUT /perdidos/:id` (corrigir, RN40) · `POST /perdidos/:id/fotos` (multipart `foto`, bucket do status atual) · `DELETE /perdidos/:id/fotos/:fotoId` · `POST /perdidos/:id/aprovar` · `POST /perdidos/:id/renovar` · `DELETE /perdidos/:id` · `GET /perdidos/:id/fotos/:fotoId` (lê a quarentena)                                                                                                                                                                                                                                                                            | RN18, RN25, RN26, RN39–RN41 |
+| Textos              | `GET /conteudo` · `PUT /conteudo/textos/:chave`                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | RN33, RN34, RN37             |
+| Itens de lista      | `POST /conteudo/itens` (JSON `{ lista, titulo, texto }`; na lista `inicio_fotos`, multipart com `dados` + `miniatura` + `completa`; 409 no máximo) · `PUT/DELETE /conteudo/itens/:id` (409 no último item de lista com mínimo) · `POST /conteudo/itens/trocar-ordem` (`{ ids: [a, b] }`, vizinhos da mesma lista) · `POST /conteudo/itens/:id/foto` (troca a foto da história)                                                                                                                                                                                                                                                                                                                                                                          | RN35, RN36, RN38             |
+| Dados da ONG        | `GET/PUT /ong`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | T23                          |
+| Pedidos de adoção | `GET /pedidos?status` · `GET /pedidos/:id` (com os alertas calculados) · `PUT /pedidos/:id/observacao` · `POST /pedidos/:id/aprovar` · `POST /pedidos/:id/recusar` (animal volta a `disponivel`). "Marcar como adotado" abre com o nome e o WhatsApp de quem pediu, que vêm em `pedido_aprovado` no `GET /animais/:id`                                                                                                                                                                           | RN48, RN49                   |
 
 **Gravação de `updated_at` / `updated_by` (RN43):** a API preenche os dois em toda escrita, a partir da usuária identificada pelo Access. Operações com mais de um passo no banco (trocar ordem, aprovar anúncio, adoção) rodam em **transação**. Mudanças nas fotos também gravam quem alterou o animal.
 
@@ -169,12 +182,14 @@ sos-patas/
 **Por que não e-mail + senha próprios:** guardar senha com segurança exige um hash lento (PBKDF2/bcrypt/argon2, centenas de milissegundos), e o Workers gratuito só permite **10 ms de CPU por requisição**. As alternativas eram pagar o Workers (US$ 5/mês) ou um serviço de login de terceiros. O Access resolve sem custo e sem senha para vazar.
 
 **Como funciona:**
+
 1. Quem abre `/admin` (front) ou chama `/api/admin/*` passa antes pelo **Access**, na borda do Cloudflare.
 2. A tela de login (marca da SOS Patas: logo e cores) pede o **e-mail** e envia um **código de 6 dígitos** para ele. Opcional: botão "Entrar com Google" para quem usa Gmail.
 3. Só e-mails da **política do Access** (lista da equipe) conseguem entrar. Sessão de **30 dias** no celular: na prática, a voluntária quase nunca precisa digitar o código.
 4. O Access envia à API o cabeçalho `Cf-Access-Jwt-Assertion`. O middleware `access.ts` **valida a assinatura do JWT** (biblioteca `jose`, chaves públicas do time em `ACCESS_TEAM_DOMAIN/cdn-cgi/access/certs`, conferência de emissor, `aud` e validade), pega o e-mail e confere se ele existe e está ativo na tabela `equipe` (segunda barreira). Sem token ou token inválido: 401; e-mail fora da equipe ou desativado: 403.
    - **Modo local:** com `AMBIENTE=local` e `ACESSO_LOCAL_EMAIL` no `.dev.vars`, a API trata a requisição como vinda desse e-mail, sem Access (no computador, `teste@sospatas.local`, do `seed_dev.sql`). Em qualquer outro ambiente, ter `ACESSO_LOCAL_EMAIL` configurado faz a API recusar a requisição (500), para nunca liberar a área da ONG sem login.
 5. "Sair" chama `/cdn-cgi/access/logout`.
+6. **Sessão vencida no meio do uso** (implementado na etapa 10): o Access responde às chamadas de `/api/admin` com um redirecionamento para a página de login, em outro domínio, que o `fetch` não consegue seguir. O front faz essas chamadas com `redirect: 'manual'` (`chamarAdmin`, em `apps/web/src/api/cliente.ts`) e trata o redirecionamento como 401. Qualquer 401 troca a tela por "Sua sessão terminou" com o botão **"Entrar de novo"**, que recarrega a página e passa pelo login do Access. E-mail fora da equipe (403) vê "Sem acesso".
 
 **Gestão de contas:** incluir ou remover alguém = adicionar ou tirar o e-mail na política do Access **e** na tabela `equipe` (feito por quem mantém o site, como antes). Todas com as mesmas permissões.
 
@@ -185,7 +200,7 @@ sos-patas/
 - **Neon**, projeto `sospatas` (criado em 08/10/2026), região **AWS South America East 1 (São Paulo)**, **PostgreSQL 18**, plano gratuito, compute fixo em 0,25 CU (09/10/2026). Branch padrão **`production`** = produção; outras branches do Neon para testar migrations. A **prévia** fica num projeto separado, **`sospatas-previa`** (criado em 09/10/2026, mesma região e versão, 0,25 CU), porque as 100 CU-horas do plano gratuito são por projeto (seção 11.2): uso na prévia não consome a cota da produção. O Postgres local (Docker) usa a mesma versão. **Neon Auth / Better Auth não é usado** (o login é pelo Access, seção 4).
 - **Migrations:** `db/schema.ts` (Drizzle) → `pnpm db:gerar` (`drizzle-kit generate`) gera SQL em `db/migrations/` (revisado e versionado) → `pnpm db:migrate` aplica (no deploy, com a `DATABASE_URL` do Neon). O que o Drizzle não gera (ex.: `UNIQUE … DEFERRABLE`) vai numa migration manual (`drizzle-kit generate --custom`). Nunca alterar o banco de produção à mão.
 - **Seed:** `pnpm db:seed` aplica `db/seed/seed_conteudo.sql` e, só no banco local, `seed_dev.sql` (dados de exemplo). Em produção: `pnpm db:seed --conteudo`. O conteúdo inicial não sobrescreve o que a equipe já editou.
-- **Testes do banco** (`db/testes/`) recriam o banco `sospatas_teste` com as migrations e conferem o seed e as constraints. No CI, um serviço Postgres 18 faz esse papel.
+- **Testes do banco** (`db/testes/`) recriam o banco `sospatas_teste` com as migrations e conferem o seed e as constraints. No CI, um serviço Postgres 18 faz esse papel, com a imagem oficial baixada do espelho da AWS (`public.ecr.aws/docker/library/postgres:18`), porque o Docker Hub limita downloads anônimos.
 - **Constraints no banco** além da API: `CHECK (char_length(...))` dos limites de texto (RN34), `CHECK` de `protetor_id` × `responsavel_tipo` (RN42), FK `restrict` de protetores, `CHECK (id = 1)` em `ong` e as demais de "Limites e garantias no banco" (DESENVOLVIMENTO.md, seção 5).
 - **Conexão na API:** `apps/api/src/db.ts` cria o cliente postgres.js + Drizzle a partir de `env.HYPERDRIVE.connectionString`, um por requisição.
 - **Usuário do banco** da API com privilégios só de DML nas tabelas do app (sem DDL); outro usuário, só no CI, para migrations.
@@ -194,11 +209,11 @@ sos-patas/
 
 ## 6. Fotos (R2)
 
-| Bucket | Acesso | Conteúdo |
-|---|---|---|
-| `sospatas-fotos` | **Público** pelo domínio `fotos.sospatas.org.br` (com cache do Cloudflare) | `animais/{animal_id}/{foto_id}.webp` e `-thumb.webp` (RN04) · `site/historia/{id}.webp` (RN38) · `perdidos/{perdido_id}/{id}.webp` (anúncios aprovados) |
-| `sospatas-quarentena` | **Privado**: só a API lê e grava (rota admin que transmite o arquivo para a equipe) | `perdidos/{perdido_id}/{id}.webp` enquanto `pendente` (RN19) |
-| `sospatas-backups` | **Privado** | Dumps diários do banco (seção 8) |
+| Bucket                  | Acesso                                                                                      | Conteúdo                                                                                                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `sospatas-fotos`      | **Público** pelo domínio `fotos.sospatas.org.br` (com cache do Cloudflare)        | `animais/{animal_id}/{foto_id}.webp` e `-thumb.webp` (RN04) · `site/historia/{id}.webp` (RN38) · `perdidos/{perdido_id}/{id}.webp` (anúncios aprovados) |
+| `sospatas-quarentena` | **Privado**: só a API lê e grava (rota admin que transmite o arquivo para a equipe) | `perdidos/{perdido_id}/{id}.webp` enquanto `pendente` (RN19)                                                                                                   |
+| `sospatas-backups`    | **Privado**                                                                           | Dumps diários do banco (seção 8)                                                                                                                                |
 
 Na prévia, `sospatas-fotos-previa` e `sospatas-quarentena-previa` (criados em 09/10/2026), ambos privados: a API serve as fotos em `/api/publico/fotos/*`. Local dos buckets: **`enam`** (leste da América do Norte), o mais próximo do Brasil, já que o R2 não tem região na América do Sul; o cache do Cloudflare entrega as fotos a partir de São Paulo.
 
@@ -212,12 +227,12 @@ Na prévia, `sospatas-fotos-previa` e `sospatas-quarentena-previa` (criados em 0
 
 Um cron diário (03:00, horário de Brasília = `0 6 * * *` UTC; `[triggers]` no `wrangler.toml`, configurado desde 09/10/2026) chama `scheduled()` em `apps/api/src/index.ts`, que executa `tarefas/limpeza.ts`:
 
-| Tarefa | Regra |
-|---|---|
-| Apagar anúncios `publicado` com `expira_em` vencido (arquivos + registro) | RN25 |
-| Apagar anúncios `pendente` há mais de 7 dias (arquivos da quarentena + registro) | RN27 |
-| Apagar pedidos de adoção recusados ou não concluídos há mais de 90 dias, e aprovados 90 dias depois da adoção | RN15 |
-| Apagar o registro de envios do "Fale com a ONG" com mais de 1 dia (`contato_envios`) | RN51 |
+| Tarefa                                                                                                               | Regra |
+| -------------------------------------------------------------------------------------------------------------------- | ----- |
+| Apagar anúncios`publicado` com `expira_em` vencido (arquivos + registro)                                        | RN25  |
+| Apagar anúncios`pendente` há mais de 7 dias (arquivos da quarentena + registro)                                  | RN27  |
+| Apagar pedidos de adoção recusados ou não concluídos há mais de 90 dias, e aprovados 90 dias depois da adoção | RN15  |
+| Apagar o registro de envios do "Fale com a ONG" com mais de 1 dia (`contato_envios`)                               | RN51  |
 
 O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa projetos gratuitos.
 
@@ -230,32 +245,34 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 
 ## 9. Ambientes, deploy e segredos
 
-| Ambiente | Front | API | Banco | Fotos |
-|---|---|---|---|---|
-| **Local** | `pnpm dev` (Vite, porta 5173) | `wrangler dev` (porta 8787, com proxy de `/api` no Vite) | Postgres 18 no `docker-compose` (`sospatas` e `sospatas_teste`) | R2 simulado localmente pelo Wrangler |
-| **Prévia** | Pages, branch `develop` | Worker `sospatas-api-previa` (`--env previa`, `*.workers.dev`), Hyperdrive `sospatas-previa` | Projeto do Neon `sospatas-previa`, marcado com `COMMENT ON DATABASE` para aceitar os dados de exemplo (`--previa`) | Buckets `-previa` |
-| **Produção** | `sospatas.org.br` | `sospatas.org.br/api` | Neon `production` | `fotos.sospatas.org.br` |
+| Ambiente             | Front                           | API                                                                                                 | Banco                                                                                                                   | Fotos                                |
+| -------------------- | ------------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| **Local**      | `pnpm dev` (Vite, porta 5173) | `wrangler dev` (porta 8787, com proxy de `/api` no Vite)                                        | Postgres 18 no`docker-compose` (`sospatas` e `sospatas_teste`)                                                    | R2 simulado localmente pelo Wrangler |
+| **Prévia**    | Pages, branch`develop`        | Worker`sospatas-api-previa` (`--env previa`, `*.workers.dev`), Hyperdrive `sospatas-previa` | Projeto do Neon`sospatas-previa`, marcado com `COMMENT ON DATABASE` para aceitar os dados de exemplo (`--previa`) | Buckets`-previa`                   |
+| **Produção** | `sospatas.org.br`             | `sospatas.org.br/api`                                                                             | Neon`production`                                                                                                      | `fotos.sospatas.org.br`            |
 
 **Configuração do Worker:** no `wrangler.toml`, o nível de cima é a **produção** (`AMBIENTE=producao`) e `[env.previa]` repete todos os bindings (eles não são herdados). No computador, o `.dev.vars` troca `AMBIENTE` para `local`; sem ele, a API se comporta como produção, o que mantém desligado qualquer atalho de desenvolvimento. Os tipos do `env` (`worker-configuration.d.ts`) são gerados por `wrangler types` na instalação e no typecheck, e ficam fora do Git.
 
 **Branches:**
-| Branch | Papel | Publica em |
-|---|---|---|
-| `main` | **Produção**: só recebe merge vindo da `develop` quando a versão está testada | Produção (a partir da etapa 14) |
-| `develop` | **Integração e testes**: recebe o trabalho de cada etapa ou correção | Prévia (a partir da etapa 8) |
-| `etapa-NN-…`, `correcao-…` | Trabalho do dia a dia, criadas a partir da `develop` | – |
+
+| Branch                           | Papel                                                                                      | Publica em                        |
+| -------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------- |
+| `main`                         | **Produção**: só recebe merge vindo da `develop` quando a versão está testada | Produção (a partir da etapa 14) |
+| `develop`                      | **Integração e testes**: recebe o trabalho de cada etapa ou correção             | Prévia (a partir da etapa 8)     |
+| `etapa-NN-…`, `correcao-…` | Trabalho do dia a dia, criadas a partir da`develop`                                      | –                                |
 
 **Fluxo:** branch da etapa → PR para a `develop` (correções fora de uma etapa são feitas direto na `develop`, RP05) → `ci.yml` (typecheck, lint, formatação, testes e build) → merge → prévia atualizada → testado, PR da `develop` para a `main` → `deploy.yml`: migrations no Neon → `wrangler deploy` da API → o Pages publica o front pela integração com o GitHub. Versões marcadas com tag na `main` (`v1.0.0`, …) a partir da primeira publicação.
 
 **Segredos** (nunca no código; `wrangler secret` e secrets do GitHub):
-| Segredo | Onde |
-|---|---|
-| String de conexão do Neon | Hyperdrive (configuração) e GitHub (migrations, backup) |
-| `TURNSTILE_SECRET` | API |
-| `IP_HASH_SECRET` (RN23) | API |
-| `ACCESS_TEAM_DOMAIN` e `ACCESS_AUD` | Não são segredo: ficam em `[vars]` do `wrangler.toml`, por ambiente (o `aud` muda entre prévia e produção) |
-| Chaves S3 do R2 (só para o backup) | GitHub |
-| `CLOUDFLARE_API_TOKEN` (deploy) | GitHub |
+
+| Segredo                                 | Onde                                                                                                                 |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| String de conexão do Neon              | Hyperdrive (configuração) e GitHub (migrations, backup)                                                            |
+| `TURNSTILE_SECRET`                    | API                                                                                                                  |
+| `IP_HASH_SECRET` (RN23)               | API                                                                                                                  |
+| `ACCESS_TEAM_DOMAIN` e `ACCESS_AUD` | Não são segredo: ficam em`[vars]` do `wrangler.toml`, por ambiente (o `aud` muda entre prévia e produção) |
+| Chaves S3 do R2 (só para o backup)     | GitHub                                                                                                               |
+| `CLOUDFLARE_API_TOKEN` (deploy)       | GitHub                                                                                                               |
 
 **E-mail do "Fale com a ONG" (RN51):** a API envia pelo **Cloudflare Email Routing** (binding `EMAIL` do tipo `send_email`, só no nível de produção do `wrangler.toml`). O remetente é `EMAIL_REMETENTE` (`site@sospatas.org.br`) e o destino é `EMAIL_DESTINO` (`sitesospatas@gmail.com`), ambos em `[vars]`; a mensagem é montada em texto puro com `Reply-To` de quem escreveu (`servicos/email.ts`). Na etapa 14: ativar o Email Routing em `sospatas.org.br` (o Cloudflare cria os registros MX/SPF), **verificar** `sitesospatas@gmail.com` como destino (chega um e-mail de confirmação nessa caixa) e conferir com um envio real. Na prévia não há binding (o Email Routing exige o domínio) e o formulário responde 503, com o e-mail da ONG na tela; no computador, o `wrangler dev` simula o envio e mostra o arquivo da mensagem no terminal. Se o e-mail da ONG mudar, é preciso verificar o novo destino e trocar `EMAIL_DESTINO` e `destination_address`.
 
@@ -263,7 +280,7 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 
 ## 10. Contas e propriedade
 
-- **Domínio** `sospatas.org.br` no **CNPJ da ONG** (26.515.895/0001-90). O `.org.br` exige CNPJ de instituição sem fins lucrativos: o Registro.br confere o cadastro na Receita e só pede documentos (cartão CNPJ e estatuto) se não conseguir confirmar. Em 08/10/2026, o CNPJ estava ativo, com natureza jurídica "Associação Privada", e o domínio estava livre. Titular: a ONG; contato técnico: quem mantém o site. DNS apontado para o Cloudflare.
+- **Domínio** `sospatas.org.br` no **CNPJ da ONG** (26.515.895/0001-90). O `.org.br` exige CNPJ de instituição sem fins lucrativos: o Registro.br confere o cadastro na Receita e só pede documentos (cartão CNPJ e estatuto) se não conseguir confirmar. Em 08/10/2026, o CNPJ estava ativo, com natureza jurídica "Associação Privada", e o domínio estava livre. Neste pedido (ticket 32358834) o Registro.br pediu os documentos: enviados em 13/10/2026 para `doc@registro.br`. **Documentos aceitos e anuidade paga em 14/10/2026: domínio publicado, com vencimento em 14/10/2027.** A renovação é anual, pelo painel do Registro.br, antes do vencimento: se vencer, o site, a API, as fotos e o "Fale com a ONG" saem do ar juntos. Titular: a ONG; contato técnico: quem mantém o site. **DNS no Cloudflare desde 14/10/2026** (servidores `jimmy.ns.cloudflare.com` e `melina.ns.cloudflare.com`, plano Free; o DNSSEC do Registro.br saiu com a troca e pode ser ligado de novo pelo Cloudflare). Registros mantidos do Registro.br, para ninguém mandar e-mail em nome da ONG: MX nulo, `v=spf1 -all` e `_dmarc` com `p=reject` (o Email Routing da etapa 14 troca os dois primeiros). Robôs de IA (configuração do Cloudflare, aplicada ao `robots.txt`): busca e agentes liberados, **treinamento bloqueado**, porque os anúncios de perdidos têm nome e WhatsApp que somem em 30 dias (RN25).
 - **E-mail das contas: `sitesospatas@gmail.com`** (criado em 08/10/2026), só para o site. Recuperação pelo e-mail geral da ONG (`sospatas@hotmail.com`), para a ONG retomar o acesso se o mantenedor sair. O e-mail geral não é usado como login para não depender da ONG a cada código de verificação; e-mails do próprio domínio (`site@sospatas.org.br`) também não, porque deixam de funcionar se o domínio vencer.
 - **Cloudflare e Neon** criados com esse Gmail, com o **e-mail pessoal do mantenedor como administrador** em cada um. No Registro.br, o Gmail é o e-mail de contato do domínio.
 - **GitHub:** o código fica no repositório pessoal do mantenedor, **`henriquenobre/sos-patas`** (decidido em 08/10/2026). Se a manutenção passar para outra pessoa, transferir para uma organização gratuita da ONG criada com o Gmail (Settings → Transfer ownership). Depois da transferência: reconectar o Cloudflare Pages ao repositório, conferir os secrets do GitHub Actions, atualizar o `git remote` e o link do protótipo no README (o endereço do GitHub Pages muda e não é redirecionado).
@@ -272,32 +289,33 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 
 ## 11. Limites gratuitos e quando pagar
 
-| Recurso | Limite grátis | Uso estimado | Se passar |
-|---|---|---|---|
-| Workers: requisições | 100 mil/dia (zera às 21h de Brasília) e 1.000 por minuto | Poucos milhares/dia | Workers Paid: US$ 5/mês (10 milhões/mês) |
-| Workers: CPU | 10 ms/requisição | Consultas simples: ~1–3 ms | Workers Paid (30 s) |
-| Hyperdrive | 100 mil consultas/dia (toda consulta conta) | Bem abaixo, com cache na API | Vem junto com o Workers Paid |
-| Neon: armazenamento | 0,5 GB | Texto: muito abaixo | Plano Launch (por uso) |
-| Neon: processamento | 100 CU-horas/mês = ~400 h/mês acordado com 0,25 CU (~13 h/dia). Dorme após 5 min sem consulta | Depende de quantas horas por dia o banco fica acordado (seção 11.2) | Plano Launch (por uso) |
-| R2 | 10 GB, tráfego grátis | ~1 GB/ano no ritmo da ONG | US$ 0,015/GB/mês |
-| Cron Triggers | 5 por conta | 1 | – |
-| Access | 50 usuários | 2 a 5 | Plano pago do Zero Trust |
+| Recurso                | Limite grátis                                                                                   | Uso estimado                                                          | Se passar                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- | ------------------------------------------- |
+| Workers: requisições | 100 mil/dia (zera às 21h de Brasília) e 1.000 por minuto                                       | Poucos milhares/dia                                                   | Workers Paid: US$ 5/mês (10 milhões/mês) |
+| Workers: CPU           | 10 ms/requisição                                                                               | Consultas simples: ~1–3 ms                                           | Workers Paid (30 s)                         |
+| Hyperdrive             | 100 mil consultas/dia (toda consulta conta)                                                      | Bem abaixo, com cache na API                                          | Vem junto com o Workers Paid                |
+| Neon: armazenamento    | 0,5 GB                                                                                           | Texto: muito abaixo                                                   | Plano Launch (por uso)                      |
+| Neon: processamento    | 100 CU-horas/mês = ~400 h/mês acordado com 0,25 CU (~13 h/dia). Dorme após 5 min sem consulta | Depende de quantas horas por dia o banco fica acordado (seção 11.2) | Plano Launch (por uso)                      |
+| R2                     | 10 GB, tráfego grátis                                                                          | ~1 GB/ano no ritmo da ONG                                             | US$ 0,015/GB/mês                           |
+| Cron Triggers          | 5 por conta                                                                                      | 1                                                                     | –                                          |
+| Access                 | 50 usuários                                                                                     | 2 a 5                                                                 | Plano pago do Zero Trust                    |
 
 ### 11.1 Risco de cobrança e proteções (análise de 08/10/2026)
 
 **Onde pode haver cobrança:** só no **R2**, o único serviço com cartão. Os outros param de funcionar no limite, sem cobrar:
 
-| Serviço | No limite gratuito | Cobra? |
-|---|---|---|
-| Workers, Pages Functions, Hyperdrive | As requisições acima de 100 mil/dia falham até o dia seguinte (o site fica fora do ar, sem custo) | Não, enquanto a conta ficar no **Workers Free** (nunca assinar o Workers Paid sem decidir) |
-| Pages (site estático) | Banda e acessos ilimitados | Não |
-| Neon | Sem cartão: no limite de armazenamento ou de processamento, o banco para | Não |
-| Access, Turnstile, Web Analytics, Cron | Grátis dentro dos limites; acima, não deixa criar mais | Não |
-| **R2** | Acima do gratuito, cobra por uso: US$ 0,015/GB/mês guardado, US$ 4,50 por milhão de gravações (classe A) e US$ 0,36 por milhão de leituras (classe B). Tráfego de saída sempre grátis | **Sim** |
+| Serviço                               | No limite gratuito                                                                                                                                                                              | Cobra?                                                                                           |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Workers, Pages Functions, Hyperdrive   | As requisições acima de 100 mil/dia falham até o dia seguinte (o site fica fora do ar, sem custo)                                                                                            | Não, enquanto a conta ficar no**Workers Free** (nunca assinar o Workers Paid sem decidir) |
+| Pages (site estático)                 | Banda e acessos ilimitados                                                                                                                                                                      | Não                                                                                             |
+| Neon                                   | Sem cartão: no limite de armazenamento ou de processamento, o banco para                                                                                                                       | Não                                                                                             |
+| Access, Turnstile, Web Analytics, Cron | Grátis dentro dos limites; acima, não deixa criar mais                                                                                                                                        | Não                                                                                             |
+| **R2**                           | Acima do gratuito, cobra por uso: US$ 0,015/GB/mês guardado, US$ 4,50 por milhão de gravações (classe A) e US$ 0,36 por milhão de leituras (classe B). Tráfego de saída sempre grátis | **Sim**                                                                                    |
 
 **Quanto uso a ONG gera:** o gratuito do R2 é 10 GB guardados, 1 milhão de gravações e 10 milhões de leituras **por mês**. Fotos: ~1 GB/ano (10 GB duram anos). Gravações: algumas centenas por mês. Leituras: as fotos públicas passam pelo **cache do Cloudflare** (`fotos.sospatas.org.br`), e uma foto em cache não conta como leitura do R2. Mesmo sem cache, 10 milhões de leituras são cerca de 500 mil visitas por mês vendo 20 fotos cada, centenas de vezes o movimento esperado. Se um dia passar, o valor é de centavos: 20 GB guardados custariam US$ 0,15/mês.
 
 **Um atacante consegue inflar o armazenamento ou o banco?** Não de forma relevante:
+
 - Só a API grava no R2 e no banco; o navegador nunca grava direto (seção 6).
 - O único envio sem login é o anúncio de perdido/encontrado: Turnstile, no máximo 2 fotos de 500 KB, 3 envios por dia por IP e **30 pendentes no total** (RN21–RN23). O pior caso é ~30 MB na quarentena, apagados em 7 dias (RN27). Nada fica público sem aprovação (RN18).
 - O formulário de adoção só grava texto no banco (sem arquivos): Turnstile, limites de caracteres, 2 pedidos por dia por IP e 1 pendente por WhatsApp (RN50).
@@ -305,6 +323,7 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 - O banco tem limites de caracteres em todos os campos (CHECK) e o Neon sem cartão não cobra.
 
 **Um atacante consegue gerar leituras cobráveis?** É o único caminho, e fica bloqueado assim:
+
 - **Produção:** as fotos saem pelo domínio próprio com cache. Regra de cache "Cache Everything" com **query string ignorada** (`?x=1`, `?x=2`… não furam o cache) e validade longa (as fotos nunca mudam de conteúdo: trocar a foto gera um arquivo novo, RN06). Mais uma **regra de limite de requisições** do WAF no subdomínio de fotos (o plano gratuito tem uma). Seriam precisos mais de 10 milhões de pedidos de arquivos diferentes que não estão em cache só para começar a cobrar US$ 0,36 por milhão, e a proteção contra DDoS (grátis) atua antes disso.
 - **Teste (antes do domínio):** sem `r2.dev`; as fotos passam pela API. O Worker gratuito para em 100 mil requisições por dia, então o máximo seria ~3 milhões de leituras por mês, abaixo dos 10 milhões gratuitos.
 
@@ -316,16 +335,17 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 
 **Conta usada:** uma visita típica (Início → vitrine → 2 ou 3 fichas, mudando um filtro) faz cerca de **7 chamadas à API**. O HTML, o JavaScript e as fotos não contam: vêm do Pages e do cache, sem limite.
 
-| Gargalo | Limite | Equivale a | O que acontece no limite |
-|---|---|---|---|
-| Workers (requisições da API) | 100 mil/dia | **~14 mil visitas por dia** | A API responde erro até as 21h (Brasília), quando o contador zera; as páginas abrem, mas sem animais e textos. Sem cobrança |
-| Workers (rajada) | 1.000/minuto | ~140 visitas começando no mesmo minuto (ex.: post viral) | Erro só naquele minuto |
-| Hyperdrive (consultas ao banco) | 100 mil/dia | Sem cache na API, ~1,5 consulta por chamada: **~10 mil visitas/dia**. Com cache, deixa de ser gargalo | Igual ao Workers |
-| **Neon (horas acordado)** | ~13 h/dia em média (0,25 CU) | Não depende do número de visitas, e sim de **quantas horas por dia chega alguma consulta**: uma consulta a cada menos de 5 min mantém o banco acordado | O banco é suspenso até o próximo ciclo mensal: **a API fica sem dados pelo resto do mês**. Sem cobrança |
+| Gargalo                         | Limite                        | Equivale a                                                                                                                                                     | O que acontece no limite                                                                                                        |
+| ------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Workers (requisições da API)  | 100 mil/dia                   | **~14 mil visitas por dia**                                                                                                                              | A API responde erro até as 21h (Brasília), quando o contador zera; as páginas abrem, mas sem animais e textos. Sem cobrança |
+| Workers (rajada)                | 1.000/minuto                  | ~140 visitas começando no mesmo minuto (ex.: post viral)                                                                                                      | Erro só naquele minuto                                                                                                         |
+| Hyperdrive (consultas ao banco) | 100 mil/dia                   | Sem cache na API,~1,5 consulta por chamada: **~10 mil visitas/dia**. Com cache, deixa de ser gargalo                                                          | Igual ao Workers                                                                                                                |
+| **Neon (horas acordado)** | ~13 h/dia em média (0,25 CU) | Não depende do número de visitas, e sim de**quantas horas por dia chega alguma consulta**: uma consulta a cada menos de 5 min mantém o banco acordado | O banco é suspenso até o próximo ciclo mensal:**a API fica sem dados pelo resto do mês**. Sem cobrança               |
 
 **Movimento esperado da ONG:** centenas de visitas por dia, com picos quando há post no Instagram. Folga grande nos três primeiros; o Neon é o que precisa de cuidado.
 
 **Medidas (fazem parte das etapas 4 e 5):**
+
 1. **Neon com compute fixo em 0,25 CU** (mínimo e máximo). Com o padrão "0,25 ↔ 2 CU", um pico faz o banco gastar as horas até 8 vezes mais rápido.
 2. **Cache das leituras públicas na própria API** (Cache API do Workers, 60 s a 5 min): numa rajada de visitas, o banco recebe uma consulta por minuto por rota, e não uma por visitante. Salvar na área da ONG limpa o cache das rotas afetadas, para manter "salvar publica na hora" (RN37).
 3. **`GET /site` com uma consulta só** (textos, itens e ONG juntos).
@@ -337,6 +357,7 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 ## 12. Migração para VPS (quando precisar)
 
 O código já nasce preparado:
+
 1. API: rodar `apps/api/src/node.ts` (Hono com `@hono/node-server`) num contêiner Docker.
 2. Banco: continuar no Neon ou subir Postgres em contêiner e restaurar o último dump.
 3. Fotos: manter o R2 (acessível de qualquer lugar pela API S3) ou trocar a implementação de `Armazenamento`.

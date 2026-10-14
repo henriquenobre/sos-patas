@@ -55,4 +55,10 @@ export function subtrairMeses(data: string, meses: number): string {
   return deUtc(Date.UTC(anoNovo, mesNovo - 1, Math.min(dia, ultimoDia)))
 }
 
+/** '2026-10-13' → '13/10/2026'. */
+export function formatarData(data: string): string {
+  const [ano, mes, dia] = partes(data)
+  return `${String(dia).padStart(2, '0')}/${String(mes).padStart(2, '0')}/${String(ano)}`
+}
+
 export { partes as partesDaData }

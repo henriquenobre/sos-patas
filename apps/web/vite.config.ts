@@ -15,5 +15,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/testes/configurar.ts'],
+    // Os testes simulam a pessoa usando a tela e o runner do CI é mais lento que o computador
+    testTimeout: 15_000,
   },
 })

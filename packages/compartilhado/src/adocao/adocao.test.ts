@@ -28,6 +28,7 @@ const formulario = {
   castrar: 'sim',
   arcar_custos: 'sim',
   horas_sozinho: 'menos_4',
+  historico_animais: 'Nunca tive.',
   mudanca_viagem: 'Levo comigo.',
   declaracoes: DECLARACOES.map(() => true),
 } as const

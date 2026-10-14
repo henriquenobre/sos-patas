@@ -1,7 +1,14 @@
 // Textos e itens de lista das páginas (T15–T20, RN33–RN38) e dados da ONG (T23).
 import { z } from 'zod'
 import { PIX_TIPOS } from '../dominio'
-import { LISTAS, TEXTOS, type ChaveTexto, type ConfigLista, type NomeLista } from '../conteudo'
+import {
+  LISTAS,
+  NOMES_LISTA,
+  TEXTOS,
+  type ChaveTexto,
+  type ConfigLista,
+  type NomeLista,
+} from '../conteudo'
 import { LIMITES } from '../limites'
 import { email, opcao, textoObrigatorio, textoOpcional, textoOuNulo, whatsapp } from './comuns'
 
@@ -30,6 +37,16 @@ export function schemaItem(lista: NomeLista) {
         : textoOuNulo(config.titulo.limite)
   return z.object({ titulo, texto: textoObrigatorio(config.texto.limite) })
 }
+
+/** Lista do item novo (POST /conteudo/itens); os campos dependem dela (schemaItem). */
+export const listaEntrada = z.object({ lista: opcao(NOMES_LISTA, 'Escolha a lista') })
+
+/** RN35: as setas ↑ ↓ trocam a posição de dois itens vizinhos da mesma lista. */
+export const trocarOrdemEntrada = z.object({
+  ids: z.tuple([z.uuid('Item inválido'), z.uuid('Item inválido')], {
+    error: 'Informe os dois itens',
+  }),
+})
 
 const L = LIMITES.ong
 
@@ -63,6 +80,7 @@ const facebook = z
 
 /** Dados da ONG (T23). Sem WhatsApp próprio, o contato do site é o e-mail (RN51). */
 export const ongEntrada = z.object({
+  nome_completo: textoObrigatorio(L.nome_completo),
   email: email(L.email),
   whatsapp: z
     .string()

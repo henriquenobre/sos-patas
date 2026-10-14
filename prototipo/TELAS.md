@@ -48,9 +48,10 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 | `Tag` | Ficha | Pílula colorida (espécie, sexo, idade, porte) |
 | `ChipFiltro` | T02 | Liga/desliga; rolagem horizontal no celular |
 | `BlocoPix` | T01, T06, rodapé | Chave CNPJ + botão "Copiar chave PIX" |
-| `Modal` | Quero adotar, adotado, excluir | Confirmações sempre com "Cancelar" |
+| `Modal` | Adotado, devolver, excluir, novo protetor, aprovar e recusar pedido | Confirmações sempre com "Cancelar"; no celular, sobe do rodapé |
 | `OpcoesBotao` | Formulário | Escolha em botões grandes (melhor que select no celular) |
-| `CabecalhoAdmin` | T08–T24 | Fundo azul-escuro, para diferenciar do site público; "Olá, {nome}" vem de `equipe` |
+| Campo de data | T13 e cadastro de animal | Sempre **dd/mm/aaaa**: a pessoa digita só os números (as barras entram sozinhas, teclado numérico) ou abre o calendário pelo botão 📅. Não usa o campo de data do navegador, que mostra mês/dia/ano quando o navegador está em inglês (14/10/2026) |
+| `CabecalhoAdmin` | T08–T24 | Fundo azul-escuro, para diferenciar do site público; "Olá, {nome}" vem de `equipe` (só a partir do tablet); à direita, "Ver o site ↗" (abre o site público em nova aba) e "Sair" |
 | `BarraAdmin` | T09, T14, T15, T22, T27 | Barra fixa no rodapé: 🐾 Animais · 📋 Pedidos (com número de pendentes) · 🔎 Perdidos (com número de pendentes) · 📝 Textos · ☰ Mais. No computador, vira abas no cabeçalho. Some nas telas de formulário |
 | `ListaEditavel` | T16, T18–T20 | Cards com título, começo do texto e miniatura (se tiver foto); botões ↑ ↓ (RN35), **Editar** e **Excluir** (RN36); "＋ Adicionar" no fim. Configurada por `lista` (DESENVOLVIMENTO.md, `conteudo_itens`) |
 | `CampoTextoEditavel` | T18–T20 | Rótulo, onde aparece no site, caixa de texto com contador "120/400" e botão **Salvar** próprio |
@@ -121,7 +122,7 @@ O aviso amarelo "A SOS Patas não faz resgates" foi **removido em 07/10/2026** (
 **Objetivo:** fluxo definido com a ONG em 08/10/2026, todo pelo site: responder ao formulário, ler o termo e registrar a ciência (RN14, RN15, RN47).
 
 - **Topo:** o animal escolhido (miniatura, nome, responsável) e os passos "1. Formulário" e "2. Termo de adoção".
-- **Passo 1, formulário:** as perguntas da [versão 1.1](../docs/formulario/FORMULARIO_ADOCAO.md) em blocos (Sobre você · Sua casa · Outros animais · Cuidados e custos), com opções em botões grandes; perguntas condicionais só quando se aplicam (proprietário, se alugado; telas, se gato; 16 a 18, se tem animais); as 8 declarações (pergunta 25, a última é o consentimento LGPD). "Continuar para o termo de adoção" confere tudo antes de avançar e mostra a mensagem embaixo de cada campo.
+- **Passo 1, formulário:** as perguntas da [versão 1.2](../docs/formulario/FORMULARIO_ADOCAO.md) em blocos (Sobre você · Sua casa · Outros animais · Cuidados e custos), com opções em botões grandes; perguntas condicionais só quando se aplicam (proprietário, se alugado; telas, se gato; 16 a 18, se tem animais); as 8 declarações (pergunta 25, a última é o consentimento LGPD). "Continuar para o termo de adoção" confere tudo antes de avançar e mostra a mensagem embaixo de cada campo.
 - **Passo 2, termo:** o **Termo de Responsabilidade de Adoção** inteiro (9 cláusulas e o aviso da Lei 9.605/98), a caixa **"Li o Termo de Responsabilidade de Adoção e estou ciente dos compromissos. Se a adoção for aprovada, assumo esses compromissos."** (a "assinatura", RN47), o Turnstile e o botão verde "Enviar pedido de adoção" (com "Voltar ao formulário").
 - **Erros do envio:** campo do formulário → volta ao passo 1 com o campo destacado; outra pessoa pediu o animal antes, ou a pessoa já tem pedido em análise → aviso com "Ver outros animais"; limite de envios ou Turnstile → mensagem para tentar de novo.
 - **Animal em análise ou adotado:** sem formulário, só o aviso.
@@ -188,23 +189,23 @@ Contato com a ONG enquanto ela não tem WhatsApp próprio (RN51). Sem print: o p
 - **"Prefere escrever direto?"** (sempre visível): o e-mail da ONG com link que abre o aplicativo de e-mail; o WhatsApp aparece aqui também quando a ONG cadastrar um em T23.
 - **Rodapé do site** (todas as páginas): o contato da ONG passa a ser o **e-mail**, e "Fale com a ONG" entra em "Navegue". O WhatsApp só aparece se estiver preenchido em T23.
 
-### T12 · Perdidos e encontrados · `/perdidos` · ⏳
+### T12 · Perdidos e encontrados · `/perdidos` · ✅ no site (13/10/2026)
 ![T12](telas/T12-perdidos-celular.png)
 
 **Objetivo:** ajudar a comunidade a reencontrar animais. Só aparecem anúncios **aprovados** pela equipe (RN18).
 
 - **"Como funciona"** + botão vermelho "＋ Anunciar animal perdido ou encontrado".
-- **Filtro:** Perdidos / Encontrados.
+- **Filtro:** Perdidos / Encontrados (tocar de novo tira o filtro; fica na URL, `?tipo=`).
 - **Card:** foto, selo PERDIDO (vermelho) ou ENCONTRADO (verde), nome ou "Cachorro/Gato encontrado", bairro, há quanto tempo, descrição, botão WhatsApp ("Vi este animal" / "É meu animal") com mensagem pronta, dias até sair do ar (RN25).
 - **Aviso fixo contra golpes** (RN28).
 - **Atalho na página inicial:** card "Perdeu ou encontrou um animal?".
 
-### T13 · Anunciar animal · `/perdidos/novo` · ⏳
+### T13 · Anunciar animal · `/perdidos/novo` · ✅ no site (13/10/2026)
 ![T13](telas/T13-anunciar-perdido-celular.png)
 
 **Formulário público, com segurança em camadas (RN19–RN23):**
 1. **O que aconteceu:** perdi / encontrei; espécie; nome (opcional); **bairro ou região** (com aviso "não coloque o endereço completo"); data; características (até 300, sem links).
-2. **Fotos:** até 2; JPG, PNG ou WebP de até 10 MB na escolha; redesenhadas no celular como WebP sem localização (RN20).
+2. **Fotos (opcionais):** até 2; JPG, PNG ou WebP de até 10 MB na escolha; redesenhadas no celular como WebP sem localização (RN20).
 3. **Contato:** primeiro nome + WhatsApp; **checkbox obrigatório de consentimento** para publicar por 30 dias.
 4. **Verificação de segurança** (Cloudflare Turnstile).
 5. **Botão "Enviar para análise":** deixa claro que o anúncio não é publicado na hora.
@@ -220,7 +221,7 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 
 ```
 ┌───────────────────────────────────┐
-│ ▓ Área da ONG         Olá, Gracia │  ← CabecalhoAdmin
+│ ▓ Área da ONG   Ver o site ↗ Sair │  ← CabecalhoAdmin
 │                                   │
 │          (conteúdo da aba)        │
 │                                   │
@@ -249,6 +250,7 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 3. Fica conectada por **30 dias** naquele celular.
 
 - Só e-mails liberados pela ONG entram. Sem "criar conta".
+- **Sessão vencida no meio do uso** (só no site): a tela vira "Sua sessão terminou" com o botão **"Entrar de novo"**, que volta ao login. E-mail fora da equipe: "Sem acesso".
 - Rodapé: "Não recebeu? Confira o spam ou peça um novo código. Para liberar um e-mail novo, fale com o administrador do site."
 - **No site real**, essa tela é a página de login do Cloudflare Access, personalizada com a logo e as cores da SOS Patas. O protótipo simula as duas etapas (`#/admin/login` e `#/admin/login/codigo`, [print da etapa 2](telas/T08b-login-codigo-celular.png)).
 
@@ -258,33 +260,37 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 **Objetivo:** Gracia e Claudia controlarem tudo pelo celular.
 
 - **Números:** disponíveis · adultos esperando há mais de 90 dias · **adotados no mês** (indicador da avaliação).
-- **Abas:** Disponíveis / Em análise / Adotados (RN48). ✏️ _Protótipo a atualizar._
+- **Abas:** Disponíveis / Em análise / Adotados (RN48), sem número na aba; abaixo da busca, "N animais". No site, a aba fica no endereço (`/admin?aba=adotado`), para a lista continuar igual ao voltar de uma edição.
+- **Aba Em análise:** cada animal mostra "📋 Pedido aguardando análise" ou "✅ Pedido aprovado: falta a entrega", com link para o pedido (T28).
 - **Busca** pelo nome.
 - **Item da lista:** miniatura, nome, espécie, idade, **lar temporário** (privado), tempo de espera (vermelho se adulto há mais de 90 dias); botões **Editar** e **Adotado ✓**.
 - **Aba Adotados:** "Em adaptação: faltam N dias" ou "Adoção concluída" (RN30).
-- **Filtro por responsável** (abaixo da busca): "Todos · SOS Patas · Protetores", e ao tocar em "Protetores" aparece a lista para escolher um. O nome do protetor aparece no item da lista.
+- **Filtro por responsável** (abaixo da busca, com o rótulo "Responsável:" em cima): "Todos · SOS Patas · Protetores", em chips que quebram linha (sem rolagem lateral), e ao tocar em "Protetores" aparece a lista para escolher um. O nome do protetor aparece no item da lista.
 - **Card amarelo de perdidos:** só aparece quando há anúncios aguardando aprovação (o número também fica na aba 🔎).
 - **Botão flutuante:** "＋ Cadastrar animal", acima da `BarraAdmin`.
 
-### T27 · Pedidos de adoção · `/admin/pedidos` · 🆕 a desenhar no protótipo
+### T27 · Pedidos de adoção · `/admin/pedidos` · 🆕 só no site (13/10/2026)
 **Objetivo:** a equipe saber quem pediu qual animal e analisar logo, porque o animal fica fora do site enquanto isso (RN48, RN49).
 
 - **Abas:** Pendentes (padrão) / Aprovados / Recusados.
 - **Item:** miniatura e nome do animal, nome de quem pediu, bairro, "há N dias", número de alertas (amarelo); **vermelho se pendente há mais de 3 dias** (RN50, prazo a confirmar).
 - Animal de protetor parceiro: selo "Protetor: {nome}".
+- Aba Aprovados: pedido de animal já adotado leva "🎉 adotado"; ele continua na lista (e pode ser impresso) até ser apagado, 90 dias depois da adoção (RN15).
 
-### T28 · Análise do pedido · `/admin/pedidos/:id` · 🆕 a desenhar no protótipo
-- **Topo:** animal (com link para T11), quem pediu, WhatsApp com botão para conversar, data do pedido.
+### T28 · Análise do pedido · `/admin/pedidos/:id` · 🆕 só no site (13/10/2026)
+- **Topo:** animal (com link para T11), quem pediu, WhatsApp com botão para conversar ("Conversar no WhatsApp" e o número na linha de baixo), data do pedido.
 - **Alertas automáticos** em amarelo no topo (tabela do FORMULARIO_ADOCAO.md), sem reprovar sozinhos.
 - **Respostas** agrupadas pelos blocos do formulário; "Ciente do termo em {data}".
 - **Observação interna** (só a equipe vê).
-- **Ações:** **Aprovar** (o animal continua fora do site até "Marcar como adotado", que já vem com nome e WhatsApp preenchidos) e **Recusar** (modal: "O animal volta para o site. Avise a pessoa pelo WhatsApp."). Linha `AlteradoPor` (RN43).
+- **Ações** (só em pedido pendente): **Aprovar** (modal de confirmação; o animal continua fora do site até "Marcar como adotado", que já vem com nome e WhatsApp preenchidos) e **Recusar** (modal: "O animal volta para o site. Avise a pessoa pelo WhatsApp."). Pedido aprovado mostra o próximo passo e o botão **"Abrir {animal}"** (T11). Linha "Aprovado por… em…" (RN43).
+- **Pedido que não existe mais** (apagado depois de 90 dias, RN15): "Não encontramos este pedido".
+- **🖨️ Imprimir formulário** (pedido da ONG, 13/10/2026): abre a impressão do navegador (papel ou "Salvar como PDF") com o formulário já preenchido: animal, quem pediu, respostas pelos blocos, as declarações marcadas, o termo que a pessoa leu (se for a versão atual), a data da ciência e linhas para data e assinatura de quem adota. Ficam fora do papel o que é só da equipe: alertas, observação interna, botões e o cabeçalho da área da ONG. Vale para pedidos em análise, aprovados e de animais já adotados; neste último caso, a tela mostra "🎉 Adoção concluída" no lugar de "combine a entrega".
 
 ### T10 · Cadastrar animal · `/admin/animais/novo` · ⏳
 ![T10](telas/T10-cadastrar-animal-celular.png)
 
 Formulário em uma tela, dividido em blocos, com escolhas em **botões grandes**:
-1. **Fotos:** 3 espaços; a primeira é a principal; compressão automática (RN02).
+1. **Fotos:** 3 espaços; a primeira é a principal (selo "Principal"); ✕ remove e ◀ ▶ mudam a posição; compressão automática no aparelho (RN02). As fotos só vão para o site ao tocar em "Publicar"/"Salvar".
 2. **Sobre o animal:** nome*, espécie*, sexo*, idade aproximada* (número + anos/meses, convertido em `nascimento_aprox`), porte* (mini, pequeno, médio, grande, gigante), raça + pura/mestiço, cor da pelagem, descrição (até 500).
 3. **Saúde:** castrado* (Sim/Não); vacinado* (Sim/Não/Sem informação) + quais vacinas; vermifugado nos últimos 3 meses* (Sim/Não/Sem informação); problema de saúde (Não/Sim + qual). **Mesmos campos do termo de adoção.**
 4. **Temperamento:** dócil, convive com outros animais (Sim/Não/Não sei).
@@ -300,19 +306,21 @@ Igual a T10, preenchido, com a linha "Alterado por… em…" (RN43) no topo e **
 - **Marcar como adotado:** modal pede o **nome e o WhatsApp de quem adotou** (privados) → status `adotado`, `data_adocao` = hoje, mantém só a foto principal (RN07, RN08) → mostra a confirmação com a data de fim da adaptação (RN30).
 - **Voltar para disponível** (aparece se o animal estiver adotado).
 - **Excluir animal:** modal vermelho avisando que apaga o cadastro e **todas as fotos** (RN05, RN09), sugerindo "Marcar como adotado" quando for o caso.
+- **Animal em análise:** com pedido aguardando análise, só o aviso e o link para os pedidos (sem adotar nem devolver); com pedido aprovado, "Marcar como adotado" (já preenchido) e "A adoção não aconteceu: voltar para disponível" (RN49).
+- **Animal adotado:** mostra a adaptação (RN30), quem adotou e, se a adoção veio de um pedido do site, o link "📋 Ver o formulário de adoção (para imprimir)" (T28); só um espaço de foto (RN07).
 
-### T14 · Moderar perdidos e encontrados · `/admin/perdidos` · ⏳
+### T14 · Moderar perdidos e encontrados · `/admin/perdidos` · ✅ no site (13/10/2026; "Editar" e "＋ Novo anúncio" em 14/10/2026)
 ![T14](telas/T14-moderar-perdidos-celular.png)
 
 - **Acesso:** pelo card amarelo no painel (T09), que mostra quantos anúncios estão aguardando aprovação.
-- **Abas:** Aguardando / No ar.
+- **Abas:** Aguardando (N) / No ar (N).
 - **Aguardando:** foto (da quarentena privada, servida pela API só para a equipe), tipo, nome, bairro, contato e descrição; botões **Recusar** (apaga tudo, RN26) e **Aprovar e publicar** (copia as fotos para o bucket público).
-- **No ar:** "Sai do ar em N dias", **"Renovar por mais 30 dias"** (RN41), **"Voltou para casa 🎉"** e **"Tirar do ar"** (esses dois apagam o anúncio e as fotos).
+- **No ar:** "Sai do ar em N dias", **"Renovar por mais 30 dias"** (RN41), **"Voltou para casa 🎉"** e **"Tirar do ar"** (esses dois apagam o anúncio e as fotos). Recusar, Voltou para casa e Tirar do ar pedem confirmação; Aprovar e Renovar não.
 - **Em todos os cards:** botão **"Editar"** → T21 (RN40). Anúncios criados pela equipe têm o selo "Criado pela equipe".
 - **Botão "＋ Novo anúncio"** no topo → T21 (RN39).
 - **Checklist de moderação:** é um animal, sem conteúdo impróprio, sem link, sem pedido de dinheiro e sem endereço completo.
 
-### T21 · Anúncio pela equipe · `/admin/perdidos/novo` e `/admin/perdidos/:id` · ⏳
+### T21 · Anúncio pela equipe · `/admin/perdidos/novo` e `/admin/perdidos/:id` · ✅ no site (14/10/2026)
 ![T21](telas/T21-anuncio-equipe-celular.png)
 
 **Objetivo:** publicar o anúncio de quem pediu pelo WhatsApp e corrigir anúncios recebidos.
@@ -321,8 +329,9 @@ Igual a T10, preenchido, com a linha "Alterado por… em…" (RN43) no topo e **
 - **Novo:** checkbox obrigatório **"A pessoa autorizou publicar o primeiro nome, o WhatsApp e as fotos por 30 dias"**. Botão **"Publicar"**: entra direto no ar (RN39).
 - **Editar:** formulário preenchido, com o status ("Aguardando aprovação" ou "No ar, sai em N dias"); fotos com ✕ para remover e espaço para adicionar (RN40); botão **"Salvar alterações"**. Se o anúncio estiver pendente, aparecem também "Recusar" e "Aprovar e publicar".
 - **Aviso:** "Quem anunciou não é avisado das alterações."
+- **No site (14/10/2026):** o novo anúncio usa o botão "Publicar" na barra fixa; a edição, "Salvar alterações". As fotos removidas e as novas só vão para o site ao salvar. No pendente, "Aprovar e publicar" salva as correções antes de aprovar. Linha "Alterado por… em…" (RN43) no topo da edição.
 
-### T15 · Textos do site · `/admin/textos` · ⏳
+### T15 · Textos do site · `/admin/textos` · ✅ no site (14/10/2026)
 ![T15](telas/T15-textos-do-site-celular.png)
 
 **Objetivo:** ponto de entrada para alterar o conteúdo das páginas públicas.
@@ -337,7 +346,9 @@ Lista de cards grandes, um por página, com ícone, nome, o que dá para mudar e
 
 Abaixo, uma nota: "Contatos e PIX ficam em ☰ Mais → Dados da ONG."
 
-### T16 · Perguntas frequentes · `/admin/textos/perguntas` · ⏳
+- **No site (14/10/2026):** o "Alterado em…" de cada card é a alteração mais recente entre os textos e itens da página, com o nome de quem alterou (RN43); o card de Perguntas frequentes mostra "N perguntas".
+
+### T16 · Perguntas frequentes · `/admin/textos/perguntas` · ✅ no site (14/10/2026)
 ![T16](telas/T16-perguntas-frequentes-admin-celular.png)
 
 **Objetivo:** adicionar, alterar, reordenar e excluir perguntas.
@@ -347,8 +358,9 @@ Abaixo, uma nota: "Contatos e PIX ficam em ☰ Mais → Dados da ONG."
 - **Excluir:** modal "Excluir a pergunta '…'? Ela some do site e não pode ser recuperada." [Cancelar] [Excluir]. Com só 1 pergunta, o Excluir fica desativado.
 - **Botão "＋ Nova pergunta"** (fixo embaixo) → T17.
 - Sem categorias e sem "ocultar" (decisão de 07/10).
+- **No site (14/10/2026):** as setas mudam a ordem na hora, sem botão de salvar (RN35). As listas de T18–T20 usam o mesmo card; lista vazia mostra "Nenhum item. Enquanto a lista estiver vazia, este bloco não aparece no site."
 
-### T17 · Item de lista (novo / editar) · `/admin/textos/:lista/novo` e `/admin/textos/:lista/:id` · ⏳
+### T17 · Item de lista (novo / editar) · `/admin/textos/:lista/novo` e `/admin/textos/:lista/:id` · ✅ no site (14/10/2026)
 ![T17](telas/T17-editar-item-celular.png)
 
 **Objetivo:** um único formulário para qualquer item de lista, com rótulos conforme a lista (DESENVOLVIMENTO.md, `conteudo_itens`).
@@ -372,8 +384,9 @@ Abaixo, uma nota: "Contatos e PIX ficam em ☰ Mais → Dados da ONG."
 - **Dica abaixo do texto:** "Para pular linha, use Enter. Links começando com https:// viram clicáveis." (RN34)
 - **Prévia** logo abaixo, com o visual do site (ex.: o acordeão da pergunta aberto).
 - Barra fixa: "Cancelar" e "Salvar". Ao editar, também "Excluir" (com o modal da RN36).
+- **No site (14/10/2026):** o "Excluir" fica no fim do formulário, fora da barra fixa, para não ser tocado sem querer ao lado do "Salvar". Ao salvar, a tela volta para a página da lista (T16, T18, T19 ou T20) com o aviso "Salvo e publicado ✓". Na foto da história, "Escolher foto" / "Trocar foto" mostra a foto grande; a troca só vai para o site ao tocar em "Salvar". Abrir "novo" numa lista cheia mostra "Limite atingido".
 
-### T18 · Editar Como adotar · `/admin/textos/como-adotar` · ⏳
+### T18 · Editar Como adotar · `/admin/textos/como-adotar` · ✅ no site (14/10/2026)
 ![T18](telas/T18-editar-como-adotar-celular.png)
 
 Uma tela com blocos na ordem em que aparecem no site:
@@ -385,7 +398,9 @@ Uma tela com blocos na ordem em que aparecem no site:
 
 Cada campo de texto tem o próprio botão "Salvar"; listas salvam item a item (T17).
 
-### T19 · Editar Página inicial · `/admin/textos/inicio` · ⏳
+- **No site (14/10/2026), em T18–T20:** o "Salvar" de cada campo fica desativado até o texto mudar; com o texto mudado, aparece também "Desfazer" (volta ao que está no site). Cada campo mostra onde aparece no site e o "Alterado por… em…".
+
+### T19 · Editar Página inicial · `/admin/textos/inicio` · ✅ no site (14/10/2026)
 ![T19](telas/T19-editar-pagina-inicial-celular.png)
 
 1. **Chamada:** título (60) e texto (200).
@@ -398,14 +413,14 @@ Cada campo de texto tem o próprio botão "Salvar"; listas salvam item a item (T
 8. **Esperando há mais tempo:** só o texto (200); os animais entram automaticamente.
 - Nota fixa no topo: "Automáticos: animais em destaque, resumo de 'Como adotar' e PIX."
 
-### T20 · Editar Como ajudar · `/admin/textos/ajude` · ⏳
+### T20 · Editar Como ajudar · `/admin/textos/ajude` · ✅ no site (14/10/2026)
 ![T20](telas/T20-editar-como-ajudar-celular.png)
 
 1. **Introdução** (300, opcional).
 2. **Formas de ajudar** (`ListaEditavel` de `ajude_formas`).
 - Nota: "O card do PIX usa a chave de ☰ Mais → Dados da ONG."
 
-### T22 · Mais · `/admin/mais` · ⏳
+### T22 · Mais · `/admin/mais` · ✅ no site (14/10/2026)
 ![T22](telas/T22-mais-celular.png)
 
 Lista simples, com botões grandes:
@@ -415,7 +430,7 @@ Lista simples, com botões grandes:
 - 🚪 **Sair**
 - Rodapé: "Precisa liberar o acesso de outra pessoa? Fale com o administrador do site."
 
-### T23 · Dados da ONG · `/admin/ong` · ⏳
+### T23 · Dados da ONG · `/admin/ong` · ✅ no site (14/10/2026)
 ![T23](telas/T23-dados-da-ong-celular.png)
 
 Formulário com os dados da tabela `ong`:
@@ -427,12 +442,13 @@ Formulário com os dados da tabela `ong`:
 - Nome completo da ONG (pouco usado, no fim).
 - Barra fixa "Cancelar / Salvar"; `AlteradoPor`.
 
-### T24 · Protetores parceiros · `/admin/protetores` · ⏳
+### T24 · Protetores parceiros · `/admin/protetores` · ✅ no site (14/10/2026)
 ![T24](telas/T24-protetores-celular.png)
 
 - Lista: nome, WhatsApp formatado e "N animais disponíveis".
 - Tocar em um protetor abre um modal com nome e WhatsApp: **Salvar** e **Excluir**. Se o protetor tiver animais, o excluir mostra o aviso da RN42 com o link "Ver animais dele" (T09 filtrado).
 - Botão "＋ Novo protetor".
+- **No site (14/10/2026):** o mesmo modal do cadastro do animal serve para cadastrar, editar e excluir. Protetor com animais não mostra o botão "Excluir": o modal já traz o aviso e o link "Ver animais dele". Excluir pede confirmação. Cada protetor mostra "Alterado por… em…".
 
 ~~T25 · Clínicas parceiras~~: **removida em 07/10/2026**. A ONG não quer citar clínicas nem valores (RN32).
 
@@ -460,7 +476,7 @@ Enviar os prints de [telas/](telas/) à Gracia e perguntar:
 17. **Autorização de imagem:** as pessoas que aparecem nas fotos autorizam a publicação no site? Em algumas aparecem crianças e adolescentes: os responsáveis autorizam? (RN38)
 18. **Nomes na história:** tudo bem citar Stephanie Christiene, pastora Dalva, Gracia, Tarlei, Deide e Adriana? E o caso do cão preso no arame: está bem contado assim?
 19. **Foto da assembleia de fundação:** alguém tem essa foto em melhor qualidade (o arquivo original da câmera ou celular, sem passar pelo WhatsApp, que reduz a imagem) ou outra foto do mesmo dia?
-13. **Área da ONG:** além de Gracia e Claudia, alguém mais vai ter acesso? A navegação com a barra de baixo (Animais · Perdidos · Textos · Mais) ficou fácil?
+13. **Área da ONG:** além de Gracia e Claudia, alguém mais vai ter acesso? _(14/10/2026: os acessos e os e-mails ficam para o treinamento com a equipe, na etapa 15)_ A navegação com a barra de baixo (Animais · Perdidos · Textos · Mais) ficou fácil?
 14. Vocês recebem pedidos de "perdido/encontrado" pelo WhatsApp que gostariam de publicar por conta própria? (T21)
 20. **Pedidos de adoção (08/10/2026):** o animal sai do site enquanto o pedido está em análise. Em quantos dias vocês conseguem analisar um pedido? (proposta: avisar no painel depois de 3 dias)
 21. Nos animais de **protetores parceiros**, quem analisa o pedido: a equipe (e repassa pelo WhatsApp) ou o próprio protetor?
@@ -474,4 +490,4 @@ Enviar os prints de [telas/](telas/) à Gracia e perguntar:
 ### Registro da validação
 | Data | Quem validou | Telas | Retorno | Ajustes |
 |---|---|---|---|---|
-| | | | | |
+| 08/10/2026 | ONG _(quem validou: a confirmar)_ | Protótipo completo (site público e área da ONG) | Validação finalizada (relato do estudante em 13/10/2026) | Fluxo de adoção definido pela ONG no mesmo dia (T26–T28, RN47–RN50); protótipo congelado em 09/10/2026 |

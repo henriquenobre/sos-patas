@@ -64,7 +64,7 @@ Originais ficam em `privado/fotos/` (fora do Git). No projeto entram só versõe
 
 ## RP04 – Registrar a data de cada etapa concluída
 
-Toda fase do projeto ou etapa do [PLANO_DESENVOLVIMENTO.md](docs/PLANO_DESENVOLVIMENTO.md) que começa ou termina ganha a data real no [LINHA_DO_TEMPO.md](docs/LINHA_DO_TEMPO.md): **Início** e **Conclusão** na tabela correspondente, duração em dias corridos e uma linha no **Diário** com a fonte (Git, relato ou doc).
+Toda fase do projeto ou etapa do [PLANO_DESENVOLVIMENTO.md](docs/PLANO_DESENVOLVIMENTO.md) que começa ou termina ganha a data real no [LINHA_DO_TEMPO.md](docs/LINHA_DO_TEMPO.md): **Início** e **Conclusão** na tabela correspondente, duração em **dias úteis** (segunda a sexta, sem feriados, porque não se trabalha no projeto nesses dias) e uma linha no **Diário** com a fonte (Git, relato ou doc).
 
 **Por quê:** o estudante precisa saber quanto tempo levou cada parte (contato com a ONG, protótipo, ambiente, desenvolvimento) para o relatório do projeto e para planejar trabalhos futuros.
 

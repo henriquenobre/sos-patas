@@ -41,11 +41,14 @@ export const rotasAnimaisAdmin = new Hono<ConfigApp>()
 const publicar = (c: Context<ConfigApp>, animalId: string) =>
   limparCache(c, caminhosPublicosDoAnimal(animalId))
 
-/** Lê a miniatura e a completa do formulário multipart (RN02). */
-async function lerArquivosFoto(c: Context<ConfigApp>): Promise<ArquivosFoto> {
+/** Lê a miniatura e a completa do formulário multipart (RN02). Também nas fotos da história. */
+export async function lerArquivosFoto(
+  c: Context<ConfigApp>,
+  corpoLido?: Record<string, unknown>,
+): Promise<ArquivosFoto> {
   let corpo: Record<string, unknown>
   try {
-    corpo = await c.req.parseBody()
+    corpo = corpoLido ?? (await c.req.parseBody())
   } catch {
     throw erros.requisicaoInvalida('Não foi possível ler a foto enviada.')
   }
