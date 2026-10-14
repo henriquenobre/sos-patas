@@ -85,7 +85,8 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-const usuario = () => userEvent.setup()
+// Sem a pausa entre teclas: o formulário é longo e, com ela, passava de 5 s no CI
+const usuario = () => userEvent.setup({ delay: null })
 const escapar = (texto: string) => texto.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 async function escolher(user: ReturnType<typeof usuario>, pergunta: string, opcao: string) {
@@ -124,7 +125,8 @@ async function preencherFormulario(user: ReturnType<typeof usuario>) {
   }
 }
 
-describe('Formulário de adoção (T26)', () => {
+// Os testes que preenchem o formulário inteiro levam alguns segundos; o runner do CI é mais lento
+describe('Formulário de adoção (T26)', { timeout: 20_000 }, () => {
   it('sem preencher, não avança e mostra o erro de cada campo', async () => {
     simular()
     const user = usuario()
