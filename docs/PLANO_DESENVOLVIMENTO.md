@@ -56,8 +56,8 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 
 **Feita por você, fora do código.** Comece já: o domínio `.org.br` depende de documentos da ONG e pode levar dias.
 
-- [x] E-mail das contas: `sitesospatas@gmail.com` (08/10/2026). Falta: recuperação por `sospatas@hotmail.com`, verificação em duas etapas por aplicativo e seu e-mail pessoal como administrador em cada serviço (ARQUITETURA.md, seção 10)
-- [ ] **Registro.br:** registrar `sospatas.org.br` no CNPJ da ONG (26.515.895/0001-90; livre e com CNPJ ativo de associação privada em 08/10/2026). **08/10/2026: pedido feito, ticket 32358834, "Registro pendente", prazo para concluir até 07/11/2026**. **13/10/2026: o Registro.br pediu documentos; cartão CNPJ e estatuto enviados para `doc@registro.br`, aguardando a análise**
+- [x] E-mail das contas: `sitesospatas@gmail.com` (08/10/2026). Verificação em duas etapas e seu e-mail pessoal como administrador no Cloudflare e no Neon feitos (informado em 14/10/2026). Falta: recuperação por `sospatas@hotmail.com` (ARQUITETURA.md, seção 10)
+- [x] **Registro.br:** registrar `sospatas.org.br` no CNPJ da ONG (26.515.895/0001-90; livre e com CNPJ ativo de associação privada em 08/10/2026). **08/10/2026: pedido feito, ticket 32358834, "Registro pendente", prazo para concluir até 07/11/2026**. **13/10/2026: o Registro.br pediu documentos; cartão CNPJ e estatuto enviados para `doc@registro.br`**. **14/10/2026: documentos aceitos, anuidade paga, domínio "Publicado", vence em 14/10/2027**
   - conta no Registro.br de uma pessoa física (CPF) e, a partir dela, a conta da ONG como **titular**, com a presidente ou alguém autorizado por ela de acordo
   - você como **contato técnico**, para poder mudar o DNS
   - pagar a anuidade (boleto, PIX ou cartão); se o Registro.br pedir documentos, enviar o cartão CNPJ e o estatuto (separar o PDF do estatuto já, para não atrasar)
@@ -68,10 +68,10 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
   - [x] Zero Trust ativado no plano gratuito, com o nome do time `sospatas`
   - [x] R2 ativado com o cartão pessoal do mantenedor (08/10/2026); os buckets só são criados nas etapas 8 e 14
   - [x] Alerta de orçamento em US$ 1 (Billing → Budget alerts) para o Gmail do site (ARQUITETURA.md, seção 11.1) (09/10/2026)
-  - [ ] adicionar `sospatas.org.br` só depois que o Registro.br concluir o registro
-- [x] **Neon:** projeto `sospatas` em São Paulo, PostgreSQL 18, branch padrão `production` (08/10/2026). Falta: convidar seu e-mail pessoal. A prévia usa um projeto separado, `sospatas-previa` (criado em 09/10/2026, etapa 8)
+  - [ ] adicionar `sospatas.org.br` só depois que o Registro.br concluir o registro (concluído em 14/10/2026: já pode adicionar). No Cloudflare: **+ Add → Connect a domain**, plano **Free**, sem registros de DNS por enquanto (a etapa 14 cria os do Pages, do Worker e das fotos). Depois, no Registro.br: domínio → **DNS → Alterar servidores DNS**, trocar pelos 2 servidores que o Cloudflare mostrar. O domínio fica **Active** quando o Cloudflare enxergar a troca (minutos a algumas horas; chega um e-mail)
+- [x] **Neon:** projeto `sospatas` em São Paulo, PostgreSQL 18, branch padrão `production` (08/10/2026). Seu e-mail pessoal convidado (informado em 14/10/2026). A prévia usa um projeto separado, `sospatas-previa` (criado em 09/10/2026, etapa 8)
   - [x] Compute da branch `production` fixo em **0,25 CU** (mínimo e máximo), para não gastar as 100 CU-horas do mês num pico (ARQUITETURA.md, seção 11.2) (09/10/2026; o `sospatas-previa` também)
-- [ ] Lista de e-mails da equipe (Gracia, Claudia e quem mais a ONG indicar, TELAS.md pergunta 13)
+- [x] ~~Lista de e-mails da equipe~~: **passou para a etapa 15** (decidido em 14/10/2026). Os acessos são criados no treinamento com a equipe
 - [x] Ferramentas locais (08/10/2026): Node 24.21 (pelo nvm-windows), pnpm 12.10 (pelo Corepack) e Docker Desktop 29. O Wrangler é dependência do `apps/api` (etapa 1): `pnpm -C apps/api exec wrangler login` com o seu e-mail pessoal (na raiz, `pnpm wrangler` não encontra o comando)
 
 **Pronto quando:** contas criadas e acessos guardados num gerenciador de senhas; domínio pedido (pode ainda não estar ativo).
@@ -298,7 +298,7 @@ Na ordem de prioridade:
 **Entregas:**
 - DNS de `sospatas.org.br` no Cloudflare; Pages em `sospatas.org.br`; Worker na rota `sospatas.org.br/api/*`; bucket público em `fotos.sospatas.org.br`
 - Neon `production` com migrations e `seed_conteudo.sql`; fotos da história enviadas ao R2 em `site/historia/{id}.webp` com os ids do seed (script pronto desde a etapa 6: `pnpm db:fotos-historia -- --remoto`)
-- **Cloudflare Access:** aplicação protegendo `/admin/*` e `/api/admin/*`, política com os e-mails da equipe, código por e-mail, sessão de 30 dias, página de login com logo e cores (T08); linhas em `equipe`; cookie com **`SameSite=Lax`** (camada extra contra CSRF, além do `middleware/origem.ts`) e conferir no navegador que salvar na área da ONG continua funcionando
+- **Cloudflare Access:** aplicação protegendo `/admin/*` e `/api/admin/*`, política começando só com o seu e-mail (os da equipe entram no treinamento, etapa 15), código por e-mail, sessão de 30 dias, página de login com logo e cores (T08); linhas em `equipe`; cookie com **`SameSite=Lax`** (camada extra contra CSRF, além do `middleware/origem.ts`) e conferir no navegador que salvar na área da ONG continua funcionando
 - Turnstile (site key no front, segredo na API) e Web Analytics
 - **Email Routing** em `sospatas.org.br` com `sitesospatas@gmail.com` verificado como destino; testar o "Fale com a ONG" (`/contato`, RN51) com um envio real (formulário pronto desde 09/10/2026; ARQUITETURA.md, seção 9)
 - `deploy.yml` (migrations → `wrangler deploy` → Pages) e `backup.yml` (dump diário → `sospatas-backups`, 30 dias)
@@ -306,11 +306,12 @@ Na ordem de prioridade:
 - Usuário do banco só com DML para a API e outro para migrations (ARQUITETURA.md, seção 5)
 - **Teste de restauração** do backup num banco vazio, documentado no README
 
-**Pronto quando:** login funciona com um e-mail da equipe e é recusado para um e-mail de fora; um merge na `main` publica sozinho; existe ao menos um backup restaurado com sucesso; uma mensagem do "Fale com a ONG" chega no Gmail da ONG e a resposta volta para quem escreveu.
+**Pronto quando:** login funciona com o seu e-mail e é recusado para um e-mail de fora; um merge na `main` publica sozinho; existe ao menos um backup restaurado com sucesso; uma mensagem do "Fale com a ONG" chega no Gmail da ONG e a resposta volta para quem escreveu.
 
 ## Etapa 15 · Dados reais, teste com a ONG e ajustes finais
 
 **Entregas:**
+- **Treinamento com a equipe e criação dos acessos** (decidido em 14/10/2026): no encontro, pegar o e-mail de cada pessoa (Gracia, Claudia e quem a ONG indicar, TELAS.md pergunta 13), incluir na política do Access e na tabela `equipe`, e cada uma faz o primeiro login no próprio celular
 - Conferir que a produção não tem dados de exemplo (só o `seed_conteudo.sql` vai para lá); Gracia ou Claudia cadastram os primeiros animais reais pelo celular (tarefa 7 do roteiro)
 - Revisão em 360 px de todas as telas, acessibilidade básica (contraste, `alt`, toque ≥ 44 px), Lighthouse do Início e da vitrine
 - Correções do teste com a ONG, registradas em TELAS.md ("Registro da validação")
