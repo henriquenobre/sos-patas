@@ -157,7 +157,7 @@ docker exec sospatas-postgres psql -U sospatas -d postgres -c 'CREATE DATABASE r
 gzip -dc 2026-10-20.sql.gz | docker exec -i sospatas-postgres psql -U sospatas -d restaurado -v ON_ERROR_STOP=1
 
 # Para valer, num projeto novo do Neon (vazio, São Paulo, PostgreSQL 18), com a string do dono:
-gzip -dc 2026-10-20.sql.gz | docker run --rm -i public.ecr.aws/docker/library/postgres:18 \
+gzip -dc 2026-10-20.sql.gz | docker run --rm -i mirror.gcr.io/library/postgres:18 \
   psql 'postgresql://neondb_owner:...@.../neondb?sslmode=require' -v ON_ERROR_STOP=1
 ```
 

@@ -4,8 +4,20 @@ import postgres from 'postgres'
 export const URL_LOCAL = 'postgres://sospatas:sospatas@localhost:5432/sospatas'
 export const URL_TESTE = 'postgres://sospatas:sospatas@localhost:5432/sospatas_teste'
 
+/**
+ * A string que o Neon mostra no botão Connect termina em `channel_binding=require`. O libpq
+ * (psql, pg_dump) entende esse parâmetro, mas o postgres.js o repassa ao banco como se fosse
+ * uma configuração do Postgres, e a conexão é recusada ("unrecognized configuration parameter").
+ * Aqui ele sai; a conexão continua cifrada pelo `sslmode=require`.
+ */
+export function semParametrosDoLibpq(url: string): string {
+  const endereco = new URL(url)
+  endereco.searchParams.delete('channel_binding')
+  return endereco.toString()
+}
+
 export function urlDoBanco(): string {
-  return process.env.DATABASE_URL ?? URL_LOCAL
+  return semParametrosDoLibpq(process.env.DATABASE_URL ?? URL_LOCAL)
 }
 
 export function ehBancoLocal(url: string): boolean {
