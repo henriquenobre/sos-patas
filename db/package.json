@@ -11,7 +11,7 @@
   },
   "scripts": {
     "gerar": "drizzle-kit generate",
-    "migrar": "drizzle-kit migrate",
+    "migrar": "tsx scripts/migrar.ts",
     "semear": "tsx scripts/semear.ts",
     "typecheck": "tsc",
     "test": "vitest run",
