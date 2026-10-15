@@ -43,7 +43,7 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | 11 | Perdidos e encontrados | 13/10/2026 | 14/10/2026 | 2 dias | API, telas T12–T14 e limpeza diária com testes em 13/10; ajustes e merge na `develop` em 14/10 |
 | 12 | Editor de textos | 14/10/2026 | 14/10/2026 | 1 dia | API, telas T15–T20 e testes; conferida pelo celular |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores | 14/10/2026 | 14/10/2026 | 1 dia | Telas T21–T24 e "Alterado por", com testes; na `develop` pelo PR #14. Conferência pelo celular _(a confirmar)_ |
-| 14 | Produção | | | | |
+| 14 | Produção | 14/10/2026 | | | |
 | 15 | Dados reais, teste com a ONG e ajustes finais | | | | |
 
 ## Diário
@@ -109,3 +109,5 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 14/10/2026 | | 6 | **Etapa 0 concluída** (fase 6, preparação do ambiente): contas, domínio ativo no Cloudflare e ferramentas | relato |
 | 14/10/2026 | 14:25 | 7 | **Etapa 13 concluída:** dados da ONG, anúncio pela equipe, protetores e "Alterado por" na `develop` (PR #14) | Git |
 | 14/10/2026 | | – | Durações passam a contar só **dias úteis** (sem fim de semana e sem o feriado de 12/10), porque não houve trabalho nesses dias; durações anteriores recalculadas | relato |
+| 14/10/2026 | | 7 | **Etapa 14 iniciada** (branch `etapa-14-producao`): workflows de deploy e backup, cabeçalhos de segurança, usuário da API no banco e rota de produção; backup e restauração testados no computador | doc (verificação local) |
+| 14/10/2026 | | 7 | Etapa 14: Hyperdrive de produção (usuário só com DML, sem cache), Zero Trust Free ativado (time `sospatas`; o registro de 08/10 estava errado) e aplicação "Área da ONG" no Access protegendo `/admin` e `/api/admin` | relato |

@@ -43,7 +43,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 20–21/10 | ✅ 14/10 |
 | 12 | Editor de textos (T15–T20) | 10 | 21–23/10 | ✅ 14/10 |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores, "Alterado por" | 11, 12 | 23–24/10 | ✅ 14/10 |
-| 14 | Produção: domínio, Access, CI/CD, backup e segurança | 8, 13 | 24–27/10 | ⬜ |
+| 14 | Produção: domínio, Access, CI/CD, backup e segurança | 8, 13 | 24–27/10 | 🔄 iniciada em 14/10 |
 | 15 | Dados reais, teste com a ONG e ajustes finais | 14 | 27–30/10 | ⬜ |
 
 Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada (anotar o motivo).
@@ -65,7 +65,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 - [x] **GitHub:** o site fica neste repositório, `henriquenobre/sos-patas` (decidido em 08/10/2026). Transferir para uma organização da ONG antes de deixar a manutenção (ARQUITETURA.md, seção 10)
 - [x] **Cloudflare:** conta criada com `sitesospatas@gmail.com` (08/10/2026)
   - [x] verificação em duas etapas e seu e-mail pessoal como membro administrador (Manage account → Members)
-  - [x] Zero Trust ativado no plano gratuito, com o nome do time `sospatas`
+  - [x] Zero Trust ativado no plano gratuito (Zero Trust Free, até 50 usuários), com o nome do time `sospatas` (`sospatas.cloudflareaccess.com`). **Correção em 14/10/2026:** a ativação só aconteceu de fato em 14/10, na etapa 14; o time nasceu com nome automático e foi renomeado para `sospatas`
   - [x] R2 ativado com o cartão pessoal do mantenedor (08/10/2026); os buckets só são criados nas etapas 8 e 14
   - [x] Alerta de orçamento em US$ 1 (Billing → Budget alerts) para o Gmail do site (ARQUITETURA.md, seção 11.1) (09/10/2026)
   - [x] `sospatas.org.br` adicionado (plano Free) e servidores DNS trocados no Registro.br para `jimmy.ns.cloudflare.com` e `melina.ns.cloudflare.com`: **Active em 14/10/2026**. Mantidos os registros que o Registro.br criou para domínio sem e-mail (MX nulo, `v=spf1 -all` e `_dmarc` com `p=reject`), que impedem e-mail falso em nome da ONG. Robôs de IA: busca e agentes liberados, treinamento bloqueado (ARQUITETURA.md, seção 10)
@@ -311,6 +311,8 @@ Na ordem de prioridade:
 - **Teste de restauração** do backup num banco vazio, documentado no README
 
 **Pronto quando:** login funciona com o seu e-mail e é recusado para um e-mail de fora; um merge na `main` publica sozinho; existe ao menos um backup restaurado com sucesso; uma mensagem do "Fale com a ONG" chega no Gmail da ONG e a resposta volta para quem escreveu.
+
+**Andamento (14/10/2026):** branch `etapa-14-producao`. Código pronto: `deploy.yml` (depois do CI verde da `main`: migrations e `wrangler deploy`), `backup.yml` (diário, `pg_dump` → R2, 30 dias), `apps/web/public/_headers` (CSP sem `unsafe-inline` e cabeçalhos de segurança), `db/producao/permissoes-api.sql` (usuário da API só com DML), rota `sospatas.org.br/api/*` no `wrangler.toml` (sem `*.workers.dev` na produção), CORS da prévia para `develop.sospatas.pages.dev` e a seção "Produção" do README (publicar, segredos, primeira carga, equipe, backup e restauração). Conferido no computador: permissões do usuário da API (lê e grava, não apaga tabela), backup e restauração com o `pg_dump` 18 num banco vazio, regra dos 30 dias, build da API com a rota e os workflows no `actionlint`. **Configurado em 14 e 15/10/2026:** primeira carga do Neon `production` (migrations, conteúdo, permissões do `sospatas_api`), buckets do R2 com `fotos.sospatas.org.br`, Hyperdrive `sospatas` (usuário `sospatas_api`, sem cache), Zero Trust Free com o time `sospatas` e a aplicação "Área da ONG" no Access, hostnames do Turnstile, Email Routing com o Gmail verificado, tokens `deploy-github` e `backup-github` e os cinco secrets do GitHub. **Falta:** segredos da API de produção, Pages com a `main` e o domínio, Web Analytics, a primeira publicação e os testes do "Pronto quando".
 
 ## Etapa 15 · Dados reais, teste com a ONG e ajustes finais
 
