@@ -1,0 +1,60 @@
+# Publica a produção depois que o CI da main passa (docs/ARQUITETURA.md, seção 9):
+# migrations no Neon → API no Worker. O site (front) é publicado pelo próprio Cloudflare Pages,
+# ligado ao GitHub, a cada push na main.
+#
+# Secrets do repositório (Settings → Secrets and variables → Actions):
+#   NEON_DATABASE_URL       string de conexão do Neon production com o dono do banco (sem pooling)
+#   CLOUDFLARE_API_TOKEN    token "Edit Cloudflare Workers", só desta conta e da zona sospatas.org.br
+#   CLOUDFLARE_ACCOUNT_ID   id da conta do Cloudflare
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  # Publicar de novo sem um commit novo (Actions → Deploy → Run workflow), sempre a partir da main
+  workflow_dispatch:
+
+# Um deploy de cada vez; o mais novo espera o anterior terminar
+concurrency:
+  group: deploy-producao
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    name: Migrations e API
+    runs-on: ubuntu-latest
+    # Só com o CI verde de um push na main (não de um PR)
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
+    environment: producao
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # O commit que passou no CI (no workflow_dispatch, o último da main)
+          ref: ${{ github.event.workflow_run.head_sha || 'main' }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Antes da API nova: as migrations só acrescentam (a API antiga continua funcionando)
+      - name: Migrations no Neon
+        run: pnpm db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+
+      - name: Publicar a API
+        run: pnpm -C apps/api exec wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -84,7 +84,7 @@ A prévia é uma cópia do site com os dados de exemplo, em endereços do Cloudf
 | Ligação API ↔ banco | Hyperdrive `sospatas-previa` (id no `[env.previa]` do `wrangler.toml`) |
 | Fotos | Buckets `sospatas-fotos-previa` e `sospatas-quarentena-previa` |
 | API | Worker `sospatas-api-previa` |
-| Site | Pages `sospatas` (`https://sospatas.pages.dev`), branch de produção do Pages = `develop` até a etapa 14. Variáveis: `VITE_API_URL=https://sospatas-api-previa.sospatas.workers.dev`, `VITE_TURNSTILE_SITE_KEY` (Site key pública do widget Turnstile "SOS Patas") e `PNPM_VERSION=12.10.1` |
+| Site | Pages `sospatas`: a `develop` publica em `https://develop.sospatas.pages.dev` (implantação de prévia do Pages; até a etapa 14 era a de produção, em `sospatas.pages.dev`). Variáveis do ambiente **Preview** do Pages: `VITE_API_URL=https://sospatas-api-previa.sospatas.workers.dev`, `VITE_TURNSTILE_SITE_KEY` (Site key pública do widget Turnstile "SOS Patas") e `PNPM_VERSION=12.10.1` |
 
 **Atualizar o banco da prévia** (Git Bash, com a string do Neon em `DATABASE_URL`):
 
@@ -100,8 +100,69 @@ O `--previa` só funciona num banco marcado como prévia; a produção nunca tem
 
 **Publicar a API:** `pnpm -C apps/api exec wrangler deploy --env previa`. Segredos (uma vez, ou para trocar): `pnpm -C apps/api exec wrangler secret put TURNSTILE_SECRET --env previa` e o mesmo para `IP_HASH_SECRET` (texto aleatório longo).
 
-**Publicar o site:** o Pages publica sozinho a cada push na `develop`.
+**Publicar o site:** o Pages publica sozinho a cada push na `develop`, em `develop.sospatas.pages.dev`.
 
 **Depois de publicar a API**, as rotas públicas podem mostrar a versão anterior por até 15 minutos: a borda do Cloudflare guarda as respostas (`s-maxage=900`). Mudou a configuração e o site ainda mostra o comportamento antigo? Espere e recarregue.
+
+## Produção
+
+O site no ar em `https://sospatas.org.br` ([ARQUITETURA.md](docs/ARQUITETURA.md), seção 9). Senhas e strings de conexão ficam em `privado/dados-sensiveis/`, nunca no repositório.
+
+| Peça | Onde |
+|---|---|
+| Banco | Projeto `sospatas` do Neon, branch `production`. Dois usuários: `neondb_owner` (migrations e backup, só no GitHub Actions) e `sospatas_api` (a API, só lê e grava dados; permissões em [db/producao/permissoes-api.sql](db/producao/permissoes-api.sql)) |
+| Ligação API ↔ banco | Hyperdrive `sospatas` (id no nível de cima do `wrangler.toml`), com o usuário `sospatas_api` |
+| Fotos | Bucket `sospatas-fotos` (público pelo domínio `fotos.sospatas.org.br`) e `sospatas-quarentena` (privado) |
+| Backup | Bucket `sospatas-backups` (privado), 30 dias |
+| API | Worker `sospatas-api`, na rota `sospatas.org.br/api/*` (sem endereço `*.workers.dev`) |
+| Site | Pages `sospatas`, branch de produção `main`, domínio `sospatas.org.br`. Variáveis do ambiente **Production** do Pages: `VITE_TURNSTILE_SITE_KEY` e `PNPM_VERSION=12.10.1` (sem `VITE_API_URL`: a API está no mesmo endereço) |
+| Login | Cloudflare Access, aplicação "Área da ONG" em `sospatas.org.br/admin` e `sospatas.org.br/api/admin` |
+
+**Publicar:** PR da `develop` para a `main`. Com o merge, o CI roda e, se passar, o workflow **Deploy** aplica as migrations no Neon e publica a API; o Pages publica o site sozinho. Para publicar de novo sem mudança (por exemplo, depois de trocar um segredo): GitHub → Actions → Deploy → Run workflow.
+
+**Secrets do GitHub** (Settings → Secrets and variables → Actions): `NEON_DATABASE_URL` (string do `neondb_owner`, sem pooling), `CLOUDFLARE_API_TOKEN` (modelo "Edit Cloudflare Workers", só esta conta e a zona `sospatas.org.br`), `CLOUDFLARE_ACCOUNT_ID`, `R2_ACCESS_KEY_ID` e `R2_SECRET_ACCESS_KEY` (token do R2 com "Object Read & Write" só no bucket `sospatas-backups`).
+
+**Segredos da API** (uma vez, ou para trocar): `pnpm -C apps/api exec wrangler secret put TURNSTILE_SECRET` e o mesmo para `IP_HASH_SECRET` (texto aleatório longo, diferente do da prévia).
+
+**Primeira carga do banco** (Git Bash, com a string do `neondb_owner` em `DATABASE_URL`):
+
+```bash
+export DATABASE_URL='postgresql://neondb_owner:...'    # Neon sospatas, branch production, sem pooling
+pnpm db:migrate                                        # cria as tabelas
+pnpm db:seed --conteudo                                # dados da ONG, textos e listas (sem dados de exemplo)
+pnpm db:fotos-historia -- --remoto                     # fotos da história no bucket sospatas-fotos
+```
+
+Depois, no SQL Editor do Neon: rodar [db/producao/permissoes-api.sql](db/producao/permissoes-api.sql) (o usuário `sospatas_api` precisa existir: Roles → New role) e incluir quem entra na área da ONG (abaixo).
+
+**Incluir alguém na área da ONG:** são dois lugares, e a pessoa só entra com os dois.
+
+1. Cloudflare → Zero Trust → Access → Applications → "Área da ONG" → política → acrescentar o e-mail.
+2. No SQL Editor do Neon: `INSERT INTO equipe (email, nome) VALUES ('fulana@gmail.com', 'Fulana');` (e-mail em minúsculas; o nome aparece no "Olá" e no "Alterado por").
+
+**Tirar alguém:** remover o e-mail da política do Access e, no Neon, `UPDATE equipe SET ativo = false WHERE email = 'fulana@gmail.com';` (não apagar: o "Alterado por" continua mostrando o nome).
+
+### Backup e restauração
+
+O workflow **Backup** roda todo dia às 03:30 (Brasília): faz o `pg_dump` do Neon e guarda `AAAA-MM-DD.sql.gz` no bucket `sospatas-backups`, apagando os de mais de 30 dias. Para rodar na hora: Actions → Backup → Run workflow. As fotos não entram no backup (o R2 já guarda com redundância).
+
+**Restaurar** sempre num banco **vazio** (o dump cria as tabelas):
+
+1. Baixar o arquivo: Cloudflare → R2 → `sospatas-backups` → escolher a data → Download.
+2. Escolher o destino e restaurar (Git Bash, com o Docker aberto):
+
+```bash
+# Para testar, no Postgres do Docker (banco novo "restaurado"):
+docker exec sospatas-postgres psql -U sospatas -d postgres -c 'CREATE DATABASE restaurado'
+gzip -dc 2026-10-20.sql.gz | docker exec -i sospatas-postgres psql -U sospatas -d restaurado -v ON_ERROR_STOP=1
+
+# Para valer, num projeto novo do Neon (vazio, São Paulo, PostgreSQL 18), com a string do dono:
+gzip -dc 2026-10-20.sql.gz | docker run --rm -i public.ecr.aws/docker/library/postgres:18 \
+  psql 'postgresql://neondb_owner:...@.../neondb?sslmode=require' -v ON_ERROR_STOP=1
+```
+
+3. Conferir (por exemplo, `SELECT count(*) FROM animais;`). Se for para valer: criar o usuário `sospatas_api` no projeto novo, rodar o [permissoes-api.sql](db/producao/permissoes-api.sql), apontar o Hyperdrive para ele e trocar o `NEON_DATABASE_URL` do GitHub.
+
+Teste de restauração feito: _(a fazer na etapa 14)_.
 
 > No protótipo, todos os animais são exemplos fictícios: nenhum está de fato para adoção, e as fotos são apenas ilustrativas. A história e as fotos institucionais da página inicial foram enviadas pela ONG.

@@ -19,7 +19,7 @@
         │                            │                             ▲
         │  fetch /api/...            │  binding R2 ────────────────┘
         └──────────────────────────► │
-                                     │  Hyperdrive (pool + cache)
+                                     │  Hyperdrive (pool, sem cache)
    Cloudflare Access ───────────────►│        │
    protege /admin/* e /api/admin/*   │        ▼
    (login por código no e-mail)      │   Neon (PostgreSQL)
@@ -36,7 +36,7 @@
 | Front                      | **Cloudflare Pages** (React + Vite)                   | Grátis, banda ilimitada                                | Site estático; servidores no Brasil                                                     |
 | API                        | **Cloudflare Workers** + **Hono**               | Grátis: 100 mil req/dia, 10 ms de CPU por requisição | Não "dorme"; responde do Brasil; Hono roda igual em Node (portável)                    |
 | Banco                      | **Neon** (PostgreSQL 18, São Paulo)                  | Grátis: 0,5 GB por projeto                             | Postgres padrão (portável); sem pausa de projeto                                       |
-| Ligação API ↔ banco     | **Cloudflare Hyperdrive**                             | Grátis: 100 mil consultas/dia                          | Pool de conexões e cache de leitura; Workers não mantêm conexão aberta               |
+| Ligação API ↔ banco     | **Cloudflare Hyperdrive**                             | Grátis: 100 mil consultas/dia                          | Pool de conexões, **com o cache desligado** (14/10/2026); Workers não mantêm conexão aberta |
 | Fotos                      | **Cloudflare R2**                                     | Grátis: 10 GB,**tráfego de saída grátis**     | O tráfego das fotos era o limite mais apertado (Supabase: 5 GB/mês)                    |
 | Login da equipe            | **Cloudflare Access** (Zero Trust)                    | Grátis até 50 usuários                               | Sem senha para guardar (ver seção 4); cabe no limite de CPU                            |
 | Antirrobô                 | **Cloudflare Turnstile**                              | Grátis                                                 | Formulários públicos (RN22)                                                            |
@@ -108,6 +108,7 @@ sos-patas/
 │   ├── drizzle.config.ts        # DATABASE_URL ou, sem ela, o Postgres local
 │   ├── migrations/              # SQL gerado e versionado (drizzle-kit) + migrations manuais
 │   ├── seed/                    # seed_conteudo.sql (ong, textos, itens), seed_dev.sql (só local), fotos_historia.json
+│   ├── producao/                # permissoes-api.sql: usuário da API só com DML (seção 5)
 │   ├── scripts/                 # semear.ts (pnpm db:seed), seed.ts, url.ts, imagens.ts (WebP + envio ao R2),
 │   │                            #   fotos-historia.ts (pnpm db:fotos-historia), fotos-exemplo.ts (só local)
 │   ├── testes/                  # testes de migrations, seed e constraints
@@ -203,9 +204,9 @@ sos-patas/
 - **Testes do banco** (`db/testes/`) recriam o banco `sospatas_teste` com as migrations e conferem o seed e as constraints. No CI, um serviço Postgres 18 faz esse papel, com a imagem oficial baixada do espelho da AWS (`public.ecr.aws/docker/library/postgres:18`), porque o Docker Hub limita downloads anônimos.
 - **Constraints no banco** além da API: `CHECK (char_length(...))` dos limites de texto (RN34), `CHECK` de `protetor_id` × `responsavel_tipo` (RN42), FK `restrict` de protetores, `CHECK (id = 1)` em `ong` e as demais de "Limites e garantias no banco" (DESENVOLVIMENTO.md, seção 5).
 - **Conexão na API:** `apps/api/src/db.ts` cria o cliente postgres.js + Drizzle a partir de `env.HYPERDRIVE.connectionString`, um por requisição.
-- **Usuário do banco** da API com privilégios só de DML nas tabelas do app (sem DDL); outro usuário, só no CI, para migrations.
+- **Usuário do banco** da API (`sospatas_api`, no Hyperdrive) com privilégios só de DML nas tabelas do app (sem DDL nem `TRUNCATE`), dados por `db/producao/permissoes-api.sql`, que também vale para as tabelas de migrations futuras. O dono do banco (`neondb_owner`) fica só no GitHub Actions, para as migrations e o backup.
 - **Sem RLS:** a fronteira de segurança é a API (rotas públicas só leem colunas públicas; `animais_privado` só é consultada em rotas `/admin`).
-- **Primeiro acesso após inatividade:** o Neon suspende o processamento após 5 min sem uso e "acorda" em alguns segundos. O cache de leitura do Hyperdrive e o `Cache-Control` das rotas públicas escondem isso na maioria das visitas. Se incomodar, o plano pago do Neon desliga a suspensão.
+- **Primeiro acesso após inatividade:** o Neon suspende o processamento após 5 min sem uso e "acorda" em alguns segundos. O `Cache-Control` e o cache da API nas rotas públicas escondem isso na maioria das visitas. O **cache de leitura do Hyperdrive fica desligado** (produção e prévia, 14/10/2026): ele guarda leituras por até 1 min sem saber das gravações, e a tela da equipe e o "Ver no site" mostrariam o conteúdo antigo logo depois de salvar (RN37). Se incomodar, o plano pago do Neon desliga a suspensão.
 
 ## 6. Fotos (R2)
 
@@ -238,7 +239,7 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 
 ## 8. Backup
 
-- **Workflow `backup.yml`** (GitHub Actions, diário): `pg_dump` do Neon → arquivo `.sql.gz` → `sospatas-backups/AAAA-MM-DD.sql.gz` no R2 (pela API S3 do R2). Mantém os últimos **30 dias** (apaga os mais antigos).
+- **Workflow `backup.yml`** (GitHub Actions, diário às 03:30 de Brasília, depois da tarefa do Worker; `pg_dump` da imagem oficial do PostgreSQL 18, igual à versão do Neon; o dump incompleto é recusado): `pg_dump` do Neon → arquivo `.sql.gz` → `sospatas-backups/AAAA-MM-DD.sql.gz` no R2 (pela API S3 do R2). Mantém os últimos **30 dias** (apaga os mais antigos).
 - **Restauração** documentada no README (`psql` a partir do dump) e **testada uma vez antes da entrega** (tarefa 8).
 - O Neon também mantém **6 horas** de histórico para restauração no plano gratuito. O backup próprio é a garantia de longo prazo.
 - As fotos não entram no backup (o R2 é durável); a perda de uma foto não perde o cadastro.
@@ -248,7 +249,7 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 | Ambiente             | Front                           | API                                                                                                 | Banco                                                                                                                   | Fotos                                |
 | -------------------- | ------------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
 | **Local**      | `pnpm dev` (Vite, porta 5173) | `wrangler dev` (porta 8787, com proxy de `/api` no Vite)                                        | Postgres 18 no`docker-compose` (`sospatas` e `sospatas_teste`)                                                    | R2 simulado localmente pelo Wrangler |
-| **Prévia**    | Pages, branch`develop`        | Worker`sospatas-api-previa` (`--env previa`, `*.workers.dev`), Hyperdrive `sospatas-previa` | Projeto do Neon`sospatas-previa`, marcado com `COMMENT ON DATABASE` para aceitar os dados de exemplo (`--previa`) | Buckets`-previa`                   |
+| **Prévia**    | Pages, branch`develop` (`develop.sospatas.pages.dev` desde a etapa 14) | Worker`sospatas-api-previa` (`--env previa`, `*.workers.dev`), Hyperdrive `sospatas-previa` | Projeto do Neon`sospatas-previa`, marcado com `COMMENT ON DATABASE` para aceitar os dados de exemplo (`--previa`) | Buckets`-previa`                   |
 | **Produção** | `sospatas.org.br`             | `sospatas.org.br/api`                                                                             | Neon`production`                                                                                                      | `fotos.sospatas.org.br`            |
 
 **Configuração do Worker:** no `wrangler.toml`, o nível de cima é a **produção** (`AMBIENTE=producao`) e `[env.previa]` repete todos os bindings (eles não são herdados). No computador, o `.dev.vars` troca `AMBIENTE` para `local`; sem ele, a API se comporta como produção, o que mantém desligado qualquer atalho de desenvolvimento. Os tipos do `env` (`worker-configuration.d.ts`) são gerados por `wrangler types` na instalação e no typecheck, e ficam fora do Git.
@@ -261,7 +262,7 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 | `develop`                      | **Integração e testes**: recebe o trabalho de cada etapa ou correção             | Prévia (a partir da etapa 8)     |
 | `etapa-NN-…`, `correcao-…` | Trabalho do dia a dia, criadas a partir da`develop`                                      | –                                |
 
-**Fluxo:** branch da etapa → PR para a `develop` (correções fora de uma etapa são feitas direto na `develop`, RP05) → `ci.yml` (typecheck, lint, formatação, testes e build) → merge → prévia atualizada → testado, PR da `develop` para a `main` → `deploy.yml`: migrations no Neon → `wrangler deploy` da API → o Pages publica o front pela integração com o GitHub. Versões marcadas com tag na `main` (`v1.0.0`, …) a partir da primeira publicação.
+**Fluxo:** branch da etapa → PR para a `develop` (correções fora de uma etapa são feitas direto na `develop`, RP05) → `ci.yml` (typecheck, lint, formatação, testes e build) → merge → prévia atualizada → testado, PR da `develop` para a `main` → `deploy.yml` (roda só depois do CI verde de um push na `main`, ou pelo botão "Run workflow"): migrations no Neon → `wrangler deploy` da API → o Pages publica o front pela integração com o GitHub. A API de produção só responde em `sospatas.org.br/api/*` (`workers_dev = false`). Versões marcadas com tag na `main` (`v1.0.0`, …) a partir da primeira publicação.
 
 **Segredos** (nunca no código; `wrangler secret` e secrets do GitHub):
 
@@ -276,7 +277,7 @@ O antigo "keep-alive" do Supabase (RN16) **deixa de existir**: o Neon não pausa
 
 **E-mail do "Fale com a ONG" (RN51):** a API envia pelo **Cloudflare Email Routing** (binding `EMAIL` do tipo `send_email`, só no nível de produção do `wrangler.toml`). O remetente é `EMAIL_REMETENTE` (`site@sospatas.org.br`) e o destino é `EMAIL_DESTINO` (`sitesospatas@gmail.com`), ambos em `[vars]`; a mensagem é montada em texto puro com `Reply-To` de quem escreveu (`servicos/email.ts`). Na etapa 14: ativar o Email Routing em `sospatas.org.br` (o Cloudflare cria os registros MX/SPF), **verificar** `sitesospatas@gmail.com` como destino (chega um e-mail de confirmação nessa caixa) e conferir com um envio real. Na prévia não há binding (o Email Routing exige o domínio) e o formulário responde 503, com o e-mail da ONG na tela; no computador, o `wrangler dev` simula o envio e mostra o arquivo da mensagem no terminal. Se o e-mail da ONG mudar, é preciso verificar o novo destino e trocar `EMAIL_DESTINO` e `destination_address`.
 
-**Segurança do front:** arquivo `_headers` no Pages com `Content-Security-Policy` (fontes do Google, fotos de `fotos.sospatas.org.br`, Turnstile), `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy` (sem câmera/localização).
+**Segurança do front:** arquivo `apps/web/public/_headers` (etapa 14) no Pages com `Content-Security-Policy` (fontes do Google, fotos de `fotos.sospatas.org.br`, Turnstile, Web Analytics e, para a prévia, o Worker `*.workers.dev`; sem `unsafe-inline`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy` (sem câmera/localização).
 
 ## 10. Contas e propriedade
 
