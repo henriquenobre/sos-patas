@@ -1,0 +1,66 @@
+# Backup diário do banco de produção (docs/ARQUITETURA.md, seção 8): pg_dump do Neon →
+# sospatas-backups/AAAA-MM-DD.sql.gz no R2 (pela API S3), guardando os últimos 30 dias.
+# Restaurar: README, "Backup e restauração".
+#
+# Secrets do repositório (Settings → Secrets and variables → Actions):
+#   NEON_DATABASE_URL       a mesma do deploy (dono do banco, sem pooling)
+#   CLOUDFLARE_ACCOUNT_ID   id da conta do Cloudflare (endereço S3 do R2)
+#   R2_ACCESS_KEY_ID        chave S3 do R2 com "Object Read & Write" só no bucket sospatas-backups
+#   R2_SECRET_ACCESS_KEY
+name: Backup
+
+on:
+  schedule:
+    # 03:30 de Brasília, depois da tarefa diária do Worker (03:00)
+    - cron: '30 6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+env:
+  BUCKET: sospatas-backups
+  DIAS_GUARDADOS: 30
+
+jobs:
+  backup:
+    name: pg_dump → R2
+    runs-on: ubuntu-latest
+    environment: producao
+
+    steps:
+      # pg_dump da mesma versão do Neon (PostgreSQL 18), pela imagem oficial no espelho da AWS
+      - name: Dump do banco
+        env:
+          DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: |
+          set -euo pipefail
+          ARQUIVO="$(TZ=America/Sao_Paulo date +%F).sql.gz"
+          docker run --rm -e DATABASE_URL public.ecr.aws/docker/library/postgres:18 \
+            sh -c 'pg_dump --no-owner --no-privileges "$DATABASE_URL"' | gzip -9 > "$ARQUIVO"
+          # Um dump que não chegou ao fim não tem o rodapé do pg_dump: falha em vez de guardar
+          gzip -dc "$ARQUIVO" | tail -n 5 | grep -q 'PostgreSQL database dump complete'
+          echo "ARQUIVO=$ARQUIVO" >> "$GITHUB_ENV"
+          ls -lh "$ARQUIVO"
+
+      - name: Enviar ao R2 e apagar os antigos
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          # O R2 não aceita as somas de verificação que o AWS CLI novo manda por padrão
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+          R2: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+        run: |
+          set -euo pipefail
+          aws s3 cp "$ARQUIVO" "s3://$BUCKET/$ARQUIVO" --endpoint-url "$R2"
+          LIMITE="$(TZ=America/Sao_Paulo date -d "-$DIAS_GUARDADOS days" +%F)"
+          aws s3 ls "s3://$BUCKET/" --endpoint-url "$R2" | awk '{print $4}' | while read -r nome; do
+            # Só os arquivos do backup (AAAA-MM-DD.sql.gz), mais antigos que o limite
+            if [[ "$nome" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}\.sql\.gz$ && "${nome%.sql.gz}" < "$LIMITE" ]]; then
+              aws s3 rm "s3://$BUCKET/$nome" --endpoint-url "$R2"
+            fi
+          done
+          aws s3 ls "s3://$BUCKET/" --endpoint-url "$R2"

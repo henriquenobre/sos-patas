@@ -1,0 +1,10 @@
+# Cabeçalhos de segurança do site no Cloudflare Pages (docs/ARQUITETURA.md, seção 9).
+# O CSP libera só o que o site usa: fontes do Google, Turnstile (RN22), Web Analytics, fotos do
+# domínio de fotos e, na prévia, a API e as fotos do Worker *.workers.dev. blob: são as prévias
+# das fotos escolhidas no aparelho, antes do envio.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' blob: data: https://fotos.sospatas.org.br https://sospatas-api-previa.sospatas.workers.dev; connect-src 'self' https://cloudflareinsights.com https://sospatas-api-previa.sospatas.workers.dev; frame-src https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
