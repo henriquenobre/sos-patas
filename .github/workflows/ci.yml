@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     # Postgres para os testes do banco e da API (mesma versão do Neon).
-    # Imagem oficial pelo espelho da AWS: o Docker Hub limita downloads anônimos
-    # e os runners do GitHub batem nesse limite (erro toomanyrequests).
+    # Imagem oficial pelo espelho do Google: o Docker Hub e o espelho da AWS limitam downloads
+    # anônimos e os runners do GitHub batem nesses limites (erro toomanyrequests).
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:18
+        image: mirror.gcr.io/library/postgres:18
         env:
           POSTGRES_USER: sospatas
           POSTGRES_PASSWORD: sospatas
