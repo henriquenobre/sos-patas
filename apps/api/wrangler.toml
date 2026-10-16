@@ -65,6 +65,9 @@ name = "sospatas-api-previa"
 # Sem as URLs de versão do Worker (preview_urls): a prévia já é o ambiente de teste.
 workers_dev = true
 preview_urls = false
+# Sem rota: a "routes" do nível de cima é herdada pelos ambientes, e a prévia tentaria ocupar
+# sospatas.org.br/api/*, que é da produção
+routes = []
 
 [env.previa.vars]
 AMBIENTE = "previa"
