@@ -3,16 +3,19 @@
 
 export const FUSO_ONG = 'America/Sao_Paulo'
 
-const FORMATO_ISO = new Intl.DateTimeFormat('en-CA', {
-  timeZone: FUSO_ONG,
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-})
+/**
+ * Diferença de Brasília para o UTC: 3 horas a menos o ano todo, porque o Brasil não tem
+ * horário de verão desde 2019 (Decreto 9.772/2019). A conta é feita à mão, e não com
+ * `Intl.DateTimeFormat`, porque criar o formatador com fuso custa cerca de 14 ms de CPU e
+ * estourava o limite de 10 ms do Workers gratuito na primeira requisição de cada instância
+ * (docs/DESENVOLVIMENTO.md, Registro de decisões, 16/10/2026). Se o horário de verão voltar,
+ * trocar por uma regra com as datas dele.
+ */
+const DIFERENCA_UTC_MS = -3 * 3_600_000
 
 /** Data de hoje em Passos/MG, no formato 'AAAA-MM-DD'. */
 export function hojeNoBrasil(agora: Date = new Date()): string {
-  return FORMATO_ISO.format(agora)
+  return new Date(agora.getTime() + DIFERENCA_UTC_MS).toISOString().slice(0, 10)
 }
 
 function partes(data: string): [number, number, number] {

@@ -163,6 +163,6 @@ gzip -dc 2026-10-20.sql.gz | docker run --rm -i mirror.gcr.io/library/postgres:1
 
 3. Conferir (por exemplo, `SELECT count(*) FROM animais;`). Se for para valer: criar o usuário `sospatas_api` no projeto novo, rodar o [permissoes-api.sql](db/producao/permissoes-api.sql), apontar o Hyperdrive para ele e trocar o `NEON_DATABASE_URL` do GitHub.
 
-Teste de restauração feito: _(a fazer na etapa 14)_.
+Teste de restauração feito: em 14/10/2026, no computador (dump do Postgres local com o `pg_dump` 18, restaurado num banco vazio). O backup de produção roda desde 16/10/2026; restaurar um dump dele fica para a etapa 15.
 
 > No protótipo, todos os animais são exemplos fictícios: nenhum está de fato para adoção, e as fotos são apenas ilustrativas. A história e as fotos institucionais da página inicial foram enviadas pela ONG.

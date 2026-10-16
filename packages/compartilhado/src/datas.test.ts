@@ -16,6 +16,11 @@ describe('hojeNoBrasil', () => {
   it('vira o dia à meia-noite de Brasília', () => {
     expect(hojeNoBrasil(new Date('2026-10-09T03:00:00Z'))).toBe('2026-10-09')
   })
+
+  it('usa UTC-3 também no verão (sem horário de verão desde 2019) e na virada do ano', () => {
+    expect(hojeNoBrasil(new Date('2027-01-01T02:59:59Z'))).toBe('2026-12-31')
+    expect(hojeNoBrasil(new Date('2027-01-01T03:00:00Z'))).toBe('2027-01-01')
+  })
 })
 
 describe('ehDataValida', () => {
