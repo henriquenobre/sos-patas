@@ -334,7 +334,7 @@ Na ordem de prioridade:
 ## Etapa 15 · Dados reais, teste com a ONG e ajustes finais
 
 **Entregas:**
-- **Treinamento com a equipe e criação dos acessos** (decidido em 14/10/2026): no encontro, pegar o e-mail de cada pessoa (Gracia, Claudia e quem a ONG indicar, TELAS.md pergunta 13), incluir na política do Access e na tabela `equipe`, e cada uma faz o primeiro login no próprio celular
+- **Treinamento com a equipe** (decidido em 14/10/2026; acessos criados antes, em 16/10/2026): Cláudia, Tarlei, Gracia, Adriana e Aline já estão na política do Access e na tabela `equipe` (TELAS.md, pergunta 13); no encontro, cada uma faz o primeiro login no próprio celular
 - Conferir que a produção não tem dados de exemplo (só o `seed_conteudo.sql` vai para lá); Gracia ou Claudia cadastram os primeiros animais reais pelo celular (tarefa 7 do roteiro)
 - Revisão em 360 px de todas as telas, acessibilidade básica (contraste, `alt`, toque ≥ 44 px), Lighthouse do Início e da vitrine
 - Correções do teste com a ONG, registradas em TELAS.md ("Registro da validação")
