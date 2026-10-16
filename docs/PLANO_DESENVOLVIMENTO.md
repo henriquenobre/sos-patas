@@ -36,14 +36,14 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 5 | API pública de leitura | 4 | 13/10 | ✅ 08/10 |
 | 6 | Site público: layout e páginas de conteúdo | 5 | 13–14/10 | ✅ 08/10 |
 | 7 | Site público: vitrine e ficha do animal | 6 | 15/10 | ✅ 08/10 |
-| 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ✅ 09/10 · ⚠️ CPU perto do teto (ver etapa 8) |
+| 8 | Deploy de prévia no Cloudflare | 0, 7 | 16/10 | ✅ 09/10 · CPU: causa achada e corrigida em 16/10 (ver etapa 8) |
 | 9 | API da ONG: animais, fotos, adoção, protetores | 4 | 16–17/10 | ✅ 09/10 |
 | 10 | Área da ONG: estrutura e animais (T09–T11) | 9 | 17–19/10 | ✅ 13/10 |
 | 10b | Pedidos de adoção: formulário com o termo, análise e animal fora do site (RN47–RN50) | 10 | 19–20/10 | ✅ 13/10 |
 | 11 | Perdidos e encontrados (API, telas e limpeza diária) | 10 | 20–21/10 | ✅ 14/10 |
 | 12 | Editor de textos (T15–T20) | 10 | 21–23/10 | ✅ 14/10 |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores, "Alterado por" | 11, 12 | 23–24/10 | ✅ 14/10 |
-| 14 | Produção: domínio, Access, CI/CD, backup e segurança | 8, 13 | 24–27/10 | 🔄 iniciada em 14/10 |
+| 14 | Produção: domínio, Access, CI/CD, backup e segurança | 8, 13 | 24–27/10 | ✅ 16/10 |
 | 15 | Dados reais, teste com a ONG e ajustes finais | 14 | 27–30/10 | ⬜ |
 
 Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada (anotar o motivo).
@@ -196,6 +196,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 - **Ajustes descobertos:** o site e a API ficam em domínios diferentes, então a prévia precisa de `CORS_ORIGENS` e de `FOTOS_URL_BASE` apontando para a rota de fotos do Worker. Depois de publicar a API, as respostas antigas ficam até 15 min no cache da borda (README).
 - **Medições:** resposta das rotas públicas entre 0,13 e 0,25 s. Primeiro acesso com o Neon dormindo: 0,87 s (0,18 s logo depois). **Tempo de CPU: 2 a 9 ms com o Worker aquecido, mas 12 a 41 ms nas primeiras requisições de uma instância nova** (`wrangler tail`, 17 requisições, todas `ok`). ⚠️ Perto do teto de 10 ms do Workers Free: investigar antes da etapa 14 (peso da inicialização: API com 1,26 MB, 227 KB compactada; medir rota por rota).
 - **Investigado em 16/10/2026:** o custo extra é a **carga do código**, não as rotas. Medido no Node com o mesmo pacote do `wrangler deploy`: cerca de 60 ms para carregar a API, metade compilando o JavaScript (1,3 MB, dos quais 762 KB são do zod) e metade executando o código de topo, principalmente a criação dos schemas do zod (o zod sozinho, cerca de 16 ms; os schemas do `packages/compartilhado`, mais cerca de 24 ms). Minificar (`--minify`) reduz o pacote para 720 KB, mas só ganha 4 ms. O Cloudflare tolera estouros ocasionais do limite ("built-in flexibility") e só encerra o Worker (erro 1102) quando o estouro se repete; na etapa 8, as 17 requisições deram `ok`. **Decisão:** não mexer no código antes da publicação e medir na produção (ver Registro de decisões do DESENVOLVIMENTO.md, 16/10/2026).
+- **Causa achada e corrigida em 16/10/2026,** depois da medição na produção (mediana de 11,64 ms): o `hojeNoBrasil()` criava um `Intl.DateTimeFormat` com fuso na carga do código, e só isso custava cerca de 14 ms. Ele passou a calcular a data com UTC−3 fixo, e a carga da API caiu de 62,5 para 47,9 ms no Node (−23%). Carregar a área da ONG só quando chamada foi testado e **piorou** (68,7 ms: o pacote compartilhado continua inteiro e o bundler embrulha cada módulo), então foi descartado.
 
 **Pronto quando:** a URL do Pages mostra Início, vitrine e ficha com os dados de exemplo; anotar no Painel qualquer limite que ficou perto do teto.
 
@@ -322,13 +323,13 @@ Na ordem de prioridade:
 - [x] 3. Web Analytics em `sospatas.org.br`: ativado no Pages; `beacon.min.js` carrega (200) e o console não mostra erro de CSP (16/10/2026)
 - [x] 4. Access (16/10/2026; a tabela `equipe` e a política do Access têm o mantenedor e a esposa dele, que vai ajudar a ONG nos cadastros: ver Registro de decisões do DESENVOLVIMENTO.md, 16/10/2026): ~~cookie `SameSite=Lax`, HTTP Only, sem binding cookie e sem restringir o caminho; sessão de 1 mês; fora do App Launcher (16/10/2026)~~, ~~página de login com logo, cores e rodapé em português (T08; textos do Cloudflare ficam em inglês) (16/10/2026)~~ e a linha do mantenedor na tabela `equipe` de produção
 - [x] 5. Fotos da história no R2: 5 fotos (completa e miniatura) em `sospatas-fotos`, abrindo por `fotos.sospatas.org.br` (16/10/2026)
-- [ ] 6. Commit das alterações pendentes na `develop` e merge da `develop` na `main`, com as correções de 15/10
-- [ ] 7. Teste: o merge publica sozinho (CI, migrations, Worker e Pages)
-- [ ] 8. Teste: login entra com o e-mail do mantenedor, é recusado para um e-mail de fora e salvar na área da ONG funciona
-- [ ] 9. Teste: "Fale com a ONG" chega ao Gmail da ONG e a resposta volta para quem escreveu (conferir o `_dmarc`)
-- [ ] 10. Teste: `backup.yml` roda e o dump é restaurado num banco vazio
-- [ ] 11. Trocar a Secret key do Turnstile (ficou exposta em 16/10) e atualizar `TURNSTILE_SECRET` na produção e na prévia
-- [ ] 12. Acompanhar o tempo de CPU por alguns dias (Metrics → Errors) e fechar a etapa na linha do tempo
+- [x] 6. Commit das alterações pendentes na `develop` e merge da `develop` na `main`, com as correções de 15/10 (PR #18 em 15/10 e PR #19 em 16/10/2026, 12:11). Conferido em seguida: `sospatas.org.br/api/publico/site` responde 200 com o conteúdo do seed (1,1 s no primeiro acesso), `/animais` vazio, `/admin` e `/api/admin` redirecionam para o login do Access (302), `sospatas-api.sospatas.workers.dev` não existe (404) e o site manda o CSP e o `X-Frame-Options`
+- [x] 7. Teste: o merge publica sozinho (CI, migrations, Worker e Pages): no merge do PR #19, CI verde → Deploy #4 verde (39 s) → Pages publicou `daaa012` em Production (16/10/2026)
+- [x] 8. Teste: login entra com o e-mail do mantenedor (nome certo no "Olá"), salvar na área da ONG funciona e um e-mail real fora da política não recebe código (16/10/2026). O Access mostra "código enviado" para qualquer e-mail, de propósito, para não revelar quais estão liberados
+- [x] 9. Teste: "Fale com a ONG" chega ao Gmail da ONG e a resposta volta para quem escreveu; o `_dmarc` com `p=reject` não bloqueou (16/10/2026)
+- [x] 10. Teste: `backup.yml` roda e grava `2026-10-16.sql.gz` em `sospatas-backups` (16/10/2026, depois de corrigir o `R2_SECRET_ACCESS_KEY`, que dava `SignatureDoesNotMatch`). **A restauração desse dump não foi feita** (decisão do mantenedor em 16/10/2026: o procedimento já foi testado no computador em 14/10, com `pg_dump` 18 num banco vazio). Fica para a etapa 15, com o banco já com os dados reais
+- [x] 11. ~~Trocar a Secret key do Turnstile~~: o mantenedor decidiu manter a chave atual (16/10/2026). Ela só valida o captcha; se precisar trocar, Rotate Secret Key no widget e `wrangler secret put TURNSTILE_SECRET` na produção e com `--env previa`
+- [x] 12. Acompanhar o tempo de CPU por alguns dias (Workers & Pages → `sospatas-api` → Metrics) e fechar a etapa na linha do tempo. **Primeira medição na produção (16/10/2026, 24 h, 111 requisições, quase todas de teste):** 0 erros (nenhum "Exceeded CPU Time Limits"), mas **mediana de CPU de 11,64 ms**, acima do limite de 10 ms. Com pouco acesso, quase toda requisição cai numa instância nova e paga a carga da API; a tolerância do Cloudflare está segurando. **Corrigido no mesmo dia** (data de hoje sem `Intl`, ver etapa 8); a correção vai para a produção no próximo merge na `main`, e a nova medição fica para a etapa 15. **Etapa 14 concluída em 16/10/2026**
 
 ## Etapa 15 · Dados reais, teste com a ONG e ajustes finais
 
@@ -338,6 +339,8 @@ Na ordem de prioridade:
 - Revisão em 360 px de todas as telas, acessibilidade básica (contraste, `alt`, toque ≥ 44 px), Lighthouse do Início e da vitrine
 - Correções do teste com a ONG, registradas em TELAS.md ("Registro da validação")
 - Status das telas em TELAS.md atualizado; prints regerados se o protótipo mudou
+- **Tempo de CPU da API** (vindo da etapa 14): a mediana era de 11,64 ms na produção em 16/10/2026, acima dos 10 ms do plano gratuito; a correção (data de hoje sem `Intl`) foi feita no mesmo dia. Depois de publicada, medir de novo no painel do Worker (`sospatas-api` → Metrics). Se a mediana continuar acima de 10 ms, as próximas saídas são minificar o Worker (−7% medido) e trocar o `zod` pelo `zod/mini` (Registro de decisões do DESENVOLVIMENTO.md, 16/10/2026)
+- **Restaurar um backup de produção** (adiado da etapa 14 em 16/10/2026): baixar um `.sql.gz` de `sospatas-backups`, restaurar num banco vazio do Docker (README, "Backup e restauração") e conferir animais, equipe e conteúdo
 - Documentação final para quem manter o site: README (rodar, publicar, restaurar backup, incluir/remover usuária no Access e em `equipe`)
 
 **Pronto quando:** site no ar em `sospatas.org.br` com animais reais, testado pela equipe da ONG, até **30/10/2026**.

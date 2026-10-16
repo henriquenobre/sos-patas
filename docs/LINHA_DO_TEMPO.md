@@ -15,8 +15,8 @@
 | 4 | Validação do protótipo com a ONG | 07/10/2026 | 08/10/2026 | 2 dias | ✅ |
 | 5 | Arquitetura e plano de desenvolvimento | 07/10/2026 | 08/10/2026 | 2 dias | ✅ |
 | 6 | Preparação do ambiente (contas, domínio, ferramentas): etapa 0 do plano | 08/10/2026 | 14/10/2026 | 4 dias | ✅ |
-| 7 | Desenvolvimento do site: etapas 1 a 13 do plano | 08/10/2026 | – | – | 🔄 |
-| 8 | Produção, testes com a ONG e ajustes: etapas 14 e 15 do plano | – | – | – | ⬜ |
+| 7 | Desenvolvimento do site: etapas 1 a 13 do plano | 08/10/2026 | 14/10/2026 | 4 dias | ✅ |
+| 8 | Produção, testes com a ONG e ajustes: etapas 14 e 15 do plano | 14/10/2026 | – | – | 🔄 |
 | 9 | Treinamento, divulgação e avaliação (roteiro do PROJETO.md) | – | – | – | ⬜ |
 | 10 | Entrega do trabalho (prazo 11/11/2026) | – | – | – | ⬜ |
 
@@ -43,7 +43,7 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | 11 | Perdidos e encontrados | 13/10/2026 | 14/10/2026 | 2 dias | API, telas T12–T14 e limpeza diária com testes em 13/10; ajustes e merge na `develop` em 14/10 |
 | 12 | Editor de textos | 14/10/2026 | 14/10/2026 | 1 dia | API, telas T15–T20 e testes; conferida pelo celular |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores | 14/10/2026 | 14/10/2026 | 1 dia | Telas T21–T24 e "Alterado por", com testes; na `develop` pelo PR #14. Conferência pelo celular _(a confirmar)_ |
-| 14 | Produção | 14/10/2026 | | | |
+| 14 | Produção | 14/10/2026 | 16/10/2026 | 3 dias | Site no ar em `sospatas.org.br` em 16/10; deploy automático, login, "Fale com a ONG" e backup testados. Restaurar um dump de produção ficou para a etapa 15. CPU da primeira requisição corrigido (data sem `Intl`) |
 | 15 | Dados reais, teste com a ONG e ajustes finais | | | | |
 
 ## Diário
@@ -118,3 +118,7 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 15/10/2026 | 16:13 | 7 | Correção: scripts do banco tiram o `channel_binding` da string de conexão. As duas correções estão na `develop`, ainda não na `main` | Git |
 | sex 16/10/2026 | | 7 | Etapa 14: segredos da API de produção gravados; Pages com a `main` como produção, a `develop` como prévia e o domínio `sospatas.org.br` Active com SSL | relato (prints do painel) |
 | 16/10/2026 | | 7 | Etapa 14: Web Analytics ativo, cookie e página de login do Access personalizados, fotos da história no R2 de produção; equipe de produção com o mantenedor e a esposa dele | relato (prints) |
+| 16/10/2026 | 12:11 | 8 | **Site no ar em `https://sospatas.org.br`:** `develop` na `main` (PR #19); API de produção respondendo com o conteúdo da ONG e área da ONG protegida pelo Access | Git + doc (verificação com `curl`) |
+| 16/10/2026 | | 8 | Testes do "Pronto quando": deploy automático (CI → Deploy → Pages), login aceito para a equipe e recusado para e-mail de fora, "Fale com a ONG" de ida e volta, backup gravado no R2 (restauração adiada para a etapa 15) | relato (prints) |
+| 16/10/2026 | | 8 | Tempo de CPU na produção (mediana de 11,64 ms) corrigido: a data de hoje deixa de usar `Intl` (−23% na carga da API) | doc (medição) |
+| 16/10/2026 | | 8 | **Etapa 14 concluída** (3 dias úteis, de 14 a 16/10) | relato + doc |
