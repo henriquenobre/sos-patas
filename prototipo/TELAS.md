@@ -68,7 +68,7 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 **Objetivo:** apresentar a ONG e sua história e levar a pessoa à vitrine, com destaque para os adultos.
 
 **Seções, na ordem** (✎ = editável em T19):
-1. **Chamada** (visual acolhedor, ver Identidade visual): selo "Adoção responsável", título ✎ seguido de duas patinhas amarelas, (`inicio.chamada_titulo`), texto ✎ (`inicio.chamada_texto`), botões "Ver animais para adoção" e "Ajude a ONG" (→ `/ajude`), fotos de **um cão e um gato** (automático: o cão e o gato disponíveis há mais tempo).
+1. **Chamada** (visual acolhedor, ver Identidade visual): selo "Adoção responsável", título ✎ seguido de duas patinhas amarelas, (`inicio.chamada_titulo`), texto ✎ (`inicio.chamada_texto`), botões "Ver animais para adoção" e "Ajude a ONG" (→ `/ajude`), fotos de **um cão e um gato** (automático: o cão e o gato disponíveis há mais tempo, só os que têm foto). **Desde 16/10/2026:** se faltar uma espécie, a segunda foto é do próximo animal com foto, de qualquer espécie (dois cães, por exemplo); com um animal só, a outra moldura mostra a patinha.
 2. **Números em destaque** ✎ (`inicio_numeros`, até 4, RN46): faixa branca logo abaixo da chamada, sobre a borda ondulada. Conteúdo: **Desde 2015** (cuidando dos animais de Passos) · **+100** (feiras de adoção) · **+1.000** (animais adotados, somando feiras e redes sociais). Com 3 números, ficam lado a lado também no celular; com 4, 2×2 no celular. O recorde de 32 adoções numa feira saiu da faixa em 07/10.
    - Substituiu em 07/10 os números automáticos "animais esperando" e "adotados no último mês", que mudavam todo mês, e o card "R$ 0 taxa de adoção" (RN45). "Adotados no mês" continua no painel da ONG (T09).
 3. **Nossa história** (conteúdo enviado pela ONG em 07/10/2026):
@@ -476,7 +476,7 @@ Enviar os prints de [telas/](telas/) à Gracia e perguntar:
 17. **Autorização de imagem:** as pessoas que aparecem nas fotos autorizam a publicação no site? Em algumas aparecem crianças e adolescentes: os responsáveis autorizam? (RN38)
 18. **Nomes na história:** tudo bem citar Stephanie Christiene, pastora Dalva, Gracia, Tarlei, Deide e Adriana? E o caso do cão preso no arame: está bem contado assim?
 19. **Foto da assembleia de fundação:** alguém tem essa foto em melhor qualidade (o arquivo original da câmera ou celular, sem passar pelo WhatsApp, que reduz a imagem) ou outra foto do mesmo dia?
-13. **Área da ONG:** além de Gracia e Claudia, alguém mais vai ter acesso? _(14/10/2026: os acessos e os e-mails ficam para o treinamento com a equipe, na etapa 15)_ A navegação com a barra de baixo (Animais · Perdidos · Textos · Mais) ficou fácil?
+13. ~~**Área da ONG:** além de Gracia e Claudia, alguém mais vai ter acesso?~~ **Respondida em 16/10/2026:** Cláudia, Tarlei, Gracia, Adriana e Aline (e-mails em `privado/projeto/PROJETO.md`, fora do Git); os acessos são criados antes do treinamento. Continua em aberto: A navegação com a barra de baixo (Animais · Perdidos · Textos · Mais) ficou fácil?
 14. Vocês recebem pedidos de "perdido/encontrado" pelo WhatsApp que gostariam de publicar por conta própria? (T21)
 20. **Pedidos de adoção (08/10/2026):** o animal sai do site enquanto o pedido está em análise. Em quantos dias vocês conseguem analisar um pedido? (proposta: avisar no painel depois de 3 dias)
 21. Nos animais de **protetores parceiros**, quem analisa o pedido: a equipe (e repassa pelo WhatsApp) ou o próprio protetor?

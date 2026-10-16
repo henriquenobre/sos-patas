@@ -6,7 +6,7 @@ import { hojeNoBrasil, type AnimalResumo, type ItemPublico } from '@sospatas/com
 import { useDestaques, useSite, useVitrine } from '../api/publico'
 import { BlocoPix } from '../components/BlocoPix'
 import { CardAnimal, FotoAnimal } from '../components/CardAnimal'
-import { textoAlternativo } from '../lib/animal'
+import { animaisDaChamada, textoAlternativo } from '../lib/animal'
 import { Carregando, ErroAoCarregar } from '../components/Estados'
 import { Chapeu, Pata } from '../components/Pata'
 import { TextoSimples } from '../components/TextoSimples'
@@ -158,9 +158,7 @@ export function Inicio() {
   if (site.isError) return <ErroAoCarregar tentarDeNovo={() => void site.refetch()} />
 
   const { textos, listas, ong } = site.data
-  const comFoto = (vitrine.data?.animais ?? []).filter((animal) => animal.foto)
-  const cao = comFoto.find((animal) => animal.especie === 'cao')
-  const gato = comFoto.find((animal) => animal.especie === 'gato')
+  const [primeiro, segundo] = animaisDaChamada(vitrine.data?.animais ?? [])
   const [fotoPrincipal, ...galeria] = listas.inicio_fotos
   const marcos = listas.inicio_marcos
   const passos = listas.como_adotar_passos
@@ -220,9 +218,9 @@ export function Inicio() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 px-2">
-            <Polaroide animal={cao} inclinacao="-rotate-3" selo="pata" />
+            <Polaroide animal={primeiro} inclinacao="-rotate-3" selo="pata" />
             <div className="mt-8">
-              <Polaroide animal={gato} inclinacao="rotate-3" selo="coracao" />
+              <Polaroide animal={segundo} inclinacao="rotate-3" selo="coracao" />
             </div>
           </div>
         </div>

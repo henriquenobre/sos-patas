@@ -122,3 +122,4 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 16/10/2026 | | 8 | Testes do "Pronto quando": deploy automático (CI → Deploy → Pages), login aceito para a equipe e recusado para e-mail de fora, "Fale com a ONG" de ida e volta, backup gravado no R2 (restauração adiada para a etapa 15) | relato (prints) |
 | 16/10/2026 | | 8 | Tempo de CPU na produção (mediana de 11,64 ms) corrigido: a data de hoje deixa de usar `Intl` (−23% na carga da API) | doc (medição) |
 | 16/10/2026 | | 8 | **Etapa 14 concluída** (3 dias úteis, de 14 a 16/10) | relato + doc |
+| 16/10/2026 | 14:45 | 8 | Correção do tempo de CPU publicada na produção (PR #20) | Git |
