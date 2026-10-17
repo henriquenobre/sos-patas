@@ -2,8 +2,14 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider } from 'react-router/dom'
+import { recarregarParaVersaoNova } from './lib/versao'
 import { rotas } from './rotas'
 import './index.css'
+
+// Arquivo auxiliar de uma tela (CSS, dependência) sumiu numa publicação nova: recarrega
+window.addEventListener('vite:preloadError', (evento) => {
+  if (recarregarParaVersaoNova()) evento.preventDefault()
+})
 
 const queryClient = new QueryClient({
   defaultOptions: {

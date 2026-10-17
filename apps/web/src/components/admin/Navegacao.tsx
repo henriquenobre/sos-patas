@@ -25,7 +25,7 @@ function Selo({ numero, className = '' }: { numero: number | undefined; classNam
   if (!numero) return null
   return (
     <span
-      className={`rounded-full bg-vermelho px-1.5 text-[10px] font-extrabold leading-4 text-white ${className}`}
+      className={`inline-block min-w-4 rounded-full bg-vermelho px-1.5 text-center text-[10px] font-extrabold leading-4 text-white ${className}`}
     >
       <span className="sr-only">, </span>
       {numero}
@@ -68,7 +68,8 @@ export function CabecalhoAdmin({
                 key={item.id}
                 to={item.para}
                 aria-current={item.id === aba ? 'page' : undefined}
-                className={`rounded-lg px-3 py-1.5 font-bold ${
+                // Numa linha só: sem espaço, a aba não quebra no meio do número vermelho
+                className={`inline-flex items-center whitespace-nowrap rounded-lg px-3 py-1.5 font-bold ${
                   item.id === aba ? 'bg-white text-azul-escuro' : 'text-white/80 hover:bg-white/10'
                 }`}
               >
@@ -79,7 +80,10 @@ export function CabecalhoAdmin({
           </nav>
         )}
         <div className="flex items-center gap-3 text-sm">
-          {nome && <span className="hidden text-white/70 sm:inline">Olá, {nome}</span>}
+          {/* Com as abas no topo (md) e pouca largura, a saudação sai para as abas caberem */}
+          {nome && (
+            <span className="hidden text-white/70 sm:inline md:hidden xl:inline">Olá, {nome}</span>
+          )}
           <a href="/" target="_blank" rel="noreferrer" className="py-2 font-bold text-white/80">
             Ver o site ↗
           </a>

@@ -122,7 +122,9 @@ describe('Painel de animais (T09)', () => {
     renderizarEm('/admin')
     await userEvent.click(await screen.findByRole('tab', { name: 'Adotados' }))
     expect(await screen.findByText('Em adaptação: faltam 10 dias')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Apolo foi adotado' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Marcar Apolo como adotado' }),
+    ).not.toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('tab', { name: 'Em análise' }))
     expect(await screen.findByRole('link', { name: /Pedido aguardando análise/ })).toHaveAttribute(
@@ -159,7 +161,7 @@ describe('Painel de animais (T09)', () => {
     )
   })
 
-  it('"Adotado ✓" pede nome e WhatsApp e registra a adoção (RN07, RN08)', async () => {
+  it('"Marcar como adotado" pede nome e WhatsApp e registra a adoção (RN07, RN08)', async () => {
     const fetchFalso = simularApi({
       ...API_ADMIN,
       '/admin/animais?status=disponivel': LISTA,
@@ -167,7 +169,7 @@ describe('Painel de animais (T09)', () => {
       [`POST /admin/animais/${APOLO.id}/adocao`]: undefined,
     })
     renderizarEm('/admin')
-    await userEvent.click(await screen.findByRole('button', { name: 'Apolo foi adotado' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Marcar Apolo como adotado' }))
     const modal = screen.getByRole('dialog', { name: 'Apolo foi adotado? 🎉' })
     await userEvent.click(within(modal).getByRole('button', { name: 'Confirmar adoção' }))
     expect(within(modal).getByText('Preencha este campo')).toBeInTheDocument()
@@ -421,7 +423,7 @@ describe('Editar animal (T11)', () => {
     renderizarEm(caminho)
     expect(await screen.findByText(/Pedido aprovado de/)).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Ver no site ↗' })).not.toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: 'Marcar como adotado ✓' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Marcar como adotado' }))
     const modal = screen.getByRole('dialog')
     expect(within(modal).getByLabelText(/Nome de quem adotou/)).toHaveValue('Fernanda Lima')
     expect(within(modal).getByLabelText(/WhatsApp de quem adotou/)).toHaveValue('(35) 9 8888-7777')

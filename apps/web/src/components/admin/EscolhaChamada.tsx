@@ -12,8 +12,12 @@ const POSICOES = ['Foto 1 (à esquerda)', 'Foto 2 (à direita)']
 /** Valor do <select> para "Automático" */
 const AUTOMATICO = ''
 
-const valores = (chamada: (string | null)[]) =>
-  POSICOES.map((_, posicao) => chamada[posicao] ?? AUTOMATICO)
+/**
+ * Sem `chamada` (API ainda da versão anterior, durante a publicação), as duas fotos ficam
+ * "Automático", em vez de quebrar a tela.
+ */
+const valores = (chamada: (string | null)[] | undefined) =>
+  POSICOES.map((_, posicao) => chamada?.[posicao] ?? AUTOMATICO)
 
 const iguais = (a: string[], b: string[]) => a.join() === b.join()
 
@@ -21,7 +25,7 @@ export function EscolhaChamada({
   chamada,
   pagina,
 }: {
-  chamada: (string | null)[]
+  chamada: (string | null)[] | undefined
   /** Endereço público da página, para o "Ver no site" */
   pagina: string
 }) {

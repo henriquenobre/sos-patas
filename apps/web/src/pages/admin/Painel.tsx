@@ -141,10 +141,10 @@ function ItemAnimal({
           <button
             type="button"
             onClick={aoAdotar}
-            aria-label={`${animal.nome} foi adotado`}
+            aria-label={`Marcar ${animal.nome} como adotado`}
             className="min-h-9 rounded-lg bg-emerald-50 px-3 text-xs font-extrabold text-emerald-700"
           >
-            Adotado ✓
+            Marcar como adotado
           </button>
         )}
       </div>
