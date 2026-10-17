@@ -109,52 +109,36 @@
         "adocoes_adotante_id_adotantes_id_fk": {
           "name": "adocoes_adotante_id_adotantes_id_fk",
           "tableFrom": "adocoes",
-          "columnsFrom": [
-            "adotante_id"
-          ],
+          "columnsFrom": ["adotante_id"],
           "tableTo": "adotantes",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         },
         "adocoes_animal_id_animais_id_fk": {
           "name": "adocoes_animal_id_animais_id_fk",
           "tableFrom": "adocoes",
-          "columnsFrom": [
-            "animal_id"
-          ],
+          "columnsFrom": ["animal_id"],
           "tableTo": "animais",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         },
         "adocoes_pedido_id_pedidos_adocao_id_fk": {
           "name": "adocoes_pedido_id_pedidos_adocao_id_fk",
           "tableFrom": "adocoes",
-          "columnsFrom": [
-            "pedido_id"
-          ],
+          "columnsFrom": ["pedido_id"],
           "tableTo": "pedidos_adocao",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         },
         "adocoes_updated_by_equipe_id_fk": {
           "name": "adocoes_updated_by_equipe_id_fk",
           "tableFrom": "adocoes",
-          "columnsFrom": [
-            "updated_by"
-          ],
+          "columnsFrom": ["updated_by"],
           "tableTo": "equipe",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -257,13 +241,9 @@
         "adotantes_updated_by_equipe_id_fk": {
           "name": "adotantes_updated_by_equipe_id_fk",
           "tableFrom": "adotantes",
-          "columnsFrom": [
-            "updated_by"
-          ],
+          "columnsFrom": ["updated_by"],
           "tableTo": "equipe",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -492,26 +472,18 @@
         "animais_protetor_id_protetores_id_fk": {
           "name": "animais_protetor_id_protetores_id_fk",
           "tableFrom": "animais",
-          "columnsFrom": [
-            "protetor_id"
-          ],
+          "columnsFrom": ["protetor_id"],
           "tableTo": "protetores",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "restrict"
         },
         "animais_updated_by_equipe_id_fk": {
           "name": "animais_updated_by_equipe_id_fk",
           "tableFrom": "animais",
-          "columnsFrom": [
-            "updated_by"
-          ],
+          "columnsFrom": ["updated_by"],
           "tableTo": "equipe",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -595,13 +567,9 @@
         "animais_privado_animal_id_animais_id_fk": {
           "name": "animais_privado_animal_id_animais_id_fk",
           "tableFrom": "animais_privado",
-          "columnsFrom": [
-            "animal_id"
-          ],
+          "columnsFrom": ["animal_id"],
           "tableTo": "animais",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -744,13 +712,9 @@
         "conteudo_itens_updated_by_equipe_id_fk": {
           "name": "conteudo_itens_updated_by_equipe_id_fk",
           "tableFrom": "conteudo_itens",
-          "columnsFrom": [
-            "updated_by"
-          ],
+          "columnsFrom": ["updated_by"],
           "tableTo": "equipe",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -825,13 +789,9 @@
         "conteudo_textos_updated_by_equipe_id_fk": {
           "name": "conteudo_textos_updated_by_equipe_id_fk",
           "tableFrom": "conteudo_textos",
-          "columnsFrom": [
-            "updated_by"
-          ],
+          "columnsFrom": ["updated_by"],
           "tableTo": "equipe",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -899,9 +859,7 @@
       "uniqueConstraints": {
         "equipe_email_unique": {
           "name": "equipe_email_unique",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "nullsNotDistinct": false
         }
       },
@@ -967,13 +925,9 @@
         "fotos_animal_id_animais_id_fk": {
           "name": "fotos_animal_id_animais_id_fk",
           "tableFrom": "fotos",
-          "columnsFrom": [
-            "animal_id"
-          ],
+          "columnsFrom": ["animal_id"],
           "tableTo": "animais",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -1062,13 +1016,9 @@
         "ong_updated_by_equipe_id_fk": {
           "name": "ong_updated_by_equipe_id_fk",
           "tableFrom": "ong",
-          "columnsFrom": [
-            "updated_by"
-          ],
+          "columnsFrom": ["updated_by"],
           "tableTo": "equipe",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -1301,39 +1251,27 @@
         "pedidos_adocao_animal_id_animais_id_fk": {
           "name": "pedidos_adocao_animal_id_animais_id_fk",
           "tableFrom": "pedidos_adocao",
-          "columnsFrom": [
-            "animal_id"
-          ],
+          "columnsFrom": ["animal_id"],
           "tableTo": "animais",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         },
         "pedidos_adocao_analisado_por_equipe_id_fk": {
           "name": "pedidos_adocao_analisado_por_equipe_id_fk",
           "tableFrom": "pedidos_adocao",
-          "columnsFrom": [
-            "analisado_por"
-          ],
+          "columnsFrom": ["analisado_por"],
           "tableTo": "equipe",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         },
         "pedidos_adocao_updated_by_equipe_id_fk": {
           "name": "pedidos_adocao_updated_by_equipe_id_fk",
           "tableFrom": "pedidos_adocao",
-          "columnsFrom": [
-            "updated_by"
-          ],
+          "columnsFrom": ["updated_by"],
           "tableTo": "equipe",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -1522,13 +1460,9 @@
         "perdidos_updated_by_equipe_id_fk": {
           "name": "perdidos_updated_by_equipe_id_fk",
           "tableFrom": "perdidos",
-          "columnsFrom": [
-            "updated_by"
-          ],
+          "columnsFrom": ["updated_by"],
           "tableTo": "equipe",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -1609,13 +1543,9 @@
         "perdidos_fotos_perdido_id_perdidos_id_fk": {
           "name": "perdidos_fotos_perdido_id_perdidos_id_fk",
           "tableFrom": "perdidos_fotos",
-          "columnsFrom": [
-            "perdido_id"
-          ],
+          "columnsFrom": ["perdido_id"],
           "tableTo": "perdidos",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -1675,13 +1605,9 @@
         "protetores_updated_by_equipe_id_fk": {
           "name": "protetores_updated_by_equipe_id_fk",
           "tableFrom": "protetores",
-          "columnsFrom": [
-            "updated_by"
-          ],
+          "columnsFrom": ["updated_by"],
           "tableTo": "equipe",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -1725,116 +1651,67 @@
     "public.especie": {
       "name": "especie",
       "schema": "public",
-      "values": [
-        "cao",
-        "gato"
-      ]
+      "values": ["cao", "gato"]
     },
     "public.lar_tipo": {
       "name": "lar_tipo",
       "schema": "public",
-      "values": [
-        "provisorio",
-        "remunerado"
-      ]
+      "values": ["provisorio", "remunerado"]
     },
     "public.pedido_status": {
       "name": "pedido_status",
       "schema": "public",
-      "values": [
-        "pendente",
-        "aprovado",
-        "recusado",
-        "nao_concluido"
-      ]
+      "values": ["pendente", "aprovado", "recusado", "nao_concluido"]
     },
     "public.perdido_origem": {
       "name": "perdido_origem",
       "schema": "public",
-      "values": [
-        "site",
-        "equipe"
-      ]
+      "values": ["site", "equipe"]
     },
     "public.perdido_status": {
       "name": "perdido_status",
       "schema": "public",
-      "values": [
-        "pendente",
-        "publicado"
-      ]
+      "values": ["pendente", "publicado"]
     },
     "public.perdido_tipo": {
       "name": "perdido_tipo",
       "schema": "public",
-      "values": [
-        "perdido",
-        "encontrado"
-      ]
+      "values": ["perdido", "encontrado"]
     },
     "public.pix_tipo": {
       "name": "pix_tipo",
       "schema": "public",
-      "values": [
-        "cnpj",
-        "cpf",
-        "email",
-        "telefone",
-        "aleatoria"
-      ]
+      "values": ["cnpj", "cpf", "email", "telefone", "aleatoria"]
     },
     "public.porte": {
       "name": "porte",
       "schema": "public",
-      "values": [
-        "mini",
-        "pequeno",
-        "medio",
-        "grande",
-        "gigante"
-      ]
+      "values": ["mini", "pequeno", "medio", "grande", "gigante"]
     },
     "public.raca_tipo": {
       "name": "raca_tipo",
       "schema": "public",
-      "values": [
-        "puro",
-        "mestico"
-      ]
+      "values": ["puro", "mestico"]
     },
     "public.responsavel_tipo": {
       "name": "responsavel_tipo",
       "schema": "public",
-      "values": [
-        "ong",
-        "protetor"
-      ]
+      "values": ["ong", "protetor"]
     },
     "public.sexo": {
       "name": "sexo",
       "schema": "public",
-      "values": [
-        "macho",
-        "femea"
-      ]
+      "values": ["macho", "femea"]
     },
     "public.sim_nao_sem_informacao": {
       "name": "sim_nao_sem_informacao",
       "schema": "public",
-      "values": [
-        "sim",
-        "nao",
-        "sem_informacao"
-      ]
+      "values": ["sim", "nao", "sem_informacao"]
     },
     "public.status_animal": {
       "name": "status_animal",
       "schema": "public",
-      "values": [
-        "disponivel",
-        "em_analise",
-        "adotado"
-      ]
+      "values": ["disponivel", "em_analise", "adotado"]
     }
   },
   "schemas": {},
