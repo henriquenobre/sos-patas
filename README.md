@@ -84,6 +84,7 @@ A prévia é uma cópia do site com os dados de exemplo, em endereços do Cloudf
 | Ligação API ↔ banco | Hyperdrive `sospatas-previa` (id no `[env.previa]` do `wrangler.toml`) |
 | Fotos | Buckets `sospatas-fotos-previa` e `sospatas-quarentena-previa` |
 | API | Worker `sospatas-api-previa` |
+| Área da ONG | **Sem login**: `develop.sospatas.pages.dev/admin` abre direto como a usuária de teste (`ACESSO_LOCAL_EMAIL` no `[env.previa.vars]`), com a faixa amarela "Ambiente de teste". Qualquer pessoa com o endereço entra, por isso a prévia só recebe **dados de exemplo**: nada de pessoas, telefones ou pedidos reais |
 | Site | Pages `sospatas`: a `develop` publica em `https://develop.sospatas.pages.dev` (implantação de prévia do Pages; até a etapa 14 era a de produção, em `sospatas.pages.dev`). Variáveis do ambiente **Preview** do Pages: `VITE_API_URL=https://sospatas-api-previa.sospatas.workers.dev`, `VITE_TURNSTILE_SITE_KEY` (Site key pública do widget Turnstile "SOS Patas") e `PNPM_VERSION=12.10.1` |
 
 **Atualizar o banco da prévia** (Git Bash, com a string do Neon em `DATABASE_URL`):

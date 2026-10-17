@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { hojeNoBrasil, nascimentoAproximado } from '@sospatas/compartilhado'
-import { ANIMAL_COMPLETO, API_ADMIN, APOLO, PROTETORES, diasAtras } from '../../testes/admin'
+import { ANIMAL_COMPLETO, API_ADMIN, APOLO, EU, PROTETORES, diasAtras } from '../../testes/admin'
 import { chamadas, renderizarEm, respostaDeErro, simularApi } from '../../testes/renderizar'
 
 vi.mock('../../lib/fotos', async (original) => ({
@@ -48,6 +48,18 @@ describe('Moldura da área da ONG', () => {
       'href',
       '/cdn-cgi/access/logout',
     )
+    expect(screen.queryByText(/aberto sem login/)).not.toBeInTheDocument()
+  })
+
+  it('prévia sem login: aviso fixo no topo para não confundir com a produção', async () => {
+    simularApi({
+      ...API_ADMIN,
+      '/admin/eu': { ...EU, sem_login: true },
+      '/admin/animais?status=disponivel': LISTA,
+    })
+    renderizarEm('/admin')
+    expect(await screen.findByText('Olá, Gracia')).toBeInTheDocument()
+    expect(screen.getByText(/Ambiente de teste, aberto sem login/)).toBeInTheDocument()
   })
 
   it('sessão vencida (401) pede para entrar de novo', async () => {

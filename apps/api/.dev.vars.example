@@ -4,8 +4,8 @@
 # nova da API entra aqui, com um valor de exemplo.
 AMBIENTE=local
 
-# Modo local do login: a API trata toda chamada da área da ONG como vinda deste e-mail,
-# sem Cloudflare Access. Só funciona com AMBIENTE=local; em qualquer outro ambiente a
+# Modo sem login: a API trata toda chamada da área da ONG como vinda deste e-mail, sem
+# Cloudflare Access. Só funciona com AMBIENTE=local ou previa; em qualquer outro ambiente a
 # API recusa a requisição. O e-mail precisa existir na tabela equipe (seed_dev.sql).
 ACESSO_LOCAL_EMAIL=teste@sospatas.local
 

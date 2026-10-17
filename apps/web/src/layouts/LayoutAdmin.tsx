@@ -192,6 +192,11 @@ export function LayoutAdmin() {
     <ContextoAdmin.Provider value={area}>
       {meta}
       <div className="min-h-dvh bg-fundo print:bg-white">
+        {eu.data.sem_login && (
+          <p className="bg-amarelo px-4 py-2 text-center text-sm font-bold text-azul-escuro print:hidden">
+            Ambiente de teste, aberto sem login. Use só dados de exemplo.
+          </p>
+        )}
         <CabecalhoAdmin
           nome={eu.data.nome}
           aba={moldura.aba}

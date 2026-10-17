@@ -12,7 +12,12 @@ import {
 /** Data relativa a hoje (os testes valem em qualquer dia). */
 export const diasAtras = (dias: number) => somarDias(hojeNoBrasil(), -dias)
 
-export const EU: UsuariaLogada = { id: 'u1', nome: 'Gracia', email: 'gracia@exemplo.com' }
+export const EU: UsuariaLogada = {
+  id: 'u1',
+  nome: 'Gracia',
+  email: 'gracia@exemplo.com',
+  sem_login: false,
+}
 
 export const RESUMO: ResumoAdmin = {
   disponiveis: 7,

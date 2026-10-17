@@ -132,7 +132,7 @@ Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada
 **Entregas:**
 - Organização: `rotas/publico`, `rotas/admin`, `servicos/`, `middleware/`, `armazenamento/`, `tarefas/`
 - Tratamento de erros no formato `{ erro, mensagem }` com os status da ARQUITETURA.md, seção 3; validação de entrada com os schemas zod
-- `middleware/access.ts`: valida o JWT do Cloudflare Access (`Cf-Access-Jwt-Assertion`: assinatura, `aud`, `exp`), busca o e-mail em `equipe` e recusa se não existir ou estiver inativo. **Modo local:** e-mail fixo vindo de `.dev.vars`, ativado só com `AMBIENTE=local` (o código recusa esse modo em qualquer outro ambiente)
+- `middleware/access.ts`: valida o JWT do Cloudflare Access (`Cf-Access-Jwt-Assertion`: assinatura, `aud`, `exp`), busca o e-mail em `equipe` e recusa se não existir ou estiver inativo. **Modo sem login:** e-mail fixo vindo de `.dev.vars`, ativado só com `AMBIENTE=local` (o código recusa esse modo em qualquer outro ambiente; desde 17/10/2026 também na prévia, ver Registro de decisões do DESENVOLVIMENTO.md)
 - `GET /api/admin/eu`
 - Interface `Armazenamento` (`colocar`, `obter`, `copiar`, `apagarPrefixo`, `apagar`) com implementação R2 e implementação em memória para testes
 - Utilitário que confere a assinatura WebP (`RIFF....WEBP`) e o tamanho (RN21)

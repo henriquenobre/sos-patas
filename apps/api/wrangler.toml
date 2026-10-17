@@ -5,7 +5,6 @@
 # mesmos bindings com R2 simulado e o Postgres do Docker, e o arquivo `.dev.vars` troca
 # AMBIENTE para "local" (sem ele, a API se comporta como produção).
 #
-# Ainda a preencher: ACCESS_AUD da prévia.
 # Segredos (wrangler secret put): TURNSTILE_SECRET e IP_HASH_SECRET.
 #
 # E-mail do "Fale com a ONG" (RN51): binding EMAIL do Email Routing, só na produção, porque
@@ -71,8 +70,12 @@ routes = []
 
 [env.previa.vars]
 AMBIENTE = "previa"
+# Prévia sem login (decidido em 17/10/2026): a área da ONG abre direto como a usuária de teste
+# do seed_dev.sql, sem Access. Só dados de exemplo aqui (docs/ARQUITETURA.md, seção 4). Para
+# voltar a exigir login, tirar esta linha e criar uma aplicação do Access para a prévia.
+ACESSO_LOCAL_EMAIL = "teste@sospatas.local"
 ACCESS_TEAM_DOMAIN = "https://sospatas.cloudflareaccess.com"
-ACCESS_AUD = "preencher-na-etapa-8"
+ACCESS_AUD = "sem-access-na-previa"
 # Site da prévia no Pages: a develop publica em develop.sospatas.pages.dev (desde a etapa 14,
 # quando a main virou a branch de produção do Pages); sospatas.pages.dev fica para a transição
 CORS_ORIGENS = "https://develop.sospatas.pages.dev,https://sospatas.pages.dev"

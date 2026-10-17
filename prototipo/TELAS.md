@@ -251,6 +251,7 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 
 - Só e-mails liberados pela ONG entram. Sem "criar conta".
 - **Sessão vencida no meio do uso** (só no site): a tela vira "Sua sessão terminou" com o botão **"Entrar de novo"**, que volta ao login. E-mail fora da equipe: "Sem acesso".
+- **No computador e na prévia não há esta tela** (só no site, desde 17/10/2026): a área da ONG abre direto como a usuária de teste, com uma faixa amarela no topo, "Ambiente de teste, aberto sem login. Use só dados de exemplo." Na produção, nada muda.
 - Rodapé: "Não recebeu? Confira o spam ou peça um novo código. Para liberar um e-mail novo, fale com o administrador do site."
 - **No site real**, essa tela é a página de login do Cloudflare Access, personalizada com a logo e as cores da SOS Patas. **Configurada em 16/10/2026** (Zero Trust → Reusable components → Custom pages → Access login page): nome "SOS Patas", logo do site, fundo `#f6f7fb` e o rodapé acima em português. Os textos fixos do Cloudflare continuam em inglês ("Log in to Área da ONG", "Send login code"), porque a personalização só oferece nome, logo, cabeçalho, rodapé e cor de fundo: explicar no treinamento (etapa 15). O protótipo simula as duas etapas (`#/admin/login` e `#/admin/login/codigo`, [print da etapa 2](telas/T08b-login-codigo-celular.png)).
 
