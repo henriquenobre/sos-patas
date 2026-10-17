@@ -140,4 +140,12 @@ describe('montarMime', () => {
     )
     expect(texto).toBe('Olá!\r\nTudo bem?')
   })
+
+  it('sem "Responder para" (aviso de pedido, RN52), não manda o cabeçalho', () => {
+    const aviso = montarMime(
+      { assunto: 'Aviso', texto: 'Oi' },
+      { de: 'site@sospatas.org.br', para: 'sitesospatas@gmail.com' },
+    )
+    expect(aviso).not.toContain('Reply-To')
+  })
 })

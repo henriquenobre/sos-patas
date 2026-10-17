@@ -156,6 +156,30 @@ describe('envio do formulário pelo site', () => {
     expect(textoFicha).not.toContain('Fernanda')
   })
 
+  it('avisa a ONG por e-mail com o link do pedido, sem os dados de quem pediu (RN52)', async () => {
+    teste.emails.length = 0
+    await enviar(ID.thor, corpo())
+    const [pedido] = await teste.db.select({ id: pedidosAdocao.id }).from(pedidosAdocao)
+
+    expect(teste.emails).toHaveLength(1)
+    const [email] = teste.emails
+    expect(email?.assunto).toBe('[Site] Novo pedido de adoção: Thor')
+    expect(email?.texto).toContain(`/admin/pedidos/${String(pedido?.id)}`)
+    expect(email?.texto).not.toContain('Fernanda')
+    expect(email?.texto).not.toContain('35999990001')
+    expect(email?.responderPara).toBeUndefined()
+  })
+
+  it('se o e-mail falhar, o pedido continua gravado (RN52)', async () => {
+    teste.controle.falharEmail = true
+    try {
+      expect((await enviar(ID.thor, corpo())).status).toBe(201)
+      expect(await teste.db.select().from(pedidosAdocao)).toHaveLength(1)
+    } finally {
+      teste.controle.falharEmail = false
+    }
+  })
+
   it('segundo pedido do mesmo animal: 409, mesmo de outra pessoa', async () => {
     await enviar(ID.thor, corpo())
     const resposta = await enviar(ID.thor, corpo({ whatsapp: '35999990002' }), '200.2.2.2')

@@ -1,5 +1,6 @@
 // Login da equipe (Cloudflare Access + tabela equipe), testado pela rota GET /api/admin/eu.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import type { UsuariaLogada } from '@sospatas/compartilhado'
 import { equipe } from '@sospatas/db'
 import type { Usuaria } from '../dependencias'
 import type { CorpoErro } from '../erros'
@@ -88,21 +89,32 @@ describe('login pelo Cloudflare Access', () => {
   })
 })
 
-describe('modo local do login', () => {
-  it('com AMBIENTE=local, usa o e-mail do .dev.vars sem JWT', async () => {
-    const env = envTeste({ AMBIENTE: 'local', ACESSO_LOCAL_EMAIL: 'gracia@exemplo.com' })
-    const resposta = await eu(undefined, env)
-    expect(resposta.status).toBe(200)
-    expect(await resposta.json<Usuaria>()).toMatchObject({ nome: 'Gracia' })
+describe('modo sem login (computador e prévia)', () => {
+  it.each(['local', 'previa'])(
+    'com AMBIENTE=%s, usa o e-mail de ACESSO_LOCAL_EMAIL sem JWT e avisa o front',
+    async (ambiente) => {
+      const env = envTeste({ AMBIENTE: ambiente, ACESSO_LOCAL_EMAIL: 'gracia@exemplo.com' })
+      const resposta = await eu(undefined, env)
+      expect(resposta.status).toBe(200)
+      expect(await resposta.json<UsuariaLogada>()).toMatchObject({
+        nome: 'Gracia',
+        sem_login: true,
+      })
+    },
+  )
+
+  it('com o Access, sem_login vem falso', async () => {
+    const resposta = await eu(await teste.token('gracia@exemplo.com'))
+    expect(await resposta.json<UsuariaLogada>()).toMatchObject({ sem_login: false })
   })
 
-  it('o e-mail local também precisa estar na equipe', async () => {
-    const env = envTeste({ AMBIENTE: 'local', ACESSO_LOCAL_EMAIL: 'estranho@exemplo.com' })
+  it('o e-mail fixo também precisa estar na equipe', async () => {
+    const env = envTeste({ AMBIENTE: 'previa', ACESSO_LOCAL_EMAIL: 'estranho@exemplo.com' })
     expect((await eu(undefined, env)).status).toBe(403)
   })
 
-  it.each(['producao', 'previa'])(
-    'em %s, ter ACESSO_LOCAL_EMAIL configurado bloqueia (nunca libera sem login)',
+  it.each(['producao', 'teste', ''])(
+    'em "%s", ter ACESSO_LOCAL_EMAIL configurado bloqueia (nunca libera sem login)',
     async (ambiente) => {
       const env = envTeste({ AMBIENTE: ambiente, ACESSO_LOCAL_EMAIL: 'gracia@exemplo.com' })
       const resposta = await eu(await teste.token('gracia@exemplo.com'), env)

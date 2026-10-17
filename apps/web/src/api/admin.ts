@@ -140,16 +140,16 @@ export function useConteudo() {
 
 /** Depois de salvar um texto ou item: o "Ver no site" já mostra a versão nova (RN37). */
 export async function atualizarConteudo(queryClient: QueryClient): Promise<void> {
-  marcarConteudoAlterado()
   queryClient.removeQueries({ queryKey: ['site'] })
   await atualizarAdmin(queryClient)
 }
 
 /**
  * Depois de salvar: recarrega a área da ONG e esquece a cópia das páginas públicas (vitrine,
- * ficha), para "Ver no site" mostrar a versão nova.
+ * ficha, perdidos), nesta aba e no navegador (marca), para "Ver no site" mostrar a versão nova.
  */
 export async function atualizarAdmin(queryClient: QueryClient): Promise<void> {
+  marcarConteudoAlterado()
   queryClient.removeQueries({ queryKey: ['animais'] })
   queryClient.removeQueries({ queryKey: ['perdidos'] })
   await queryClient.invalidateQueries({ queryKey: ['admin'] })

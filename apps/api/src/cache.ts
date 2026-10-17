@@ -12,11 +12,6 @@ export const SEGUNDOS_CACHE_NAVEGADOR = 60
 export const SEGUNDOS_CACHE_FOTO = 365 * 24 * 60 * 60
 
 type OpcoesCache = {
-  /**
-   * Endereço que identifica a cópia guardada. Padrão: o caminho sem a query string, para
-   * que "?qualquer=coisa" não fure o cache. Rotas com filtros passam a URL normalizada.
-   */
-  chave?: string
   segundosNavegador?: number
   segundosCloudflare?: number
   imutavel?: boolean
@@ -46,14 +41,17 @@ export function urlSemQuery(c: Context): string {
   return `${url.origin}${url.pathname}`
 }
 
-/** GET público com cache: devolve a cópia guardada ou gera, guarda e devolve. */
+/**
+ * GET público com cache: devolve a cópia guardada ou gera, guarda e devolve. A cópia é
+ * identificada pelo caminho sem a query string, para que "?qualquer=coisa" não fure o cache.
+ */
 export async function comCache(
   c: Context,
   gerar: () => Promise<Response>,
   opcoes: OpcoesCache = {},
 ): Promise<Response> {
+  const chave = urlSemQuery(c)
   const {
-    chave = urlSemQuery(c),
     segundosNavegador = SEGUNDOS_CACHE_NAVEGADOR,
     segundosCloudflare = SEGUNDOS_CACHE_PUBLICO,
     imutavel = false,
@@ -85,13 +83,33 @@ export async function comCache(
 }
 
 /**
+ * Lista pública com filtros (vitrine, perdidos): o cache guarda só a lista inteira, que é a
+ * cópia que limparCache apaga ao salvar, e o filtro é aplicado sobre ela, sem ir ao banco.
+ * Uma cópia por combinação de filtros ficaria desatualizada até vencer, porque limparCache
+ * não conhece todas as combinações. `filtrar` null = sem filtro, a lista inteira.
+ */
+export async function comCacheFiltrado<T>(
+  c: Context,
+  gerar: () => Promise<Response>,
+  filtrar: ((dados: T) => T) | null,
+): Promise<Response> {
+  const completa = await comCache(c, gerar)
+  if (!filtrar || completa.status !== 200) return completa
+  const filtrados = filtrar(await completa.json<T>())
+  return c.json(filtrados, 200, {
+    'Cache-Control': completa.headers.get('Cache-Control') ?? 'no-store',
+  })
+}
+
+/**
  * Depois de salvar algo na área da ONG: apaga as cópias guardadas das rotas públicas afetadas
  * (caminhos como '/api/publico/site'), para "salvar publica na hora" (RN37).
  *
  * Limite: a Cache API apaga só no datacenter que atendeu a requisição (o mesmo da voluntária,
  * então o "Ver no site" já mostra a mudança). Nos outros, a cópia vale até
  * SEGUNDOS_CACHE_PUBLICO. Com o domínio próprio (etapa 14), somar a limpeza global pela API
- * de purge do Cloudflare. Rotas com filtros (vitrine) também expiram sozinhas nesse prazo.
+ * de purge do Cloudflare. As buscas com filtros saem da lista inteira (comCacheFiltrado), então
+ * apagar o caminho da lista também atualiza todas elas.
  */
 export async function limparCache(c: Context, caminhos: string[]): Promise<void> {
   const cache = cachePadrao()

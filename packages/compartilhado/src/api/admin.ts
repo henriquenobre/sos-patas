@@ -18,8 +18,11 @@ import type {
 import type { RespostasAdocao } from '../schemas/pedido'
 import type { FotoPublica, OngPublica } from './publico'
 
-/** GET /api/admin/eu: quem está logada ("Olá, Gracia" no cabeçalho, RN43). */
-export type UsuariaLogada = { id: string; nome: string; email: string }
+/**
+ * GET /api/admin/eu: quem está logada ("Olá, Gracia" no cabeçalho, RN43). `sem_login`: área
+ * aberta sem o Access (computador ou prévia, só dados de exemplo).
+ */
+export type UsuariaLogada = { id: string; nome: string; email: string; sem_login: boolean }
 
 /** Resposta de criação: o id do registro novo. */
 export type Criado = { id: string }

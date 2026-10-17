@@ -56,6 +56,8 @@ export type AnimalResumo = {
   data_entrada: string
   /** O card mostra "Protetor parceiro" quando não é da ONG */
   responsavel_tipo: ResponsavelTipo
+  /** Usado pelo filtro "Convive com outros animais", aplicado sobre a lista guardada */
+  convive_animais: boolean | null
   /** URL da miniatura da foto principal, ou null se ainda não tem foto */
   foto: string | null
 }

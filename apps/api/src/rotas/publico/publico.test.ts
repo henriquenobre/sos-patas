@@ -316,6 +316,8 @@ describe('GET /animais (vitrine)', () => {
     ['?convive=sim', ['Pipoca', 'Mel']],
     ['?especie=gato&idade=adulto&convive=sim', ['Mel']],
     ['?especie=&porte=', ['Pipoca', 'Thor', 'Mel', 'Nina']],
+    // Marca de "acabou de salvar" do front (apps/web/src/api/publico.ts): ignorada aqui
+    ['?especie=gato&v=1800000000000', ['Pipoca', 'Mel']],
   ])('filtro %s', async (query, esperado) => {
     expect(nomes((await get<ListaAnimais>(`/animais${query}`)).corpo)).toEqual(esperado)
   })

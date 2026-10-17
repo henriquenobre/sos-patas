@@ -6,9 +6,11 @@
 //    validade, e pegamos o e-mail.
 // 3. O e-mail precisa estar ativo na tabela equipe (segunda barreira).
 //
-// Modo local: com AMBIENTE=local e ACESSO_LOCAL_EMAIL no .dev.vars, a requisição é tratada
-// como vinda desse e-mail, sem Access. Em qualquer outro ambiente, ter ACESSO_LOCAL_EMAIL
-// configurado é erro de configuração e a API recusa (nunca libera sem login).
+// Modo sem login: com ACESSO_LOCAL_EMAIL configurado, a requisição é tratada como vinda desse
+// e-mail, sem Access. Só vale no computador (AMBIENTE=local, pelo .dev.vars) e na prévia
+// (AMBIENTE=previa, pelo wrangler.toml), que têm só dados de exemplo. Em qualquer outro
+// ambiente, ter ACESSO_LOCAL_EMAIL configurado é erro de configuração e a API recusa (a
+// produção nunca libera sem login).
 import { createMiddleware } from 'hono/factory'
 import { createRemoteJWKSet, jwtVerify, type JWTVerifyGetKey } from 'jose'
 import type { ConfigApp, Dependencias } from '../dependencias'
@@ -48,9 +50,12 @@ export function chavesDoTime(dominioTime: string): JWTVerifyGetKey {
   return chaves
 }
 
-/** Variável opcional do env (só existe no .dev.vars). */
-function variavelOpcional(env: Env, nome: string): string | undefined {
-  const valor: unknown = Reflect.get(env, nome)
+/** Ambientes em que a área da ONG pode abrir sem login (só dados de exemplo). */
+const AMBIENTES_SEM_LOGIN: readonly string[] = ['local', 'previa']
+
+/** E-mail fixo do modo sem login (só no .dev.vars e na prévia), ou undefined. */
+export function emailSemLogin(env: Env): string | undefined {
+  const valor: unknown = Reflect.get(env, 'ACESSO_LOCAL_EMAIL')
   return typeof valor === 'string' && valor.trim() !== '' ? valor.trim() : undefined
 }
 
@@ -59,13 +64,13 @@ async function emailDaRequisicao(
   token: string | undefined,
   dependencias: Dependencias,
 ): Promise<string> {
-  const emailLocal = variavelOpcional(env, 'ACESSO_LOCAL_EMAIL')
-  if (emailLocal) {
-    if (env.AMBIENTE !== 'local') {
-      console.error('ACESSO_LOCAL_EMAIL configurado fora do ambiente local: requisição recusada')
+  const emailFixo = emailSemLogin(env)
+  if (emailFixo) {
+    if (!AMBIENTES_SEM_LOGIN.includes(env.AMBIENTE)) {
+      console.error(`ACESSO_LOCAL_EMAIL configurado em ${env.AMBIENTE}: requisição recusada`)
       throw new ErroApi(500, 'configuracao_invalida', 'Erro de configuração do site.')
     }
-    return emailLocal
+    return emailFixo
   }
 
   if (!token) throw erros.naoAutenticado()

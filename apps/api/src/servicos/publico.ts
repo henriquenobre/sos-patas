@@ -12,7 +12,6 @@ import {
   type AnimalFicha,
   type AnimalResumo,
   type ChaveTexto,
-  type FiltroPerdidos,
   type FiltroVitrine,
   type ItemPublico,
   type NomeLista,
@@ -86,6 +85,7 @@ const colunasResumo = {
   porte: animais.porte,
   data_entrada: animais.data_entrada,
   responsavel_tipo: animais.responsavel_tipo,
+  convive_animais: animais.convive_animais,
   foto_path: fotos.path_miniatura,
 }
 
@@ -110,23 +110,27 @@ async function listarDisponiveis(db: Db, env: Env, condicoes: SQL[], limite?: nu
 /** RN11: adulto nasceu até esta data (1 ano ou mais). Mesma regra de ehAdulto. */
 const nascimentoLimiteAdulto = (hoje: string) => subtrairMeses(hoje, 12)
 
-export async function buscarVitrine(
-  db: Db,
-  env: Env,
+/** Vitrine inteira (T02). Os filtros são aplicados depois, sobre a cópia guardada (cache.ts). */
+export async function buscarVitrine(db: Db, env: Env): Promise<AnimalResumo[]> {
+  return listarDisponiveis(db, env, [])
+}
+
+/** Chips da vitrine (T02), um valor por grupo, aplicados sobre a lista inteira. */
+export function filtrarVitrine(
+  lista: AnimalResumo[],
   filtro: FiltroVitrine,
   hoje = hojeNoBrasil(),
-): Promise<AnimalResumo[]> {
-  const condicoes: SQL[] = []
-  if (filtro.especie) condicoes.push(eq(animais.especie, filtro.especie))
-  if (filtro.porte) condicoes.push(eq(animais.porte, filtro.porte))
-  if (filtro.idade === 'adulto') {
-    condicoes.push(lte(animais.nascimento_aprox, nascimentoLimiteAdulto(hoje)))
-  }
-  if (filtro.idade === 'filhote') {
-    condicoes.push(gt(animais.nascimento_aprox, nascimentoLimiteAdulto(hoje)))
-  }
-  if (filtro.convive === 'sim') condicoes.push(eq(animais.convive_animais, true))
-  return listarDisponiveis(db, env, condicoes)
+): AnimalResumo[] {
+  const limiteAdulto = nascimentoLimiteAdulto(hoje)
+  return lista.filter(
+    (animal) =>
+      (!filtro.especie || animal.especie === filtro.especie) &&
+      (!filtro.porte || animal.porte === filtro.porte) &&
+      // Datas AAAA-MM-DD: a comparação de texto segue a ordem das datas
+      (filtro.idade !== 'adulto' || animal.nascimento_aprox <= limiteAdulto) &&
+      (filtro.idade !== 'filhote' || animal.nascimento_aprox > limiteAdulto) &&
+      (filtro.convive !== 'sim' || animal.convive_animais === true),
+  )
 }
 
 /** RN12: adultos disponíveis esperando há mais de 90 dias, até 6, os mais antigos primeiro. */
@@ -214,13 +218,8 @@ export async function buscarFicha(db: Db, env: Env, id: string): Promise<AnimalF
 // Perdidos e encontrados
 // ---------------------------------------------------------------------------
 /** Só anúncios aprovados e ainda no prazo, os mais recentes primeiro (RN18, RN25). */
-export async function buscarPerdidos(
-  db: Db,
-  env: Env,
-  filtro: FiltroPerdidos,
-): Promise<PerdidoPublico[]> {
+export async function buscarPerdidos(db: Db, env: Env): Promise<PerdidoPublico[]> {
   const condicoes: SQL[] = [eq(perdidos.status, 'publicado'), gt(perdidos.expira_em, sql`now()`)]
-  if (filtro.tipo) condicoes.push(eq(perdidos.tipo, filtro.tipo))
 
   const anuncios = await db
     .select({
