@@ -99,7 +99,7 @@ describe('Painel de animais (T09)', () => {
     simularApi({ ...API_ADMIN, '/admin/animais?status=disponivel': LISTA })
     renderizarEm('/admin')
     expect(await screen.findByText('Apolo')).toBeInTheDocument()
-    expect(screen.getByText('esperando +90 dias').previousSibling).toHaveTextContent('3')
+    expect(screen.getByText('adultos esperando +90 dias').previousSibling).toHaveTextContent('3')
     expect(screen.getByText(/Cão · 4 anos · Lar da Claudia/)).toBeInTheDocument()
     expect(screen.getByText(/Esperando há 1 ano/)).toHaveClass('text-vermelho')
     expect(screen.getByRole('link', { name: 'Editar Apolo' })).toHaveAttribute(

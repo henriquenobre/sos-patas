@@ -190,7 +190,7 @@ export function Painel() {
         <Numero valor={resumo.data?.disponiveis} rotulo="disponíveis" cor="text-azul" />
         <Numero
           valor={resumo.data?.esperando_muito}
-          rotulo="esperando +90 dias"
+          rotulo="adultos esperando +90 dias"
           cor="text-vermelho"
         />
         <Numero

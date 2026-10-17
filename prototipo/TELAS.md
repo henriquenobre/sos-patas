@@ -260,7 +260,7 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 
 **Objetivo:** Gracia e Claudia controlarem tudo pelo celular.
 
-- **Números:** disponíveis · adultos esperando há mais de 90 dias · **adotados no mês** (indicador da avaliação).
+- **Números:** disponíveis · adultos esperando há mais de 90 dias · **adotados no mês** (indicador da avaliação). No site, o rótulo diz **"adultos esperando +90 dias"** (17/10/2026), para não parecer que falta um filhote que também espera há muito tempo (RN12).
 - **Abas:** Disponíveis / Em análise / Adotados (RN48), sem número na aba; abaixo da busca, "N animais". No site, a aba fica no endereço (`/admin?aba=adotado`), para a lista continuar igual ao voltar de uma edição.
 - **Aba Em análise:** cada animal mostra "📋 Pedido aguardando análise" ou "✅ Pedido aprovado: falta a entrega", com link para o pedido (T28).
 - **Busca** pelo nome.
