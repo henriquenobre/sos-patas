@@ -15,10 +15,10 @@ const CHAVE_CONTEUDO_ALTERADO = 'sospatas:conteudo-alterado'
 const VALIDADE_MARCA_MS = 15 * 60_000
 
 /**
- * A equipe acabou de salvar um texto (RN37): guarda a hora neste navegador. O "Ver no site"
- * abre outra aba, que pede o GET /site com essa marca no endereço e não usa a cópia antiga
- * guardada pelo navegador. O Cloudflare ignora a marca (a chave do cache é o caminho), e a cópia
- * dele já foi apagada pela API ao salvar.
+ * A equipe acabou de salvar algo que aparece no site (RN37): guarda a hora neste navegador.
+ * As páginas públicas, nesta aba ou na do "Ver no site", pedem os dados com essa marca no
+ * endereço e não usam a cópia antiga guardada pelo navegador (1 min). O Cloudflare ignora a
+ * marca (a chave do cache é o caminho), e a cópia dele já foi apagada pela API ao salvar.
  */
 export function marcarConteudoAlterado(): void {
   try {
@@ -28,21 +28,24 @@ export function marcarConteudoAlterado(): void {
   }
 }
 
-function enderecoDoSite(): string {
+/** Endereço público com a marca da última alteração, se ela for recente. */
+function comMarca(endereco: string): string {
   try {
     const marca = Number(localStorage.getItem(CHAVE_CONTEUDO_ALTERADO))
-    if (marca && Date.now() - marca < VALIDADE_MARCA_MS) return `/publico/site?v=${String(marca)}`
+    if (marca && Date.now() - marca < VALIDADE_MARCA_MS) {
+      return `${endereco}${endereco.includes('?') ? '&' : '?'}v=${String(marca)}`
+    }
   } catch {
     // Sem armazenamento: endereço normal
   }
-  return '/publico/site'
+  return endereco
 }
 
 /** Textos, listas e dados da ONG: carregados uma vez e usados por todas as páginas. */
 export function useSite() {
   return useQuery({
     queryKey: ['site'],
-    queryFn: () => buscarJson<SitePublico>(enderecoDoSite()),
+    queryFn: () => buscarJson<SitePublico>(comMarca('/publico/site')),
     staleTime: 5 * 60_000,
   })
 }
@@ -51,7 +54,7 @@ export function useSite() {
 export function useDestaques() {
   return useQuery({
     queryKey: ['animais', 'destaques'],
-    queryFn: () => buscarJson<ListaAnimais>('/publico/animais/destaques'),
+    queryFn: () => buscarJson<ListaAnimais>(comMarca('/publico/animais/destaques')),
   })
 }
 
@@ -65,7 +68,8 @@ export function useVitrine(filtro: FiltroVitrine = {}) {
   const query = params.toString()
   return useQuery({
     queryKey: ['animais', 'vitrine', query],
-    queryFn: () => buscarJson<ListaAnimais>(`/publico/animais${query ? `?${query}` : ''}`),
+    queryFn: () =>
+      buscarJson<ListaAnimais>(comMarca(`/publico/animais${query ? `?${query}` : ''}`)),
   })
 }
 
@@ -73,7 +77,7 @@ export function useVitrine(filtro: FiltroVitrine = {}) {
 export function useFicha(id: string) {
   return useQuery({
     queryKey: ['animais', 'ficha', id],
-    queryFn: () => buscarJson<AnimalFicha>(`/publico/animais/${encodeURIComponent(id)}`),
+    queryFn: () => buscarJson<AnimalFicha>(comMarca(`/publico/animais/${encodeURIComponent(id)}`)),
     retry: (tentativas, erro) =>
       !(erro instanceof ErroApi && erro.status === 404) && tentativas < 1,
   })
@@ -83,6 +87,7 @@ export function useFicha(id: string) {
 export function usePerdidos(tipo?: PerdidoTipo) {
   return useQuery({
     queryKey: ['perdidos', tipo ?? 'todos'],
-    queryFn: () => buscarJson<ListaPerdidos>(`/publico/perdidos${tipo ? `?tipo=${tipo}` : ''}`),
+    queryFn: () =>
+      buscarJson<ListaPerdidos>(comMarca(`/publico/perdidos${tipo ? `?tipo=${tipo}` : ''}`)),
   })
 }

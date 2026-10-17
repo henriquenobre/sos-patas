@@ -322,4 +322,19 @@ describe('"Ver no site" depois de salvar (RN37)', () => {
     expect(await screen.findByRole('heading', { name: 'Perguntas frequentes' })).toBeInTheDocument()
     expect(fetchFalso).toHaveBeenCalledWith(expect.stringMatching(/\/api\/publico\/site\?v=/))
   })
+
+  it('a vitrine com filtro também pede com a marca (animal adotado some na hora)', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(1_800_000_000_000)
+    marcarConteudoAlterado()
+    const fetchFalso = simularApi({
+      '/publico/site?v=1800000000000': SITE_TESTE,
+      '/publico/animais?especie=cao&v=1800000000000': { animais: [] },
+    })
+    renderizarEm('/animais?especie=cao')
+
+    expect(await screen.findByText(/Nenhum animal/i)).toBeInTheDocument()
+    expect(fetchFalso).toHaveBeenCalledWith(
+      expect.stringMatching(/\/api\/publico\/animais\?especie=cao&v=1800000000000$/),
+    )
+  })
 })
