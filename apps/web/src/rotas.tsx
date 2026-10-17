@@ -3,6 +3,7 @@ import { Carregando } from './components/Estados'
 import type { MolduraAdmin } from './layouts/LayoutAdmin'
 import { LayoutPublico } from './layouts/LayoutPublico'
 import { ehNomeLista, paginaDaLista, telaDaPagina } from './lib/conteudo'
+import { carregarTela } from './lib/versao'
 import { PaginaNaoEncontrada } from './pages/Avisos'
 import { Adotar } from './pages/Adotar'
 import { AnunciarPerdido } from './pages/AnunciarPerdido'
@@ -17,37 +18,73 @@ import { Privacidade } from './pages/Privacidade'
 import { Vitrine } from './pages/Vitrine'
 
 // A área da ONG é carregada só quando alguém abre /admin: quem visita o site não baixa esse código.
+// carregarTela: se o arquivo sumiu numa publicação nova, recarrega a página (lib/versao.ts).
 const admin = {
-  layout: () => import('./layouts/LayoutAdmin').then((m) => ({ Component: m.LayoutAdmin })),
-  painel: () => import('./pages/admin/Painel').then((m) => ({ Component: m.Painel })),
+  layout: () =>
+    carregarTela(() => import('./layouts/LayoutAdmin')).then((m) => ({ Component: m.LayoutAdmin })),
+  painel: () =>
+    carregarTela(() => import('./pages/admin/Painel')).then((m) => ({ Component: m.Painel })),
   cadastrar: () =>
-    import('./pages/admin/FormularioAnimal').then((m) => ({ Component: m.CadastrarAnimal })),
+    carregarTela(() => import('./pages/admin/FormularioAnimal')).then((m) => ({
+      Component: m.CadastrarAnimal,
+    })),
   editar: () =>
-    import('./pages/admin/FormularioAnimal').then((m) => ({ Component: m.EditarAnimal })),
-  pedidos: () => import('./pages/admin/Pedidos').then((m) => ({ Component: m.Pedidos })),
-  pedido: () => import('./pages/admin/Pedido').then((m) => ({ Component: m.Pedido })),
+    carregarTela(() => import('./pages/admin/FormularioAnimal')).then((m) => ({
+      Component: m.EditarAnimal,
+    })),
+  pedidos: () =>
+    carregarTela(() => import('./pages/admin/Pedidos')).then((m) => ({ Component: m.Pedidos })),
+  pedido: () =>
+    carregarTela(() => import('./pages/admin/Pedido')).then((m) => ({ Component: m.Pedido })),
   perdidos: () =>
-    import('./pages/admin/PerdidosAdmin').then((m) => ({ Component: m.PerdidosAdmin })),
-  textos: () => import('./pages/admin/Textos').then((m) => ({ Component: m.TextosDoSite })),
-  perguntas: () => import('./pages/admin/Textos').then((m) => ({ Component: m.EditarPerguntas })),
-  comoAdotar: () => import('./pages/admin/Textos').then((m) => ({ Component: m.EditarComoAdotar })),
-  inicio: () => import('./pages/admin/Textos').then((m) => ({ Component: m.EditarInicio })),
-  ajude: () => import('./pages/admin/Textos').then((m) => ({ Component: m.EditarComoAjudar })),
-  item: () => import('./pages/admin/ItemConteudo').then((m) => ({ Component: m.ItemConteudo })),
+    carregarTela(() => import('./pages/admin/PerdidosAdmin')).then((m) => ({
+      Component: m.PerdidosAdmin,
+    })),
+  textos: () =>
+    carregarTela(() => import('./pages/admin/Textos')).then((m) => ({ Component: m.TextosDoSite })),
+  perguntas: () =>
+    carregarTela(() => import('./pages/admin/Textos')).then((m) => ({
+      Component: m.EditarPerguntas,
+    })),
+  comoAdotar: () =>
+    carregarTela(() => import('./pages/admin/Textos')).then((m) => ({
+      Component: m.EditarComoAdotar,
+    })),
+  inicio: () =>
+    carregarTela(() => import('./pages/admin/Textos')).then((m) => ({ Component: m.EditarInicio })),
+  ajude: () =>
+    carregarTela(() => import('./pages/admin/Textos')).then((m) => ({
+      Component: m.EditarComoAjudar,
+    })),
+  item: () =>
+    carregarTela(() => import('./pages/admin/ItemConteudo')).then((m) => ({
+      Component: m.ItemConteudo,
+    })),
   novoAnuncio: () =>
-    import('./pages/admin/AnuncioEquipe').then((m) => ({ Component: m.NovoAnuncio })),
+    carregarTela(() => import('./pages/admin/AnuncioEquipe')).then((m) => ({
+      Component: m.NovoAnuncio,
+    })),
   editarAnuncio: () =>
-    import('./pages/admin/AnuncioEquipe').then((m) => ({ Component: m.EditarAnuncio })),
-  mais: () => import('./pages/admin/Mais').then((m) => ({ Component: m.Mais })),
-  ong: () => import('./pages/admin/Mais').then((m) => ({ Component: m.DadosDaOng })),
-  protetores: () => import('./pages/admin/Mais').then((m) => ({ Component: m.Protetores })),
-  adotantes: () => import('./pages/admin/Adotantes').then((m) => ({ Component: m.Adotantes })),
+    carregarTela(() => import('./pages/admin/AnuncioEquipe')).then((m) => ({
+      Component: m.EditarAnuncio,
+    })),
+  mais: () => carregarTela(() => import('./pages/admin/Mais')).then((m) => ({ Component: m.Mais })),
+  ong: () =>
+    carregarTela(() => import('./pages/admin/Mais')).then((m) => ({ Component: m.DadosDaOng })),
+  protetores: () =>
+    carregarTela(() => import('./pages/admin/Mais')).then((m) => ({ Component: m.Protetores })),
+  adotantes: () =>
+    carregarTela(() => import('./pages/admin/Adotantes')).then((m) => ({ Component: m.Adotantes })),
   novoAdotante: () =>
-    import('./pages/admin/Adotantes').then((m) => ({ Component: m.NovoAdotante })),
+    carregarTela(() => import('./pages/admin/Adotantes')).then((m) => ({
+      Component: m.NovoAdotante,
+    })),
   fichaAdotante: () =>
-    import('./pages/admin/Adotantes').then((m) => ({ Component: m.FichaAdotante })),
+    carregarTela(() => import('./pages/admin/Adotantes')).then((m) => ({
+      Component: m.FichaAdotante,
+    })),
   emBreve: (titulo: string, texto?: string) => () =>
-    import('./pages/admin/EmBreveAdmin').then((m) => ({
+    carregarTela(() => import('./pages/admin/EmBreveAdmin')).then((m) => ({
       Component: () => <m.EmBreveAdmin titulo={titulo} texto={texto} />,
     })),
 }

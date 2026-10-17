@@ -350,7 +350,7 @@ function OutrasAcoes({ animal }: { animal: AnimalAdmin }) {
           }}
           className="min-h-11 w-full rounded-xl bg-emerald-50 py-3 font-extrabold text-emerald-700"
         >
-          Marcar como adotado ✓
+          Marcar como adotado
         </button>
       )}
       {podeDevolver && (

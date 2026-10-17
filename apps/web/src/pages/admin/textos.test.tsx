@@ -245,6 +245,15 @@ describe('T19 · animais da chamada do Início (RN54)', () => {
     ])
   })
 
+  it('API da versão anterior, sem "chamada": a tela abre com as duas fotos automáticas', async () => {
+    const { chamada: _semChamada, ...antigo } = conteudo()
+    simularApi(api(antigo as ConteudoAdmin))
+    renderizarEm('/admin/textos/inicio')
+
+    expect(await screen.findByLabelText('Foto 1 (à esquerda)')).toHaveValue('')
+    expect(screen.getByLabelText('Foto 2 (à direita)')).toHaveValue('')
+  })
+
   it('animal que saiu do site: a API recusa e a mensagem aparece', async () => {
     simularApi(
       api(conteudo(), {

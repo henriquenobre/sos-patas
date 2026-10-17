@@ -51,7 +51,7 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 | `Modal` | Adotado, devolver, excluir, novo protetor, aprovar e recusar pedido | Confirmações sempre com "Cancelar"; no celular, sobe do rodapé |
 | `OpcoesBotao` | Formulário | Escolha em botões grandes (melhor que select no celular) |
 | Campo de data | T13 e cadastro de animal | Sempre **dd/mm/aaaa**: a pessoa digita só os números (as barras entram sozinhas, teclado numérico) ou abre o calendário pelo botão 📅. Não usa o campo de data do navegador, que mostra mês/dia/ano quando o navegador está em inglês (14/10/2026) |
-| `CabecalhoAdmin` | T08–T24 | Fundo azul-escuro, para diferenciar do site público; "Olá, {nome}" vem de `equipe` (só a partir do tablet); à direita, "Ver o site ↗" (abre o site público em nova aba) e "Sair" |
+| `CabecalhoAdmin` | T08–T24 | Fundo azul-escuro, para diferenciar do site público; "Olá, {nome}" vem de `equipe` (no tablet e em telas largas, a partir de 1280 px; entre 768 e 1279 px sai para as abas caberem, 17/10/2026); no computador, as abas ficam numa linha só, com o número vermelho de pendências sem quebrar; à direita, "Ver o site ↗" (abre o site público em nova aba) e "Sair" |
 | `BarraAdmin` | T09, T14, T15, T22, T27 | Barra fixa no rodapé: 🐾 Animais · 📋 Pedidos (com número de pendentes) · 🔎 Perdidos (com número de pendentes) · 📝 Textos · ☰ Mais. No computador, vira abas no cabeçalho. Some nas telas de formulário |
 | `ListaEditavel` | T16, T18–T20 | Cards com título, começo do texto e miniatura (se tiver foto); botões ↑ ↓ (RN35), **Editar** e **Excluir** (RN36); "＋ Adicionar" no fim. Configurada por `lista` (DESENVOLVIMENTO.md, `conteudo_itens`) |
 | `CampoTextoEditavel` | T18–T20 | Rótulo, onde aparece no site, caixa de texto com contador "120/400" e botão **Salvar** próprio |
@@ -264,7 +264,7 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 - **Abas:** Disponíveis / Em análise / Adotados (RN48), sem número na aba; abaixo da busca, "N animais". No site, a aba fica no endereço (`/admin?aba=adotado`), para a lista continuar igual ao voltar de uma edição.
 - **Aba Em análise:** cada animal mostra "📋 Pedido aguardando análise" ou "✅ Pedido aprovado: falta a entrega", com link para o pedido (T28).
 - **Busca** pelo nome.
-- **Item da lista:** miniatura, nome, espécie, idade, **lar temporário** (privado), tempo de espera (vermelho se adulto há mais de 90 dias); botões **Editar** e **Adotado ✓**.
+- **Item da lista:** miniatura, nome, espécie, idade, **lar temporário** (privado), tempo de espera (vermelho se adulto há mais de 90 dias); botões **Editar** e **Marcar como adotado** (até 17/10/2026, "Adotado ✓", que parecia dizer que o animal já tinha sido adotado).
 - **Aba Adotados:** "Em adaptação: faltam N dias" ou "Adoção concluída" (RN30).
 - **Filtro por responsável** (abaixo da busca, com o rótulo "Responsável:" em cima): "Todos · SOS Patas · Protetores", em chips que quebram linha (sem rolagem lateral), e ao tocar em "Protetores" aparece a lista para escolher um. O nome do protetor aparece no item da lista.
 - **Card amarelo de perdidos:** só aparece quando há anúncios aguardando aprovação (o número também fica na aba 🔎).
