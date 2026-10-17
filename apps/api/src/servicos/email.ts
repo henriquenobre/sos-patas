@@ -1,6 +1,7 @@
-// E-mail do formulário "Fale com a ONG" (RN51). Monta a mensagem em texto puro (MIME), que o
-// Workers envia pelo Cloudflare Email Routing (email/cloudflare.ts). Sem dependência do
-// Cloudflare aqui: os testes conferem a mensagem montada.
+// E-mails que chegam à ONG: formulário "Fale com a ONG" (RN51) e aviso de pedido de adoção
+// (RN15). Monta a mensagem em texto puro (MIME), que o Workers envia pelo Cloudflare Email
+// Routing (email/cloudflare.ts). Sem dependência do Cloudflare aqui: os testes conferem a
+// mensagem montada.
 import { ROTULOS, type ContatoDados } from '@sospatas/compartilhado'
 
 /** O que a API manda enviar; remetente e destino vêm do ambiente (EMAIL_REMETENTE, EMAIL_DESTINO). */
@@ -8,7 +9,33 @@ export type MensagemEmail = {
   assunto: string
   texto: string
   /** E-mail de quem escreveu: o "Responder" do Gmail da ONG vai para ele */
-  responderPara: string
+  responderPara?: string
+}
+
+/**
+ * Aviso de pedido de adoção novo. Sem os dados de quem pediu: eles ficam só na área da ONG,
+ * que apaga o pedido no prazo da RN15; no Gmail, ficariam para sempre.
+ */
+export function mensagemDoPedido(
+  animalNome: string,
+  pedidoId: string,
+  enderecoSite: string,
+): MensagemEmail {
+  return {
+    assunto: `[Site] Novo pedido de adoção: ${animalNome}`,
+    texto: [
+      `Chegou um pedido de adoção pelo site para ${animalNome}.`,
+      '',
+      'Para ver os dados e as respostas, entre na área da ONG:',
+      `${enderecoSite}/admin/pedidos/${pedidoId}`,
+      '',
+      `Enquanto o pedido está em análise, ${animalNome} fica fora do site.`,
+      '',
+      '---',
+      'Os dados de quem pediu não vêm neste e-mail: ficam só na área da ONG, que apaga o pedido',
+      'no prazo combinado (LGPD).',
+    ].join('\n'),
+  }
 }
 
 /** Assunto e corpo do e-mail que chega à ONG. */
@@ -59,7 +86,7 @@ export function montarMime(
   return [
     `From: ${cabecalhoUtf8('Site SOS Patas')} <${enderecos.de}>`,
     `To: <${enderecos.para}>`,
-    `Reply-To: <${mensagem.responderPara}>`,
+    ...(mensagem.responderPara ? [`Reply-To: <${mensagem.responderPara}>`] : []),
     `Subject: ${cabecalhoUtf8(mensagem.assunto)}`,
     `Date: ${agora.toUTCString()}`,
     `Message-ID: <${crypto.randomUUID()}@${dominio}>`,

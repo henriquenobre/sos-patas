@@ -1,10 +1,11 @@
 // POST /api/publico/animais/:id/pedidos: formulário de adoção enviado pelo site (RN14, RN15,
-// RN47, RN48, RN50; docs/ARQUITETURA.md, seção 3.1).
+// RN47, RN48, RN50, RN52; docs/ARQUITETURA.md, seção 3.1).
 import { Hono } from 'hono'
 import { pedidoAdocaoEntrada } from '@sospatas/compartilhado'
-import { limparCache } from '../../cache'
+import { emSegundoPlano, limparCache } from '../../cache'
 import type { ConfigApp } from '../../dependencias'
 import { ErroApi, erros } from '../../erros'
+import { mensagemDoPedido } from '../../servicos/email'
 import {
   animalParaPedido,
   caminhosPublicosDoAnimal,
@@ -39,9 +40,19 @@ rotasPedidosPublicos.post('/animais/:id/pedidos', async (c) => {
 
   const ipHash = await hashDoIp(ip, c.env.IP_HASH_SECRET)
   await conferirLimites(c.var.db, dados.whatsapp, ipHash)
-  await criarPedido(c.var.db, animal.id, dados, ipHash, animal.nome)
+  const pedidoId = await criarPedido(c.var.db, animal.id, dados, ipHash, animal.nome)
 
   // O animal saiu do site: some da vitrine, dos destaques e da ficha guardada (RN48)
   await limparCache(c, caminhosPublicosDoAnimal(animal.id))
+
+  // Aviso à ONG por e-mail, depois da resposta. Se falhar (ou na prévia, sem envio de e-mail),
+  // o pedido continua gravado e aparece na área da ONG
+  const aviso = mensagemDoPedido(animal.nome, pedidoId, new URL(c.req.url).origin)
+  await emSegundoPlano(
+    c,
+    c.var.enviarEmail(aviso).catch((erro: unknown) => {
+      console.error('Falha ao avisar o pedido de adoção por e-mail', erro)
+    }),
+  )
   return c.json({ recebido: true, animal: animal.nome }, 201)
 })
