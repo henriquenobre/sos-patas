@@ -68,7 +68,7 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 **Objetivo:** apresentar a ONG e sua história e levar a pessoa à vitrine, com destaque para os adultos.
 
 **Seções, na ordem** (✎ = editável em T19):
-1. **Chamada** (visual acolhedor, ver Identidade visual): selo "Adoção responsável", título ✎ seguido de duas patinhas amarelas, (`inicio.chamada_titulo`), texto ✎ (`inicio.chamada_texto`), botões "Ver animais para adoção" e "Ajude a ONG" (→ `/ajude`), fotos de **um cão e um gato** (automático: o cão e o gato disponíveis há mais tempo, só os que têm foto). **Desde 16/10/2026:** se faltar uma espécie, a segunda foto é do próximo animal com foto, de qualquer espécie (dois cães, por exemplo); com um animal só, a outra moldura mostra a patinha.
+1. **Chamada** (visual acolhedor, ver Identidade visual): selo "Adoção responsável", título ✎ seguido de duas patinhas amarelas, (`inicio.chamada_titulo`), texto ✎ (`inicio.chamada_texto`), botões "Ver animais para adoção" e "Ajude a ONG" (→ `/ajude`), fotos de **um cão e um gato** (automático: o cão e o gato disponíveis há mais tempo, só os que têm foto). **Desde 16/10/2026:** se faltar uma espécie, a segunda foto é do próximo animal com foto, de qualquer espécie (dois cães, por exemplo); com um animal só, a outra moldura mostra a patinha. **Desde 17/10/2026 (RN54):** a equipe pode escolher o animal de cada foto em T19; foto em "Automático", ou com o animal escolhido fora da vitrine, segue a regra automática.
 2. **Números em destaque** ✎ (`inicio_numeros`, até 4, RN46): faixa branca logo abaixo da chamada, sobre a borda ondulada. Conteúdo: **Desde 2015** (cuidando dos animais de Passos) · **+100** (feiras de adoção) · **+1.000** (animais adotados, somando feiras e redes sociais). Com 3 números, ficam lado a lado também no celular; com 4, 2×2 no celular. O recorde de 32 adoções numa feira saiu da faixa em 07/10.
    - Substituiu em 07/10 os números automáticos "animais esperando" e "adotados no último mês", que mudavam todo mês, e o card "R$ 0 taxa de adoção" (RN45). "Adotados no mês" continua no painel da ONG (T09).
 3. **Nossa história** (conteúdo enviado pela ONG em 07/10/2026):
@@ -122,7 +122,7 @@ O aviso amarelo "A SOS Patas não faz resgates" foi **removido em 07/10/2026** (
 **Objetivo:** fluxo definido com a ONG em 08/10/2026, todo pelo site: responder ao formulário, ler o termo e registrar a ciência (RN14, RN15, RN47).
 
 - **Topo:** o animal escolhido (miniatura, nome, responsável) e os passos "1. Formulário" e "2. Termo de adoção".
-- **Passo 1, formulário:** as perguntas da [versão 1.2](../docs/formulario/FORMULARIO_ADOCAO.md) em blocos (Sobre você · Sua casa · Outros animais · Cuidados e custos), com opções em botões grandes; perguntas condicionais só quando se aplicam (proprietário, se alugado; telas, se gato; 16 a 18, se tem animais); as 8 declarações (pergunta 25, a última é o consentimento LGPD). "Continuar para o termo de adoção" confere tudo antes de avançar e mostra a mensagem embaixo de cada campo.
+- **Passo 1, formulário:** as perguntas da [versão 1.3](../docs/formulario/FORMULARIO_ADOCAO.md) em blocos (Sobre você · Sua casa · Outros animais · Cuidados e custos), com opções em botões grandes; perguntas condicionais só quando se aplicam (proprietário, se alugado; telas, se gato; 16 a 18, se tem animais); as 8 declarações (pergunta 25, a última é o consentimento LGPD; desde 17/10/2026, versão 1.3, autoriza guardar os dados para esta adoção e para consulta da equipe em adoções futuras, RN15). "Continuar para o termo de adoção" confere tudo antes de avançar e mostra a mensagem embaixo de cada campo.
 - **Passo 2, termo:** o **Termo de Responsabilidade de Adoção** inteiro (9 cláusulas e o aviso da Lei 9.605/98), a caixa **"Li o Termo de Responsabilidade de Adoção e estou ciente dos compromissos. Se a adoção for aprovada, assumo esses compromissos."** (a "assinatura", RN47), o Turnstile e o botão verde "Enviar pedido de adoção" (com "Voltar ao formulário").
 - **Erros do envio:** campo do formulário → volta ao passo 1 com o campo destacado; outra pessoa pediu o animal antes, ou a pessoa já tem pedido em análise → aviso com "Ver outros animais"; limite de envios ou Turnstile → mensagem para tentar de novo.
 - **Animal em análise ou adotado:** sem formulário, só o aviso.
@@ -177,7 +177,7 @@ Antiga "Sobre e ajude" (`/sobre` redireciona para cá). A missão e o "Como func
 
 Texto curto sobre LGPD: o site não cadastra visitantes, as estatísticas são anônimas, os lares temporários nunca aparecem e há canal para pedir a exclusão de dados. Desde 09/10/2026 tem a seção **"Fale com a ONG"** (a mensagem vai para o e-mail da ONG e não fica no site; só um código do IP por 1 dia, contra abuso) e o pedido de informações ou exclusão de dados é **pelo e-mail** da ONG (RN51).
 
-✏️ _A atualizar (08/10/2026), no protótipo e no site:_ trocar "O contato para adoção acontece pelo WhatsApp, por iniciativa sua" por uma seção **"Pedidos de adoção"**: o formulário guarda nome, WhatsApp, bairro e cidade e as respostas; só a equipe vê; o pedido recusado ou não concluído é apagado em 90 dias; o endereço completo e os documentos ficam só no termo em papel (RN15).
+**Seção "Pedidos de adoção"** (no site; atualizada em 17/10/2026, RN15): o formulário guarda nome, WhatsApp, bairro e cidade, as respostas e a ciência do termo; só a equipe vê, para analisar o pedido, falar com a pessoa, acompanhar a adoção e consultar em adoções futuras. Por isso os dados ficam guardados, mesmo sem aprovação; quem quiser que eles sejam apagados escreve para a ONG. O site não pede RG, CPF nem endereço completo. O protótipo (congelado) ainda mostra o texto antigo.
 
 ### T29 · Fale com a ONG · `/contato` · 🆕 só no site (09/10/2026)
 
@@ -237,7 +237,7 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 | 📋 Pedidos | T27 (número vermelho = pedidos aguardando análise) | T28 |
 | 🔎 Perdidos | T14 (número vermelho = anúncios aguardando) | T21 |
 | 📝 Textos | T15 | T16–T20, T17 |
-| ☰ Mais | T22 | T23, T24, "Ver o site", "Sair" |
+| ☰ Mais | T22 | T23, T24, T30, T31, "Ver o site", "Sair" |
 
 **Padrões de todas as telas de edição:** barra fixa "Cancelar / Salvar"; depois de salvar, toast **"Salvo e publicado ✓"** com link "Ver no site" (RN37); linha `AlteradoPor` (RN43); toda exclusão abre modal de confirmação (RN36).
 
@@ -276,15 +276,17 @@ Tudo que muda no site é alterado por aqui, pelo celular (DESENVOLVIMENTO.md, se
 - **Abas:** Pendentes (padrão) / Aprovados / Recusados.
 - **Item:** miniatura e nome do animal, nome de quem pediu, bairro, "há N dias", número de alertas (amarelo); **vermelho se pendente há mais de 3 dias** (RN50, prazo a confirmar).
 - Animal de protetor parceiro: selo "Protetor: {nome}".
-- Aba Aprovados: pedido de animal já adotado leva "🎉 adotado"; ele continua na lista (e pode ser impresso) até ser apagado, 90 dias depois da adoção (RN15).
+- Aba Aprovados: pedido de animal já adotado leva "🎉 adotado"; ele continua na lista e pode ser impresso. Desde 17/10/2026 os pedidos ficam guardados sem prazo; só os do consentimento antigo (formulário até 1.2) são apagados 90 dias depois da adoção ou da decisão (RN15).
+- Aba Recusados: também os pedidos **não concluídos**, com "· Não concluído": aprovados em que a adoção não aconteceu ou em que o animal foi devolvido ("Voltar para disponível"). Pedido da validação com a ONG, 17/10/2026.
 
 ### T28 · Análise do pedido · `/admin/pedidos/:id` · 🆕 só no site (13/10/2026)
 - **Topo:** animal (com link para T11), quem pediu, WhatsApp com botão para conversar ("Conversar no WhatsApp" e o número na linha de baixo), data do pedido.
 - **Alertas automáticos** em amarelo no topo (tabela do FORMULARIO_ADOCAO.md), sem reprovar sozinhos.
+- **"🏠 Esta pessoa já está no cadastro"** (17/10/2026, RN53): se o WhatsApp do pedido está no cadastro de quem adotou, um aviso azul mostra o nome, o número de adoções, as devoluções (em vermelho) e as observações da equipe, com o link "Ver o histórico" (T31). Não aparece depois da entrega do próprio pedido.
 - **Respostas** agrupadas pelos blocos do formulário; "Ciente do termo em {data}".
 - **Observação interna** (só a equipe vê).
 - **Ações** (só em pedido pendente): **Aprovar** (modal de confirmação; o animal continua fora do site até "Marcar como adotado", que já vem com nome e WhatsApp preenchidos) e **Recusar** (modal: "O animal volta para o site. Avise a pessoa pelo WhatsApp."). Pedido aprovado mostra o próximo passo e o botão **"Abrir {animal}"** (T11). Linha "Aprovado por… em…" (RN43).
-- **Pedido que não existe mais** (apagado depois de 90 dias, RN15): "Não encontramos este pedido".
+- **Pedido que não existe mais** (excluído junto com o animal, ou pedido antigo apagado depois de 90 dias, RN15): "Não encontramos este pedido".
 - **🖨️ Imprimir formulário** (pedido da ONG, 13/10/2026): abre a impressão do navegador (papel ou "Salvar como PDF") com o formulário já preenchido: animal, quem pediu, respostas pelos blocos, as declarações marcadas, o termo que a pessoa leu (se for a versão atual), a data da ciência e linhas para data e assinatura de quem adota. Ficam fora do papel o que é só da equipe: alertas, observação interna, botões e o cabeçalho da área da ONG. Vale para pedidos em análise, aprovados e de animais já adotados; neste último caso, a tela mostra "🎉 Adoção concluída" no lugar de "combine a entrega".
 
 ### T10 · Cadastrar animal · `/admin/animais/novo` · ⏳
@@ -305,10 +307,10 @@ Formulário em uma tela, dividido em blocos, com escolhas em **botões grandes**
 Igual a T10, preenchido, com a linha "Alterado por… em…" (RN43) no topo e **"Outras ações"**:
 - **Ver no site ↗:** abre a ficha pública em nova aba (só se disponível).
 - **Marcar como adotado:** modal pede o **nome e o WhatsApp de quem adotou** (privados) → status `adotado`, `data_adocao` = hoje, mantém só a foto principal (RN07, RN08) → mostra a confirmação com a data de fim da adaptação (RN30).
-- **Voltar para disponível** (aparece se o animal estiver adotado).
+- **Voltar para disponível** (aparece se o animal estiver adotado). Desde 17/10/2026 não apaga quem adotou: a adoção fica no histórico da pessoa, como devolvida (RN53).
 - **Excluir animal:** modal vermelho avisando que apaga o cadastro e **todas as fotos** (RN05, RN09), sugerindo "Marcar como adotado" quando for o caso.
 - **Animal em análise:** com pedido aguardando análise, só o aviso e o link para os pedidos (sem adotar nem devolver); com pedido aprovado, "Marcar como adotado" (já preenchido) e "A adoção não aconteceu: voltar para disponível" (RN49).
-- **Animal adotado:** mostra a adaptação (RN30), quem adotou e, se a adoção veio de um pedido do site, o link "📋 Ver o formulário de adoção (para imprimir)" (T28); só um espaço de foto (RN07).
+- **Animal adotado:** mostra a adaptação (RN30), quem adotou (o nome leva à ficha da pessoa, T31) e, se a adoção veio de um pedido do site, o link "📋 Ver o formulário de adoção (para imprimir)" (T28); só um espaço de foto (RN07).
 
 ### T14 · Moderar perdidos e encontrados · `/admin/perdidos` · ✅ no site (13/10/2026; "Editar" e "＋ Novo anúncio" em 14/10/2026)
 ![T14](telas/T14-moderar-perdidos-celular.png)
@@ -340,7 +342,7 @@ Igual a T10, preenchido, com a linha "Alterado por… em…" (RN43) no topo e **
 Lista de cards grandes, um por página, com ícone, nome, o que dá para mudar e "Alterado em…":
 | Card | Vai para | Resumo |
 |---|---|---|
-| 🏠 Página inicial | T19 | Chamada, história, marcos, números, fotos, missão e como funcionamos |
+| 🏠 Página inicial | T19 | Chamada (textos e animais das fotos), história, marcos, números, fotos, missão e como funcionamos |
 | 📋 Como adotar | T18 | Passos, cuidados, vantagens, aviso de protetores |
 | ❓ Perguntas frequentes | T16 | N perguntas |
 | 💛 Como ajudar | T20 | Introdução e formas de ajudar |
@@ -401,10 +403,10 @@ Cada campo de texto tem o próprio botão "Salvar"; listas salvam item a item (T
 
 - **No site (14/10/2026), em T18–T20:** o "Salvar" de cada campo fica desativado até o texto mudar; com o texto mudado, aparece também "Desfazer" (volta ao que está no site). Cada campo mostra onde aparece no site e o "Alterado por… em…".
 
-### T19 · Editar Página inicial · `/admin/textos/inicio` · ✅ no site (14/10/2026)
+### T19 · Editar Página inicial · `/admin/textos/inicio` · ✅ no site (14/10/2026) · ✏️ animais da chamada (17/10/2026)
 ![T19](telas/T19-editar-pagina-inicial-celular.png)
 
-1. **Chamada:** título (60) e texto (200).
+1. **Chamada:** título (60) e texto (200). Abaixo, o bloco **"Animais da chamada"** (RN54, 17/10/2026): dois seletores, "Foto 1 (à esquerda)" e "Foto 2 (à direita)", cada um com a miniatura do animal escolhido. Opções: "Automático" (padrão) e os animais disponíveis com foto, "Nome (Cão/Gato)"; o animal escolhido numa foto fica desativado na outra. "Salvar" e "Desfazer" como nos textos; salvar publica na hora (RN37). Explicação: em "Automático", entram um cão e um gato, os que esperam há mais tempo; se o animal escolhido sair do site, a foto volta a ser automática.
 2. **Números em destaque** (`ListaEditavel` de `inicio_numeros`, até 4), com a dica "Use números que mudam pouco (ex.: '+100' em vez de '116'), para não precisar atualizar todo mês" (RN46).
 3. **Nossa história:** texto (2000).
 4. **Marcos da história** (`ListaEditavel` de `inicio_marcos`, ordenados pela equipe).
@@ -412,7 +414,7 @@ Cada campo de texto tem o próprio botão "Salvar"; listas salvam item a item (T
 6. **Missão** (400).
 7. **Como funcionamos** (`ListaEditavel`).
 8. **Esperando há mais tempo:** só o texto (200); os animais entram automaticamente.
-- Nota fixa no topo: "Automáticos: animais em destaque, resumo de 'Como adotar' e PIX."
+- Nota fixa no topo: "Automáticos: 'Esperando há mais tempo', resumo de 'Como adotar' e PIX."
 
 ### T20 · Editar Como ajudar · `/admin/textos/ajude` · ✅ no site (14/10/2026)
 ![T20](telas/T20-editar-como-ajudar-celular.png)
@@ -426,6 +428,7 @@ Cada campo de texto tem o próprio botão "Salvar"; listas salvam item a item (T
 
 Lista simples, com botões grandes:
 - 🏢 **Dados da ONG** → T23
+- 🏠 **Quem adotou** → T30 (17/10/2026, RN53)
 - 🤝 **Protetores parceiros** (N) → T24
 - 🌐 **Ver o site** ↗
 - 🚪 **Sair**
@@ -450,6 +453,20 @@ Formulário com os dados da tabela `ong`:
 - Tocar em um protetor abre um modal com nome e WhatsApp: **Salvar** e **Excluir**. Se o protetor tiver animais, o excluir mostra o aviso da RN42 com o link "Ver animais dele" (T09 filtrado).
 - Botão "＋ Novo protetor".
 - **No site (14/10/2026):** o mesmo modal do cadastro do animal serve para cadastrar, editar e excluir. Protetor com animais não mostra o botão "Excluir": o modal já traz o aviso e o link "Ver animais dele". Excluir pede confirmação. Cada protetor mostra "Alterado por… em…".
+
+### T30 · Quem adotou · `/admin/adotantes` · 🆕 só no site (17/10/2026)
+**Objetivo:** pedido da ONG na reunião da etapa 15: numa feira ou num pedido novo, conferir se a pessoa já adotou, devolveu algum animal ou tem alguma observação (RN53).
+
+- **Busca** por parte do nome ou do WhatsApp ("9614" acha "(35) 9 8843-9614").
+- **Item:** nome, WhatsApp (ou "Sem WhatsApp"), bairro e cidade, "N adoções · última em {data}", devoluções em vermelho e as observações da equipe numa faixa amarela (📝). Tocar abre T31.
+- Botão fixo **"＋ Cadastrar quem adotou antes"** (T31 em branco).
+- Quem adota pelo site entra sozinho, pelo "Marcar como adotado" (T11).
+
+### T31 · Ficha de quem adotou · `/admin/adotantes/:id` e `/admin/adotantes/nova` · 🆕 só no site (17/10/2026)
+- **Dados:** nome completo*, WhatsApp (opcional; "É por ele que o site reconhece a pessoa num pedido novo"; um cadastro por número), bairro e cidade, **observações da equipe** ("Só a equipe vê. Aparecem na lista e na análise de um pedido novo desta pessoa"). Barra fixa "Cancelar / Salvar"; `AlteradoPor`.
+- **Adoções:** da mais recente para a mais antiga: nome do animal (link para T11, se ele ainda existe no site), "Adotado em {data}", "Devolvido em {data}" em vermelho e, se veio de um pedido, "📋 Ver o formulário de adoção" (T28). A adoção registrada à mão tem "Apagar" (com confirmação, para corrigir um erro).
+- **＋ Registrar adoção de antes do site:** modal com nome do animal, data da adoção e data da devolução (opcional).
+- **Excluir cadastro:** modal vermelho; apaga a pessoa, o histórico e as observações, para quando a pessoa pedir que os dados sejam apagados (LGPD). O animal continua adotado.
 
 ~~T25 · Clínicas parceiras~~: **removida em 07/10/2026**. A ONG não quer citar clínicas nem valores (RN32).
 
@@ -488,7 +505,10 @@ Enviar os prints de [telas/](telas/) à Gracia e perguntar:
 26. **Empresa amiga ou Empresa madrinha?** O selo diz "Empresa Amiga" e o cartaz diz "Seja uma Empresa Madrinha". O site usa "Empresa amiga" (só texto). Qual nome usar? E querem mostrar no site as empresas que já ajudam (nome ou logo, com autorização delas)?
 27. **Apadrinhamento** (Como ajudar, 09/10/2026): o padrinho ajuda com um valor fixo por mês ou só quando o animal precisa de cuidados médicos? Quais animais podem ser apadrinhados (todos ou só alguns, como os que esperam há mais tempo)? Querem um botão "Apadrinhar" na ficha do animal, além do card em Como ajudar?
 
+28. ~~**Prazo de guarda dos pedidos de adoção** (90 dias, RN15; pendência do FORMULARIO_ADOCAO.md)~~ **Respondido em 17/10/2026** (reunião da etapa 15): a ONG quer guardar todos os dados sem prazo, inclusive dos pedidos não aprovados, para consultar depois quem adotou, e pediu uma lista de quem já adotou para conferir numa feira ou num pedido novo (RN53, T30 e T31).
+
 ### Registro da validação
 | Data | Quem validou | Telas | Retorno | Ajustes |
 |---|---|---|---|---|
 | 08/10/2026 | ONG _(quem validou: a confirmar)_ | Protótipo completo (site público e área da ONG) | Validação finalizada (relato do estudante em 13/10/2026) | Fluxo de adoção definido pela ONG no mesmo dia (T26–T28, RN47–RN50); protótipo congelado em 09/10/2026 |
+| 17/10/2026 | Cláudia e Aline, na reunião da etapa 15 | Site no ar (teste com a equipe) | Problemas encontrados no teste e corrigidos no mesmo dia; pedido de guardar os dados de adoção sem prazo e de um cadastro de quem adotou | RN15 alterada, RN53, T30 e T31 |

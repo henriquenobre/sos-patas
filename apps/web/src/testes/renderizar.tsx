@@ -106,6 +106,7 @@ export const SITE_TESTE: SitePublico = {
     inicio_como_funcionamos: [item('f1', '100% voluntários', 'Toda a equipe é voluntária.')],
     ajude_formas: [item('j1', 'Seja lar temporário', 'Acolha um animal.')],
   },
+  chamada: [null, null],
 }
 
 export const DESTAQUES_TESTE: ListaAnimais = {

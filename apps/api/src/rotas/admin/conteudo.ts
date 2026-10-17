@@ -1,8 +1,9 @@
-// Textos e listas das páginas na área da ONG (T15–T20; RN33–RN38; docs/ARQUITETURA.md,
-// seção 3.2). Salvar publica na hora (RN37): toda escrita apaga a cópia guardada do GET /site.
+// Textos e listas das páginas na área da ONG (T15–T20; RN33–RN38) e os animais da chamada
+// do Início (T19, RN54); docs/ARQUITETURA.md, seção 3.2. Salvar publica na hora (RN37): toda escrita apaga a cópia guardada do GET /site.
 import { Hono, type Context } from 'hono'
 import {
   LISTAS,
+  chamadaEntrada,
   listaEntrada,
   schemaItem,
   schemaTexto,
@@ -21,6 +22,7 @@ import {
   ehChaveTexto,
   excluirItem,
   listaDoItem,
+  salvarChamada,
   salvarTexto,
   trocarFotoItem,
   trocarOrdem,
@@ -48,6 +50,14 @@ rotasConteudoAdmin.put('/conteudo/textos/:chave', async (c) => {
   const texto = await salvarTexto(c.var.db, chave, valor, c.var.usuaria)
   await publicar(c)
   return c.json<TextoAdmin>(texto)
+})
+
+/** RN54: animais das fotos 1 e 2 da chamada do Início ({ animais: [id ou null, id ou null] }). */
+rotasConteudoAdmin.put('/conteudo/chamada', async (c) => {
+  const { animais } = await lerJson(c, chamadaEntrada)
+  const chamada = await salvarChamada(c.var.db, animais)
+  await publicar(c)
+  return c.json<Pick<ConteudoAdmin, 'chamada'>>({ chamada })
 })
 
 /**

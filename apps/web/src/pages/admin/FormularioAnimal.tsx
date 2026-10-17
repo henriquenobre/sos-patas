@@ -295,11 +295,13 @@ function OutrasAcoes({ animal }: { animal: AnimalAdmin }) {
       {animal.status === 'adotado' && animal.data_adocao && (
         <Faixa cor="verde">
           <p className="font-bold">{textoAdaptacao(animal.data_adocao, hoje)}</p>
-          {animal.privado.adotante_nome && (
+          {animal.adotante && (
             <p>
-              Adotado por {animal.privado.adotante_nome}
-              {animal.privado.adotante_whatsapp &&
-                ` · ${formatarWhatsapp(animal.privado.adotante_whatsapp)}`}
+              Adotado por{' '}
+              <Link to={`/admin/adotantes/${animal.adotante.id}`} className="font-bold underline">
+                {animal.adotante.nome}
+              </Link>
+              {animal.adotante.whatsapp && ` · ${formatarWhatsapp(animal.adotante.whatsapp)}`}
             </p>
           )}
           {animal.pedido_da_adocao && (
@@ -394,7 +396,7 @@ function OutrasAcoes({ animal }: { animal: AnimalAdmin }) {
           <p className="text-slate-600">
             {aprovado
               ? `O pedido de ${aprovado.nome} fica como "não concluído" e ${animal.nome} aparece de novo na vitrine.`
-              : `${animal.nome} aparece de novo na vitrine. O nome e o WhatsApp de quem adotou serão apagados.`}
+              : `${animal.nome} aparece de novo na vitrine. A adoção fica no histórico de quem adotou, como devolvida.`}
           </p>
           {textoFalha}
           <BotoesModal

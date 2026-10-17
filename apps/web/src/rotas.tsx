@@ -41,6 +41,11 @@ const admin = {
   mais: () => import('./pages/admin/Mais').then((m) => ({ Component: m.Mais })),
   ong: () => import('./pages/admin/Mais').then((m) => ({ Component: m.DadosDaOng })),
   protetores: () => import('./pages/admin/Mais').then((m) => ({ Component: m.Protetores })),
+  adotantes: () => import('./pages/admin/Adotantes').then((m) => ({ Component: m.Adotantes })),
+  novoAdotante: () =>
+    import('./pages/admin/Adotantes').then((m) => ({ Component: m.NovoAdotante })),
+  fichaAdotante: () =>
+    import('./pages/admin/Adotantes').then((m) => ({ Component: m.FichaAdotante })),
   emBreve: (titulo: string, texto?: string) => () =>
     import('./pages/admin/EmBreveAdmin').then((m) => ({
       Component: () => <m.EmBreveAdmin titulo={titulo} texto={texto} />,
@@ -141,6 +146,22 @@ export const rotas = createBrowserRouter([
         path: 'protetores',
         lazy: admin.protetores,
         handle: { voltar: '/admin/mais' } satisfies MolduraAdmin,
+      },
+      // Quem adotou (T30, T31; RN53)
+      {
+        path: 'adotantes',
+        lazy: admin.adotantes,
+        handle: { voltar: '/admin/mais' } satisfies MolduraAdmin,
+      },
+      {
+        path: 'adotantes/nova',
+        lazy: admin.novoAdotante,
+        handle: { voltar: '/admin/adotantes' } satisfies MolduraAdmin,
+      },
+      {
+        path: 'adotantes/:id',
+        lazy: admin.fichaAdotante,
+        handle: { voltar: '/admin/adotantes' } satisfies MolduraAdmin,
       },
       {
         path: '*',

@@ -109,7 +109,7 @@ export function ModalAdocao({
           valor={nome}
           aoMudar={setNome}
           erro={erros.nome}
-          limite={LIMITES.animais_privado.adotante_nome}
+          limite={LIMITES.adotantes.nome}
           placeholder="Ex.: Fernanda"
         />
         <CampoTexto
@@ -118,7 +118,7 @@ export function ModalAdocao({
           valor={whatsapp}
           aoMudar={setWhatsapp}
           erro={erros.whatsapp}
-          dica="Só a equipe vê. Usado no acompanhamento da adaptação."
+          dica="Só a equipe vê. A pessoa entra em Mais › Quem adotou; se já estiver lá, pelo WhatsApp, a adoção vai para o histórico dela."
           placeholder="(35) 9 0000-0000"
         />
       </div>

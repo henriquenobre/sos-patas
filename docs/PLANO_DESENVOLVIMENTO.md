@@ -44,7 +44,7 @@ Execute a etapa N do PLANO_DESENVOLVIMENTO.md
 | 12 | Editor de textos (T15–T20) | 10 | 21–23/10 | ✅ 14/10 |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores, "Alterado por" | 11, 12 | 23–24/10 | ✅ 14/10 |
 | 14 | Produção: domínio, Access, CI/CD, backup e segurança | 8, 13 | 24–27/10 | ✅ 16/10 |
-| 15 | Dados reais, teste com a ONG e ajustes finais | 14 | 27–30/10 | ⬜ |
+| 15 | Dados reais, teste com a ONG e ajustes finais | 14 | 27–30/10 | 🔄 desde 17/10 |
 
 Status: ⬜ não iniciada · 🔄 em andamento · ✅ pronta · ⏸️ bloqueada (anotar o motivo).
 
@@ -342,6 +342,8 @@ Na ordem de prioridade:
 - **Tempo de CPU da API** (vindo da etapa 14): a mediana era de 11,64 ms na produção em 16/10/2026, acima dos 10 ms do plano gratuito; a correção (data de hoje sem `Intl`) foi feita no mesmo dia. Depois de publicada, medir de novo no painel do Worker (`sospatas-api` → Metrics). Se a mediana continuar acima de 10 ms, as próximas saídas são minificar o Worker (−7% medido) e trocar o `zod` pelo `zod/mini` (Registro de decisões do DESENVOLVIMENTO.md, 16/10/2026)
 - **Restaurar um backup de produção** (adiado da etapa 14 em 16/10/2026): baixar um `.sql.gz` de `sospatas-backups`, restaurar num banco vazio do Docker (README, "Backup e restauração") e conferir animais, equipe e conteúdo
 - Documentação final para quem manter o site: README (rodar, publicar, restaurar backup, incluir/remover usuária no Access e em `equipe`)
+
+**Andamento (17/10/2026):** reunião com Cláudia e Aline, com testes do site junto com elas. Já estão na produção os 3 primeiros animais reais e os usuários de toda a equipe que vai cuidar da área da ONG. Os pontos levantados na reunião estão sendo ajustados (lista _(a confirmar)_; registrar em TELAS.md, "Registro da validação"). Pedido da ONG na reunião, feito em 17/10/2026 (na `develop`, sem commit): **cadastro de quem adotou** (RN53, telas T30 e T31 em Mais › Quem adotou, aviso na análise do pedido quando a pessoa já adotou) e **pedidos guardados sem prazo** (RN15, formulário 1.3), com a migration 0004.
 
 **Pronto quando:** site no ar em `sospatas.org.br` com animais reais, testado pela equipe da ONG, até **30/10/2026**.
 

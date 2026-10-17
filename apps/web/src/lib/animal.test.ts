@@ -40,3 +40,22 @@ describe('animaisDaChamada (T01)', () => {
     expect(animaisDaChamada([])).toEqual([])
   })
 })
+
+describe('animaisDaChamada com os escolhidos pela equipe (RN54)', () => {
+  const vitrine = [animal('Thor', 'cao'), animal('Rex', 'cao'), animal('Mel', 'gato')]
+
+  it('mostra os dois escolhidos, na posição escolhida', () => {
+    expect(nomes(animaisDaChamada(vitrine, ['Rex', 'Thor']))).toEqual(['Rex', 'Thor'])
+  })
+
+  it('só uma foto escolhida: a outra é automática, com a espécie que falta', () => {
+    expect(nomes(animaisDaChamada(vitrine, ['Rex', null]))).toEqual(['Rex', 'Mel'])
+    expect(nomes(animaisDaChamada(vitrine, [null, 'Mel']))).toEqual(['Thor', 'Mel'])
+  })
+
+  it('escolhido que saiu da vitrine ou está sem foto volta a ser automático', () => {
+    expect(nomes(animaisDaChamada(vitrine, ['Bob', null]))).toEqual(['Thor', 'Mel'])
+    const semFoto = [animal('Bob', 'cao', false), ...vitrine]
+    expect(nomes(animaisDaChamada(semFoto, ['Bob', 'Rex']))).toEqual(['Mel', 'Rex'])
+  })
+})

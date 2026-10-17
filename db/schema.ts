@@ -27,6 +27,7 @@ import {
   LAR_TIPOS,
   LIMITES,
   LISTAS,
+  MAX_DESTAQUES_INICIO,
   MAX_FOTOS_ANIMAL,
   NOMES_LISTA,
   PEDIDO_STATUS,
@@ -198,11 +199,21 @@ export const animais = pgTable(
     data_adocao: date({ mode: 'string' }),
     responsavel_tipo: responsavelTipo().notNull().default('ong'),
     protetor_id: uuid().references(() => protetores.id, { onDelete: 'restrict' }),
+    /** Foto 1 ou 2 da chamada do Início, escolhida pela equipe (RN54); null = automático */
+    destaque_inicio: smallint(),
     ...criadoEm,
     ...auditoria,
   },
   (t) => [
     index('animais_vitrine_idx').on(t.status, t.data_entrada),
+    // RN54: um animal por posição da chamada
+    uniqueIndex('animais_destaque_inicio_unico')
+      .on(t.destaque_inicio)
+      .where(sql`${t.destaque_inicio} IS NOT NULL`),
+    check(
+      'animais_destaque_inicio_valido',
+      sql`${t.destaque_inicio} IS NULL OR ${t.destaque_inicio} BETWEEN 1 AND ${sql.raw(String(MAX_DESTAQUES_INICIO))}`,
+    ),
     check('animais_nome_limite', maximo(t.nome, LIMITES.animais.nome)),
     check('animais_nome_preenchido', preenchido(t.nome)),
     check('animais_raca_limite', maximo(t.raca, LIMITES.animais.raca)),
@@ -248,7 +259,7 @@ export const fotos = pgTable(
 )
 
 // ---------------------------------------------------------------------------
-// animais_privado (só a equipe): lar temporário, observações e adotante
+// animais_privado (só a equipe): lar temporário e observações. Quem adotou fica em adocoes.
 // ---------------------------------------------------------------------------
 export const animaisPrivado = pgTable(
   'animais_privado',
@@ -259,22 +270,12 @@ export const animaisPrivado = pgTable(
     lar_nome: text(),
     lar_tipo: larTipo(),
     observacoes: text().notNull().default(''),
-    adotante_nome: text(),
-    adotante_whatsapp: text(),
   },
   (t) => [
     check('animais_privado_lar_nome_limite', maximo(t.lar_nome, LIMITES.animais_privado.lar_nome)),
     check(
       'animais_privado_observacoes_limite',
       maximo(t.observacoes, LIMITES.animais_privado.observacoes),
-    ),
-    check(
-      'animais_privado_adotante_nome_limite',
-      maximo(t.adotante_nome, LIMITES.animais_privado.adotante_nome),
-    ),
-    check(
-      'animais_privado_adotante_whatsapp_valido',
-      sql`${t.adotante_whatsapp} IS NULL OR ${whatsappValido(t.adotante_whatsapp)}`,
     ),
   ],
 )
@@ -384,6 +385,73 @@ export const pedidosAdocao = pgTable(
     ),
     // Pedido decidido sempre tem a data da decisão; pendente, nunca
     check('pedidos_adocao_analise', sql`(${t.status} = 'pendente') = (${t.analisado_em} IS NULL)`),
+  ],
+)
+
+// ---------------------------------------------------------------------------
+// adotantes: cadastro de quem adotou, guardado sem prazo (RN53). Só a equipe lê.
+// ---------------------------------------------------------------------------
+export const adotantes = pgTable(
+  'adotantes',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    nome: text().notNull(),
+    /** Só dígitos; null em adoção antiga sem o número. Identifica a pessoa (um cadastro por número) */
+    whatsapp: text(),
+    bairro_cidade: text(),
+    /** Anotações da equipe, vistas na feira e na análise de um pedido novo */
+    observacoes: text().notNull().default(''),
+    ...criadoEm,
+    ...auditoria,
+  },
+  (t) => [
+    uniqueIndex('adotantes_whatsapp_unico')
+      .on(t.whatsapp)
+      .where(sql`${t.whatsapp} IS NOT NULL`),
+    check('adotantes_nome_limite', maximo(t.nome, LIMITES.adotantes.nome)),
+    check('adotantes_nome_preenchido', preenchido(t.nome)),
+    check('adotantes_whatsapp_valido', sql`${t.whatsapp} IS NULL OR ${whatsappValido(t.whatsapp)}`),
+    check(
+      'adotantes_bairro_cidade_limite',
+      maximo(t.bairro_cidade, LIMITES.adotantes.bairro_cidade),
+    ),
+    check('adotantes_observacoes_limite', maximo(t.observacoes, LIMITES.adotantes.observacoes)),
+  ],
+)
+
+// ---------------------------------------------------------------------------
+// adocoes: histórico de quem adotou cada animal (RN30, RN53), com a devolução
+// ---------------------------------------------------------------------------
+export const adocoes = pgTable(
+  'adocoes',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    adotante_id: uuid()
+      .notNull()
+      .references(() => adotantes.id, { onDelete: 'cascade' }),
+    /** null: adoção antiga registrada à mão, ou animal excluído depois (RN09) */
+    animal_id: uuid().references(() => animais.id, { onDelete: 'set null' }),
+    /** Cópia do nome: o histórico continua legível sem o animal */
+    animal_nome: text().notNull(),
+    pedido_id: uuid().references(() => pedidosAdocao.id, { onDelete: 'set null' }),
+    data_adocao: date({ mode: 'string' }).notNull(),
+    /** "Voltar para disponível" de um animal adotado (RN30) */
+    data_devolucao: date({ mode: 'string' }),
+    ...criadoEm,
+    ...auditoria,
+  },
+  (t) => [
+    index('adocoes_adotante_idx').on(t.adotante_id),
+    // Um animal só tem uma adoção em andamento (sem devolução)
+    uniqueIndex('adocoes_uma_em_andamento_por_animal')
+      .on(t.animal_id)
+      .where(sql`${t.data_devolucao} IS NULL`),
+    check('adocoes_animal_nome_limite', maximo(t.animal_nome, LIMITES.adocoes.animal_nome)),
+    check('adocoes_animal_nome_preenchido', preenchido(t.animal_nome)),
+    check(
+      'adocoes_devolucao_depois',
+      sql`${t.data_devolucao} IS NULL OR ${t.data_devolucao} >= ${t.data_adocao}`,
+    ),
   ],
 )
 

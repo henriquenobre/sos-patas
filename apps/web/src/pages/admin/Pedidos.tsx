@@ -4,6 +4,7 @@
 import { Link, useSearchParams } from 'react-router'
 import {
   DIAS_ALERTA_PEDIDO_PARADO,
+  ROTULOS,
   hojeNoBrasil,
   type PedidoResumo,
   type PedidoStatus,
@@ -52,6 +53,10 @@ function ItemPedido({ pedido, hoje }: { pedido: PedidoResumo; hoje: string }) {
             {parado && ' · esperando análise'}
             {pedido.status === 'aprovado' && pedido.animal.status === 'adotado' && (
               <span className="text-emerald-700"> · 🎉 adotado</span>
+            )}
+            {/* Na aba Recusados: aprovado, mas a adoção não aconteceu ou o animal foi devolvido */}
+            {pedido.status === 'nao_concluido' && (
+              <span> · {ROTULOS.pedido_status.nao_concluido}</span>
             )}
           </p>
         </div>

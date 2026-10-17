@@ -100,18 +100,15 @@ export type AnimalAdmin = Omit<AnimalAdminResumo, 'foto' | 'pedido' | 'protetor'
     lar_nome: string | null
     lar_tipo: LarTipo | null
     observacoes: string
-    adotante_nome: string | null
-    adotante_whatsapp: string | null
   }
+  /** Só de adotado: quem adotou, no cadastro de quem adotou (RN53) */
+  adotante: { id: string; nome: string; whatsapp: string | null } | null
   /**
    * Pedido aprovado aguardando a entrega: "Marcar como adotado" já abre com o nome e o
    * WhatsApp de quem pediu (RN49)
    */
   pedido_aprovado: { id: string; nome: string; whatsapp: string } | null
-  /**
-   * Só de adotado: o pedido aprovado que levou à adoção, enquanto ele é guardado (90 dias depois
-   * da adoção, RN15), para abrir e imprimir o formulário
-   */
+  /** Só de adotado: o pedido aprovado que levou à adoção, para abrir e imprimir o formulário */
   pedido_da_adocao: { id: string } | null
   alteracao: Alteracao
 }
@@ -176,6 +173,44 @@ export type PedidoDetalhe = Omit<PedidoResumo, 'quantidade_alertas'> & {
   /** Primeiro nome de quem aprovou ou recusou */
   analisado_por: string | null
   alertas: Alerta[]
+  /** A pessoa já está no cadastro de quem adotou (mesmo WhatsApp): adoções e observações (RN53) */
+  adotante_cadastrado: AdotanteResumo | null
+}
+
+/** Uma adoção no histórico da pessoa (T31). */
+export type AdocaoDoAdotante = {
+  id: string
+  /** null: adoção antiga registrada à mão, ou animal excluído depois */
+  animal_id: string | null
+  animal_nome: string
+  data_adocao: string
+  /** O animal voltou para a ONG ("Voltar para disponível", RN30) */
+  data_devolucao: string | null
+  /** O pedido de adoção que levou a ela, se veio pelo site */
+  pedido_id: string | null
+}
+
+/** Item da lista de quem adotou (T30). */
+export type AdotanteResumo = {
+  id: string
+  nome: string
+  whatsapp: string | null
+  bairro_cidade: string | null
+  observacoes: string
+  adocoes: number
+  devolucoes: number
+  /** Data da adoção mais recente */
+  ultima_adocao: string | null
+}
+
+/** GET /api/admin/adotantes */
+export type ListaAdotantes = { adotantes: AdotanteResumo[] }
+
+/** GET /api/admin/adotantes/:id (T31) */
+export type AdotanteDetalhe = Omit<AdotanteResumo, 'adocoes' | 'devolucoes' | 'ultima_adocao'> & {
+  /** Mais recentes primeiro */
+  adocoes: AdocaoDoAdotante[]
+  alteracao: Alteracao
 }
 
 /** Foto de um anúncio na moderação (T14). */
@@ -238,6 +273,8 @@ export type ConteudoAdmin = {
   textos: Record<ChaveTexto, TextoAdmin>
   /** Na ordem definida pela equipe (RN35) */
   listas: Record<NomeLista, ItemAdmin[]>
+  /** Fotos 1 e 2 da chamada do Início (RN54): id do animal disponível escolhido ou null (automático) */
+  chamada: (string | null)[]
 }
 
 /** GET /api/admin/ong: dados de contato e PIX (T23), com "Alterado por" (RN43). */

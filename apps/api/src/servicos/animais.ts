@@ -1,6 +1,6 @@
 // Animais na área da ONG (T09–T11): lista, cadastro, edição, adoção, devolução e exclusão
-// (RN05, RN07–RN09, RN30, RN42, RN43, RN49). Toda escrita grava quem alterou (RN43).
-import { and, asc, desc, eq, gt, ilike, inArray, sql, type SQL } from 'drizzle-orm'
+// (RN05, RN07–RN09, RN30, RN42, RN43, RN49, RN53). Toda escrita grava quem alterou (RN43).
+import { and, asc, desc, eq, gt, ilike, inArray, isNull, sql, type SQL } from 'drizzle-orm'
 import {
   DIAS_PARA_DESTAQUE,
   hojeNoBrasil,
@@ -14,7 +14,16 @@ import {
   type PedidoDoAnimal,
   type ResumoAdmin,
 } from '@sospatas/compartilhado'
-import { animais, animaisPrivado, equipe, fotos, pedidosAdocao, protetores } from '@sospatas/db'
+import {
+  adocoes,
+  adotantes,
+  animais,
+  animaisPrivado,
+  equipe,
+  fotos,
+  pedidosAdocao,
+  protetores,
+} from '@sospatas/db'
 import type { Armazenamento } from '../armazenamento/tipos'
 import type { Db } from '../db'
 import type { Usuaria } from '../dependencias'
@@ -126,7 +135,7 @@ export async function listarAnimaisAdmin(
 export async function buscarAnimalAdmin(db: Db, env: Env, id: string): Promise<AnimalAdmin> {
   if (!ehUuid(id)) throw animalNaoEncontrado()
 
-  const [[linha], listaFotos, [pedidoAprovado]] = await Promise.all([
+  const [[linha], listaFotos, [pedidoAprovado], [adocao]] = await Promise.all([
     db
       .select({
         animal: animais,
@@ -151,12 +160,24 @@ export async function buscarAnimalAdmin(db: Db, env: Env, id: string): Promise<A
       .from(fotos)
       .where(eq(fotos.animal_id, id))
       .orderBy(asc(fotos.ordem)),
-    // Pedido aprovado mais recente: em análise, falta a entrega; adotado, é o da adoção
+    // Pedido aprovado mais recente: em análise, falta a entrega
     db
       .select({ id: pedidosAdocao.id, nome: pedidosAdocao.nome, whatsapp: pedidosAdocao.whatsapp })
       .from(pedidosAdocao)
       .where(and(eq(pedidosAdocao.animal_id, id), eq(pedidosAdocao.status, 'aprovado')))
       .orderBy(desc(pedidosAdocao.created_at))
+      .limit(1),
+    // Adotado: a adoção em andamento, com quem adotou (RN53)
+    db
+      .select({
+        pedido_id: adocoes.pedido_id,
+        adotante_id: adotantes.id,
+        nome: adotantes.nome,
+        whatsapp: adotantes.whatsapp,
+      })
+      .from(adocoes)
+      .innerJoin(adotantes, eq(adotantes.id, adocoes.adotante_id))
+      .where(and(eq(adocoes.animal_id, id), isNull(adocoes.data_devolucao)))
       .limit(1),
   ])
   if (!linha) throw animalNaoEncontrado()
@@ -198,12 +219,14 @@ export async function buscarAnimalAdmin(db: Db, env: Env, id: string): Promise<A
       lar_nome: privado?.lar_nome ?? null,
       lar_tipo: privado?.lar_tipo ?? null,
       observacoes: privado?.observacoes ?? '',
-      adotante_nome: privado?.adotante_nome ?? null,
-      adotante_whatsapp: privado?.adotante_whatsapp ?? null,
     },
+    adotante:
+      animal.status === 'adotado' && adocao
+        ? { id: adocao.adotante_id, nome: adocao.nome, whatsapp: adocao.whatsapp }
+        : null,
     pedido_aprovado: animal.status === 'em_analise' ? (pedidoAprovado ?? null) : null,
     pedido_da_adocao:
-      animal.status === 'adotado' && pedidoAprovado ? { id: pedidoAprovado.id } : null,
+      animal.status === 'adotado' && adocao?.pedido_id ? { id: adocao.pedido_id } : null,
     alteracao: { em: animal.updated_at.toISOString(), por: alterado_por },
   }
 }
@@ -308,9 +331,9 @@ const mudouNoMeioTempo = () =>
   erros.conflito('Este animal acabou de ser alterado. Atualize a página e tente de novo.')
 
 /**
- * Marcar como adotado (RN07, RN08): status adotado, data de hoje, adotante no bloco privado e
- * só a foto principal. Os arquivos das fotos extras são apagados antes do banco: se o R2
- * falhar, nada muda (mesma ordem da RN05).
+ * Marcar como adotado (RN07, RN08, RN53): status adotado, data de hoje, a adoção no cadastro de
+ * quem adotou e só a foto principal. Os arquivos das fotos extras são apagados antes do banco:
+ * se o R2 falhar, nada muda (mesma ordem da RN05).
  */
 export async function marcarAdotado(
   db: Db,
@@ -322,10 +345,9 @@ export async function marcarAdotado(
 ): Promise<void> {
   const animal = await situacaoDoAnimal(db, id)
   if (animal.status === 'adotado') throw erros.conflito(`${animal.nome} já está como adotado.`)
-  if (animal.status === 'em_analise') {
-    const pedido = await pedidoEmAndamentoDoAnimal(db, id)
-    if (pedido?.status === 'pendente') throw pedidoAguardandoAnalise(animal.nome)
-  }
+  // O pedido aprovado em andamento é o desta adoção: fica ligado a ela no histórico
+  const pedido = animal.status === 'em_analise' ? await pedidoEmAndamentoDoAnimal(db, id) : null
+  if (pedido?.status === 'pendente') throw pedidoAguardandoAnalise(animal.nome)
 
   const extras = await db
     .select({ id: fotos.id, miniatura: fotos.path_miniatura, completa: fotos.path_completa })
@@ -355,18 +377,73 @@ export async function marcarAdotado(
         ),
       )
     }
-    await tx
-      .insert(animaisPrivado)
-      .values({ animal_id: id, ...adotante })
-      .onConflictDoUpdate({ target: animaisPrivado.animal_id, set: adotante })
+    const adotanteId = await adotanteDaAdocao(tx, adotante, pedido?.id ?? null, usuaria)
+    await tx.insert(adocoes).values({
+      adotante_id: adotanteId,
+      animal_id: id,
+      animal_nome: animal.nome,
+      pedido_id: pedido?.id ?? null,
+      data_adocao: hoje,
+      updated_by: usuaria.id,
+    })
   })
 }
 
 /**
- * "Voltar para disponível" (RN30, RN49): o animal adotado que não se adaptou volta para quem
- * doou; a adoção aprovada que não aconteceu marca o pedido como não concluído.
+ * Quem adotou no cadastro (RN53): a pessoa com o mesmo WhatsApp, se já estiver lá (o nome
+ * cadastrado continua o mesmo); senão, um cadastro novo, com o bairro do pedido do site.
  */
-export async function devolver(db: Db, id: string, usuaria: Usuaria): Promise<void> {
+async function adotanteDaAdocao(
+  tx: Tx,
+  { adotante_nome, adotante_whatsapp }: AdocaoDados,
+  pedidoId: string | null,
+  usuaria: Usuaria,
+): Promise<string> {
+  const [pedido] = pedidoId
+    ? await tx
+        .select({ whatsapp: pedidosAdocao.whatsapp, bairro_cidade: pedidosAdocao.bairro_cidade })
+        .from(pedidosAdocao)
+        .where(eq(pedidosAdocao.id, pedidoId))
+    : []
+  const bairro = pedido?.whatsapp === adotante_whatsapp ? pedido.bairro_cidade : null
+
+  const [existente] = await tx
+    .select({ id: adotantes.id, bairro_cidade: adotantes.bairro_cidade })
+    .from(adotantes)
+    .where(eq(adotantes.whatsapp, adotante_whatsapp))
+  if (existente) {
+    if (!existente.bairro_cidade && bairro) {
+      await tx
+        .update(adotantes)
+        .set({ bairro_cidade: bairro, updated_by: usuaria.id })
+        .where(eq(adotantes.id, existente.id))
+    }
+    return existente.id
+  }
+  const [novo] = await tx
+    .insert(adotantes)
+    .values({
+      nome: adotante_nome,
+      whatsapp: adotante_whatsapp,
+      bairro_cidade: bairro,
+      updated_by: usuaria.id,
+    })
+    .returning({ id: adotantes.id })
+  if (!novo) throw new Error('Adotante não gravado')
+  return novo.id
+}
+
+/**
+ * "Voltar para disponível" (RN30, RN49): o animal adotado que não se adaptou volta para quem
+ * doou; a adoção aprovada que não aconteceu, ou que terminou em devolução, marca o pedido como
+ * não concluído (aba "Recusados" do T27).
+ */
+export async function devolver(
+  db: Db,
+  id: string,
+  usuaria: Usuaria,
+  hoje = hojeNoBrasil(),
+): Promise<void> {
   const animal = await situacaoDoAnimal(db, id)
   if (animal.status === 'disponivel') throw erros.conflito(`${animal.nome} já está disponível.`)
 
@@ -381,11 +458,20 @@ export async function devolver(db: Db, id: string, usuaria: Usuaria): Promise<vo
           .where(eq(pedidosAdocao.id, pedido.id))
       }
     } else {
-      // O adotante é dado pessoal: sem a adoção, não há motivo para guardar (LGPD)
-      await tx
-        .update(animaisPrivado)
-        .set({ adotante_nome: null, adotante_whatsapp: null })
-        .where(eq(animaisPrivado.animal_id, id))
+      // A adoção fica no histórico de quem adotou, com a data da devolução (RN53)
+      const devolvidas = await tx
+        .update(adocoes)
+        .set({ data_devolucao: hoje, updated_by: usuaria.id })
+        .where(and(eq(adocoes.animal_id, id), isNull(adocoes.data_devolucao)))
+        .returning({ pedido_id: adocoes.pedido_id })
+      // O pedido que levou a essa adoção sai de "Aprovados": a adoção não se manteve
+      const pedidoIds = devolvidas.flatMap((adocao) => (adocao.pedido_id ? [adocao.pedido_id] : []))
+      if (pedidoIds.length > 0) {
+        await tx
+          .update(pedidosAdocao)
+          .set({ status: 'nao_concluido', updated_by: usuaria.id })
+          .where(and(inArray(pedidosAdocao.id, pedidoIds), eq(pedidosAdocao.status, 'aprovado')))
+      }
     }
     const alterados = await tx
       .update(animais)
@@ -401,7 +487,8 @@ export async function devolver(db: Db, id: string, usuaria: Usuaria): Promise<vo
 // ---------------------------------------------------------------------------
 /**
  * Exclusão: primeiro todos os arquivos do prefixo do animal; só depois o registro (o cascade
- * apaga fotos, dados privados e pedidos). Se o armazenamento falhar, o registro fica.
+ * apaga fotos, dados privados e pedidos). Se o armazenamento falhar, o registro fica. Quem
+ * adotou continua no cadastro, com o nome do animal no histórico (RN53).
  */
 export async function excluirAnimal(
   db: Db,

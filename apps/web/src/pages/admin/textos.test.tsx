@@ -12,7 +12,7 @@ import {
   type TextoAdmin,
 } from '@sospatas/compartilhado'
 import { marcarConteudoAlterado } from '../../api/publico'
-import { API_ADMIN } from '../../testes/admin'
+import { APOLO, API_ADMIN } from '../../testes/admin'
 import {
   SITE_TESTE,
   chamadas,
@@ -78,12 +78,23 @@ function conteudo(listas: Partial<Record<NomeLista, ItemAdmin[]>> = {}): Conteud
       inicio_marcos: [item('m1', '2015', 'Grupo de WhatsApp')],
       ...listas,
     },
+    chamada: [null, null],
   }
+}
+
+/** Disponíveis com foto entram na escolha da chamada (RN54); sem foto, não. */
+const DISPONIVEIS = {
+  animais: [
+    { ...APOLO, foto: 'https://fotos/apolo.webp' },
+    { ...APOLO, id: 'mia', nome: 'Mia', especie: 'gato', foto: 'https://fotos/mia.webp' },
+    { ...APOLO, id: 'bob', nome: 'Bob', foto: null },
+  ],
 }
 
 const api = (dados = conteudo(), extra: Record<string, unknown> = {}) => ({
   ...API_ADMIN,
   '/admin/conteudo': dados,
+  '/admin/animais?status=disponivel': DISPONIVEIS,
   ...extra,
 })
 
@@ -206,6 +217,49 @@ describe('T18–T20 · textos de cada página (CampoTextoEditavel)', () => {
       'href',
       '/admin/textos/inicio_marcos/novo',
     )
+  })
+})
+
+describe('T19 · animais da chamada do Início (RN54)', () => {
+  it('lista só os disponíveis com foto, não repete o animal e salva as duas fotos', async () => {
+    const fetchFalso = simularApi(
+      api(conteudo(), { 'PUT /admin/conteudo/chamada': { chamada: [APOLO.id, null] } }),
+    )
+    renderizarEm('/admin/textos/inicio')
+
+    const foto1 = await screen.findByLabelText('Foto 1 (à esquerda)')
+    const foto2 = screen.getByLabelText('Foto 2 (à direita)')
+    await within(foto1).findByRole('option', { name: 'Apolo (Cão)' })
+    expect(within(foto1).queryByRole('option', { name: /Bob/ })).not.toBeInTheDocument()
+    expect(foto1).toHaveValue('')
+
+    await userEvent.selectOptions(foto1, APOLO.id)
+    expect(within(foto2).getByRole('option', { name: 'Apolo (Cão)' })).toBeDisabled()
+    await userEvent.click(
+      within(foto1.closest('form') as HTMLElement).getByRole('button', { name: 'Salvar' }),
+    )
+
+    expect(await screen.findByText('Salvo e publicado ✓')).toBeInTheDocument()
+    expect(chamadas(fetchFalso, 'PUT', '/admin/conteudo/chamada')).toEqual([
+      { animais: [APOLO.id, null] },
+    ])
+  })
+
+  it('animal que saiu do site: a API recusa e a mensagem aparece', async () => {
+    simularApi(
+      api(conteudo(), {
+        'PUT /admin/conteudo/chamada': respostaDeErro(409, 'Mia não está mais disponível.'),
+      }),
+    )
+    renderizarEm('/admin/textos/inicio')
+
+    const foto2 = await screen.findByLabelText('Foto 2 (à direita)')
+    await within(foto2).findByRole('option', { name: 'Mia (Gato)' })
+    await userEvent.selectOptions(foto2, 'mia')
+    await userEvent.click(
+      within(foto2.closest('form') as HTMLElement).getByRole('button', { name: 'Salvar' }),
+    )
+    expect(await screen.findByText('Mia não está mais disponível.')).toBeInTheDocument()
   })
 })
 

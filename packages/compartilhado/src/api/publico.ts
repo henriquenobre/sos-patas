@@ -43,6 +43,11 @@ export type SitePublico = {
   textos: Record<ChaveTexto, string>
   /** Itens de cada lista, já na ordem definida pela equipe (RN35) */
   listas: Record<NomeLista, ItemPublico[]>
+  /**
+   * Ids dos animais escolhidos para as fotos 1 e 2 da chamada do Início (RN54), só os
+   * disponíveis; null = automático. O front busca o animal na vitrine.
+   */
+  chamada: (string | null)[]
 }
 
 /** Card da vitrine e do "Esperando há mais tempo". A idade é calculada no front (RN13). */

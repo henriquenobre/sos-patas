@@ -23,6 +23,7 @@ Site de adoção de animais para a **ONG SOS Patas**, de Passos/MG, desenvolvido
 | [ARQUITETURA.md](docs/ARQUITETURA.md) | Arquitetura e hospedagem: front, API, banco, fotos, login, deploy e backup |
 | [PLANO_DESENVOLVIMENTO.md](docs/PLANO_DESENVOLVIMENTO.md) | Plano de desenvolvimento em etapas, com painel de status |
 | [LINHA_DO_TEMPO.md](docs/LINHA_DO_TEMPO.md) | Datas reais de cada fase, da concepção à entrega |
+| [APRENDIZADOS.md](docs/APRENDIZADOS.md) | Aprendizados do projeto e o que fazer diferente no próximo |
 | [formulario/](docs/formulario/) | Formulário de interesse em adoção (em validação) e termo de adoção |
 | [CLAUDE.md](CLAUDE.md) | Regras de manutenção do projeto: o que atualizar a cada alteração (fica na raiz, onde o Claude Code procura) |
 

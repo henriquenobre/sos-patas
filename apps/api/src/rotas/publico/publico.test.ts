@@ -14,6 +14,8 @@ import {
   type SitePublico,
 } from '@sospatas/compartilhado'
 import {
+  adocoes,
+  adotantes,
   animais,
   animaisPrivado,
   equipe,
@@ -70,7 +72,7 @@ beforeAll(async () => {
   teste = await criarAppTeste()
   const { db } = teste
   await db.execute(
-    sql`TRUNCATE animais, protetores, perdidos, conteudo_itens, conteudo_textos, ong CASCADE`,
+    sql`TRUNCATE animais, protetores, perdidos, adotantes, conteudo_itens, conteudo_textos, ong CASCADE`,
   )
   await aplicarSeed(URL_TESTE, ['seed_conteudo.sql'])
 
@@ -159,10 +161,18 @@ beforeAll(async () => {
       animal_id: ID.bolinha,
       lar_nome: 'LAR-SECRETO',
       observacoes: 'OBS-SECRETA',
-      adotante_nome: 'ADOTANTE-SECRETO',
-      adotante_whatsapp: '35900009999',
     },
   ])
+  const [adotante] = await db
+    .insert(adotantes)
+    .values({ nome: 'ADOTANTE-SECRETO', whatsapp: '35900009999', observacoes: 'OBS-SECRETA' })
+    .returning({ id: adotantes.id })
+  await db.insert(adocoes).values({
+    adotante_id: adotante?.id ?? '',
+    animal_id: ID.bolinha,
+    animal_nome: 'Bolinha',
+    data_adocao: diasAtras(3),
+  })
 
   await db.insert(fotos).values([
     {

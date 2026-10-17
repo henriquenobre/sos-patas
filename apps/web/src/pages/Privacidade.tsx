@@ -17,7 +17,7 @@ const SECOES = [
   {
     titulo: 'Pedidos de adoção',
     texto:
-      'O formulário de adoção guarda seu nome, WhatsApp, bairro e cidade, suas respostas e o registro de que você leu e aceitou o termo de adoção. Só a equipe da ONG vê esses dados, para analisar o pedido e falar com você. Se o pedido for recusado ou a adoção não acontecer, os dados são apagados em até 90 dias. Depois da adoção, só o nome e o WhatsApp de quem adotou ficam guardados, para o acompanhamento. O site não pede RG, CPF nem endereço completo.',
+      'O formulário de adoção guarda seu nome, WhatsApp, bairro e cidade, suas respostas e o registro de que você leu e aceitou o termo de adoção. Só a equipe da ONG vê esses dados, para analisar o pedido, falar com você, acompanhar a adoção e consultar em adoções futuras. Por isso eles ficam guardados, mesmo que o pedido não seja aprovado. Se quiser que seus dados sejam apagados, escreva para a ONG. O site não pede RG, CPF nem endereço completo.',
   },
   {
     titulo: 'Anúncios de perdidos e encontrados',

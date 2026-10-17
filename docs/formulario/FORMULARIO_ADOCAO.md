@@ -1,8 +1,8 @@
 # Formulário de Interesse em Adoção: SOS Patas
 
-> **Versão 1.2 · 09/10/2026** (a 1.1, aprovada pela ONG em 08/10/2026, com a pergunta 19 obrigatória), alinhada ao [Termo de Responsabilidade de Adoção](TERMO_ADOCAO.md). No site desde 09/10/2026 (`packages/compartilhado/src/adocao/formulario.ts`).
+> **Versão 1.3 · 17/10/2026** (a 1.1, aprovada pela ONG em 08/10/2026, com a pergunta 19 obrigatória na 1.2 e o consentimento sem prazo de guarda na 1.3), alinhada ao [Termo de Responsabilidade de Adoção](TERMO_ADOCAO.md). No site desde 09/10/2026 (`packages/compartilhado/src/adocao/formulario.ts`).
 > Preenchido pelo interessado ao tocar em "Quero adotar" na ficha do animal. O pedido fica salvo no sistema e a equipe analisa na área da ONG e entra em contato pelo WhatsApp.
-> **Esta versão (1.2) é a usada no site** (1.1 desde 08/10/2026; 1.2 em 09/10/2026). Ajustes pedidos pela ONG entram como nova versão. Regras: RN14, RN15 e RN47–RN50 no [DESENVOLVIMENTO.md](../DESENVOLVIMENTO.md).
+> **Esta versão (1.3) é a usada no site** (1.1 desde 08/10/2026; 1.2 em 09/10/2026; 1.3 em 17/10/2026, só o texto do consentimento). Ajustes pedidos pela ONG entram como nova versão. Regras: RN14, RN15 e RN47–RN50 no [DESENVOLVIMENTO.md](../DESENVOLVIMENTO.md).
 > Itens com **\*** são obrigatórios. Perguntas que surgiram do grupo estão marcadas com 🟦.
 
 <!-- inicio-formulario -->
@@ -157,7 +157,7 @@ Tipo: caixas de confirmação (todas obrigatórias)
 - Aceito o acompanhamento pelo WhatsApp e permito a visita de quem doou para conferir as condições do animal.
 - Entendo que preencher o formulário não garante a adoção. O pedido será analisado pela equipe ou pelo protetor responsável.
 - Declaro que as informações são verdadeiras.
-- Autorizo o uso dos meus dados apenas para a análise desta adoção. Se a adoção não for aprovada, eles serão apagados em até 90 dias (LGPD).
+- Autorizo a SOS Patas a guardar meus dados para analisar esta adoção e para consulta da equipe em adoções futuras. Só a equipe da ONG tem acesso a eles (LGPD). _(Até a versão 1.2: "Autorizo o uso dos meus dados apenas para a análise desta adoção. Se a adoção não for aprovada, eles serão apagados em até 90 dias (LGPD).")_
 
 <!-- fim-formulario -->
 
@@ -196,14 +196,14 @@ Os compromissos do formulário repetem, de forma resumida, as cláusulas do term
 - **Se aprovado,** a ONG fala com a pessoa pelo WhatsApp para combinar onde ela busca o animal (RN49).
 - Tabela `pedidos_adocao` (só a equipe logada), com status `pendente` → `aprovado` / `recusado` (e `nao_concluido` se a adoção aprovada não acontecer). Nome, WhatsApp e bairro/cidade em colunas; as demais respostas em `respostas` (jsonb), com a versão do formulário.
 - **Enquanto o pedido está pendente ou aprovado, o animal sai do site** (`em_analise`, RN48). Recusar devolve o animal ao site.
-- Pedidos recusados ou não concluídos são apagados 90 dias depois; aprovados, 90 dias depois de o animal ser marcado como adotado. O nome e o WhatsApp de quem adotou seguem para `animais_privado` (RN15, RN30).
+- Desde 17/10/2026 (versão 1.3), os pedidos ficam guardados sem prazo, aprovados ou não, e quem adota entra no cadastro de quem adotou (RN15, RN53). Os pedidos enviados até a versão 1.2 seguem a promessa daquele consentimento: recusados ou não concluídos são apagados 90 dias depois; aprovados, 90 dias depois de o animal ser marcado como adotado.
 - O endereço completo **não** é pedido aqui, só no termo.
 
 ### Pendências com a ONG
 - [ ] Validar as perguntas (tirar, mudar ou acrescentar)
 - [ ] Quem analisa os pedidos? E, nos animais de protetores parceiros, o protetor recebe o pedido por WhatsApp ou terá login? _(Proposta de 08/10/2026: a equipe analisa todos no painel e repassa ao protetor pelo WhatsApp.)_
 - [ ] Em quantos dias a equipe consegue analisar um pedido? O animal fica fora do site enquanto isso _(proposta: alerta no painel depois de 3 dias)_
-- [ ] O prazo de 90 dias para apagar pedidos não aprovados está bom?
+- [x] O prazo de 90 dias para apagar pedidos não aprovados está bom? **Respondido em 17/10/2026** (reunião da etapa 15): a ONG quer guardar todos os dados sem prazo (RN15, RN53).
 - [x] Receber o **termo de adoção** atual → transcrito em [TERMO_ADOCAO.md](TERMO_ADOCAO.md)
 - [x] Usar o número do termo como código da adoção? **Não** (06/10/2026)
 - [x] Alinhar os campos do animal com o termo? **Sim**, feito no protótipo e no DESENVOLVIMENTO.md (06/10/2026)

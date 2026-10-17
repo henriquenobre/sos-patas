@@ -1,5 +1,5 @@
-// Pedidos de adoção: envio pelo site (RN14, RN47, RN48, RN50), análise pela equipe (RN49) e
-// limpeza dos 90 dias (RN15).
+// Pedidos de adoção: envio pelo site (RN14, RN47, RN48, RN50), análise pela equipe (RN49, RN53)
+// e limpeza dos 90 dias, só dos pedidos com o consentimento antigo (RN15).
 import { eq, sql } from 'drizzle-orm'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import type {
@@ -9,7 +9,7 @@ import type {
   PedidoAdocaoEntrada,
   PedidoDetalhe,
 } from '@sospatas/compartilhado'
-import { animais, equipe, pedidosAdocao } from '@sospatas/db'
+import { adotantes, animais, equipe, pedidosAdocao } from '@sospatas/db'
 import type { CorpoErro } from '../erros'
 import { CABECALHO_JWT_ACCESS } from '../middleware/access'
 import { apagarPedidosVencidos } from '../tarefas/limpeza'
@@ -108,7 +108,7 @@ beforeAll(async () => {
 })
 
 beforeEach(async () => {
-  await teste.db.execute(sql`TRUNCATE animais, protetores, perdidos CASCADE`)
+  await teste.db.execute(sql`TRUNCATE animais, protetores, perdidos, adotantes CASCADE`)
   await teste.db.insert(animais).values([
     { ...animalBase, id: ID.thor, nome: 'Thor', convive_animais: false },
     { ...animalBase, id: ID.mel, nome: 'Mel', especie: 'gato', sexo: 'femea', castrado: false },
@@ -138,7 +138,7 @@ describe('envio do formulário pelo site', () => {
       status: 'pendente',
       nome: 'Fernanda Souza',
       whatsapp: '35999990001',
-      versao_formulario: '1.2',
+      versao_formulario: '1.3',
       versao_termo: '2026-10',
     })
     expect(pedido?.termo_ciente_em).toBeInstanceOf(Date)
@@ -309,6 +309,25 @@ describe('análise pela equipe (RN49)', () => {
     expect(detalhe.observacao_equipe).toBe('Ligar à tarde')
   })
 
+  it('quem já adotou antes aparece na análise, com as observações da equipe (RN53)', async () => {
+    await enviar(ID.thor, corpo())
+    const [pedido] = await teste.db.select({ id: pedidosAdocao.id }).from(pedidosAdocao)
+    const semCadastro = await admin(`/pedidos/${String(pedido?.id)}`)
+    expect((await semCadastro.json<PedidoDetalhe>()).adotante_cadastrado).toBeNull()
+
+    await teste.db.insert(adotantes).values({
+      nome: 'Fernanda Souza',
+      whatsapp: '35999990001',
+      observacoes: 'Devolveu um cão em 2024.',
+    })
+    const comCadastro = await admin(`/pedidos/${String(pedido?.id)}`)
+    expect((await comCadastro.json<PedidoDetalhe>()).adotante_cadastrado).toMatchObject({
+      nome: 'Fernanda Souza',
+      observacoes: 'Devolveu um cão em 2024.',
+      adocoes: 0,
+    })
+  })
+
   it('pedido inexistente: 404', async () => {
     expect((await admin('/pedidos/00000000-0000-4000-8000-0000000009ff')).status).toBe(404)
     expect((await admin('/pedidos/nao-e-id/aprovar', 'POST')).status).toBe(404)
@@ -316,7 +335,14 @@ describe('análise pela equipe (RN49)', () => {
 })
 
 describe('limpeza diária (RN15)', () => {
-  it('apaga recusados há mais de 90 dias e mantém os recentes e os pendentes', async () => {
+  it('pedidos do formulário atual ficam guardados sem prazo', async () => {
+    await enviar(ID.thor, corpo({ whatsapp: '35999990024' }), '203.0.0.4')
+    await teste.db.execute(sql`
+      UPDATE pedidos_adocao SET status = 'recusado', analisado_em = now() - interval '400 days'`)
+    expect(await apagarPedidosVencidos(teste.db)).toBe(0)
+  })
+
+  it('consentimento antigo (até a versão 1.2): apaga recusados há mais de 90 dias e mantém os recentes e os pendentes', async () => {
     await enviar(ID.thor, corpo({ whatsapp: '35999990021' }), '203.0.0.1')
     await enviar(ID.nina, corpo({ whatsapp: '35999990022' }), '203.0.0.2')
     await enviar(ID.tobias, corpo({ whatsapp: '35999990023' }), '203.0.0.3')
@@ -324,6 +350,7 @@ describe('limpeza diária (RN15)', () => {
       .select({ id: pedidosAdocao.id, animal: pedidosAdocao.animal_id })
       .from(pedidosAdocao)
     const de = (animal: string) => pedidos.find((p) => p.animal === animal)?.id ?? ''
+    await teste.db.execute(sql`UPDATE pedidos_adocao SET versao_formulario = '1.2'`)
     await teste.db.execute(sql`
       UPDATE pedidos_adocao SET status = 'recusado', analisado_em = now() - interval '91 days'
       WHERE id = ${de(ID.thor)}`)

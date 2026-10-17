@@ -19,7 +19,7 @@ import {
   type PerguntaEscolha,
 } from '@sospatas/compartilhado'
 import { ErroApi, enviarJson } from '../api/cliente'
-import { useFicha } from '../api/publico'
+import { marcarConteudoAlterado, useFicha } from '../api/publico'
 import { FotoAnimal } from '../components/CardAnimal'
 import { Caixa, CampoTexto, Escolha, MultiEscolha } from '../components/Campos'
 import { Carregando, ErroAoCarregar, TituloPagina } from '../components/Estados'
@@ -242,7 +242,9 @@ function Formulario({
       // A confirmação fica na página (Adotar), que não troca de tela quando a ficha recarregar
       aoEnviar(texto('whatsapp'))
       irParaTopo()
-      // O animal saiu do site: a vitrine e a ficha precisam ser carregadas de novo
+      // O animal saiu do site: a vitrine e a ficha precisam ser carregadas de novo, com a marca
+      // no endereço para o navegador não devolver a cópia antiga que guardou (1 min)
+      marcarConteudoAlterado()
       await queryClient.invalidateQueries({ queryKey: ['animais'] })
     } catch (erro) {
       tratarFalha(erro)

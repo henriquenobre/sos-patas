@@ -1,5 +1,5 @@
 // Área da ONG, etapa 9: animais (RN09, RN42, RN43), adoção e devolução (RN07, RN08, RN30,
-// RN49), fotos (RN01–RN06) e protetores (RN42). O armazenamento é o de memória do apoio.
+// RN49, RN53), fotos (RN01–RN06) e protetores (RN42). O armazenamento é o de memória do apoio.
 import { eq, sql } from 'drizzle-orm'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
@@ -13,11 +13,14 @@ import {
   type FotoAdmin,
   type ListaAnimaisAdmin,
   type ListaProtetores,
+  type ListaPedidos,
   type PedidoDetalhe,
   type ProtetorAdmin,
   type ResumoAdmin,
 } from '@sospatas/compartilhado'
 import {
+  adocoes,
+  adotantes,
   animais,
   animaisPrivado,
   equipe,
@@ -169,7 +172,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   vi.restoreAllMocks()
   teste.fotos.arquivos.clear()
-  await teste.db.execute(sql`TRUNCATE animais, protetores, perdidos CASCADE`)
+  await teste.db.execute(sql`TRUNCATE animais, protetores, perdidos, adotantes CASCADE`)
   await teste.db.insert(protetores).values([
     { id: ID.ana, nome: 'Ana Paula', whatsapp: '35988887777' },
     { id: ID.beto, nome: 'Beto', whatsapp: '35977776666' },
@@ -197,10 +200,19 @@ beforeEach(async () => {
     { ...animalBase, id: ID.tobias, nome: 'Tobias', status: 'em_analise' },
     { ...animalBase, id: ID.pipoca, nome: 'Pipoca', status: 'em_analise' },
   ])
-  await teste.db.insert(animaisPrivado).values([
-    { animal_id: ID.thor, lar_nome: 'Lar da Gracia', lar_tipo: 'provisorio' },
-    { animal_id: ID.nina, adotante_nome: 'Joana', adotante_whatsapp: '35911112222' },
-  ])
+  await teste.db
+    .insert(animaisPrivado)
+    .values([{ animal_id: ID.thor, lar_nome: 'Lar da Gracia', lar_tipo: 'provisorio' }])
+  const [joana] = await teste.db
+    .insert(adotantes)
+    .values({ nome: 'Joana', whatsapp: '35911112222' })
+    .returning({ id: adotantes.id })
+  await teste.db.insert(adocoes).values({
+    adotante_id: joana?.id ?? '',
+    animal_id: ID.nina,
+    animal_nome: 'Nina',
+    data_adocao: HOJE,
+  })
   const pedidoBase = {
     whatsapp: '35933334444',
     bairro_cidade: 'Centro, Passos',
@@ -390,15 +402,37 @@ describe('marcar como adotado (RN07, RN08, RN30)', () => {
     expect(restantes).not.toContain(segunda?.path_completa)
     expect(restantes).not.toContain(terceira?.path_miniatura)
 
-    const [privado] = await teste.db
-      .select()
-      .from(animaisPrivado)
-      .where(eq(animaisPrivado.animal_id, ID.thor))
-    expect(privado).toMatchObject({
-      lar_nome: 'Lar da Gracia',
-      adotante_nome: 'Carla Dias',
-      adotante_whatsapp: '35998765432',
+    const [adocao] = await teste.db
+      .select({ adocao: adocoes, adotante: adotantes })
+      .from(adocoes)
+      .innerJoin(adotantes, eq(adotantes.id, adocoes.adotante_id))
+      .where(eq(adocoes.animal_id, ID.thor))
+    expect(adocao?.adotante).toMatchObject({ nome: 'Carla Dias', whatsapp: '35998765432' })
+    expect(adocao?.adocao).toMatchObject({
+      animal_nome: 'Thor',
+      data_adocao: HOJE,
+      data_devolucao: null,
+      pedido_id: null,
     })
+
+    const ficha = await json<AnimalAdmin>(await admin(`/animais/${ID.thor}`))
+    expect(ficha.privado.lar_nome).toBe('Lar da Gracia')
+    expect(ficha.adotante).toMatchObject({ nome: 'Carla Dias', whatsapp: '35998765432' })
+  })
+
+  it('quem já está no cadastro (mesmo WhatsApp) ganha mais uma adoção, sem cadastro repetido (RN53)', async () => {
+    await admin(`/animais/${ID.thor}/adocao`, 'POST', {
+      adotante_nome: 'Joana Silva',
+      adotante_whatsapp: '35911112222',
+    })
+    const pessoas = await teste.db.select().from(adotantes)
+    expect(pessoas).toHaveLength(1)
+    expect(pessoas[0]?.nome).toBe('Joana')
+    const historico = await teste.db
+      .select({ animal: adocoes.animal_nome })
+      .from(adocoes)
+      .where(eq(adocoes.adotante_id, pessoas[0]?.id ?? ''))
+    expect(historico.map((a) => a.animal).sort()).toEqual(['Nina', 'Thor'])
   })
 
   it('pedido aprovado: a ficha traz quem pediu para preencher o modal, e a adoção vale (RN49)', async () => {
@@ -419,6 +453,12 @@ describe('marcar como adotado (RN07, RN08, RN30)', () => {
     const adotado = await json<AnimalAdmin>(await admin(`/animais/${ID.pipoca}`))
     expect(adotado.pedido_aprovado).toBeNull()
     expect(adotado.pedido_da_adocao).toEqual({ id: ID.pedidoPipoca })
+    // O cadastro de quem adotou recebe o bairro do pedido (RN53)
+    const [rafael] = await teste.db
+      .select()
+      .from(adotantes)
+      .where(eq(adotantes.whatsapp, '35955556666'))
+    expect(rafael).toMatchObject({ nome: 'Rafael', bairro_cidade: 'Centro, Passos' })
     const pedido = await json<PedidoDetalhe>(await admin(`/pedidos/${ID.pedidoPipoca}`))
     expect(pedido.animal.status).toBe('adotado')
   })
@@ -455,18 +495,17 @@ describe('marcar como adotado (RN07, RN08, RN30)', () => {
 })
 
 describe('voltar para disponível (RN30, RN49)', () => {
-  it('adotado volta, sem data de adoção e sem os dados do adotante', async () => {
+  it('adotado volta, sem data de adoção; a adoção fica no histórico como devolvida (RN53)', async () => {
     expect((await admin(`/animais/${ID.nina}/devolucao`, 'POST')).status).toBe(204)
     expect(await animalNoBanco(ID.nina)).toMatchObject({
       status: 'disponivel',
       data_adocao: null,
       updated_by: idGracia,
     })
-    const [privado] = await teste.db
-      .select()
-      .from(animaisPrivado)
-      .where(eq(animaisPrivado.animal_id, ID.nina))
-    expect(privado).toMatchObject({ adotante_nome: null, adotante_whatsapp: null })
+    const [adocao] = await teste.db.select().from(adocoes).where(eq(adocoes.animal_id, ID.nina))
+    expect(adocao).toMatchObject({ animal_nome: 'Nina', data_devolucao: HOJE })
+    expect(await teste.db.select().from(adotantes)).toHaveLength(1)
+    expect((await json<AnimalAdmin>(await admin(`/animais/${ID.nina}`))).adotante).toBeNull()
   })
 
   it('adoção aprovada que não aconteceu: o pedido vira "não concluído"', async () => {
@@ -477,6 +516,24 @@ describe('voltar para disponível (RN30, RN49)', () => {
       .from(pedidosAdocao)
       .where(eq(pedidosAdocao.id, ID.pedidoPipoca))
     expect(pedido?.status).toBe('nao_concluido')
+  })
+
+  it('adoção feita por um pedido e devolvida: o pedido sai de "Aprovados" e vai para "Recusados"', async () => {
+    await admin(`/animais/${ID.pipoca}/adocao`, 'POST', {
+      adotante_nome: 'Rafael',
+      adotante_whatsapp: '35955556666',
+    })
+    expect((await admin(`/animais/${ID.pipoca}/devolucao`, 'POST')).status).toBe(204)
+
+    const pedido = await json<PedidoDetalhe>(await admin(`/pedidos/${ID.pedidoPipoca}`))
+    expect(pedido.status).toBe('nao_concluido')
+    const aprovados = await json<ListaPedidos>(await admin('/pedidos?status=aprovado'))
+    expect(aprovados.pedidos.map((p) => p.id)).not.toContain(ID.pedidoPipoca)
+    const recusados = await json<ListaPedidos>(await admin('/pedidos?status=recusado'))
+    expect(recusados.pedidos.map((p) => p.id)).toContain(ID.pedidoPipoca)
+    // A adoção continua no histórico de quem adotou, ligada ao pedido (RN53)
+    const [adocao] = await teste.db.select().from(adocoes).where(eq(adocoes.animal_id, ID.pipoca))
+    expect(adocao).toMatchObject({ pedido_id: ID.pedidoPipoca, data_devolucao: HOJE })
   })
 
   it('pedido aguardando análise: 409 (recusar o pedido é que devolve o animal)', async () => {
@@ -503,6 +560,12 @@ describe('excluir animal (RN05, RN09)', () => {
     expect(
       await teste.db.select().from(pedidosAdocao).where(eq(pedidosAdocao.id, ID.pedidoTobias)),
     ).toEqual([])
+  })
+
+  it('animal adotado excluído: quem adotou continua no cadastro, com o nome do animal (RN53)', async () => {
+    expect((await admin(`/animais/${ID.nina}`, 'DELETE')).status).toBe(204)
+    const [adocao] = await teste.db.select().from(adocoes)
+    expect(adocao).toMatchObject({ animal_id: null, animal_nome: 'Nina' })
   })
 
   it('se o armazenamento falhar, NÃO apaga o registro (503)', async () => {

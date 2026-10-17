@@ -8,6 +8,7 @@ import type { ConteudoAdmin } from '@sospatas/compartilhado'
 import { useConteudo } from '../../api/admin'
 import { Carregando, ErroAoCarregar } from '../../components/Estados'
 import { CampoTextoEditavel } from '../../components/admin/CampoTextoEditavel'
+import { EscolhaChamada } from '../../components/admin/EscolhaChamada'
 import { ListaEditavel } from '../../components/admin/ListaEditavel'
 import { AlteradoPor, TituloAdmin } from '../../components/admin/Navegacao'
 import {
@@ -194,9 +195,9 @@ export function EditarInicio() {
     <section className="space-y-6">
       <title>Página inicial · Área da ONG · SOS Patas</title>
       <Cabecalho pagina="inicio" />
-      <Nota>Automáticos: animais em destaque, resumo de "Como adotar" e PIX.</Nota>
+      <Nota>Automáticos: "Esperando há mais tempo", resumo de "Como adotar" e PIX.</Nota>
       <ComConteudo>
-        {({ textos, listas }) => (
+        {({ textos, listas, chamada }) => (
           <>
             <TituloBloco>Chamada</TituloBloco>
             <CampoTextoEditavel
@@ -209,6 +210,7 @@ export function EditarInicio() {
               texto={textos['inicio.chamada_texto']}
               pagina={publica}
             />
+            <EscolhaChamada chamada={chamada} pagina={publica} />
             <ListaEditavel
               lista="inicio_numeros"
               titulo="Números em destaque"

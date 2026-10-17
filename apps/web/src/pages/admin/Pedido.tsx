@@ -11,7 +11,7 @@ import {
   AVISO_TERMO,
   BLOCOS,
   CLAUSULAS_TERMO,
-  DECLARACOES,
+  declaracoesDaVersao,
   LIMITES,
   OPCOES,
   PERGUNTAS,
@@ -32,6 +32,7 @@ import { Carregando, ErroAoCarregar } from '../../components/Estados'
 import { IconeWhatsApp } from '../../components/Icones'
 import { BotoesModal, Modal } from '../../components/Modal'
 import { useAreaAdmin } from '../../components/admin/contexto'
+import { ObservacaoAdotante } from './Adotantes'
 import { textoAlternativo } from '../../lib/animal'
 import { dataEHora, diasDoPedido, textoHaDias } from '../../lib/pedidos'
 
@@ -157,8 +158,8 @@ function Decisao({ pedido }: { pedido: PedidoDetalhe }) {
     return (
       <Cartao titulo="🎉 Adoção concluída">
         <p className="text-slate-700">
-          {animal.nome} já foi marcado como adotado. Este pedido fica guardado por 90 dias depois da
-          adoção (LGPD): se quiser uma cópia, use "Imprimir formulário".
+          {animal.nome} já foi marcado como adotado. Quem adotou está em <b>Mais › Quem adotou</b>,
+          com este pedido no histórico.
         </p>
         <Link
           to={`/admin/animais/${animal.id}`}
@@ -251,6 +252,37 @@ function Decisao({ pedido }: { pedido: PedidoDetalhe }) {
   )
 }
 
+/** A pessoa já está no cadastro de quem adotou, pelo WhatsApp (RN53). */
+function JaAdotou({
+  pedido,
+  adotante,
+}: {
+  pedido: PedidoDetalhe
+  adotante: NonNullable<PedidoDetalhe['adotante_cadastrado']>
+}) {
+  const adocoes = adotante.adocoes === 1 ? '1 adoção' : `${String(adotante.adocoes)} adoções`
+  const devolucoes =
+    adotante.devolucoes === 1 ? '1 devolução' : `${String(adotante.devolucoes)} devoluções`
+  // Depois da entrega, o próprio pedido está no histórico: o aviso só interessa antes
+  if (pedido.animal.status === 'adotado' && pedido.status === 'aprovado') return null
+  return (
+    <section className="rounded-2xl bg-azul-claro p-4 ring-2 ring-azul print:hidden">
+      <h2 className="font-extrabold text-azul-escuro">🏠 Esta pessoa já está no cadastro</h2>
+      <p className="mt-1 text-sm text-slate-700">
+        <b>{adotante.nome}</b> · {adocoes}
+        {adotante.devolucoes > 0 && <b className="text-vermelho"> · {devolucoes}</b>}
+      </p>
+      <ObservacaoAdotante texto={adotante.observacoes} />
+      <Link
+        to={`/admin/adotantes/${adotante.id}`}
+        className="mt-2 inline-block text-sm font-extrabold text-azul underline"
+      >
+        Ver o histórico
+      </Link>
+    </section>
+  )
+}
+
 function Analise({ pedido }: { pedido: PedidoDetalhe }) {
   const hoje = hojeNoBrasil()
   const animal = pedido.animal
@@ -324,6 +356,10 @@ function Analise({ pedido }: { pedido: PedidoDetalhe }) {
         )}
       </section>
 
+      {pedido.adotante_cadastrado && (
+        <JaAdotou pedido={pedido} adotante={pedido.adotante_cadastrado} />
+      )}
+
       {pedido.alertas.length > 0 ? (
         <section className="rounded-2xl bg-amarelo-claro p-4 ring-2 ring-amarelo print:hidden">
           <h2 className="font-extrabold text-[#7A4A00]">⚠️ Pontos para conversar</h2>
@@ -372,7 +408,7 @@ function Analise({ pedido }: { pedido: PedidoDetalhe }) {
       <div className="hidden print:block">
         <Cartao titulo="25. Declarações">
           <ul className="space-y-1">
-            {DECLARACOES.map((declaracao) => (
+            {declaracoesDaVersao(pedido.versao_formulario).map((declaracao) => (
               <li key={declaracao}>☑ {declaracao}</li>
             ))}
           </ul>
@@ -425,7 +461,8 @@ export function Pedido() {
             Não encontramos este pedido
           </h1>
           <p className="mt-2 text-slate-600">
-            Pedidos recusados ou concluídos são apagados 90 dias depois (LGPD).
+            Pode ter sido apagado junto com o animal, ou ser um pedido antigo: os enviados até
+            17/10/2026 são apagados 90 dias depois da decisão (LGPD).
           </p>
           <Link
             to="/admin/pedidos"

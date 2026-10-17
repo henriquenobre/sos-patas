@@ -44,7 +44,7 @@ Uma linha por etapa do [PLANO_DESENVOLVIMENTO.md](PLANO_DESENVOLVIMENTO.md). Pre
 | 12 | Editor de textos | 14/10/2026 | 14/10/2026 | 1 dia | API, telas T15–T20 e testes; conferida pelo celular |
 | 13 | Mais: dados da ONG, anúncio pela equipe, protetores | 14/10/2026 | 14/10/2026 | 1 dia | Telas T21–T24 e "Alterado por", com testes; na `develop` pelo PR #14. Conferência pelo celular _(a confirmar)_ |
 | 14 | Produção | 14/10/2026 | 16/10/2026 | 3 dias | Site no ar em `sospatas.org.br` em 16/10; deploy automático, login, "Fale com a ONG" e backup testados. Restaurar um dump de produção ficou para a etapa 15. CPU da primeira requisição corrigido (data sem `Intl`) |
-| 15 | Dados reais, teste com a ONG e ajustes finais | | | | |
+| 15 | Dados reais, teste com a ONG e ajustes finais | 17/10/2026 | | | Em andamento. Reunião com Cláudia e Aline em 17/10 (sábado), com testes; 3 animais reais e toda a equipe administrativa já no site |
 
 ## Diário
 
@@ -123,3 +123,5 @@ Os fatos em ordem, com a fonte. Acrescentar uma linha a cada marco (fim de etapa
 | 16/10/2026 | | 8 | Tempo de CPU na produção (mediana de 11,64 ms) corrigido: a data de hoje deixa de usar `Intl` (−23% na carga da API) | doc (medição) |
 | 16/10/2026 | | 8 | **Etapa 14 concluída** (3 dias úteis, de 14 a 16/10) | relato + doc |
 | 16/10/2026 | 14:45 | 8 | Correção do tempo de CPU publicada na produção (PR #20) | Git |
+| sáb 17/10/2026 | | 8 | **Etapa 15 iniciada:** reunião com Cláudia e Aline; testes do site com elas e pontos levantados para ajuste (lista _(a confirmar)_). Já estão na produção os 3 primeiros animais reais e os usuários de toda a equipe que vai cuidar da área da ONG | relato |
+| 17/10/2026 | | 8 | Pedido da ONG na reunião: guardar os dados de adoção sem prazo e ter um cadastro de quem adotou. Feito no mesmo dia na `develop` (RN15 alterada, RN53, telas T30 e T31, migration 0004), sem commit | relato + doc |

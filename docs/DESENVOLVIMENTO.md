@@ -94,12 +94,14 @@ Resumo. O detalhamento (diagrama, API, login, deploy, backup e limites) está no
 | `/admin/textos` | T15 | **Textos:** lista das páginas editáveis |
 | `/admin/textos/perguntas` | T16 | Perguntas frequentes: adicionar, editar, reordenar, excluir |
 | `/admin/textos/como-adotar` | T18 | Como adotar: subtítulo, passos, "antes de adotar", vantagens, aviso de protetores |
-| `/admin/textos/inicio` | T19 | Página inicial: chamada, história, marcos, números da história, fotos da história, missão, como funcionamos |
+| `/admin/textos/inicio` | T19 | Página inicial: chamada (textos e os 2 animais das fotos, RN54), história, marcos, números da história, fotos da história, missão, como funcionamos |
 | `/admin/textos/ajude` | T20 | Como ajudar: introdução e formas de ajudar |
 | `/admin/textos/:lista/novo` · `/admin/textos/:lista/:id` | T17 | Formulário de um item de lista (pergunta, passo, marco, número, foto com legenda…) |
-| `/admin/mais` | T22 | **Mais:** Dados da ONG, Protetores parceiros, Ver o site, Sair |
+| `/admin/mais` | T22 | **Mais:** Dados da ONG, Quem adotou, Protetores parceiros, Ver o site, Sair |
 | `/admin/ong` | T23 | Dados da ONG: WhatsApp, Instagram, Facebook, chave PIX |
 | `/admin/protetores` | T24 | Protetores parceiros: lista e cadastro (RN42) |
+| `/admin/adotantes` | T30 | Quem adotou: lista com busca por nome ou WhatsApp, adoções, devoluções e observações (RN53) |
+| `/admin/adotantes/nova` · `/admin/adotantes/:id` | T31 | Ficha de quem adotou: dados, observações da equipe, histórico de adoções, adoção de antes do site e exclusão (RN53) |
 
 ### Prioridade, se o prazo apertar (desenvolvimento de 13/10 a 23/10)
 1. **Obrigatório:** login, animais (T08–T11), **pedidos de adoção** (formulário com o termo e análise, T26–T28, RN47–RN50; entrou no MVP em 08/10/2026), editor de textos genérico (T15–T20, um só componente atende todas as páginas, RN33), perdidos com moderação (T14).
@@ -140,6 +142,7 @@ Resumo. O detalhamento (diagrama, API, login, deploy, backup e limites) está no
 | `data_adocao` | date null | preenchido ao marcar como adotado; base do indicador de adoções |
 | `responsavel_tipo` | enum `ong` \| `protetor` | padrão `ong` |
 | `protetor_id` | uuid null FK → `protetores.id` | `on delete restrict`; **obrigatório se `responsavel_tipo = protetor`, nulo se `ong`** (CHECK). Substitui os antigos `responsavel_nome` e `whatsapp` (RN42): o nome e o WhatsApp vêm de `protetores` ou da tabela `ong` |
+| `destaque_inicio` | smallint null | foto 1 ou 2 da chamada do Início, escolhida pela equipe (RN54); null = não escolhido. CHECK 1 a 2 e índice único parcial (um animal por foto). Só vale enquanto o animal está disponível |
 | `created_at` / `updated_at` | timestamptz | automáticos |
 | `updated_by` | uuid null FK → `equipe.id` | preenchido pela API com a usuária logada (RN43) |
 
@@ -159,8 +162,8 @@ Resumo. O detalhamento (diagrama, API, login, deploy, backup e limites) está no
 | `lar_nome` | text | nome do voluntário/lar onde o animal está |
 | `lar_tipo` | enum `provisorio` \| `remunerado` | |
 | `observacoes` | text | anotações internas |
-| `adotante_nome` | text null | preenchido na adoção; usado no acompanhamento (RN30) |
-| `adotante_whatsapp` | text null | idem; dado pessoal tratado com base no termo de adoção (LGPD) |
+
+Quem adotou o animal fica no cadastro de quem adotou (`adotantes` e `adocoes`, RN53). As colunas `adotante_nome` e `adotante_whatsapp` saíram daqui em 17/10/2026 (migration 0004, que copiou os adotantes que já existiam).
 
 ### `perdidos` (anúncios enviados pelo público)
 | Coluna | Tipo | Regra |
@@ -208,6 +211,28 @@ Definido em 08/10/2026 (RN14, RN15, RN47–RN50). Perguntas e alertas em [formul
 | `ip_hash` | text | hash do IP (SHA-256 + segredo), só para o limite de envios (RN50); nunca o IP puro |
 | `observacao_equipe` | text | anotação interna de quem analisa (máx. 1000) |
 | `analisado_em` · `analisado_por` | timestamptz · uuid FK → `equipe.id` | preenchidos ao aprovar ou recusar |
+| `created_at` / `updated_at` / `updated_by` | | RN43 |
+
+### `adotantes` (cadastro de quem adotou; somente a equipe, RN53)
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `id` | uuid PK | |
+| `nome` | text | obrigatório (máx. 100, o mesmo do pedido) |
+| `whatsapp` | text null | só dígitos, 10–11 com DDD; **um cadastro por número** (índice único parcial). Nulo em adoção antiga sem o número |
+| `bairro_cidade` | text null | máx. 100; vem do pedido aprovado, quando a adoção é pelo site |
+| `observacoes` | text | anotações da equipe (máx. 1000), vistas na lista e na análise de um pedido novo da pessoa |
+| `created_at` / `updated_at` / `updated_by` | | RN43 |
+
+### `adocoes` (histórico de quem adotou cada animal; somente a equipe, RN53)
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `id` | uuid PK | |
+| `adotante_id` | uuid FK → `adotantes.id` | `on delete cascade` (excluir a pessoa apaga o histórico dela) |
+| `animal_id` | uuid null FK → `animais.id` | `on delete set null`: o histórico fica mesmo se o animal for excluído (RN09). Nulo em adoção de antes do site |
+| `animal_nome` | text | cópia do nome do animal (máx. 40) |
+| `pedido_id` | uuid null FK → `pedidos_adocao.id` | `on delete set null`; o pedido aprovado que levou à adoção |
+| `data_adocao` | date | obrigatório |
+| `data_devolucao` | date null | "Voltar para disponível" de um animal adotado (RN30); não pode ser antes da adoção. **Uma adoção em andamento por animal** (índice único parcial onde `data_devolucao` é nulo) |
 | `created_at` / `updated_at` / `updated_by` | | RN43 |
 
 ### `contato_envios` (limite do "Fale com a ONG"; somente a API)
@@ -296,7 +321,7 @@ Substitui a constante `ONG` do código (seção 7.1). Cabeçalho, rodapé, Iníc
 | `ajude_formas` | Como ajudar (além do card fixo do PIX) | Título (40), obrigatório | Texto (300) | 0 |
 
 ### Limites e garantias no banco (implementado em 08/10/2026, etapa 2)
-- **Limites de caracteres** de todos os campos em `packages/compartilhado/src/limites.ts` (tabelas) e `conteudo.ts` (textos e listas). Além dos citados acima: `animais.nome` 40, `raca` 60, `cor_pelagem` 60, `vacinas` 120, `problema_saude` 300; `animais_privado.lar_nome` 80, `observacoes` 1000, `adotante_nome` 80; `equipe.nome` 40; `ong.nome_completo` 120, `instagram` 30, `facebook` 200, `pix_chave` 100. O banco confere com `CHECK` gerado a partir desses arquivos.
+- **Limites de caracteres** de todos os campos em `packages/compartilhado/src/limites.ts` (tabelas) e `conteudo.ts` (textos e listas). Além dos citados acima: `animais.nome` 40, `raca` 60, `cor_pelagem` 60, `vacinas` 120, `problema_saude` 300; `animais_privado.lar_nome` 80, `observacoes` 1000; `adotantes.nome` 100, `bairro_cidade` 100, `observacoes` 1000; `adocoes.animal_nome` 40; `equipe.nome` 40; `ong.nome_completo` 120, `instagram` 30, `facebook` 200, `pix_chave` 100. O banco confere com `CHECK` gerado a partir desses arquivos.
 - **Campos obrigatórios** não aceitam texto vazio nem só espaços. `animais.descricao` e `animais_privado.observacoes` ficam `''` quando não preenchidos; `lar_nome` e `lar_tipo` podem ficar nulos (o lar não é obrigatório no cadastro, T10).
 - **Coerência:** adotado sempre tem `data_adocao` e disponível nunca tem (RN08); anúncio `publicado` sempre tem `publicado_em` e `expira_em`, e `pendente` nunca tem (RN25); anúncio da equipe não tem `ip_hash` (RN39); WhatsApp só com 10 ou 11 dígitos; e-mail da equipe em minúsculas; Instagram sem `@`; Facebook começando com `https://`.
 - **Posições:** `fotos.ordem` vai de 0 a 2 (RN01) e cada animal tem uma foto por posição; cada lista de `conteudo_itens` tem um item por posição. As duas unicidades são `DEFERRABLE` (conferidas no fim da transação), para a troca de ordem da RN35.
@@ -312,6 +337,7 @@ A **API é a única porta para o banco e para os arquivos**: o navegador nunca f
 |---|---|---|
 | `animais`, `fotos` | Leitura (sem colunas internas) | Tudo |
 | `animais_privado` | **Nunca** | Tudo |
+| `adotantes`, `adocoes` | **Nunca** | Tudo (lista, ficha, cadastro à mão, observações, exclusão a pedido da pessoa, RN53) |
 | `pedidos_adocao` | **Nunca** leitura; **envio** só por `POST /animais/:id/pedidos` (Turnstile + validação + limites, RN50) | Tudo (ver, aprovar, recusar, anotar) |
 | `perdidos`, `perdidos_fotos` | Leitura só de `publicado` não expirado; **envio** só por `POST /perdidos` (Turnstile + validação + limite por IP) | Tudo, incluindo anúncio da equipe sem Turnstile (RN39) |
 | `ong`, `conteudo_textos`, `conteudo_itens`, `protetores` | Leitura (do protetor, só nome e WhatsApp) | Escrita; `ong` só UPDATE (linha única) |
@@ -350,13 +376,14 @@ A **API é a única porta para o banco e para os arquivos**: o navegador nunca f
 - **RN10:** a vitrine mostra só `status = disponivel`, ordenada por `data_entrada` (mais antigos primeiro).
 - **RN11:** **adulto** é quem tem 1 ano ou mais (calculado por `nascimento_aprox`); **filhote** é quem tem menos de 1 ano.
 - **RN12 – "Esperando há mais tempo":** adultos disponíveis com `data_entrada` há mais de 90 dias, até 6 na página inicial, os mais antigos primeiro.
+- **RN54 – Animais da chamada do Início (17/10/2026):** a equipe escolhe, na edição da página inicial (T19), o animal de cada uma das duas fotos da chamada (`animais.destaque_inicio` = 1 ou 2, um animal por foto). Só entra animal **disponível e com foto**. Foto em "Automático", ou com o animal escolhido fora da vitrine (em análise ou adotado), segue a regra anterior: um cão e um gato, os que esperam há mais tempo, completando com o próximo animal com foto se faltar uma espécie. A escolha não muda o "Alterado por" do animal.
 - **RN13:** a idade é exibida de forma aproximada, só com o número: "3 meses", "2 anos" (sem "cerca de"). Abaixo de 1 mês, "menos de 1 mês".
 
 ### Contato
 - **RN14 (alterada em 06/10/2026 e 08/10/2026):** o botão **"Quero adotar"** abre o **formulário de adoção** (`/animais/:id/adotar`, T26), em vez de levar direto ao WhatsApp. A ONG não quer concentrar as entrevistas em uma pessoa: quem tem interesse preenche o formulário, o **pedido fica salvo no sistema** e a equipe avalia na área da ONG (T27, T28) e entra em contato pelo WhatsApp. O botão só aparece para animais `disponivel`. **Desde 08/10/2026, faz parte do MVP** (antes estava fora).
   - **Perguntas do formulário:** [formulario/FORMULARIO_ADOCAO.md](formulario/FORMULARIO_ADOCAO.md), **versão 1.2 usada no site** (1.1 por decisão do mantenedor em 08/10/2026; 1.2 em 09/10/2026, com a pergunta 19 obrigatória; ajustes que a ONG pedir entram como nova versão, sem perder os pedidos antigos). Inclui os alertas automáticos para quem analisa. O PDF para o grupo é gerado com `python docs/formulario/gerar_pdf.py`.
   - **Telas:** formulário público T26 e confirmação T26b; lista de pedidos T27 e análise T28 na área da ONG ([TELAS.md](../prototipo/TELAS.md)).
-- **RN15 (alterada em 06/10/2026 e 08/10/2026):** o site **coleta e guarda os dados de quem quer adotar** (tabela `pedidos_adocao`). Por isso, o formulário segue as mesmas proteções dos envios públicos (validação na API, Turnstile e limite de envios, RN50), com **consentimento explícito** (LGPD), acesso só para a equipe logada e **prazo de guarda**, aplicado pela tarefa diária: pedidos **recusados** ou **não concluídos** são apagados 90 dias depois da decisão; pedidos **aprovados** são apagados 90 dias depois de o animal ser marcado como adotado (o nome e o WhatsApp de quem adotou ficam em `animais_privado`, RN30). _(Prazo de 90 dias a confirmar com a ONG.)_
+- **RN15 (alterada em 06/10/2026, 08/10/2026 e 17/10/2026):** o site **coleta e guarda os dados de quem quer adotar** (tabela `pedidos_adocao`). Por isso, o formulário segue as mesmas proteções dos envios públicos (validação na API, Turnstile e limite de envios, RN50), com **consentimento explícito** (LGPD) e acesso só para a equipe logada. **Prazo de guarda (17/10/2026, pedido da ONG na reunião da etapa 15):** os pedidos ficam guardados **sem prazo**, aprovados ou não, para a equipe consultar depois quem adotou e quem já pediu (RN53). O consentimento do formulário diz isso desde a **versão 1.3**. Os pedidos enviados com o consentimento antigo (versões 1.0 a 1.2, que prometia apagar em 90 dias) continuam sendo apagados pela tarefa diária nesse prazo: **recusados** e **não concluídos**, 90 dias depois da decisão; **aprovados**, 90 dias depois de o animal ser marcado como adotado. Quem adotou continua no cadastro (RN53). Se a pessoa pedir para apagar os dados dela, a equipe exclui o cadastro em T31 _(os pedidos de quem não adotou ainda não têm botão de exclusão: hoje, pelo administrador do site)_.
 - **RN51 – Contato com a ONG pelo e-mail (09/10/2026):** enquanto a ONG não tem um WhatsApp próprio para o site, **todo contato do público com a ONG** é pelo e-mail `ong.email` (`sitesospatas@gmail.com`): rodapé, perguntas frequentes, Como ajudar, privacidade e confirmação do pedido de adoção. O número pessoal usado até aqui saiu do site (`ong.whatsapp` vazio). Quando a ONG tiver um número, a equipe preenche em T23 e ele volta a aparecer junto com o e-mail, sem mudar o código. Os textos editáveis dizem "Entre em contato com a ONG", sem citar o canal.
   - **Formulário "Fale com a ONG"** (`/contato`, T29): nome, e-mail, WhatsApp ou telefone (opcional), assunto (adoção, quero ajudar, perdido ou encontrado, protetor, outro) e mensagem, com Turnstile. A API envia um e-mail para a ONG com "Responder para" o e-mail da pessoa: a equipe responde direto do Gmail. **A mensagem não fica guardada no site**; para evitar abuso, só o hash do IP fica 1 dia (`contato_envios`), com limite de **3 mensagens por dia por IP**. Se o envio falhar, o site avisa e mostra o e-mail da ONG.
   - **Envio pelo Cloudflare Email Routing**, gratuito, que exige o domínio `sospatas.org.br` no Cloudflare: o formulário só funciona em produção, a partir da etapa 14 (ARQUITETURA.md, seção 9). No computador, o `wrangler dev` simula o envio.
@@ -369,11 +396,19 @@ A **API é a única porta para o banco e para os arquivos**: o navegador nunca f
   - **Recusar** (com confirmação): pedido `recusado`; o animal **volta para `disponivel`** e reaparece no site.
   - **Aprovar:** pedido `aprovado`; o animal **continua fora do site** (`em_analise`). A ONG fala com a pessoa pelo WhatsApp para **combinar onde ela busca o animal**. Na entrega, a equipe usa **"Marcar como adotado"** (RN07, RN08), com o nome e o WhatsApp de quem adotou já preenchidos a partir do pedido.
   - **Adoção aprovada que não aconteceu** (a pessoa desistiu antes da entrega): "Voltar para disponível" no animal; o pedido vira `nao_concluido`.
+  - **Adoção devolvida** (o animal adotado por um pedido volta, RN30): "Voltar para disponível" também leva o pedido de `aprovado` para `nao_concluido` (17/10/2026). Os pedidos `nao_concluido` aparecem na aba **Recusados** do T27, com "Não concluído".
   - **Imprimir o formulário preenchido** (pedido da ONG, 13/10/2026): na T28, para guardar em papel ou PDF e, se a ONG quiser, colher a assinatura na entrega (RN47). A impressão não leva os alertas nem a observação interna.
   - Quem pediu **não recebe aviso automático** (o site não guarda e-mail): a equipe fala com a pessoa pelo WhatsApp, inclusive para avisar uma recusa.
   - Animal de **protetor parceiro**: o pedido também chega para a equipe, que repassa ao protetor pelo WhatsApp _(proposta; quem analisa esses pedidos ainda é pergunta para a ONG)_.
 - **RN50 – Proteção contra bloqueio de animais:** como um pedido esconde o animal, enviar pedidos falsos poderia tirar animais do site. Por isso: Turnstile; no máximo **2 pedidos por dia por IP** e **1 pedido pendente por WhatsApp**; a aba Pedidos mostra o número de pendentes, e o painel destaca em vermelho pedido parado há mais de **3 dias** _(prazo a confirmar com a ONG)_. O animal **não volta sozinho** para o site: a equipe decide (recusar devolve na hora).
-- **RN52 – Aviso de pedido novo por e-mail (17/10/2026):** a cada pedido de adoção recebido pelo site, a API envia um e-mail para o e-mail do site (`EMAIL_DESTINO`, `sitesospatas@gmail.com`), com o assunto "[Site] Novo pedido de adoção: {animal}", o nome do animal e o link do pedido na área da ONG (T28). **Sem dados de quem pediu** (nome, WhatsApp, respostas): eles ficam só na área da ONG, que apaga o pedido no prazo da RN15; no Gmail, ficariam para sempre. O envio é feito depois de gravar o pedido: se falhar, o pedido continua valendo e aparece na aba Pedidos. Na prévia não há envio de e-mail (sem o binding), então o aviso só chega em produção.
+- **RN53 – Cadastro de quem adotou (17/10/2026, pedido da ONG na reunião da etapa 15):** a área da ONG guarda, **sem prazo**, todas as pessoas que adotaram, para a equipe conferir numa feira ou num pedido novo se a pessoa já adotou, devolveu algum animal ou tem alguma observação.
+  - **Quem entra:** toda adoção feita por "Marcar como adotado" (RN07) cria o cadastro da pessoa ou, se o **WhatsApp** já estiver lá, soma a adoção ao histórico dela (o nome cadastrado não muda). A adoção que veio de um pedido fica ligada a ele, e o bairro do pedido vai para o cadastro. Quem adotou antes do site é cadastrado à mão (T31), com as adoções antigas (nome do animal, data e, se houve, devolução).
+  - **Busca (T30):** por parte do nome ou do WhatsApp. Cada pessoa mostra o número de adoções, de devoluções e as observações da equipe.
+  - **Devolução:** "Voltar para disponível" de um animal adotado (RN30) não apaga quem adotou: a adoção fica no histórico com a data da devolução.
+  - **Pedido novo de quem já está no cadastro:** a análise do pedido (T28) mostra o aviso "Esta pessoa já está no cadastro", com adoções, devoluções e observações (busca pelo WhatsApp do pedido).
+  - **Animal excluído (RN09):** o histórico continua, com o nome do animal guardado na adoção.
+  - **Exclusão a pedido da pessoa (LGPD):** "Excluir cadastro" em T31 apaga a pessoa e o histórico; o animal continua como adotado. A adoção registrada à mão pode ser apagada sozinha (erro de digitação); a do site, não.
+- **RN52 – Aviso de pedido novo por e-mail (17/10/2026):** a cada pedido de adoção recebido pelo site, a API envia um e-mail para o e-mail do site (`EMAIL_DESTINO`, `sitesospatas@gmail.com`), com o assunto "[Site] Novo pedido de adoção: {animal}", o nome do animal e o link do pedido na área da ONG (T28). **Sem dados de quem pediu** (nome, WhatsApp, respostas): eles ficam só na área da ONG, protegida pelo login; no Gmail, ficariam fora desse controle. O envio é feito depois de gravar o pedido: se falhar, o pedido continua valendo e aparece na aba Pedidos. Na prévia não há envio de e-mail (sem o binding), então o aviso só chega em produção.
 
 ### Perdidos e encontrados: segurança dos envios públicos
 
@@ -458,6 +493,7 @@ Onde fica cada regra:
 | Adaptação de 15 dias: "Em adaptação: faltam N dias" / "Adoção concluída" (RN30) | `packages/compartilhado/src/idade.ts` (`textoAdaptacao`, `fimDaAdaptacao`) |
 | Sessão vencida na área da ONG (tela "Entre de novo") | `apps/web/src/api/cliente.ts` (`chamarAdmin`) e `apps/web/src/layouts/LayoutAdmin.tsx` |
 | Idade, adulto/filhote e "Esperando há mais tempo" (RN11–RN13) | `packages/compartilhado/src/idade.ts` (usado no front e na API) |
+| Fotos da chamada do Início: escolhidas pela equipe ou automáticas (RN54) | `apps/web/src/lib/animal.ts` (`animaisDaChamada`); gravação em `apps/api/src/servicos/conteudo.ts` (`salvarChamada`) |
 | Datas no fuso de Brasília | `packages/compartilhado/src/datas.ts` (`hojeNoBrasil`): o Worker roda em UTC; a data é calculada com UTC−3 fixo, sem `Intl` (custo de CPU), porque o Brasil não tem horário de verão desde 2019 |
 | WhatsApp (normalizar, validar, formatar, link wa.me) e detecção de links (RN21) | `packages/compartilhado/src/whatsapp.ts` e `texto.ts` |
 | `TextoSimples`: quebras de linha + links (RN34) | `apps/web/src/components/TextoSimples.tsx` |
@@ -470,8 +506,9 @@ Onde fica cada regra:
 | Envio, aprovar, renovar e apagar anúncio (RN19–RN23, RN26, RN41) | `apps/api/src/servicos/perdidos.ts`; rotas em `rotas/publico/perdidos.ts` e `rotas/admin/perdidos.ts` |
 | Trocar ordem (RN35) | `apps/api/src/servicos/conteudo.ts` |
 | Limpezas diárias (RN15, RN25, RN27) | `apps/api/src/tarefas/*` |
+| Cadastro de quem adotou (RN53) | `apps/api/src/servicos/adotantes.ts` e `rotas/admin/adotantes.ts`; a adoção entra por `marcarAdotado` (`servicos/animais.ts`); telas em `apps/web/src/pages/admin/Adotantes.tsx` |
 | Formulário de adoção (perguntas, opções, declarações), termo e alertas automáticos (RN47, RN49) | `packages/compartilhado/src/adocao/` (formulario.ts, termo.ts, alertas.ts) e `src/schemas/pedido.ts` (validação) |
-| Pedido esconde o animal, limites, aprovar e recusar (RN48–RN50) | `apps/api/src/servicos/pedidos.ts`; Turnstile e hash do IP em `servicos/seguranca.ts`; limpeza de 90 dias em `tarefas/limpeza.ts` |
+| Pedido esconde o animal, limites, aprovar e recusar (RN48–RN50) | `apps/api/src/servicos/pedidos.ts`; Turnstile e hash do IP em `servicos/seguranca.ts`; limpeza dos pedidos com o consentimento antigo em `tarefas/limpeza.ts` |
 | Fale com a ONG: limite por IP e envio por e-mail (RN51) | `apps/api/src/rotas/publico/contato.ts`, `servicos/contato.ts`, `servicos/email.ts` (mensagem MIME) e `email/cloudflare.ts` (Email Routing); `apps/web/src/pages/Contato.tsx` |
 | Validação do login (Access) | `apps/api/src/middleware/access.ts` |
 
@@ -631,3 +668,7 @@ fontFamily: { titulo: ['"Baloo 2"', 'system-ui'], corpo: ['Nunito', 'system-ui']
 | 17/10/2026 | **Filtros da vitrine e de perdidos aplicados sobre a lista guardada:** o cache das rotas `/animais` e `/perdidos` guarda só a lista inteira, e a API filtra sobre ela (`comCacheFiltrado`, `apps/api/src/cache.ts`), sem consultar o banco de novo. O card da vitrine (`AnimalResumo`) passa a trazer `convive_animais` ([ARQUITETURA.md](ARQUITETURA.md), seção 3.1) | Antes, cada combinação de filtros tinha uma cópia própria no cache, e salvar na área da ONG só apagava a cópia da lista sem filtro: um animal novo aparecia na vitrine, mas não no chip "Cães", por até 15 minutos. No computador não acontecia, porque lá não há cache. Com a lista pequena (dezenas de animais), filtrar na API custa menos que consultar o banco |
 | 17/10/2026 | **Marca de "acabou de salvar" também na vitrine, nas fichas e em perdidos:** qualquer alteração salva na área da ONG (animal, adoção, pedido, anúncio, protetor, texto) guarda a marca no navegador (`atualizarAdmin`), e todas as leituras públicas desse navegador passam a pedir com `?v=` por 15 min (`comMarca`, `apps/web/src/api/publico.ts`). A API ignora o parâmetro (RN37) | Mesmo com o cache da API corrigido, o navegador de quem salvou guardava a vitrine antiga por 1 min (`max-age=60`): o animal adotado continuava aparecendo até um Ctrl+F5. Antes, só os textos (`/site`) tinham a marca |
 | 17/10/2026 | **RN52 – Aviso de pedido novo por e-mail:** cada pedido de adoção gera um e-mail para o e-mail do site, só com o nome do animal e o link do pedido na área da ONG, enviado depois de gravar o pedido (`mensagemDoPedido`, `apps/api/src/servicos/email.ts`) | Pedido do mantenedor: a equipe só via os pedidos abrindo a área da ONG. Sem dados pessoais no e-mail, para não fugir do prazo de guarda da RN15; falha no envio não pode perder o pedido |
+| 17/10/2026 | **Marca de "acabou de mudar" também depois de enviar um pedido de adoção:** ao receber a confirmação do pedido, o formulário (T26, `apps/web/src/pages/Adotar.tsx`) guarda a marca no navegador (`marcarConteudoAlterado`) antes de recarregar a ficha e a vitrine, que passam a ser pedidas com `?v=` por 15 min (RN37, RN48) | No teste em produção, quem enviou o pedido ainda via o animal na vitrine por até 1 min: a API apagava a cópia do Cloudflare, mas o navegador devolvia a lista que tinha guardado (`max-age=60`). Para os outros visitantes, o atraso de até 15 min em outros datacenters continua (ARQUITETURA, seção 3); a API recusa pedido para animal em análise |
+| 17/10/2026 | **Adoção devolvida tira o pedido de "Aprovados":** "Voltar para disponível" de um animal adotado por um pedido passa esse pedido de `aprovado` para `nao_concluido` (`devolver`, `apps/api/src/servicos/animais.ts`, pelo `pedido_id` da adoção). A aba **Recusados** do T27 passa a mostrar também os `nao_concluido`, com "· Não concluído" (`GET /pedidos?status=recusado`). Substitui o item (9) da decisão de 13/10/2026. A migration `0005_pedidos_devolvidos` ajusta os pedidos aprovados cujo animal já voltou para disponível | No teste em produção, um animal adotado e devolvido continuava com o pedido em "Aprovados", como se a adoção estivesse de pé. `nao_concluido` já existia para "aprovado, mas a adoção não aconteceu" e guarda que o pedido chegou a ser aprovado, o que `recusado` apagaria |
+| 17/10/2026 | **Cadastro de quem adotou (RN53) e pedidos guardados sem prazo (RN15):** tabelas `adotantes` e `adocoes` (migration 0004, que copiou os adotantes de `animais_privado` e apagou as colunas antigas); telas T30 e T31 em Mais › Quem adotou; aviso na análise do pedido quando a pessoa já está no cadastro; "Voltar para disponível" passa a guardar a devolução no histórico em vez de apagar quem adotou. Formulário de adoção 1.3, com o consentimento novo; os pedidos das versões 1.0 a 1.2 continuam com o prazo de 90 dias que foi prometido. Texto da privacidade atualizado | Pedido da ONG na reunião da etapa 15: guardar todos os dados por tempo indeterminado para consultar depois quem adotou, e ter uma lista para conferir numa feira ou num pedido novo se a pessoa já adotou ou tem alguma observação. A ONG escolheu guardar também os pedidos não aprovados. O cadastro tem tabela própria porque o adotante em `animais_privado` se perdia na devolução e na exclusão do animal |
+| 17/10/2026 | **RN54 – A equipe escolhe os 2 animais da chamada do Início:** coluna `animais.destaque_inicio` (1 ou 2, migration 0006), bloco "Animais da chamada" na edição da página inicial (T19) e `PUT /api/admin/conteudo/chamada`; o `GET /site` passa a trazer `chamada` (ids dos escolhidos ainda disponíveis) e o front busca o animal na vitrine. Foto em "Automático" ou com o animal fora da vitrine segue a regra de 16/10 (um cão e um gato, os que esperam há mais tempo). A escolha fica no animal, e não na tabela `ong`, para a linha da ONG não depender de `animais` | Pedido do mantenedor: poder destacar animais específicos na chamada, em vez de sempre os que esperam há mais tempo |
