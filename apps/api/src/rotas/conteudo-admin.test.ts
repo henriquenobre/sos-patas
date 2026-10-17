@@ -3,7 +3,7 @@
 import { asc, eq, sql } from 'drizzle-orm'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ConteudoAdmin, ItemAdmin, SitePublico, TextoAdmin } from '@sospatas/compartilhado'
-import { conteudoItens, equipe } from '@sospatas/db'
+import { animais, conteudoItens, equipe, fotos } from '@sospatas/db'
 import { aplicarSeed } from '@sospatas/db/seed'
 import type { CorpoErro } from '../erros'
 import { CABECALHO_JWT_ACCESS } from '../middleware/access'
@@ -86,7 +86,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   vi.restoreAllMocks()
   teste.fotos.arquivos.clear()
-  await teste.db.execute(sql`TRUNCATE conteudo_itens, conteudo_textos, ong CASCADE`)
+  await teste.db.execute(sql`TRUNCATE animais, conteudo_itens, conteudo_textos, ong CASCADE`)
   await aplicarSeed(URL_TESTE, ['seed_conteudo.sql'])
 })
 
@@ -145,6 +145,95 @@ describe('textos (CampoTextoEditavel, RN34, RN37, RN43)', () => {
   it('chave que não existe: 404', async () => {
     const resposta = await admin('/conteudo/textos/inicio.inventada', 'PUT', { valor: 'x' })
     expect(resposta.status).toBe(404)
+  })
+})
+
+describe('animais da chamada do Início (T19, RN54)', () => {
+  const ID = {
+    thor: '00000000-0000-4000-8000-000000000001',
+    mel: '00000000-0000-4000-8000-000000000002',
+    semFoto: '00000000-0000-4000-8000-000000000003',
+    adotado: '00000000-0000-4000-8000-000000000004',
+  }
+
+  beforeEach(async () => {
+    const base = {
+      sexo: 'macho' as const,
+      castrado: true,
+      vacinado: 'sim' as const,
+      vermifugado: 'sim' as const,
+      porte: 'medio' as const,
+      nascimento_aprox: '2020-01-01',
+    }
+    await teste.db.insert(animais).values([
+      { ...base, id: ID.thor, nome: 'Thor', especie: 'cao' },
+      { ...base, id: ID.mel, nome: 'Mel', especie: 'gato' },
+      { ...base, id: ID.semFoto, nome: 'Bob', especie: 'cao' },
+      {
+        ...base,
+        id: ID.adotado,
+        nome: 'Luna',
+        especie: 'gato',
+        status: 'adotado',
+        data_adocao: '2026-10-01',
+      },
+    ])
+    await teste.db.insert(fotos).values(
+      [ID.thor, ID.mel, ID.adotado].map((id) => ({
+        animal_id: id,
+        ordem: 0,
+        path_miniatura: `animais/${id}/f1-thumb.webp`,
+        path_completa: `animais/${id}/f1.webp`,
+      })),
+    )
+  })
+
+  const salvar = (ids: (string | null)[]) => admin('/conteudo/chamada', 'PUT', { animais: ids })
+
+  it('começa automático; salva, troca de posição e aparece no /site', async () => {
+    expect((await json<ConteudoAdmin>(await admin('/conteudo'))).chamada).toEqual([null, null])
+    expect((await site()).chamada).toEqual([null, null])
+
+    const primeira = await salvar([ID.thor, ID.mel])
+    expect(primeira.status).toBe(200)
+    expect(await json<Pick<ConteudoAdmin, 'chamada'>>(primeira)).toEqual({
+      chamada: [ID.thor, ID.mel],
+    })
+    expect((await site()).chamada).toEqual([ID.thor, ID.mel])
+
+    // Trocar as posições não bate no índice único
+    expect((await salvar([ID.mel, ID.thor])).status).toBe(200)
+    expect((await site()).chamada).toEqual([ID.mel, ID.thor])
+
+    expect((await salvar([null, ID.thor])).status).toBe(200)
+    expect((await json<ConteudoAdmin>(await admin('/conteudo'))).chamada).toEqual([null, ID.thor])
+  })
+
+  it('escolhido que deixa de estar disponível some da chamada (volta a ser automático)', async () => {
+    await salvar([ID.thor, ID.mel])
+    await teste.db.execute(sql`UPDATE animais SET status = 'em_analise' WHERE id = ${ID.thor}`)
+    expect((await site()).chamada).toEqual([null, ID.mel])
+  })
+
+  it('recusa animal adotado, sem foto, que não existe ou repetido, sem mudar nada', async () => {
+    await salvar([ID.thor, null])
+
+    const adotado = await salvar([ID.adotado, null])
+    expect(adotado.status).toBe(409)
+    expect((await json<CorpoErro>(adotado)).mensagem).toMatch(/Luna não está mais disponível/)
+
+    const semFoto = await salvar([null, ID.semFoto])
+    expect(semFoto.status).toBe(409)
+    expect((await json<CorpoErro>(semFoto)).mensagem).toMatch(/Bob ainda não tem foto/)
+
+    const sumiu = await salvar(['00000000-0000-4000-8000-000000000099', null])
+    expect(sumiu.status).toBe(409)
+
+    const repetido = await salvar([ID.mel, ID.mel])
+    expect(repetido.status).toBe(400)
+
+    expect((await salvar([ID.mel])).status).toBe(400)
+    expect((await site()).chamada).toEqual([ID.thor, null])
   })
 })
 

@@ -451,11 +451,7 @@ describe('Editar animal (T11)', () => {
         status: 'adotado',
         data_adocao: diasAtras(20),
         fotos: [ANIMAL_COMPLETO.fotos[0]],
-        privado: {
-          ...ANIMAL_COMPLETO.privado,
-          adotante_nome: 'Fernanda',
-          adotante_whatsapp: '35988887777',
-        },
+        adotante: { id: 'ad1', nome: 'Fernanda', whatsapp: '35988887777' },
         pedido_da_adocao: { id: 'p1' },
       },
       [`POST ${caminho}/devolucao`]: undefined,
@@ -463,7 +459,14 @@ describe('Editar animal (T11)', () => {
     })
     renderizarEm(caminho)
     expect(await screen.findByText('Adoção concluída')).toBeInTheDocument()
-    expect(screen.getByText('Adotado por Fernanda · (35) 9 8888-7777')).toBeInTheDocument()
+    expect(screen.getByText(/Adotado por/)).toHaveTextContent(
+      'Adotado por Fernanda · (35) 9 8888-7777',
+    )
+    // Quem adotou abre no cadastro de quem adotou (RN53)
+    expect(screen.getByRole('link', { name: 'Fernanda' })).toHaveAttribute(
+      'href',
+      '/admin/adotantes/ad1',
+    )
     expect(
       screen.getByRole('link', { name: '📋 Ver o formulário de adoção (para imprimir)' }),
     ).toHaveAttribute('href', '/admin/pedidos/p1')

@@ -157,8 +157,8 @@ export function Inicio() {
   if (site.isPending) return <Carregando />
   if (site.isError) return <ErroAoCarregar tentarDeNovo={() => void site.refetch()} />
 
-  const { textos, listas, ong } = site.data
-  const [primeiro, segundo] = animaisDaChamada(vitrine.data?.animais ?? [])
+  const { textos, listas, ong, chamada } = site.data
+  const [primeiro, segundo] = animaisDaChamada(vitrine.data?.animais ?? [], chamada)
   const [fotoPrincipal, ...galeria] = listas.inicio_fotos
   const marcos = listas.inicio_marcos
   const passos = listas.como_adotar_passos

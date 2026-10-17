@@ -14,7 +14,16 @@ export const LIMITES = {
   animais_privado: {
     lar_nome: 80,
     observacoes: 1000,
-    adotante_nome: 80,
+  },
+  /** Cadastro de quem adotou (RN53): o nome aceita o do pedido de adoção */
+  adotantes: {
+    nome: 100,
+    bairro_cidade: 100,
+    observacoes: 1000,
+  },
+  /** Histórico de adoções: cópia do nome do animal, que fica mesmo se ele for excluído */
+  adocoes: {
+    animal_nome: 40,
   },
   perdidos: {
     nome: 40,
@@ -82,7 +91,11 @@ export const DIAS_PUBLICACAO_PERDIDO = 30
 export const DIAS_MAX_PENDENTE = 7
 /** Período de adaptação depois da adoção (RN30). */
 export const DIAS_ADAPTACAO = 15
-/** Pedido de adoção é apagado 90 dias depois da recusa ou da adoção (RN15). */
+/**
+ * Pedidos das versões do formulário com o consentimento antigo (VERSOES_FORMULARIO_COM_PRAZO)
+ * são apagados 90 dias depois da recusa ou da adoção, como prometido a quem enviou (RN15).
+ * Os pedidos novos ficam guardados sem prazo.
+ */
 export const DIAS_GUARDA_PEDIDO_ADOCAO = 90
 
 // ---------------------------------------------------------------------------
@@ -91,6 +104,8 @@ export const DIAS_GUARDA_PEDIDO_ADOCAO = 90
 /** "Esperando há mais tempo": adultos com mais de 90 dias de espera, até 6 no Início (RN12). */
 export const DIAS_PARA_DESTAQUE = 90
 export const MAX_DESTAQUES = 6
+/** Fotos de animais na chamada do Início, que a equipe pode escolher (RN54). */
+export const MAX_DESTAQUES_INICIO = 2
 /** Envios públicos de anúncio: 3 por dia por IP e 30 pendentes no total (RN23). */
 export const MAX_ENVIOS_POR_DIA_POR_IP = 3
 export const MAX_PERDIDOS_PENDENTES = 30

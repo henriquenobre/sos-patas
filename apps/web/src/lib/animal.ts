@@ -5,18 +5,30 @@ export const textoAlternativo = (animal: Pick<AnimalResumo, 'nome' | 'sexo'>) =>
   `Foto ${animal.sexo === 'femea' ? 'da' : 'do'} ${animal.nome}`
 
 /**
- * As duas fotos da chamada do Início (T01): um cão e um gato, os que esperam há mais tempo
- * (a vitrine já vem nessa ordem). Se faltar uma espécie, completa com o próximo animal com foto.
+ * As duas fotos da chamada do Início (T01). Primeiro, os animais escolhidos pela equipe (RN54),
+ * se ainda estiverem na vitrine com foto. O que ficar vago é automático: um cão e um gato, os
+ * que esperam há mais tempo (a vitrine já vem nessa ordem); se faltar uma espécie, completa com
+ * o próximo animal com foto.
  */
-export function animaisDaChamada(vitrine: AnimalResumo[]): AnimalResumo[] {
+export function animaisDaChamada(
+  vitrine: AnimalResumo[],
+  escolhidos: (string | null)[] = [],
+): AnimalResumo[] {
   const comFoto = vitrine.filter((animal) => animal.foto)
-  const escolhidos = [
-    comFoto.find((animal) => animal.especie === 'cao'),
-    comFoto.find((animal) => animal.especie === 'gato'),
-  ].filter((animal) => animal !== undefined)
-  for (const animal of comFoto) {
-    if (escolhidos.length >= 2) break
-    if (!escolhidos.includes(animal)) escolhidos.push(animal)
+  const fotos = [0, 1].map((posicao) => {
+    const id = escolhidos[posicao]
+    return id ? comFoto.find((animal) => animal.id === id) : undefined
+  })
+  const livres = comFoto.filter((animal) => !fotos.includes(animal))
+  for (const posicao of [0, 1]) {
+    if (fotos[posicao]) continue
+    const especieQueFalta = (['cao', 'gato'] as const).find(
+      (especie) => !fotos.some((animal) => animal?.especie === especie),
+    )
+    const animal = livres.find((livre) => livre.especie === especieQueFalta) ?? livres[0]
+    if (!animal) break
+    fotos[posicao] = animal
+    livres.splice(livres.indexOf(animal), 1)
   }
-  return escolhidos
+  return fotos.filter((animal) => animal !== undefined)
 }

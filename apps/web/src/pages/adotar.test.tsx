@@ -48,11 +48,13 @@ let respostaPost: RespostaPost
 let corposEnviados: unknown[]
 
 let leiturasDaFicha = 0
+let leiturasComMarca = 0
 
 /** API simulada. Depois de um pedido aceito, a ficha passa a vir "em análise", como na real. */
 function simular(ficha: AnimalFicha = GATA) {
   corposEnviados = []
   leiturasDaFicha = 0
+  leiturasComMarca = 0
   let fichaAtual = ficha
   vi.stubGlobal(
     'fetch',
@@ -62,7 +64,9 @@ function simular(ficha: AnimalFicha = GATA) {
         if (respostaPost.status === 201) fichaAtual = { ...ficha, status: 'em_analise' }
         return Promise.resolve(Response.json(respostaPost.corpo, { status: respostaPost.status }))
       }
-      const caminho = url.replace(/^.*\/api/, '')
+      // A marca de "acabou de mudar" (?v=, publico.ts) não muda a resposta
+      if (/[?&]v=\d+$/.test(url)) leiturasComMarca += 1
+      const caminho = url.replace(/^.*\/api/, '').replace(/[?&]v=\d+$/, '')
       if (caminho === `/publico/animais/${ficha.id}`) leiturasDaFicha += 1
       const respostas: Record<string, unknown> = {
         ...API_PADRAO,
@@ -78,6 +82,7 @@ function simular(ficha: AnimalFicha = GATA) {
 }
 
 beforeEach(() => {
+  localStorage.clear()
   respostaPost = { status: 201, corpo: { recebido: true, animal: 'Mel' } }
 })
 
@@ -168,10 +173,12 @@ describe('Formulário de adoção (T26)', { timeout: 20_000 }, () => {
     await user.click(screen.getByRole('button', { name: 'Enviar pedido de adoção' }))
 
     expect(await screen.findByText('Recebemos seu pedido para adotar Mel!')).toBeInTheDocument()
-    // A ficha é recarregada (agora "em análise") e a confirmação continua na tela
+    // A ficha é recarregada (agora "em análise") e a confirmação continua na tela. A nova
+    // leitura leva a marca, para o navegador não devolver a cópia guardada com o animal no site
     await waitFor(() => {
       expect(leiturasDaFicha).toBeGreaterThan(1)
     })
+    expect(leiturasComMarca).toBeGreaterThan(0)
     expect(screen.getByText('Recebemos seu pedido para adotar Mel!')).toBeInTheDocument()
     expect(screen.queryByText('Mel está em processo de adoção')).not.toBeInTheDocument()
     expect(screen.getByText(/combinar onde você busca Mel/)).toBeInTheDocument()

@@ -2,9 +2,11 @@
 // Toda chave começa com 'admin': depois de qualquer alteração, `atualizarAdmin` recarrega tudo.
 import { keepPreviousData, useQuery, type QueryClient } from '@tanstack/react-query'
 import type {
+  AdotanteDetalhe,
   AnimalAdmin,
   ConteudoAdmin,
   FiltroAnimaisAdmin,
+  ListaAdotantes,
   ListaAnimaisAdmin,
   ListaPedidos,
   ListaProtetores,
@@ -110,6 +112,31 @@ export function usePerdidoAdmin(id: string | undefined) {
   return useQuery({
     queryKey: ['admin', 'perdidos', 'um', id],
     queryFn: () => chamarAdmin<PerdidoAdmin>('GET', `/perdidos/${encodeURIComponent(id ?? '')}`),
+    enabled: Boolean(id),
+    // Formulário aberto: não recarregar sozinho por cima do que a pessoa está digitando
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    retry: tentarDeNovo,
+  })
+}
+
+/** Quem adotou (T30): busca por parte do nome ou do WhatsApp (RN53). */
+export function useAdotantes(busca: string) {
+  const query = busca ? `?busca=${encodeURIComponent(busca)}` : ''
+  return useQuery({
+    queryKey: ['admin', 'adotantes', 'lista', busca],
+    queryFn: () => chamarAdmin<ListaAdotantes>('GET', `/adotantes${query}`),
+    placeholderData: keepPreviousData,
+    retry: tentarDeNovo,
+  })
+}
+
+/** Ficha de quem adotou, com o histórico (T31). */
+export function useAdotante(id: string | undefined) {
+  return useQuery({
+    queryKey: ['admin', 'adotantes', 'um', id],
+    queryFn: () =>
+      chamarAdmin<AdotanteDetalhe>('GET', `/adotantes/${encodeURIComponent(id ?? '')}`),
     enabled: Boolean(id),
     // Formulário aberto: não recarregar sozinho por cima do que a pessoa está digitando
     staleTime: Infinity,

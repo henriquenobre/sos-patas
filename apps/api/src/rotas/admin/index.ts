@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import type { UsuariaLogada } from '@sospatas/compartilhado'
 import type { ConfigApp } from '../../dependencias'
 import { emailSemLogin } from '../../middleware/access'
+import { rotasAdotantesAdmin } from './adotantes'
 import { rotasAnimaisAdmin } from './animais'
 import { rotasConteudoAdmin } from './conteudo'
 import { rotasOngAdmin } from './ong'
@@ -26,3 +27,4 @@ rotasAdmin.route('/', rotasPedidosAdmin)
 rotasAdmin.route('/', rotasPerdidosAdmin)
 rotasAdmin.route('/', rotasConteudoAdmin)
 rotasAdmin.route('/', rotasOngAdmin)
+rotasAdmin.route('/', rotasAdotantesAdmin)

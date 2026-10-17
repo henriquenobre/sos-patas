@@ -3,6 +3,7 @@
 import { and, asc, desc, eq, gt, inArray, lt, lte, sql, type SQL } from 'drizzle-orm'
 import {
   MAX_DESTAQUES,
+  MAX_DESTAQUES_INICIO,
   DIAS_PARA_DESTAQUE,
   NOMES_LISTA,
   ROTULOS,
@@ -37,9 +38,13 @@ type LinhaSite = {
     texto: string
     foto_path: string | null
   }[]
+  chamada: (string | null)[]
 }
 
-/** Dados da ONG, textos e itens numa consulta só (poupa o banco, ARQUITETURA 11.2). */
+/**
+ * Dados da ONG, textos, itens e os animais escolhidos para a chamada (RN54) numa consulta só
+ * (poupa o banco, ARQUITETURA 11.2).
+ */
 export async function buscarSite(db: Db, env: Env): Promise<SitePublico> {
   const [linha] = await db.execute<{ site: LinhaSite }>(sql`
     SELECT json_build_object(
@@ -52,7 +57,12 @@ export async function buscarSite(db: Db, env: Env): Promise<SitePublico> {
       'itens', (SELECT coalesce(json_agg(json_build_object(
                   'id', id, 'lista', lista, 'titulo', titulo, 'texto', texto, 'foto_path', foto_path)
                   ORDER BY lista, ordem), '[]'::json)
-                FROM conteudo_itens)
+                FROM conteudo_itens),
+      'chamada', (SELECT json_agg(
+                    (SELECT id FROM animais
+                     WHERE destaque_inicio = posicao AND status = 'disponivel')
+                    ORDER BY posicao)
+                  FROM generate_series(1, ${sql.raw(String(MAX_DESTAQUES_INICIO))}) AS posicao)
     ) AS site`)
 
   const site = linha?.site
@@ -70,7 +80,7 @@ export async function buscarSite(db: Db, env: Env): Promise<SitePublico> {
     })
   }
 
-  return { ong: site.ong, textos: site.textos, listas }
+  return { ong: site.ong, textos: site.textos, listas, chamada: site.chamada }
 }
 
 // ---------------------------------------------------------------------------

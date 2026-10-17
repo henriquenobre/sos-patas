@@ -54,7 +54,8 @@ const DETALHE: PedidoDetalhe = {
   bairro_cidade: 'Centro, Passos',
   animal: ANIMAL,
   whatsapp: '35988887777',
-  versao_formulario: '1.2',
+  versao_formulario: '1.3',
+  adotante_cadastrado: null,
   respostas: {
     maior_idade: 'sim',
     instagram_facebook: null,
@@ -120,6 +121,17 @@ describe('Pedidos de adoção (T27)', () => {
     const item = await screen.findByRole('link', { name: /Fernanda Lima/ })
     expect(item).not.toHaveClass('ring-vermelho')
     expect(chamadas(fetchFalso, 'GET', '/admin/pedidos?status=aprovado')).toHaveLength(1)
+  })
+
+  it('na aba Recusados, o pedido aprovado que não virou adoção (ou foi devolvido) diz "Não concluído"', async () => {
+    simularApi({
+      ...API_ADMIN,
+      '/admin/pedidos?status=pendente': { pedidos: [] },
+      '/admin/pedidos?status=recusado': { pedidos: [{ ...RECENTE, status: 'nao_concluido' }] },
+    })
+    renderizarEm('/admin/pedidos?aba=recusado')
+    const item = await screen.findByRole('link', { name: /Fernanda Lima/ })
+    expect(item).toHaveTextContent('Não concluído')
   })
 })
 
@@ -233,6 +245,38 @@ describe('Análise do pedido (T28)', () => {
     expect(screen.getByText('⚠️ Pontos para conversar').closest('section')).toHaveClass(
       'print:hidden',
     )
+  })
+
+  it('impressão de pedido antigo (formulário 1.2) traz o consentimento que a pessoa viu (RN15)', async () => {
+    simularApi({ ...API_ADMIN, '/admin/pedidos/p1': { ...DETALHE, versao_formulario: '1.2' } })
+    renderizarEm('/admin/pedidos/p1')
+    expect(await screen.findByText(/serão apagados em até 90 dias/)).toBeInTheDocument()
+  })
+
+  it('quem já adotou antes: aviso com as adoções, a devolução e a observação (RN53)', async () => {
+    simularApi({
+      ...API_ADMIN,
+      '/admin/pedidos/p1': {
+        ...DETALHE,
+        adotante_cadastrado: {
+          id: 'ad1',
+          nome: 'Fernanda Lima',
+          whatsapp: '35988887777',
+          bairro_cidade: 'Centro, Passos',
+          observacoes: 'Devolveu o Rex: pouco tempo para passear.',
+          adocoes: 2,
+          devolucoes: 1,
+          ultima_adocao: '2025-03-01',
+        },
+      },
+    })
+    renderizarEm('/admin/pedidos/p1')
+    const aviso = (await screen.findByText('🏠 Esta pessoa já está no cadastro')).closest('section')
+    expect(aviso).toHaveTextContent('2 adoções · 1 devolução')
+    expect(aviso).toHaveTextContent('Devolveu o Rex: pouco tempo para passear.')
+    expect(
+      within(aviso as HTMLElement).getByRole('link', { name: 'Ver o histórico' }),
+    ).toHaveAttribute('href', '/admin/adotantes/ad1')
   })
 
   it('salva a observação interna', async () => {

@@ -1,9 +1,16 @@
-// Formulário de adoção, versão 1.2 (docs/formulario/FORMULARIO_ADOCAO.md): a 1.1 aprovada pela
-// ONG em 08/10/2026, com a pergunta 19 obrigatória (09/10/2026). Textos iguais aos do documento.
+// Formulário de adoção, versão 1.3 (docs/formulario/FORMULARIO_ADOCAO.md): a 1.1 aprovada pela
+// ONG em 08/10/2026, com a pergunta 19 obrigatória (1.2, 09/10/2026) e o consentimento sem prazo
+// de guarda (1.3, 17/10/2026, RN15). Textos iguais aos do documento.
 // Mudou uma pergunta: criar a versão seguinte, sem apagar esta (os pedidos antigos continuam
 // sendo lidos com a versão deles).
 
-export const VERSAO_FORMULARIO = '1.2'
+export const VERSAO_FORMULARIO = '1.3'
+
+/**
+ * Versões cujo consentimento prometia apagar os dados em até 90 dias: esses pedidos continuam
+ * sendo apagados nesse prazo pela tarefa diária (RN15).
+ */
+export const VERSOES_FORMULARIO_COM_PRAZO = ['1.0', '1.1', '1.2'] as const
 
 /** Opções de cada pergunta de escolha: valor guardado → texto mostrado. */
 export const OPCOES = {
@@ -143,5 +150,17 @@ export const DECLARACOES = [
   'Aceito o acompanhamento pelo WhatsApp e permito a visita de quem doou para conferir as condições do animal.',
   'Entendo que preencher o formulário não garante a adoção. O pedido será analisado pela equipe ou pelo protetor responsável.',
   'Declaro que as informações são verdadeiras.',
-  'Autorizo o uso dos meus dados apenas para a análise desta adoção. Se a adoção não for aprovada, eles serão apagados em até 90 dias (LGPD).',
+  'Autorizo a SOS Patas a guardar meus dados para analisar esta adoção e para consulta da equipe em adoções futuras. Só a equipe da ONG tem acesso a eles (LGPD).',
 ] as const
+
+/** Consentimento LGPD das versões 1.0 a 1.2, com prazo de 90 dias (para imprimir pedidos antigos). */
+const CONSENTIMENTO_COM_PRAZO =
+  'Autorizo o uso dos meus dados apenas para a análise desta adoção. Se a adoção não for aprovada, eles serão apagados em até 90 dias (LGPD).'
+
+/** As declarações como a pessoa viu, pela versão do formulário do pedido. */
+export function declaracoesDaVersao(versao: string): readonly string[] {
+  const comPrazo: readonly string[] = VERSOES_FORMULARIO_COM_PRAZO
+  return comPrazo.includes(versao)
+    ? [...DECLARACOES.slice(0, -1), CONSENTIMENTO_COM_PRAZO]
+    : DECLARACOES
+}

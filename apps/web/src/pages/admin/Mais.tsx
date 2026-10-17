@@ -1,5 +1,5 @@
-// Aba "Mais" da área da ONG: T22 (lista de atalhos), T23 Dados da ONG (contatos e PIX, RN51)
-// e T24 Protetores parceiros (RN42). "Alterado por… em…" nas edições (RN43).
+// Aba "Mais" da área da ONG: T22 (lista de atalhos, com "Quem adotou", T30), T23 Dados da ONG
+// (contatos e PIX, RN51) e T24 Protetores parceiros (RN42). "Alterado por… em…" nas edições (RN43).
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
@@ -89,6 +89,12 @@ export function Mais() {
           titulo="Dados da ONG"
           detalhe="E-mail, WhatsApp, Instagram, Facebook e PIX"
           para="/admin/ong"
+        />
+        <Atalho
+          icone="🏠"
+          titulo="Quem adotou"
+          detalhe="Cadastro de quem já adotou, com o histórico e as observações da equipe"
+          para="/admin/adotantes"
         />
         <Atalho
           icone="🤝"

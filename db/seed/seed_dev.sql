@@ -1,9 +1,10 @@
 -- Dados de exemplo SÓ PARA DESENVOLVIMENTO: animais, protetores e anúncios do protótipo
--- (todos fictícios: nenhum está de fato para adoção). Apaga animais, protetores e anúncios antes de inserir.
+-- (todos fictícios: nenhum está de fato para adoção). Apaga animais, protetores, anúncios e o cadastro
+-- de quem adotou antes de inserir.
 -- O script `pnpm db:seed` recusa rodar este arquivo fora do banco local.
 BEGIN;
 
-TRUNCATE animais, protetores, perdidos CASCADE;
+TRUNCATE animais, protetores, perdidos, adotantes CASCADE;
 
 -- Usuária de teste: o mesmo e-mail do modo local do login (apps/api/.dev.vars, etapa 4)
 INSERT INTO equipe (email, nome) VALUES ('teste@sospatas.local', 'Teste')
@@ -53,16 +54,27 @@ INSERT INTO animais (id, nome, especie, sexo, nascimento_aprox, porte, castrado,
    'Filhotinha peluda e dengosa, vai ficar de porte pequeno.',
    'adotado', CURRENT_DATE - 40, CURRENT_DATE - 3, 'ong', NULL);
 
-INSERT INTO animais_privado (animal_id, lar_nome, lar_tipo, observacoes, adotante_nome, adotante_whatsapp) VALUES
-  ('f54bdcb5-4168-52e2-b923-65299a38e8a1', 'Lar da Fernanda (Centro)', 'remunerado', 'Toma vermífugo a cada 3 meses.', NULL, NULL),
-  ('68b92405-09e5-5dec-8914-9b7ed6a13f1d', 'Lar do Sr. José (Bela Vista)', 'provisorio', '', NULL, NULL),
-  ('9224776e-b672-519f-b62d-ec936daed230', 'Casa da Ana Paula', 'provisorio', '', NULL, NULL),
-  ('07088da1-ffe5-5b04-8347-1d81d2f025c6', 'Lar da Claudia', 'provisorio', '', NULL, NULL),
-  ('8e984277-dd04-5732-a0eb-70013e93d24f', 'Lar remunerado (Dona Lúcia)', 'remunerado', 'Reativo com outros machos.', NULL, NULL),
-  ('7acb4867-5521-59cf-8af1-b6385197048a', 'Lar da Gracia', 'provisorio', '', NULL, NULL),
-  ('5907636f-6053-58ef-9357-aa39c82b468e', 'Lar da Claudia', 'provisorio', 'Ninhada de 4.', NULL, NULL),
-  ('1df546d9-1045-56f7-8b21-64fd7049901f', 'Lar da Claudia', 'provisorio', '', NULL, NULL),
-  ('c69cd68c-6f5e-5cce-aca9-e4fe7ddd4b47', 'Lar da Gracia', 'provisorio', '', 'Fernanda', '35900000010');
+INSERT INTO animais_privado (animal_id, lar_nome, lar_tipo, observacoes) VALUES
+  ('f54bdcb5-4168-52e2-b923-65299a38e8a1', 'Lar da Fernanda (Centro)', 'remunerado', 'Toma vermífugo a cada 3 meses.'),
+  ('68b92405-09e5-5dec-8914-9b7ed6a13f1d', 'Lar do Sr. José (Bela Vista)', 'provisorio', ''),
+  ('9224776e-b672-519f-b62d-ec936daed230', 'Casa da Ana Paula', 'provisorio', ''),
+  ('07088da1-ffe5-5b04-8347-1d81d2f025c6', 'Lar da Claudia', 'provisorio', ''),
+  ('8e984277-dd04-5732-a0eb-70013e93d24f', 'Lar remunerado (Dona Lúcia)', 'remunerado', 'Reativo com outros machos.'),
+  ('7acb4867-5521-59cf-8af1-b6385197048a', 'Lar da Gracia', 'provisorio', ''),
+  ('5907636f-6053-58ef-9357-aa39c82b468e', 'Lar da Claudia', 'provisorio', 'Ninhada de 4.'),
+  ('1df546d9-1045-56f7-8b21-64fd7049901f', 'Lar da Claudia', 'provisorio', ''),
+  ('c69cd68c-6f5e-5cce-aca9-e4fe7ddd4b47', 'Lar da Gracia', 'provisorio', '');
+
+-- Cadastro de quem adotou (RN53): a Fernanda adotou a Bolinha pelo site; o Marcos adotou
+-- numa feira, antes do site (adoção registrada à mão), e devolveu o animal
+INSERT INTO adotantes (id, nome, whatsapp, bairro_cidade, observacoes) VALUES
+  ('3f1c2a6e-8d4b-5c1e-9a7f-2b6d4e8c1a01', 'Fernanda', '35900000010', 'Centro, Passos', ''),
+  ('3f1c2a6e-8d4b-5c1e-9a7f-2b6d4e8c1a02', 'Marcos Lima', '35900000011', 'Bela Vista, Passos',
+   'Devolveu o Rex depois de 2 meses: não tinha tempo para passear. Conversar sobre a rotina antes de outra adoção.');
+
+INSERT INTO adocoes (adotante_id, animal_id, animal_nome, data_adocao, data_devolucao) VALUES
+  ('3f1c2a6e-8d4b-5c1e-9a7f-2b6d4e8c1a01', 'c69cd68c-6f5e-5cce-aca9-e4fe7ddd4b47', 'Bolinha', CURRENT_DATE - 3, NULL),
+  ('3f1c2a6e-8d4b-5c1e-9a7f-2b6d4e8c1a02', NULL, 'Rex', CURRENT_DATE - 400, CURRENT_DATE - 340);
 
 -- Anúncios: p1 enviado pelo site e aprovado, p2 criado pela equipe (RN39), p3 aguardando moderação
 INSERT INTO perdidos (id, tipo, especie, nome, bairro, data_ocorrido, descricao, contato_nome, contato_whatsapp,

@@ -77,9 +77,12 @@ export const animalEntrada = z
 export type AnimalEntrada = z.input<typeof animalEntrada>
 export type AnimalDados = z.output<typeof animalEntrada>
 
-/** "Marcar como adotado": nome e WhatsApp de quem adotou, só para a equipe (RN30). */
+/**
+ * "Marcar como adotado": nome e WhatsApp de quem adotou, só para a equipe (RN30). A pessoa entra
+ * no cadastro de quem adotou (RN53), achada pelo WhatsApp se já estiver lá.
+ */
 export const adocaoEntrada = z.object({
-  adotante_nome: textoObrigatorio(P.adotante_nome),
+  adotante_nome: textoObrigatorio(LIMITES.adotantes.nome),
   adotante_whatsapp: whatsapp,
 })
 

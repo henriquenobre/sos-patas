@@ -1,5 +1,5 @@
 // Pedidos de adoção (RN14, RN15, RN47–RN50): envio pelo site e análise pela equipe.
-import { and, count, desc, eq, gt, sql } from 'drizzle-orm'
+import { and, count, desc, eq, gt, inArray, sql } from 'drizzle-orm'
 import {
   MAX_PEDIDOS_POR_DIA_POR_IP,
   VERSAO_FORMULARIO,
@@ -15,6 +15,7 @@ import { animais, equipe, fotos, pedidosAdocao, protetores } from '@sospatas/db'
 import type { Db } from '../db'
 import type { Usuaria } from '../dependencias'
 import { ErroApi, codigoPostgres, erros } from '../erros'
+import { adotantePorWhatsapp } from './adotantes'
 import { urlFoto } from './fotos'
 
 /** Rotas públicas afetadas quando um animal entra ou sai do site (para limpar o cache). */
@@ -195,8 +196,10 @@ export async function listarPedidos(
   env: Env,
   status: PedidoStatus,
 ): Promise<PedidoResumo[]> {
+  // A aba "Recusados" (T27) mostra também os aprovados que não viraram adoção ou foram devolvidos
+  const situacoes: PedidoStatus[] = status === 'recusado' ? ['recusado', 'nao_concluido'] : [status]
   const linhas = await consultaPedidos(db)
-    .where(eq(pedidosAdocao.status, status))
+    .where(inArray(pedidosAdocao.status, situacoes))
     .orderBy(status === 'pendente' ? pedidosAdocao.created_at : desc(pedidosAdocao.created_at))
   return linhas.map((linha) => {
     const { resumo, alertas } = montarResumo(env, linha)
@@ -234,6 +237,7 @@ export async function buscarPedido(db: Db, env: Env, id: string): Promise<Pedido
   const { resumo, alertas } = montarResumo(env, linha)
   return {
     ...resumo,
+    adotante_cadastrado: await adotantePorWhatsapp(db, linha.whatsapp),
     whatsapp: linha.whatsapp,
     versao_formulario: linha.versao_formulario,
     respostas: linha.respostas,

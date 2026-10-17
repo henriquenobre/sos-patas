@@ -2,10 +2,11 @@
 // campo e de cada lista vêm de @sospatas/compartilhado (conteudo.ts), os mesmos do banco.
 // Fotos da história (RN38): o navegador manda a miniatura e a completa em WebP; ficam em
 // site/historia/{foto_id}.webp e -thumb.webp. Trocar a foto cria arquivos novos (cache de 1 ano).
-import { and, asc, eq, gt, inArray, sql } from 'drizzle-orm'
+import { and, asc, eq, gt, inArray, isNotNull, sql } from 'drizzle-orm'
 import {
   CHAVES_TEXTO,
   LISTAS,
+  MAX_DESTAQUES_INICIO,
   NOMES_LISTA,
   type ChaveTexto,
   type ConteudoAdmin,
@@ -13,7 +14,7 @@ import {
   type NomeLista,
   type TextoAdmin,
 } from '@sospatas/compartilhado'
-import { conteudoItens, conteudoTextos, equipe } from '@sospatas/db'
+import { animais, conteudoItens, conteudoTextos, equipe, fotos } from '@sospatas/db'
 import { TIPO_WEBP, conferirFotoWebp } from '../armazenamento/webp'
 import type { Armazenamento } from '../armazenamento/tipos'
 import type { Db } from '../db'
@@ -103,7 +104,7 @@ const itemAdmin = (env: Env, linha: LinhaItem): ItemAdmin => ({
 
 /** Tudo de uma vez: são poucos textos e itens, e as telas T15–T20 usam quase tudo. */
 export async function buscarConteudoAdmin(db: Db, env: Env): Promise<ConteudoAdmin> {
-  const [textos, itens] = await Promise.all([
+  const [textos, itens, chamada] = await Promise.all([
     db
       .select({
         chave: conteudoTextos.chave,
@@ -118,6 +119,7 @@ export async function buscarConteudoAdmin(db: Db, env: Env): Promise<ConteudoAdm
       .from(conteudoItens)
       .leftJoin(equipe, eq(equipe.id, conteudoItens.updated_by))
       .orderBy(asc(conteudoItens.lista), asc(conteudoItens.ordem)),
+    buscarChamada(db),
   ])
 
   const porChave = new Map(textos.map((linha) => [linha.chave, linha]))
@@ -142,7 +144,7 @@ export async function buscarConteudoAdmin(db: Db, env: Env): Promise<ConteudoAdm
   >
   for (const linha of itens) listas[linha.lista].push(itemAdmin(env, linha))
 
-  return { textos: textosAdmin, listas }
+  return { textos: textosAdmin, listas, chamada }
 }
 
 async function buscarItem(db: Db | Tx, env: Env, id: string): Promise<ItemAdmin> {
@@ -409,4 +411,58 @@ export async function trocarFotoItem(
   }
   if (antiga) await apagarSemFalhar(armazenamento, caminhosDaFoto(antiga))
   return buscarItem(db, env, id)
+}
+
+// ---------------------------------------------------------------------------
+// Animais da chamada do Início (RN54)
+// ---------------------------------------------------------------------------
+/** Fotos 1 e 2 da chamada: o animal disponível escolhido para cada uma, ou null (automático). */
+async function buscarChamada(db: Db | Tx): Promise<(string | null)[]> {
+  const linhas = await db
+    .select({ id: animais.id, posicao: animais.destaque_inicio })
+    .from(animais)
+    .where(and(isNotNull(animais.destaque_inicio), eq(animais.status, 'disponivel')))
+  return Array.from(
+    { length: MAX_DESTAQUES_INICIO },
+    (_, indice) => linhas.find((linha) => linha.posicao === indice + 1)?.id ?? null,
+  )
+}
+
+/**
+ * Troca os animais da chamada. Só aceita animal disponível e com foto, porque a chamada mostra
+ * a foto. Não muda o "Alterado por" do animal: a escolha é da página inicial, não do cadastro.
+ */
+export async function salvarChamada(db: Db, ids: (string | null)[]): Promise<(string | null)[]> {
+  const escolhidos = ids.filter((id) => id !== null)
+  return db.transaction(async (tx) => {
+    if (escolhidos.length > 0) {
+      const encontrados = await tx
+        .select({ id: animais.id, nome: animais.nome, status: animais.status, foto: fotos.id })
+        .from(animais)
+        .leftJoin(fotos, and(eq(fotos.animal_id, animais.id), eq(fotos.ordem, 0)))
+        .where(inArray(animais.id, escolhidos))
+      for (const id of escolhidos) {
+        const animal = encontrados.find((linha) => linha.id === id)
+        if (!animal) {
+          throw erros.conflito('Um dos animais foi excluído. Atualize a página e escolha de novo.')
+        }
+        if (animal.status !== 'disponivel') {
+          throw erros.conflito(`${animal.nome} não está mais disponível. Escolha outro animal.`)
+        }
+        if (!animal.foto) {
+          throw erros.conflito(`${animal.nome} ainda não tem foto. Escolha outro animal.`)
+        }
+      }
+    }
+    // Duas etapas: limpar antes de gravar, para trocar as posições sem bater no índice único
+    await tx.execute(
+      sql`UPDATE animais SET destaque_inicio = NULL WHERE destaque_inicio IS NOT NULL`,
+    )
+    for (const [indice, id] of ids.entries()) {
+      if (id) {
+        await tx.execute(sql`UPDATE animais SET destaque_inicio = ${indice + 1} WHERE id = ${id}`)
+      }
+    }
+    return buscarChamada(tx)
+  })
 }

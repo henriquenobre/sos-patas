@@ -16,6 +16,7 @@ O repositório tem três partes: **aplicação** (código do site), **documenta�
 | [docs/ARQUITETURA.md](docs/ARQUITETURA.md) | Como o site é construído e hospedado: Cloudflare Pages + Workers (Hono) + Neon + R2 + Access, API, deploy, backup e migração para VPS |
 | [docs/PLANO_DESENVOLVIMENTO.md](docs/PLANO_DESENVOLVIMENTO.md) | Ordem de construção do site em etapas (0 a 15), com o que conta como pronto e o painel de status |
 | [docs/LINHA_DO_TEMPO.md](docs/LINHA_DO_TEMPO.md) | Datas reais de cada fase e etapa, da concepção à entrega (RP04) |
+| [docs/APRENDIZADOS.md](docs/APRENDIZADOS.md) | Aprendizados do projeto (o que fazer diferente no próximo). Documento vivo |
 | [docs/formulario/](docs/formulario/) | Formulário de interesse em adoção e termo de adoção (`gerar_pdf.py` gera os PDFs) |
 | **Protótipo** | |
 | [prototipo/TELAS.md](prototipo/TELAS.md) | Especificação de cada tela (T01…), componentes, identidade visual, perguntas para a ONG |

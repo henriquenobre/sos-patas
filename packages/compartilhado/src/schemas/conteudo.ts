@@ -9,7 +9,7 @@ import {
   type ConfigLista,
   type NomeLista,
 } from '../conteudo'
-import { LIMITES } from '../limites'
+import { LIMITES, MAX_DESTAQUES_INICIO } from '../limites'
 import { email, opcao, textoObrigatorio, textoOpcional, textoOuNulo, whatsapp } from './comuns'
 
 /** Schema do texto de uma chave, com o limite e a obrigatoriedade dela. */
@@ -47,6 +47,22 @@ export const trocarOrdemEntrada = z.object({
     error: 'Informe os dois itens',
   }),
 })
+
+/** RN54: animal das fotos 1 e 2 da chamada do Início; null = automático. */
+export const chamadaEntrada = z.object({
+  animais: z
+    .array(z.uuid('Animal inválido').nullable(), { error: 'Escolha os animais' })
+    .length(MAX_DESTAQUES_INICIO, 'Informe as duas fotos')
+    .refine(
+      (ids) => {
+        const escolhidos = ids.filter((id) => id !== null)
+        return new Set(escolhidos).size === escolhidos.length
+      },
+      { message: 'Escolha um animal diferente para cada foto' },
+    ),
+})
+
+export type ChamadaEntrada = z.input<typeof chamadaEntrada>
 
 const L = LIMITES.ong
 
