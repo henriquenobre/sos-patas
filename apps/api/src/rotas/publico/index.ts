@@ -10,7 +10,7 @@ import {
   type ListaPerdidos,
   type SitePublico,
 } from '@sospatas/compartilhado'
-import { SEGUNDOS_CACHE_FOTO, comCache, urlSemQuery } from '../../cache'
+import { SEGUNDOS_CACHE_FOTO, comCache, comCacheFiltrado } from '../../cache'
 import type { ConfigApp } from '../../dependencias'
 import { erros } from '../../erros'
 import { ehCaminhoFotoPublica } from '../../servicos/fotos'
@@ -20,6 +20,7 @@ import {
   buscarPerdidos,
   buscarSite,
   buscarVitrine,
+  filtrarVitrine,
 } from '../../servicos/publico'
 import { validar } from '../../validacao'
 import { rotasContato } from './contato'
@@ -28,16 +29,9 @@ import { rotasPerdidosPublicos } from './perdidos'
 
 export const rotasPublicas = new Hono<ConfigApp>()
 
-/** Endereço com os filtros válidos em ordem fixa: a mesma busca usa a mesma cópia do cache. */
-function chaveComFiltros(base: string, filtros: Record<string, string | undefined>): string {
-  const params = new URLSearchParams()
-  for (const nome of Object.keys(filtros).sort()) {
-    const valor = filtros[nome]
-    if (valor) params.set(nome, valor)
-  }
-  const query = params.toString()
-  return query ? `${base}?${query}` : base
-}
+/** Algum chip de filtro ligado? Sem nenhum, a resposta é a própria lista guardada. */
+const temFiltro = (filtro: Record<string, string | undefined>) =>
+  Object.values(filtro).some(Boolean)
 
 rotasPublicas.get('/site', (c) =>
   comCache(c, async () => c.json<SitePublico>(await buscarSite(c.var.db, c.env))),
@@ -45,10 +39,10 @@ rotasPublicas.get('/site', (c) =>
 
 rotasPublicas.get('/animais', (c) => {
   const filtro = validar(filtroVitrine, c.req.query())
-  return comCache(
+  return comCacheFiltrado<ListaAnimais>(
     c,
-    async () => c.json<ListaAnimais>({ animais: await buscarVitrine(c.var.db, c.env, filtro) }),
-    { chave: chaveComFiltros(urlSemQuery(c), filtro) },
+    async () => c.json<ListaAnimais>({ animais: await buscarVitrine(c.var.db, c.env) }),
+    temFiltro(filtro) ? ({ animais }) => ({ animais: filtrarVitrine(animais, filtro) }) : null,
   )
 })
 
@@ -67,10 +61,12 @@ rotasPublicas.get('/animais/:id', (c) =>
 
 rotasPublicas.get('/perdidos', (c) => {
   const filtro = validar(filtroPerdidos, c.req.query())
-  return comCache(
+  return comCacheFiltrado<ListaPerdidos>(
     c,
-    async () => c.json<ListaPerdidos>({ perdidos: await buscarPerdidos(c.var.db, c.env, filtro) }),
-    { chave: chaveComFiltros(urlSemQuery(c), filtro) },
+    async () => c.json<ListaPerdidos>({ perdidos: await buscarPerdidos(c.var.db, c.env) }),
+    filtro.tipo
+      ? ({ perdidos }) => ({ perdidos: perdidos.filter((anuncio) => anuncio.tipo === filtro.tipo) })
+      : null,
   )
 })
 

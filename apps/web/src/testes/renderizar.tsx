@@ -119,6 +119,7 @@ export const DESTAQUES_TESTE: ListaAnimais = {
       porte: 'medio',
       data_entrada: '2024-08-01',
       responsavel_tipo: 'ong',
+      convive_animais: null,
       foto: null,
     },
     {
@@ -130,6 +131,7 @@ export const DESTAQUES_TESTE: ListaAnimais = {
       porte: 'pequeno',
       data_entrada: '2025-12-01',
       responsavel_tipo: 'protetor',
+      convive_animais: null,
       foto: '/api/publico/fotos/animais/a2/f1-thumb.webp',
     },
   ],

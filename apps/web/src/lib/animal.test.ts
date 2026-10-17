@@ -12,6 +12,7 @@ const animal = (nome: string, especie: AnimalResumo['especie'], foto = true): An
   porte: 'medio',
   data_entrada: '2026-01-01',
   responsavel_tipo: 'ong',
+  convive_animais: null,
   foto: foto ? `https://fotos/${nome}.webp` : null,
 })
 
