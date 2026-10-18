@@ -40,13 +40,7 @@ export function FotoAnimal({
   )
 }
 
-export function CardAnimal({
-  animal,
-  hoje,
-}: {
-  animal: AnimalResumo
-  hoje: string
-}) {
+export function CardAnimal({ animal, hoje }: { animal: AnimalResumo; hoje: string }) {
   return (
     <Link
       to={`/animais/${animal.id}`}
