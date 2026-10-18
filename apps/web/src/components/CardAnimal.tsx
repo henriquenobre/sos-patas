@@ -1,13 +1,7 @@
 // Card da vitrine e do "Esperando há mais tempo" (T01, T02). Usa só a miniatura (RN03).
 import { useState } from 'react'
 import { Link } from 'react-router'
-import {
-  ROTULOS,
-  diasEsperando,
-  textoEspera,
-  textoIdade,
-  type AnimalResumo,
-} from '@sospatas/compartilhado'
+import { ROTULOS, textoIdade, type AnimalResumo } from '@sospatas/compartilhado'
 import { textoAlternativo } from '../lib/animal'
 import { IconePata } from './Icones'
 
@@ -46,15 +40,7 @@ export function FotoAnimal({
   )
 }
 
-export function CardAnimal({
-  animal,
-  hoje,
-  destaque = false,
-}: {
-  animal: AnimalResumo
-  hoje: string
-  destaque?: boolean
-}) {
+export function CardAnimal({ animal, hoje }: { animal: AnimalResumo; hoje: string }) {
   return (
     <Link
       to={`/animais/${animal.id}`}
@@ -66,11 +52,6 @@ export function CardAnimal({
           alt={textoAlternativo(animal)}
           className="transition group-hover:scale-105"
         />
-        {destaque && (
-          <span className="absolute left-2 top-2 rounded-full bg-vermelho px-2.5 py-1 text-[11px] font-extrabold text-white shadow">
-            ⏳ {textoEspera(diasEsperando(animal.data_entrada, hoje))}
-          </span>
-        )}
       </div>
       <div className="p-3">
         <div className="flex items-center justify-between">

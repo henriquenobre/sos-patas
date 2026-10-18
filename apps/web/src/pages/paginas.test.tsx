@@ -21,12 +21,12 @@ describe('Início (T01)', () => {
     expect(within(screen.getByRole('main')).getByText('26.515.895/0001-90')).toBeInTheDocument()
   })
 
-  it('"Esperando há mais tempo" mostra os cards com o tempo de espera e o protetor (RN12)', async () => {
+  it('"Esperando há mais tempo" mostra os cards com o protetor, sem selo de espera na foto (RN12)', async () => {
     simularApi(API_PADRAO)
     renderizarEm('/')
     const tobias = await screen.findByRole('link', { name: /Tobias/ })
     expect(tobias).toHaveAttribute('href', '/animais/a1')
-    expect(within(tobias).getByText(/^⏳/)).toBeInTheDocument()
+    expect(within(tobias).queryByText(/^⏳/)).not.toBeInTheDocument()
     const mel = screen.getByRole('link', { name: /Mel/ })
     expect(within(mel).getByText('Protetor parceiro')).toBeInTheDocument()
     expect(within(mel).getByRole('img', { name: 'Foto da Mel' })).toHaveAttribute(

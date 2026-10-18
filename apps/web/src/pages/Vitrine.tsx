@@ -2,7 +2,7 @@
 // a miniatura (RN03). Os filtros ficam na URL para poder compartilhar a busca.
 import { Fragment } from 'react'
 import { useSearchParams } from 'react-router'
-import { esperandoHaMaisTempo, hojeNoBrasil } from '@sospatas/compartilhado'
+import { hojeNoBrasil } from '@sospatas/compartilhado'
 import { useVitrine } from '../api/publico'
 import { CardAnimal } from '../components/CardAnimal'
 import { Carregando, ErroAoCarregar, TituloPagina } from '../components/Estados'
@@ -117,12 +117,7 @@ export function Vitrine() {
             {animais.length > 0 ? (
               <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
                 {animais.map((animal) => (
-                  <CardAnimal
-                    key={animal.id}
-                    animal={animal}
-                    hoje={hoje}
-                    destaque={esperandoHaMaisTempo({ ...animal, status: 'disponivel' }, hoje)}
-                  />
+                  <CardAnimal key={animal.id} animal={animal} hoje={hoje} />
                 ))}
               </div>
             ) : (

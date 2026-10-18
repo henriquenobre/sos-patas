@@ -43,7 +43,7 @@ Baseada no logo e nos posts do Instagram @sospatas.ong.
 |---|---|---|
 | `Cabecalho` | Todas as páginas públicas | Logo + menu; no celular vira menu sanduíche |
 | `Rodape` | Todas as páginas públicas | Contatos, PIX e link "Área da ONG" |
-| `CardAnimal` | T01, T02 | Miniatura, nome, sexo, idade, porte; selo vermelho "⏳ tempo de espera" para adultos há mais de 90 dias (RN12) |
+| `CardAnimal` | T01, T02 | Miniatura, nome, sexo, idade, porte. Sem selo sobre a foto: o selo vermelho "⏳ tempo de espera" (RN12) foi retirado em 18/10/2026 por pedido do mantenedor (o formato ficou ruim). O tempo de espera continua na ficha (T03) e no painel da equipe (T09) |
 | `FotoAnimal` | Cards, ficha, painel | Sem foto: fundo colorido com pata |
 | `Tag` | Ficha | Pílula colorida (espécie, sexo, idade, porte) |
 | `ChipFiltro` | T02 | Liga/desliga; rolagem horizontal no celular |
