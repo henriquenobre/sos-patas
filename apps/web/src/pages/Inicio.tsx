@@ -129,7 +129,7 @@ function EsperandoHaMaisTempo({ texto, hoje }: { texto: string; hoje: string }) 
       {animais.length > 0 && (
         <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
           {animais.map((animal) => (
-            <CardAnimal key={animal.id} animal={animal} hoje={hoje} destaque />
+            <CardAnimal key={animal.id} animal={animal} hoje={hoje} />
           ))}
         </div>
       )}
