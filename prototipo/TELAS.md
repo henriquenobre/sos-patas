@@ -187,7 +187,7 @@ Contato com a ONG enquanto ela não tem WhatsApp próprio (RN51). Sem print: o p
 - **Enviado:** patinha, "Mensagem enviada!" e "A equipe da SOS Patas é formada por voluntários e responde pelo e-mail que você informou assim que puder.", botão "Ver os animais para adoção".
 - **Falha no envio** (ex.: e-mail fora do ar): aviso em vermelho e o bloco abaixo continua visível.
 - **"Prefere escrever direto?"** (sempre visível): o e-mail da ONG com link que abre o aplicativo de e-mail; o WhatsApp aparece aqui também quando a ONG cadastrar um em T23.
-- **Rodapé do site** (todas as páginas): o contato da ONG passa a ser o **e-mail**, e "Fale com a ONG" entra em "Navegue". O WhatsApp só aparece se estiver preenchido em T23.
+- **Rodapé do site** (todas as páginas): o contato da ONG passa a ser o **e-mail**, e "Fale com a ONG" entra em "Navegue". O WhatsApp só aparece se estiver preenchido em T23. A linha final diz "SOS Patas · Passos/MG · Site desenvolvido por Henrique Nobre", com o nome levando ao LinkedIn do desenvolvedor (desde 19/10/2026; antes era "Projeto de extensão universitária").
 
 ### T12 · Perdidos e encontrados · `/perdidos` · ✅ no site (13/10/2026)
 ![T12](telas/T12-perdidos-celular.png)
