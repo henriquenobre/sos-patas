@@ -95,7 +95,15 @@ export function Rodape() {
         )}
       </div>
       <p className="border-t border-white/10 py-4 text-center text-xs text-white/50">
-        SOS Patas · Passos/MG · Projeto de extensão universitária
+        SOS Patas · Passos/MG · Site desenvolvido por{' '}
+        <a
+          href="https://www.linkedin.com/in/henrique-nobre-segundo/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-white"
+        >
+          Henrique Nobre
+        </a>
       </p>
     </footer>
   )
